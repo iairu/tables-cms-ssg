@@ -1,0 +1,1816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TABLES</title>
+    <!-- shadcn/ui CDN (using Radix UI + Tailwind for demo) -->
+    <link href="https://cdn.jsdelivr.net/npm/@shadcn/ui@latest/dist/shadcn-ui.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.1/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f8fafc;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+        aside.side-menu {
+            width: 260px;
+            background: #fff;
+            border-right: 1px solid #e5e7eb;
+            min-height: 100vh;
+            padding: 2rem 1.5rem;
+        }
+        aside.side-menu h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+        aside.side-menu h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        aside.side-menu a {
+            display: block;
+            padding: 0.4rem 0;
+            color: #334155;
+            text-decoration: none;
+            border-radius: 0.375rem;
+            transition: background 0.15s;
+        }
+        aside.side-menu a:hover {
+            background: #f1f5f9;
+        }
+        aside.side-menu a[hidden] {
+            display: none !important;
+        }
+        aside.side-menu nav.sub-navigation {
+            margin-left: 1.2rem;
+            margin-top: 0.3rem;
+        }
+        main {
+            padding: 2rem 2.5rem;
+            flex: 1 1 0%;
+            display: flex;
+            flex-direction: column;
+        }
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+        }
+        header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        header h1 input {
+            font-size: 1.1rem;
+            border: none;
+            border-bottom: 1px solid #cbd5e1;
+            background: transparent;
+            padding: 0.2rem 0.4rem;
+            margin: 0 0.2rem;
+            outline: none;
+            min-width: 80px;
+        }
+        .adjustment-buttons a {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.4rem 0.9rem;
+            border-radius: 0.375rem;
+            background: #f1f5f9;
+            color: #334155;
+            font-weight: 500;
+            margin-left: 0.5rem;
+            text-decoration: none;
+            transition: background 0.15s;
+        }
+        .adjustment-buttons a.highlighted {
+            background: #2563eb;
+            color: #fff;
+        }
+        /* Table styling */
+        .component-table-container {
+            background: #fff;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 8px 0 #0001;
+            padding: 2rem;
+            max-width: 100%;
+            overflow-x: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        table.component-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        table.component-table th, table.component-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            vertical-align: top;
+        }
+        table.component-table th {
+            background: #f1f5f9;
+            font-weight: 600;
+            text-align: left;
+        }
+        table.component-table tr:last-child td {
+            border-bottom: none;
+        }
+        .drag-handle {
+            cursor: grab;
+            color: #64748b;
+            font-size: 1.2rem;
+            padding-right: 0.5rem;
+            user-select: none;
+        }
+        .dropdown {
+            min-width: 140px;
+        }
+        .add-row-btn, .add-review-btn, .add-article-btn, .add-cat-btn, .add-component-btn, .add-component-field-btn {
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            border-radius: 0.375rem;
+            padding: 0.4rem 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            transition: background 0.15s;
+        }
+        .add-row-btn:hover, .add-review-btn:hover, .add-article-btn:hover, .add-cat-btn:hover, .add-component-btn:hover, .add-component-field-btn:hover {
+            background: #1d4ed8;
+        }
+        .upload-btn {
+            background: #f1f5f9;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.375rem;
+            padding: 0.3rem 0.8rem;
+            font-size: 0.95rem;
+            cursor: pointer;
+            margin-right: 0.5rem;
+        }
+        .remove-row-btn, .remove-review-btn, .remove-article-btn, .remove-cat-btn, .remove-component-btn, .remove-component-field-btn {
+            background: #f87171;
+            color: #fff;
+            border: none;
+            border-radius: 0.375rem;
+            padding: 0.3rem 0.8rem;
+            font-size: 0.95rem;
+            cursor: pointer;
+            margin-left: 0.5rem;
+        }
+        .remove-row-btn:hover, .remove-review-btn:hover, .remove-article-btn:hover, .remove-cat-btn:hover, .remove-component-btn:hover, .remove-component-field-btn:hover {
+            background: #dc2626;
+        }
+        .review-row {
+            background: #f9fafb;
+            border-radius: 0.5rem;
+        }
+        .review-fields {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .review-fields input {
+            min-width: 100px;
+        }
+        /* Article block flex improvements */
+        .article-list {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        .article-block {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            background: #f9fafb;
+            border-radius: 0.5rem;
+            padding: 1.5rem 1rem;
+            position: relative;
+        }
+        .article-block .remove-article-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+        }
+        .blog-year-group {
+            margin-bottom: 2rem;
+        }
+        .blog-month-group {
+            margin-bottom: 1rem;
+        }
+        .blog-article-list {
+            margin-left: 1.5rem;
+        }
+        .blog-article-link {
+            display: block;
+            padding: 0.3rem 0.7rem;
+            border-radius: 0.375rem;
+            color: #334155;
+            text-decoration: none;
+            margin-bottom: 0.2rem;
+            transition: background 0.15s;
+            cursor: pointer;
+        }
+        .blog-article-link:hover, .blog-article-link.active {
+            background: #e0e7ef;
+        }
+        .blog-article-link.active {
+            font-weight: 600;
+            color: #2563eb;
+        }
+        .blog-article-list-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        .blog-article-back-btn {
+            background: #f1f5f9;
+            color: #334155;
+            border: none;
+            border-radius: 0.375rem;
+            padding: 0.3rem 0.8rem;
+            font-size: 0.95rem;
+            cursor: pointer;
+            margin-right: 0.5rem;
+        }
+        .blog-article-back-btn:hover {
+            background: #e0e7ef;
+        }
+        .page-back-btn {
+            background: #f1f5f9;
+            color: #334155;
+            border: none;
+            border-radius: 0.375rem;
+            padding: 0.3rem 0.8rem;
+            font-size: 0.95rem;
+            cursor: pointer;
+            margin-right: 0.5rem;
+        }
+        .page-back-btn:hover {
+            background: #e0e7ef;
+        }
+        .component-fields-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .component-fields-table th, .component-fields-table td {
+            padding: 0.4rem 0.7rem;
+            border-bottom: 1px solid #e5e7eb;
+            vertical-align: top;
+        }
+        .component-fields-table th {
+            background: #f1f5f9;
+            font-weight: 600;
+            text-align: left;
+        }
+        .component-fields-table tr:last-child td {
+            border-bottom: none;
+        }
+        .component-fields-table input, .component-fields-table select {
+            font-size: 0.95rem;
+        }
+        .component-fields-table .remove-component-field-btn {
+            margin-left: 0.2rem;
+        }
+        @media (max-width: 900px) {
+            main {
+                margin-left: 0;
+                padding: 1rem 0.5rem;
+            }
+            aside.side-menu {
+                position: static;
+                width: 100%;
+                min-height: unset;
+                border-right: none;
+                border-bottom: 1px solid #e5e7eb;
+            }
+        }
+        .main-section {
+            display: none;
+        }
+        .main-section.active {
+            display: block;
+        }
+        .page-list-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-bottom: 1.5rem;
+        }
+        .page-list-table th, .page-list-table td {
+            padding: 0.6rem 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            vertical-align: top;
+        }
+        .page-list-table th {
+            background: #f1f5f9;
+            font-weight: 600;
+            text-align: left;
+        }
+        .page-list-table tr:last-child td {
+            border-bottom: none;
+        }
+        .page-list-row.active {
+            background: #e0e7ef;
+        }
+        .page-history-modal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: #0005;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .page-history-content {
+            background: #fff;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 16px 0 #0002;
+            padding: 2rem;
+            min-width: 340px;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .page-history-list {
+            margin-bottom: 1.5rem;
+        }
+        .page-history-item {
+            padding: 0.5rem 0.7rem;
+            border-radius: 0.375rem;
+            margin-bottom: 0.3rem;
+            cursor: pointer;
+            background: #f1f5f9;
+            transition: background 0.15s;
+        }
+        .page-history-item:hover {
+            background: #e0e7ef;
+        }
+        .page-history-preview {
+            background: #f9fafb;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+        .page-history-close {
+            float: right;
+            background: #f87171;
+            color: #fff;
+            border: none;
+            border-radius: 0.375rem;
+            padding: 0.3rem 0.8rem;
+            font-size: 0.95rem;
+            cursor: pointer;
+        }
+        .page-history-rollback {
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            border-radius: 0.375rem;
+            padding: 0.3rem 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            transition: background 0.15s;
+        }
+        .page-history-rollback:hover {
+            background: #1d4ed8;
+        }
+    </style>
+</head>
+<body>
+    <aside class="side-menu sticky">
+        <h2>TABLES</h2>
+        <div class="templates">
+            <h3>Templates</h3>
+            <a href="#" class="icon-document" display-if="(acl-page-allowed or acl-admin) and pages-extension-enabled" data-section="page">Page</a>
+            <a href="#" class="icon-feather" display-if="(acl-blog-allowed or acl-admin) and blog-extension-enabled" data-section="article">Blog</a>
+            <a href="#" class="icon-cat" display-if="(acl-cat-allowed or acl-admin) and pedigree-extension-enabled" data-section="cat-registry">Cat Registry</a>
+            <a href="#" class="icon-component" display-if="acl-admin-allowed and pages-extension-enabled" data-section="component">Component</a>
+        </div>
+        <div class="singletons">
+            <h3>Singletons</h3>
+            <a href="#" class="icon-gear" data-section="settings">Settings</a>
+            <a href="#" class="icon-user" data-section="accounts">Accounts</a>
+            <a href="#" class="icon-network" data-section="acls">ACLs</a>
+            <a href="#" class="icon-puzzle" data-section="extensions">Extensions</a>
+            <nav class="sub-navigation" for="extensions">
+                <a href="#" class="icon-cat" data-section="page-extension">Page Extension</a>
+                <a href="#" class="icon-cat" data-section="blog-extension">Blog Extension</a>
+                <a href="#" class="icon-cat" data-section="pedigree-extension">Pedigree Extension</a>
+                <a href="#" class="icon-keys" data-section="rental-extension">Rental Extension</a>
+                <a href="#" class="icon-star" data-section="funnel-extension">Funnel Extension</a>
+            </nav>
+        </div>
+    </aside>
+    <main>
+        <!-- PAGE TEMPLATE -->
+        <section class="main-section for-page active" data-section="page">
+            <header>
+                <h1>
+                    <span id="pageHeaderTitle"></span>
+                </h1>
+                <div class="adjustment-buttons">
+                    <a href="#" class="icon-meta" id="pageMetaBtn">Metadata</a>
+                    <a href="#" class="icon-book" id="pageHistoryBtn">History</a>
+                    <a href="#" class="highlighted icon-upload" id="pagePublishBtn">Publish</a>
+                </div>
+            </header>
+            <div class="component-table-container" id="pageMainContainer">
+                <div id="pageListContainer">
+                    <table class="page-list-table" id="pageListTable">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Slug</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pageListBody">
+                            <!-- Page rows rendered by JS -->
+                        </tbody>
+                    </table>
+                    <button class="add-row-btn mt-4" id="addPageBtn">[+] Add Page</button>
+                </div>
+                <div id="pageEditorContainer" style="display:none;">
+                    <button class="page-back-btn mb-2" id="pageBackBtn">&larr; Back to Pages</button>
+                    <table class="component-table" id="componentTable">
+                        <thead>
+                            <tr>
+                                <th style="width:32px"></th>
+                                <th style="width:200px">Component</th>
+                                <th>Fields</th>
+                                <th style="width:60px"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="componentTableBody">
+                            <!-- Rows will be rendered by JS -->
+                        </tbody>
+                    </table>
+                    <button class="add-row-btn mt-4" id="addRowBtn">[+] Add</button>
+                </div>
+            </div>
+        </section>
+        <!-- PAGE HISTORY MODAL -->
+        <div id="pageHistoryModal" class="page-history-modal" style="display:none;">
+            <div class="page-history-content">
+                <button class="page-history-close" id="pageHistoryCloseBtn">✕</button>
+                <h2 class="text-lg font-bold mb-3">Page History</h2>
+                <div class="page-history-list" id="pageHistoryList"></div>
+                <div class="page-history-preview" id="pageHistoryPreview" style="display:none;"></div>
+                <button class="page-history-rollback" id="pageHistoryRollbackBtn" style="display:none;">Rollback to this version</button>
+            </div>
+        </div>
+        <!-- ARTICLE TEMPLATE -->
+        <section class="main-section for-article" data-section="article">
+            <header>
+                <h1>
+                    <span id="blogHeaderTitle"></span>
+                </h1>
+                <div class="adjustment-buttons">
+                    <a href="#" class="icon-meta" id="blogMetaBtn">Metadata</a>
+                    <a href="#" class="icon-book" id="blogHistoryBtn">History</a>
+                    <a href="#" class="highlighted icon-upload" id="blogPublishBtn">Publish</a>
+                </div>
+            </header>
+            <div class="component-table-container">
+                <div class="text-slate-600 mb-2">Articles grouped by year and month. Click to open and edit.</div>
+                <div class="blog-article-list-header">
+                    <span></span>
+                    <button class="add-article-btn" id="addArticleBtn">[+] Add Article</button>
+                </div>
+                <div id="blogArticlesGrouped"></div>
+                <div id="blogArticleEditorContainer" style="display:none;">
+                    <button class="blog-article-back-btn mb-2" id="blogArticleBackBtn">&larr; Back to Articles</button>
+                    <div class="article-block" id="blogArticleEditorBlock"></div>
+                </div>
+            </div>
+        </section>
+        <!-- CAT REGISTRY TEMPLATE -->
+        <section class="main-section for-cat-registry" data-section="cat-registry">
+            <header>
+                <h1>Cat Registry</h1>
+                <div class="adjustment-buttons">
+                    <a href="#" class="icon-meta">Metadata</a>
+                    <a href="#" class="icon-book">History</a>
+                    <a href="#" class="highlighted icon-upload">Publish</a>
+                </div>
+            </header>
+            <div class="component-table-container">
+                <div class="text-slate-600 mb-2">Manage cat registry entries here.</div>
+                <table class="component-table" id="catTable">
+                    <thead>
+                        <tr>
+                            <th>Cat Name</th>
+                            <th>Breed</th>
+                            <th>Owner</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="catTableBody">
+                        <!-- Cat rows rendered by JS -->
+                    </tbody>
+                </table>
+                <button class="add-cat-btn mt-4" id="addCatBtn">[+] Add Cat</button>
+            </div>
+        </section>
+        <!-- COMPONENT TEMPLATE -->
+        <section class="main-section for-component" data-section="component">
+            <header>
+                <h1>Component Library</h1>
+                <div class="adjustment-buttons">
+                    <a href="#" class="icon-meta">Metadata</a>
+                    <a href="#" class="icon-book">History</a>
+                    <a href="#" class="highlighted icon-upload">Publish</a>
+                </div>
+            </header>
+            <div class="component-table-container">
+                <div class="text-slate-600 mb-2">Manage reusable components here. Define fields for each component below.</div>
+                <table class="component-table" id="componentLibTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Type</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="componentLibTableBody">
+                        <!-- Component rows rendered by JS -->
+                    </tbody>
+                </table>
+                <button class="add-component-btn mt-4" id="addComponentBtn">[+] Add Component</button>
+                <div id="componentFieldsEditors"></div>
+            </div>
+        </section>
+        <!-- SETTINGS SINGLETON -->
+        <section class="main-section for-settings" data-section="settings">
+            <header>
+                <h1>Settings</h1>
+            </header>
+            <div class="component-table-container">
+                <label class="block text-sm font-medium mb-2">Site Title
+                    <input type="text" class="shadcn-input mt-1" placeholder="Site Title" id="settingsSiteTitle" />
+                </label>
+                <label class="block text-sm font-medium mb-2">Default Language
+                    <input type="text" class="shadcn-input mt-1" placeholder="en" id="settingsDefaultLang" />
+                </label>
+                <label class="block text-sm font-medium mb-2">Theme
+                    <select class="dropdown shadcn-select mt-1" id="settingsTheme">
+                        <option>Light</option>
+                        <option>Dark</option>
+                        <option>System</option>
+                    </select>
+                </label>
+            </div>
+        </section>
+        <!-- ACCOUNTS SINGLETON -->
+        <section class="main-section for-accounts" data-section="accounts">
+            <header>
+                <h1>Accounts</h1>
+            </header>
+            <div class="component-table-container">
+                <table class="component-table">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input type="text" class="shadcn-input" placeholder="Username" /></td>
+                            <td><input type="email" class="shadcn-input" placeholder="Email" /></td>
+                            <td>
+                                <select class="dropdown shadcn-select">
+                                    <option>User</option>
+                                    <option>Admin</option>
+                                </select>
+                            </td>
+                            <td><button class="remove-row-btn">✕</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button class="add-row-btn mt-4">[+] Add Account</button>
+            </div>
+        </section>
+        <!-- ACLs SINGLETON -->
+        <section class="main-section for-acls" data-section="acls">
+            <header>
+                <h1>Access Control Lists</h1>
+            </header>
+            <div class="component-table-container">
+                <table class="component-table">
+                    <thead>
+                        <tr>
+                            <th>Role</th>
+                            <th>Permission</th>
+                            <th>Allowed</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <select class="dropdown shadcn-select">
+                                    <option>User</option>
+                                    <option>Admin</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select class="dropdown shadcn-select">
+                                    <option>Read</option>
+                                    <option>Write</option>
+                                    <option>Delete</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="checkbox" />
+                            </td>
+                            <td><button class="remove-row-btn">✕</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button class="add-row-btn mt-4">[+] Add ACL</button>
+            </div>
+        </section>
+        <!-- EXTENSIONS SINGLETON -->
+        <section class="main-section for-extensions" data-section="extensions">
+            <header>
+                <h1>Extensions</h1>
+            </header>
+            <div class="component-table-container">
+                <div class="text-slate-600 mb-2">Manage installed extensions.</div>
+                <ul class="list-disc pl-6">
+                    <li>Pedigree Extension</li>
+                    <li>Rental Extension</li>
+                    <li>Funnel Extension</li>
+                </ul>
+            </div>
+        </section>
+        <!-- PEDIGREE EXTENSION -->
+        <section class="main-section for-pedigree-extension" data-section="pedigree-extension">
+            <header>
+                <h1>Pedigree Extension</h1>
+            </header>
+            <div class="component-table-container">
+                <div class="text-slate-600 mb-2">Pedigree extension settings and data.</div>
+                <label class="block text-sm font-medium mb-2">Pedigree Name
+                    <input type="text" class="shadcn-input mt-1" placeholder="Pedigree Name" />
+                </label>
+            </div>
+        </section>
+        <!-- RENTAL EXTENSION -->
+        <section class="main-section for-rental-extension" data-section="rental-extension">
+            <header>
+                <h1>Rental Extension</h1>
+            </header>
+            <div class="component-table-container">
+                <div class="text-slate-600 mb-2">Rental extension settings and data.</div>
+                <label class="block text-sm font-medium mb-2">Rental Name
+                    <input type="text" class="shadcn-input mt-1" placeholder="Rental Name" />
+                </label>
+            </div>
+        </section>
+        <!-- FUNNEL EXTENSION -->
+        <section class="main-section for-funnel-extension" data-section="funnel-extension">
+            <header>
+                <h1>Funnel Extension</h1>
+            </header>
+            <div class="component-table-container">
+                <div class="text-slate-600 mb-2">Funnel extension settings and data.</div>
+                <label class="block text-sm font-medium mb-2">Funnel Name
+                    <input type="text" class="shadcn-input mt-1" placeholder="Funnel Name" />
+                </label>
+            </div>
+        </section>
+        <script>
+            // --- DISPLAY-IF LOGIC ---
+            // Example ACL and extension state (for demo, you can change these)
+            const acl = {
+                'acl-page-allowed': true,
+                'acl-admin': true,
+                'acl-blog-allowed': true,
+                'acl-cat-allowed': true,
+                'acl-admin-allowed': true
+            };
+            const extensions = {
+                'pages-extension-enabled': true,
+                'blog-extension-enabled': true,
+                'pedigree-extension-enabled': true
+            };
+
+            function evalDisplayIf(expr) {
+                // Replace variables with their values
+                let replaced = expr.replace(/\b([a-zA-Z0-9\-]+)\b/g, function(match) {
+                    if (acl.hasOwnProperty(match)) return acl[match] ? 'true' : 'false';
+                    if (extensions.hasOwnProperty(match)) return extensions[match] ? 'true' : 'false';
+                    return match;
+                });
+                // Replace logical operators
+                replaced = replaced.replace(/\bor\b/g, '||').replace(/\band\b/g, '&&');
+                try {
+                    // eslint-disable-next-line no-eval
+                    return !!eval(replaced);
+                } catch (e) {
+                    return false;
+                }
+            }
+
+            function applyDisplayIf() {
+                document.querySelectorAll('[display-if]').forEach(el => {
+                    const expr = el.getAttribute('display-if');
+                    if (evalDisplayIf(expr)) {
+                        el.removeAttribute('hidden');
+                    } else {
+                        el.setAttribute('hidden', 'hidden');
+                    }
+                });
+            }
+            applyDisplayIf();
+
+            // --- PAGE STATE ---
+            // Each page: { id, title, slug, rows, history: [{timestamp, rows}], lastPublished }
+            let pages = JSON.parse(localStorage.getItem('pages')) || [];
+            let currentPageId = localStorage.getItem('currentPageId') || null;
+
+            // Default page rows for new page
+            function defaultPageRows() {
+                return [
+                    { component: "Slide", fields: { "Slide heading": "", "Slide content": "" } },
+                    { component: "Reviews", fields: { reviews: [ { "Review logo": null, "Review content": "", "Review author": "" } ] } }
+                ];
+            }
+
+            function savePages() {
+                localStorage.setItem('pages', JSON.stringify(pages));
+            }
+            function saveCurrentPageId() {
+                localStorage.setItem('currentPageId', currentPageId);
+            }
+
+            // Render page list
+            function renderPageList() {
+                const tbody = document.getElementById('pageListBody');
+                tbody.innerHTML = '';
+                pages.forEach((page, idx) => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'page-list-row' + (page.id === currentPageId ? ' active' : '');
+                    tr.innerHTML = `
+                        <td>${page.title ? escapeHtml(page.title) : '<span class="text-slate-400">Untitled</span>'}</td>
+                        <td>${page.slug ? escapeHtml(page.slug) : '<span class="text-slate-400">-</span>'}</td>
+                        <td>
+                            <button class="add-row-btn" data-action="open" data-id="${page.id}">Open</button>
+                            <button class="remove-row-btn" data-action="delete" data-id="${page.id}" ${pages.length === 1 ? 'disabled' : ''}>✕</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+                attachPageListEvents();
+                updatePageHeader();
+            }
+
+            function attachPageListEvents() {
+                document.querySelectorAll('#pageListBody button[data-action="open"]').forEach(btn => {
+                    btn.onclick = function() {
+                        currentPageId = this.dataset.id;
+                        saveCurrentPageId();
+                        showPageEditor();
+                    }
+                });
+                document.querySelectorAll('#pageListBody button[data-action="delete"]').forEach(btn => {
+                    btn.onclick = function() {
+                        const id = this.dataset.id;
+                        if (pages.length > 1) {
+                            const idx = pages.findIndex(p => p.id === id);
+                            if (idx !== -1) {
+                                pages.splice(idx, 1);
+                                if (currentPageId === id) {
+                                    currentPageId = pages[0].id;
+                                    saveCurrentPageId();
+                                }
+                                savePages();
+                                renderPageList();
+                                showPageEditor();
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Add page
+            const addPageBtn = document.getElementById('addPageBtn');
+            if (addPageBtn) {
+                addPageBtn.onclick = function() {
+                    const newId = 'page_' + Date.now() + '_' + Math.floor(Math.random()*10000);
+                    const newPage = {
+                        id: newId,
+                        title: '',
+                        slug: '',
+                        rows: defaultPageRows(),
+                        history: [],
+                        lastPublished: null
+                    };
+                    pages.push(newPage);
+                    currentPageId = newId;
+                    savePages();
+                    saveCurrentPageId();
+                    renderPageList();
+                    showPageEditor();
+                }
+            }
+
+            // Page header title
+            function updatePageHeader() {
+                const header = document.getElementById('pageHeaderTitle');
+                if (!header) return;
+                if (!currentPageId) {
+                    header.innerHTML = 'Pages';
+                    return;
+                }
+                const page = pages.find(p => p.id === currentPageId);
+                if (!page) {
+                    header.innerHTML = 'Pages';
+                    return;
+                }
+                header.innerHTML = `
+                    <input placeholder="Homepage" id="pageTitleInput" value="${escapeHtml(page.title)}" /> page at slug /<input placeholder="home" id="pageSlugInput" value="${escapeHtml(page.slug)}" />
+                `;
+                // Attach input events
+                const titleInput = document.getElementById('pageTitleInput');
+                const slugInput = document.getElementById('pageSlugInput');
+                if (titleInput) {
+                    titleInput.oninput = function() {
+                        page.title = this.value;
+                        savePages();
+                        renderPageList();
+                    }
+                }
+                if (slugInput) {
+                    slugInput.oninput = function() {
+                        page.slug = this.value;
+                        savePages();
+                        renderPageList();
+                    }
+                }
+            }
+
+            // Show/hide page editor
+            function showPageEditor() {
+                const listContainer = document.getElementById('pageListContainer');
+                const editorContainer = document.getElementById('pageEditorContainer');
+                if (!currentPageId) {
+                    listContainer.style.display = '';
+                    editorContainer.style.display = 'none';
+                } else {
+                    listContainer.style.display = 'none';
+                    editorContainer.style.display = '';
+                    renderTable();
+                }
+                updatePageHeader();
+            }
+
+            // --- PAGE COMPONENT TABLE ---
+            function getCurrentPageRows() {
+                const page = pages.find(p => p.id === currentPageId);
+                return page ? page.rows : [];
+            }
+            function setCurrentPageRows(newRows) {
+                const page = pages.find(p => p.id === currentPageId);
+                if (page) page.rows = newRows;
+            }
+            function saveCurrentPageRows() {
+                savePages();
+            }
+
+            // Render function for Page table only
+            function renderTable() {
+                const tbody = document.getElementById('componentTableBody');
+                if (!tbody) return;
+                const rows = getCurrentPageRows();
+                tbody.innerHTML = '';
+                rows.forEach((row, rowIdx) => {
+                    const tr = document.createElement('tr');
+                    // Drag handle
+                    const dragTd = document.createElement('td');
+                    dragTd.innerHTML = `<span class="drag-handle" title="Drag to reorder">&#9776;</span>`;
+                    dragTd.setAttribute('draggable', 'true');
+                    dragTd.addEventListener('dragstart', e => {
+                        e.dataTransfer.setData('rowIdx', rowIdx);
+                    });
+                    dragTd.addEventListener('dragover', e => e.preventDefault());
+                    dragTd.addEventListener('drop', e => {
+                        e.preventDefault();
+                        const from = +e.dataTransfer.getData('rowIdx');
+                        if (from !== rowIdx) {
+                            const moved = rows.splice(from, 1)[0];
+                            rows.splice(rowIdx, 0, moved);
+                            setCurrentPageRows(rows);
+                            saveCurrentPageRows();
+                            renderTable();
+                        }
+                    });
+                    tr.appendChild(dragTd);
+
+                    // Component dropdown
+                    const compTd = document.createElement('td');
+                    compTd.innerHTML = `
+                        <select class="dropdown shadcn-select" style="width:100%" data-row="${rowIdx}">
+                            ${COMPONENTS.map(c => `<option value="${c.name}"${c.name === row.component ? ' selected' : ''}>${c.name}</option>`).join('')}
+                        </select>
+                        <div class="text-xs text-slate-500 mt-1">${COMPONENTS.find(c => c.name === row.component)?.fields[0]?.label || ''}</div>
+                    `;
+                    tr.appendChild(compTd);
+
+                    // Fields
+                    const fieldsTd = document.createElement('td');
+                    fieldsTd.style.verticalAlign = 'top';
+                    // Dynamically render fields based on COMPONENTS definition
+                    const compDef = COMPONENTS.find(c => c.name === row.component);
+                    if (compDef && Array.isArray(compDef.fields)) {
+                        let fieldsHtml = '';
+                        compDef.fields.forEach((field, fieldIdx) => {
+                            if (field.type === "text") {
+                                fieldsHtml += `
+                                    <label class="block text-sm font-medium">${escapeHtml(field.label)}
+                                        <input type="text" class="shadcn-input mt-1" placeholder="${escapeHtml(field.placeholder || '')}" value="${row.fields[field.label] || ""}" data-row="${rowIdx}" data-field="${field.label}" />
+                                    </label>
+                                `;
+                            } else if (field.type === "file") {
+                                fieldsHtml += `
+                                    <label class="block text-sm font-medium">${escapeHtml(field.label)}
+                                        <input type="file" class="upload-btn" data-row="${rowIdx}" data-field="${field.label}" />
+                                    </label>
+                                `;
+                            } else if (field.type === "review-list") {
+                                // Render reviews list
+                                let reviewsHtml = '';
+                                (row.fields.reviews || []).forEach((review, reviewIdx) => {
+                                    reviewsHtml += `
+                                        <div class="review-fields mb-2">
+                                            <label class="block text-sm font-medium">Review logo
+                                                <input type="file" class="upload-btn" data-row="${rowIdx}" data-review="${reviewIdx}" data-field="Review logo" />
+                                            </label>
+                                            <label class="block text-sm font-medium">Review content
+                                                <input type="text" class="shadcn-input mt-1" placeholder="Content" value="${review["Review content"] || ""}" data-row="${rowIdx}" data-review="${reviewIdx}" data-field="Review content" />
+                                            </label>
+                                            <label class="block text-sm font-medium">Review author
+                                                <input type="text" class="shadcn-input mt-1" placeholder="Author" value="${review["Review author"] || ""}" data-row="${rowIdx}" data-review="${reviewIdx}" data-field="Review author" />
+                                            </label>
+                                            <button class="remove-review-btn" data-row="${rowIdx}" data-review="${reviewIdx}" title="Remove review" ${(row.fields.reviews && row.fields.reviews.length === 1) ? 'disabled' : ''}>✕</button>
+                                        </div>
+                                    `;
+                                });
+                                reviewsHtml += `<button class="add-review-btn" data-row="${rowIdx}">[+] Review</button>`;
+                                fieldsHtml += reviewsHtml;
+                            }
+                        });
+                        fieldsTd.innerHTML = `<div class="flex flex-col gap-2">${fieldsHtml}</div>`;
+                    }
+                    tr.appendChild(fieldsTd);
+
+                    // Remove row button
+                    const removeTd = document.createElement('td');
+                    removeTd.innerHTML = `<button class="remove-row-btn" data-row="${rowIdx}" title="Remove row">✕</button>`;
+                    tr.appendChild(removeTd);
+
+                    tbody.appendChild(tr);
+                });
+                attachEvents();
+            }
+
+            // Attach events to dynamic elements (Page table only)
+            function attachEvents() {
+                // Component dropdown change
+                document.querySelectorAll('.for-page .dropdown').forEach(sel => {
+                    sel.onchange = function() {
+                        const rowIdx = +this.dataset.row;
+                        const compName = this.value;
+                        const rows = getCurrentPageRows();
+                        rows[rowIdx].component = compName;
+                        // Reset fields for new component
+                        const compDef = COMPONENTS.find(c => c.name === compName);
+                        if (compDef) {
+                            // Initialize fields
+                            let newFields = {};
+                            compDef.fields.forEach(field => {
+                                if (field.type === "text") {
+                                    newFields[field.label] = "";
+                                } else if (field.type === "file") {
+                                    newFields[field.label] = null;
+                                } else if (field.type === "review-list") {
+                                    newFields.reviews = [ { "Review logo": null, "Review content": "", "Review author": "" } ];
+                                }
+                            });
+                            rows[rowIdx].fields = newFields;
+                        }
+                        setCurrentPageRows(rows);
+                        saveCurrentPageRows();
+                        renderTable();
+                    }
+                });
+                // Field input change
+                document.querySelectorAll('.for-page .shadcn-input').forEach(inp => {
+                    inp.oninput = function() {
+                        const rowIdx = +this.dataset.row;
+                        const field = this.dataset.field;
+                        const rows = getCurrentPageRows();
+                        if (typeof this.dataset.review !== "undefined") {
+                            const reviewIdx = +this.dataset.review;
+                            rows[rowIdx].fields.reviews[reviewIdx][field] = this.value;
+                        } else {
+                            rows[rowIdx].fields[field] = this.value;
+                        }
+                        setCurrentPageRows(rows);
+                        saveCurrentPageRows();
+                    }
+                });
+                // File upload
+                document.querySelectorAll('.for-page input[type="file"]').forEach(inp => {
+                    inp.onchange = function() {
+                        const rowIdx = +this.dataset.row;
+                        const field = this.dataset.field;
+                        const rows = getCurrentPageRows();
+                        if (typeof this.dataset.review !== "undefined") {
+                            const reviewIdx = +this.dataset.review;
+                            const file = this.files[0] || null;
+                            rows[rowIdx].fields.reviews[reviewIdx][field] = file;
+                        } else {
+                            const file = this.files[0] || null;
+                            rows[rowIdx].fields[field] = file;
+                        }
+                        setCurrentPageRows(rows);
+                        saveCurrentPageRows();
+                    }
+                });
+                // Add review
+                document.querySelectorAll('.for-page .add-review-btn').forEach(btn => {
+                    btn.onclick = function() {
+                        const rowIdx = +this.dataset.row;
+                        const rows = getCurrentPageRows();
+                        rows[rowIdx].fields.reviews.push({ "Review logo": null, "Review content": "", "Review author": "" });
+                        setCurrentPageRows(rows);
+                        saveCurrentPageRows();
+                        renderTable();
+                    }
+                });
+                // Remove review
+                document.querySelectorAll('.for-page .remove-review-btn').forEach(btn => {
+                    btn.onclick = function() {
+                        const rowIdx = +this.dataset.row;
+                        const reviewIdx = +this.dataset.review;
+                        const rows = getCurrentPageRows();
+                        if (rows[rowIdx].fields.reviews.length > 1) {
+                            rows[rowIdx].fields.reviews.splice(reviewIdx, 1);
+                            setCurrentPageRows(rows);
+                            saveCurrentPageRows();
+                            renderTable();
+                        }
+                    }
+                });
+                // Remove row
+                document.querySelectorAll('.for-page .remove-row-btn').forEach(btn => {
+                    btn.onclick = function() {
+                        const rowIdx = +this.dataset.row;
+                        const rows = getCurrentPageRows();
+                        if (rows.length > 1) {
+                            rows.splice(rowIdx, 1);
+                            setCurrentPageRows(rows);
+                            saveCurrentPageRows();
+                            renderTable();
+                        }
+                    }
+                });
+                // Back button for page editor
+                const pageBackBtn = document.getElementById('pageBackBtn');
+                if (pageBackBtn) {
+                    pageBackBtn.onclick = function() {
+                        currentPageId = null;
+                        saveCurrentPageId();
+                        showPageEditor();
+                    }
+                }
+            }
+
+            // Add row (Page table only)
+            const addRowBtn = document.getElementById('addRowBtn');
+            if (addRowBtn) {
+                addRowBtn.onclick = function() {
+                    const rows = getCurrentPageRows();
+                    // Default to first component in COMPONENTS
+                    if (COMPONENTS.length > 0) {
+                        const compDef = COMPONENTS[0];
+                        let newFields = {};
+                        compDef.fields.forEach(field => {
+                            if (field.type === "text") {
+                                newFields[field.label] = "";
+                            } else if (field.type === "file") {
+                                newFields[field.label] = null;
+                            } else if (field.type === "review-list") {
+                                newFields.reviews = [ { "Review logo": null, "Review content": "", "Review author": "" } ];
+                            }
+                        });
+                        rows.push({ component: compDef.name, fields: newFields });
+                    }
+                    setCurrentPageRows(rows);
+                    saveCurrentPageRows();
+                    renderTable();
+                };
+            }
+
+            // Initial render
+            renderPageList();
+            showPageEditor();
+
+            // --- PAGE HISTORY ---
+            const pageHistoryBtn = document.getElementById('pageHistoryBtn');
+            const pageHistoryModal = document.getElementById('pageHistoryModal');
+            const pageHistoryCloseBtn = document.getElementById('pageHistoryCloseBtn');
+            const pageHistoryList = document.getElementById('pageHistoryList');
+            const pageHistoryPreview = document.getElementById('pageHistoryPreview');
+            const pageHistoryRollbackBtn = document.getElementById('pageHistoryRollbackBtn');
+            let pageHistorySelectedIdx = null;
+
+            if (pageHistoryBtn) {
+                pageHistoryBtn.onclick = function(e) {
+                    e.preventDefault();
+                    renderPageHistoryModal();
+                    pageHistoryModal.style.display = '';
+                }
+            }
+            if (pageHistoryCloseBtn) {
+                pageHistoryCloseBtn.onclick = function() {
+                    pageHistoryModal.style.display = 'none';
+                    pageHistoryPreview.style.display = 'none';
+                    pageHistoryRollbackBtn.style.display = 'none';
+                }
+            }
+
+            function renderPageHistoryModal() {
+                pageHistoryList.innerHTML = '';
+                pageHistoryPreview.style.display = 'none';
+                pageHistoryRollbackBtn.style.display = 'none';
+                pageHistorySelectedIdx = null;
+                const page = pages.find(p => p.id === currentPageId);
+                if (!page || !page.history || page.history.length === 0) {
+                    pageHistoryList.innerHTML = '<div class="text-slate-500">No history yet.</div>';
+                    return;
+                }
+                page.history.slice().reverse().forEach((h, idx) => {
+                    const item = document.createElement('div');
+                    item.className = 'page-history-item';
+                    item.innerHTML = `<b>${new Date(h.timestamp).toLocaleString()}</b>`;
+                    item.onclick = function() {
+                        pageHistorySelectedIdx = page.history.length - 1 - idx;
+                        pageHistoryPreview.style.display = '';
+                        pageHistoryPreview.innerHTML = escapeHtml(JSON.stringify(h.rows, null, 2));
+                        pageHistoryRollbackBtn.style.display = '';
+                    };
+                    pageHistoryList.appendChild(item);
+                });
+            }
+
+            if (pageHistoryRollbackBtn) {
+                pageHistoryRollbackBtn.onclick = function() {
+                    const page = pages.find(p => p.id === currentPageId);
+                    if (!page || pageHistorySelectedIdx === null) return;
+                    const historyItem = page.history[pageHistorySelectedIdx];
+                    if (historyItem) {
+                        page.rows = JSON.parse(JSON.stringify(historyItem.rows));
+                        savePages();
+                        renderTable();
+                        pageHistoryModal.style.display = 'none';
+                        pageHistoryPreview.style.display = 'none';
+                        pageHistoryRollbackBtn.style.display = 'none';
+                    }
+                }
+            }
+
+            // --- PAGE PUBLISH ---
+            const pagePublishBtn = document.getElementById('pagePublishBtn');
+            if (pagePublishBtn) {
+                pagePublishBtn.onclick = function(e) {
+                    e.preventDefault();
+                    const page = pages.find(p => p.id === currentPageId);
+                    if (!page) return;
+                    // Save current rows to history
+                    page.history = page.history || [];
+                    page.history.push({
+                        timestamp: Date.now(),
+                        rows: JSON.parse(JSON.stringify(page.rows))
+                    });
+                    page.lastPublished = Date.now();
+                    savePages();
+                    alert('Page published and saved to history!');
+                }
+            }
+
+            // --- COMPONENTS DEFINITION ---
+            // COMPONENTS is now loaded from componentRows and their fields
+            function getComponentDefinitions() {
+                // Migrate componentRows to COMPONENTS format
+                let rows = JSON.parse(localStorage.getItem('componentRows')) || [];
+                // Add .fields property if missing
+                rows.forEach(row => {
+                    if (!Array.isArray(row.fields)) row.fields = [];
+                });
+                return rows;
+            }
+            function setComponentDefinitions(defs) {
+                localStorage.setItem('componentRows', JSON.stringify(defs));
+            }
+            // Helper for review subfields
+            const REVIEW_FIELDS = [
+                { label: "Review logo", type: "file" },
+                { label: "Review content", type: "text", placeholder: "Content" },
+                { label: "Review author", type: "text", placeholder: "Author" }
+            ];
+
+            // --- BLOG/ARTICLE STATE ---
+            // Each article: { id, title, content, author, year, month }
+            let blogArticles = JSON.parse(localStorage.getItem('blogArticles')) || [];
+            let currentBlogArticleId = localStorage.getItem('currentBlogArticleId') || null;
+
+            function saveBlogArticles() {
+                localStorage.setItem('blogArticles', JSON.stringify(blogArticles));
+            }
+            function saveCurrentBlogArticleId() {
+                localStorage.setItem('currentBlogArticleId', currentBlogArticleId);
+            }
+
+            // Blog header
+            function updateBlogHeader() {
+                const header = document.getElementById('blogHeaderTitle');
+                if (!header) return;
+                if (!currentBlogArticleId) {
+                    header.innerHTML = 'Blog Articles';
+                    return;
+                }
+                const article = blogArticles.find(a => a.id === currentBlogArticleId);
+                if (!article) {
+                    header.innerHTML = 'Blog Articles';
+                    return;
+                }
+                header.innerHTML = `
+                    <input placeholder="Article Title" id="blogTitleInput" value="${escapeHtml(article.title)}" /> blog at slug /<input placeholder="blog-slug" id="blogSlugInput" value="${escapeHtml(article.slug || '')}" />
+                `;
+                // Attach input events
+                const titleInput = document.getElementById('blogTitleInput');
+                const slugInput = document.getElementById('blogSlugInput');
+                if (titleInput) {
+                    titleInput.oninput = function() {
+                        article.title = this.value;
+                        saveBlogArticles();
+                        renderBlogArticlesGrouped();
+                    }
+                }
+                if (slugInput) {
+                    slugInput.oninput = function() {
+                        article.slug = this.value;
+                        saveBlogArticles();
+                        renderBlogArticlesGrouped();
+                    }
+                }
+            }
+
+            // Render grouped articles
+            function renderBlogArticlesGrouped() {
+                const container = document.getElementById('blogArticlesGrouped');
+                container.innerHTML = '';
+                // Group by year and month
+                const groups = {};
+                blogArticles.forEach(article => {
+                    let d = article.date ? new Date(article.date) : new Date();
+                    let year = d.getFullYear();
+                    let month = d.getMonth() + 1;
+                    if (!groups[year]) groups[year] = {};
+                    if (!groups[year][month]) groups[year][month] = [];
+                    groups[year][month].push(article);
+                });
+                // Sort years/months descending
+                const years = Object.keys(groups).sort((a,b) => b-a);
+                years.forEach(year => {
+                    const yearDiv = document.createElement('div');
+                    yearDiv.className = 'blog-year-group';
+                    yearDiv.innerHTML = `<div class="font-bold text-lg mb-1">${year}</div>`;
+                    const months = Object.keys(groups[year]).sort((a,b) => b-a);
+                    months.forEach(month => {
+                        const monthDiv = document.createElement('div');
+                        monthDiv.className = 'blog-month-group';
+                        monthDiv.innerHTML = `<div class="font-semibold mb-1">${monthName(month)} ${year}</div>`;
+                        const listDiv = document.createElement('div');
+                        listDiv.className = 'blog-article-list';
+                        groups[year][month].forEach(article => {
+                            const link = document.createElement('a');
+                            link.className = 'blog-article-link' + (article.id === currentBlogArticleId ? ' active' : '');
+                            link.textContent = article.title || '[Untitled]';
+                            link.href = '#';
+                            link.onclick = function(e) {
+                                e.preventDefault();
+                                currentBlogArticleId = article.id;
+                                saveCurrentBlogArticleId();
+                                showBlogArticleEditor();
+                            };
+                            listDiv.appendChild(link);
+                        });
+                        monthDiv.appendChild(listDiv);
+                        yearDiv.appendChild(monthDiv);
+                    });
+                    container.appendChild(yearDiv);
+                });
+                updateBlogHeader();
+            }
+
+            function monthName(m) {
+                const names = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+                return names[m-1] || m;
+            }
+
+            // Add article
+            const addArticleBtn = document.getElementById('addArticleBtn');
+            if (addArticleBtn) {
+                addArticleBtn.onclick = function() {
+                    const newId = 'article_' + Date.now() + '_' + Math.floor(Math.random()*10000);
+                    const now = new Date();
+                    const newArticle = {
+                        id: newId,
+                        title: '',
+                        content: '',
+                        author: '',
+                        date: now.toISOString(),
+                        year: now.getFullYear(),
+                        month: now.getMonth() + 1,
+                        slug: ''
+                    };
+                    blogArticles.push(newArticle);
+                    currentBlogArticleId = newId;
+                    saveBlogArticles();
+                    saveCurrentBlogArticleId();
+                    renderBlogArticlesGrouped();
+                    showBlogArticleEditor();
+                }
+            }
+
+            // Show/hide blog article editor
+            function showBlogArticleEditor() {
+                const editorContainer = document.getElementById('blogArticleEditorContainer');
+                const block = document.getElementById('blogArticleEditorBlock');
+                if (!currentBlogArticleId) {
+                    editorContainer.style.display = 'none';
+                    block.innerHTML = '';
+                } else {
+                    editorContainer.style.display = '';
+                    const article = blogArticles.find(a => a.id === currentBlogArticleId);
+                    if (!article) {
+                        block.innerHTML = '';
+                        return;
+                    }
+                    block.innerHTML = `
+                        <label class="block text-sm font-medium">Title
+                            <input type="text" class="shadcn-input mt-1" placeholder="Article Title" value="${escapeHtml(article.title)}" id="blogArticleTitleInput" />
+                        </label>
+                        <label class="block text-sm font-medium">Content
+                            <textarea class="shadcn-input mt-1" placeholder="Article content" rows="5" id="blogArticleContentInput">${article.content || ''}</textarea>
+                        </label>
+                        <label class="block text-sm font-medium">Author
+                            <input type="text" class="shadcn-input mt-1" placeholder="Author" value="${escapeHtml(article.author)}" id="blogArticleAuthorInput" />
+                        </label>
+                        <label class="block text-sm font-medium">Date
+                            <input type="date" class="shadcn-input mt-1" value="${article.date ? article.date.substr(0,10) : ''}" id="blogArticleDateInput" />
+                        </label>
+                        <button class="remove-article-btn" id="blogArticleRemoveBtn" ${blogArticles.length === 1 ? 'disabled' : ''}>✕ Remove</button>
+                    `;
+                    // Attach input events
+                    document.getElementById('blogArticleTitleInput').oninput = function() {
+                        article.title = this.value;
+                        saveBlogArticles();
+                        renderBlogArticlesGrouped();
+                    };
+                    document.getElementById('blogArticleContentInput').oninput = function() {
+                        article.content = this.value;
+                        saveBlogArticles();
+                    };
+                    document.getElementById('blogArticleAuthorInput').oninput = function() {
+                        article.author = this.value;
+                        saveBlogArticles();
+                    };
+                    document.getElementById('blogArticleDateInput').oninput = function() {
+                        article.date = this.value;
+                        const d = new Date(this.value);
+                        article.year = d.getFullYear();
+                        article.month = d.getMonth() + 1;
+                        saveBlogArticles();
+                        renderBlogArticlesGrouped();
+                    };
+                    document.getElementById('blogArticleRemoveBtn').onclick = function() {
+                        if (blogArticles.length > 1) {
+                            const idx = blogArticles.findIndex(a => a.id === currentBlogArticleId);
+                            if (idx !== -1) {
+                                blogArticles.splice(idx, 1);
+                                currentBlogArticleId = blogArticles.length ? blogArticles[0].id : null;
+                                saveBlogArticles();
+                                saveCurrentBlogArticleId();
+                                renderBlogArticlesGrouped();
+                                showBlogArticleEditor();
+                            }
+                        }
+                    };
+                }
+                updateBlogHeader();
+                // Show/hide back button
+                const blogArticleBackBtn = document.getElementById('blogArticleBackBtn');
+                if (blogArticleBackBtn) {
+                    blogArticleBackBtn.onclick = function() {
+                        currentBlogArticleId = null;
+                        saveCurrentBlogArticleId();
+                        renderBlogArticlesGrouped();
+                        showBlogArticleEditor();
+                    }
+                }
+            }
+
+            // Initial render
+            if (blogArticles.length === 0) {
+                // Add a default article
+                const now = new Date();
+                blogArticles.push({
+                    id: 'article_' + Date.now() + '_' + Math.floor(Math.random()*10000),
+                    title: '',
+                    content: '',
+                    author: '',
+                    date: now.toISOString(),
+                    year: now.getFullYear(),
+                    month: now.getMonth() + 1,
+                    slug: ''
+                });
+                saveBlogArticles();
+            }
+            if (!currentBlogArticleId && blogArticles.length) {
+                currentBlogArticleId = blogArticles[0].id;
+                saveCurrentBlogArticleId();
+            }
+            renderBlogArticlesGrouped();
+            showBlogArticleEditor();
+
+            // --- CAT REGISTRY STATE ---
+            let catRows = JSON.parse(localStorage.getItem('catRows')) || [
+                { name: '', breed: '', owner: '' }
+            ];
+            function saveCatRows() {
+                localStorage.setItem('catRows', JSON.stringify(catRows));
+            }
+            function renderCatTable() {
+                const tbody = document.getElementById('catTableBody');
+                if (!tbody) return;
+                tbody.innerHTML = '';
+                catRows.forEach((cat, idx) => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><input type="text" class="shadcn-input" placeholder="Cat Name" value="${cat.name.replace(/"/g, '&quot;')}" data-idx="${idx}" data-field="name" /></td>
+                        <td><input type="text" class="shadcn-input" placeholder="Breed" value="${cat.breed.replace(/"/g, '&quot;')}" data-idx="${idx}" data-field="breed" /></td>
+                        <td><input type="text" class="shadcn-input" placeholder="Owner" value="${cat.owner.replace(/"/g, '&quot;')}" data-idx="${idx}" data-field="owner" /></td>
+                        <td><button class="remove-cat-btn" data-idx="${idx}" ${catRows.length === 1 ? 'disabled' : ''}>✕</button></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+                attachCatEvents();
+            }
+            function attachCatEvents() {
+                document.querySelectorAll('.remove-cat-btn').forEach(btn => {
+                    btn.onclick = function() {
+                        const idx = +this.dataset.idx;
+                        if (catRows.length > 1) {
+                            catRows.splice(idx, 1);
+                            saveCatRows();
+                            renderCatTable();
+                        }
+                    }
+                });
+                document.querySelectorAll('#catTableBody input.shadcn-input').forEach(inp => {
+                    inp.oninput = function() {
+                        const idx = +this.dataset.idx;
+                        const field = this.dataset.field;
+                        catRows[idx][field] = this.value;
+                        saveCatRows();
+                    }
+                });
+            }
+            const addCatBtn = document.getElementById('addCatBtn');
+            if (addCatBtn) {
+                addCatBtn.onclick = function() {
+                    catRows.push({ name: '', breed: '', owner: '' });
+                    saveCatRows();
+                    renderCatTable();
+                }
+            }
+            renderCatTable();
+
+            // --- COMPONENT LIBRARY STATE ---
+            // Prepopulate with Slide and Reviews if not present
+            let componentRows = JSON.parse(localStorage.getItem('componentRows')) || [];
+            let changed = false;
+            function ensurePredefinedComponents() {
+                let foundSlide = componentRows.some(c => c.name === "Slide");
+                let foundReviews = componentRows.some(c => c.name === "Reviews");
+                if (!foundSlide) {
+                    componentRows.unshift({
+                        name: "Slide",
+                        description: "A slide with heading and content.",
+                        type: "Block",
+                        fields: [
+                            { label: "Slide heading", type: "text", placeholder: "Heading" },
+                            { label: "Slide content", type: "text", placeholder: "Content" }
+                        ]
+                    });
+                    changed = true;
+                }
+                if (!foundReviews) {
+                    componentRows.unshift({
+                        name: "Reviews",
+                        description: "A list of reviews.",
+                        type: "Block",
+                        fields: [
+                            { label: "Reviews", type: "review-list" }
+                        ]
+                    });
+                    changed = true;
+                }
+                if (changed) {
+                    saveComponentRows();
+                }
+            }
+            function saveComponentRows() {
+                localStorage.setItem('componentRows', JSON.stringify(componentRows));
+            }
+            ensurePredefinedComponents();
+
+            function renderComponentLibTable() {
+                const tbody = document.getElementById('componentLibTableBody');
+                if (!tbody) return;
+                tbody.innerHTML = '';
+                componentRows.forEach((row, idx) => {
+                    tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><input type="text" class="shadcn-input" placeholder="Component Name" value="${row.name.replace(/"/g, '&quot;')}" data-idx="${idx}" data-field="name" /></td>
+                        <td><input type="text" class="shadcn-input" placeholder="Description" value="${row.description ? row.description.replace(/"/g, '&quot;') : ''}" data-idx="${idx}" data-field="description" /></td>
+                        <td>
+                            <select class="dropdown shadcn-select" data-idx="${idx}" data-field="type">
+                                <option${row.type === 'Block' ? ' selected' : ''}>Block</option>
+                                <option${row.type === 'Widget' ? ' selected' : ''}>Widget</option>
+                                <option${row.type === 'Section' ? ' selected' : ''}>Section</option>
+                            </select>
+                        </td>
+                        <td>
+                            <button class="remove-component-btn" data-idx="${idx}" ${componentRows.length === 1 ? 'disabled' : ''}>✕</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+                renderComponentFieldsEditors();
+                attachComponentLibEvents();
+            }
+
+            function renderComponentFieldsEditors() {
+                const container = document.getElementById('componentFieldsEditors');
+                if (!container) return;
+                container.innerHTML = '';
+                componentRows.forEach((row, idx) => {
+                    const div = document.createElement('div');
+                    div.className = 'mb-6';
+                    div.innerHTML = `
+                        <div class="font-semibold mb-1">Fields for <span class="text-blue-700">${escapeHtml(row.name)}</span></div>
+                        <table class="component-fields-table" id="componentFieldsTable_${idx}">
+                            <thead>
+                                <tr>
+                                    <th>Label</th>
+                                    <th>Type</th>
+                                    <th>Placeholder</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${Array.isArray(row.fields) ? row.fields.map((field, fidx) => `
+                                    <tr>
+                                        <td>
+                                            <input type="text" class="shadcn-input" value="${field.label ? escapeHtml(field.label) : ''}" data-comp-idx="${idx}" data-field-idx="${fidx}" data-field-prop="label" />
+                                        </td>
+                                        <td>
+                                            <select class="dropdown shadcn-select" data-comp-idx="${idx}" data-field-idx="${fidx}" data-field-prop="type">
+                                                <option value="text"${field.type === 'text' ? ' selected' : ''}>Text</option>
+                                                <option value="file"${field.type === 'file' ? ' selected' : ''}>File</option>
+                                                <option value="review-list"${field.type === 'review-list' ? ' selected' : ''}>Review List</option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input type="text" class="shadcn-input" value="${field.placeholder ? escapeHtml(field.placeholder) : ''}" data-comp-idx="${idx}" data-field-idx="${fidx}" data-field-prop="placeholder" ${field.type === 'text' ? '' : 'disabled'} />
+                                        </td>
+                                        <td>
+                                            <button class="remove-component-field-btn" data-comp-idx="${idx}" data-field-idx="${fidx}" ${row.fields.length === 1 ? 'disabled' : ''}>✕</button>
+                                        </td>
+                                    </tr>
+                                `).join('') : ''}
+                            </tbody>
+                        </table>
+                        <button class="add-component-field-btn" data-comp-idx="${idx}">[+] Add Field</button>
+                    `;
+                    container.appendChild(div);
+                });
+                attachComponentFieldsEvents();
+            }
+
+            function attachComponentLibEvents() {
+                document.querySelectorAll('.remove-component-btn').forEach(btn => {
+                    btn.onclick = function() {
+                        const idx = +this.dataset.idx;
+                        if (componentRows.length > 1) {
+                            componentRows.splice(idx, 1);
+                            saveComponentRows();
+                            renderComponentLibTable();
+                            updateComponentsFromLibrary();
+                        }
+                    }
+                });
+                document.querySelectorAll('#componentLibTableBody input.shadcn-input, #componentLibTableBody select.shadcn-select').forEach(inp => {
+                    inp.oninput = function() {
+                        const idx = +this.dataset.idx;
+                        const field = this.dataset.field;
+                        componentRows[idx][field] = this.value;
+                        saveComponentRows();
+                        renderComponentLibTable();
+                        updateComponentsFromLibrary();
+                    }
+                });
+            }
+
+            function attachComponentFieldsEvents() {
+                // Add field
+                document.querySelectorAll('.add-component-field-btn').forEach(btn => {
+                    btn.onclick = function() {
+                        const idx = +this.dataset.compIdx;
+                        if (!Array.isArray(componentRows[idx].fields)) componentRows[idx].fields = [];
+                        componentRows[idx].fields.push({ label: '', type: 'text', placeholder: '' });
+                        saveComponentRows();
+                        renderComponentLibTable();
+                        updateComponentsFromLibrary();
+                    }
+                });
+                // Remove field
+                document.querySelectorAll('.remove-component-field-btn').forEach(btn => {
+                    btn.onclick = function() {
+                        const idx = +this.dataset.compIdx;
+                        const fidx = +this.dataset.fieldIdx;
+                        if (componentRows[idx].fields.length > 1) {
+                            componentRows[idx].fields.splice(fidx, 1);
+                            saveComponentRows();
+                            renderComponentLibTable();
+                            updateComponentsFromLibrary();
+                        }
+                    }
+                });
+                // Field property change
+                document.querySelectorAll('.component-fields-table input.shadcn-input, .component-fields-table select.shadcn-select').forEach(inp => {
+                    inp.oninput = function() {
+                        const idx = +this.dataset.compIdx;
+                        const fidx = +this.dataset.fieldIdx;
+                        const prop = this.dataset.fieldProp;
+                        if (!componentRows[idx].fields[fidx]) return;
+                        componentRows[idx].fields[fidx][prop] = this.value;
+                        // If type changed, reset placeholder if not text
+                        if (prop === "type") {
+                            if (this.value !== "text") {
+                                componentRows[idx].fields[fidx].placeholder = "";
+                            }
+                        }
+                        saveComponentRows();
+                        renderComponentLibTable();
+                        updateComponentsFromLibrary();
+                    }
+                });
+            }
+
+            const addComponentBtn = document.getElementById('addComponentBtn');
+            if (addComponentBtn) {
+                addComponentBtn.onclick = function() {
+                    componentRows.push({ name: '', description: '', type: 'Block', fields: [ { label: '', type: 'text', placeholder: '' } ] });
+                    saveComponentRows();
+                    renderComponentLibTable();
+                    updateComponentsFromLibrary();
+                }
+            }
+            renderComponentLibTable();
+
+            // Keep COMPONENTS in sync with componentRows
+            let COMPONENTS = [];
+            function updateComponentsFromLibrary() {
+                COMPONENTS = componentRows.map(row => ({
+                    name: row.name,
+                    fields: Array.isArray(row.fields) ? row.fields.map(f => ({ ...f })) : []
+                }));
+                // Re-render page editor if open
+                if (document.querySelector('.main-section.for-page.active')) {
+                    renderTable();
+                }
+            }
+            updateComponentsFromLibrary();
+
+            // --- SETTINGS SINGLETON STATE ---
+            const settingsSiteTitle = document.getElementById('settingsSiteTitle');
+            const settingsDefaultLang = document.getElementById('settingsDefaultLang');
+            const settingsTheme = document.getElementById('settingsTheme');
+            function saveSettings() {
+                localStorage.setItem('settingsSiteTitle', settingsSiteTitle.value);
+                localStorage.setItem('settingsDefaultLang', settingsDefaultLang.value);
+                localStorage.setItem('settingsTheme', settingsTheme.value);
+            }
+            if (settingsSiteTitle) {
+                settingsSiteTitle.value = localStorage.getItem('settingsSiteTitle') || '';
+                settingsSiteTitle.oninput = saveSettings;
+            }
+            if (settingsDefaultLang) {
+                settingsDefaultLang.value = localStorage.getItem('settingsDefaultLang') || '';
+                settingsDefaultLang.oninput = saveSettings;
+            }
+            if (settingsTheme) {
+                settingsTheme.value = localStorage.getItem('settingsTheme') || 'Light';
+                settingsTheme.oninput = saveSettings;
+            }
+
+            // In-page navigation logic
+            function showSection(section) {
+                document.querySelectorAll('.main-section').forEach(sec => {
+                    if (sec.dataset.section === section) {
+                        sec.classList.add('active');
+                    } else {
+                        sec.classList.remove('active');
+                    }
+                });
+                // When switching to page, update page list/editor
+                if (section === 'page') {
+                    renderPageList();
+                    showPageEditor();
+                }
+                // When switching to blog, update blog grouped/articles
+                if (section === 'article') {
+                    renderBlogArticlesGrouped();
+                    showBlogArticleEditor();
+                }
+                // When switching to component, update component library
+                if (section === 'component') {
+                    renderComponentLibTable();
+                    updateComponentsFromLibrary();
+                }
+            }
+
+            // Handle aside navigation clicks
+            document.querySelectorAll('aside.side-menu a[data-section]').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const section = this.dataset.section;
+                    showSection(section);
+                });
+            });
+
+            // Handle sub-navigation for extensions
+            document.querySelectorAll('aside.side-menu nav.sub-navigation a[data-section]').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const section = this.dataset.section;
+                    showSection(section);
+                });
+            });
+
+            // Utility
+            function escapeHtml(str) {
+                if (typeof str !== 'string') return '';
+                return str.replace(/&/g, '&amp;')
+                          .replace(/</g, '&lt;')
+                          .replace(/>/g, '&gt;')
+                          .replace(/"/g, '&quot;')
+                          .replace(/'/g, '&#39;');
+            }
+        </script>
+    </main>
+</body>
+</html>
