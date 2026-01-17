@@ -24,5 +24,16 @@
         "slug": "welcome"
       }
     ]
+  },
+  {
+    "id": "1768655891975",
+    "title": "New Article",
+    "content": "",
+    "author": "",
+    "date": "2026-01-17T13:18:11.975Z",
+    "year": 2026,
+    "month": 1,
+    "slug": "new-article-1768655891975",
+    "history": []
   }
 ]

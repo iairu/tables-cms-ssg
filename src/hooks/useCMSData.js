@@ -68,7 +68,7 @@ const useCMSData = () => {
   }, [setIsBuildingState]);
 
   // Trigger build function
-  const triggerBuild = useCallback(() => {
+  const triggerBuild = useCallback((localOnly = false) => {
     // Don't trigger if already building (check ref for current state)
     if (isBuildingRef.current) {
       console.log('[useCMSData] Build already in progress, skipping trigger');
@@ -76,7 +76,7 @@ const useCMSData = () => {
     }
     
     setIsBuildingState(true);
-    console.log('[useCMSData] Starting new build...');
+    console.log('[useCMSData] Starting new build...', localOnly ? '(local only)' : '(build and deploy)');
     
     // Collect all localStorage data
     const cmsData = {
@@ -89,6 +89,9 @@ const useCMSData = () => {
       extensions: JSON.parse(localStorage.getItem('extensions') || '{}')
     };
     
+    // Get Vercel API token from settings
+    const vercelApiToken = cmsData.settings.vercelApiKey || '';
+    
     // Trigger Gatsby build with data
     fetch('/api/build', {
       method: 'POST',
@@ -96,7 +99,9 @@ const useCMSData = () => {
       body: JSON.stringify({
         timestamp: new Date().toISOString(),
         trigger: 'cms-save',
-        data: cmsData
+        data: cmsData,
+        localOnly: localOnly,
+        vercelApiToken: vercelApiToken
       })
     })
     .then(res => {
@@ -135,11 +140,13 @@ const useCMSData = () => {
   }, [pollBuildStatus, setIsBuildingState]);
 
   // Manual trigger function (exposed to components)
-  const manualTriggerBuild = useCallback(() => {
-    // Check if we're in cooldown period (2 minutes = 120 seconds)
+  const manualTriggerBuild = useCallback((localOnly = false) => {
+    // Check if we're in cooldown period (5 seconds for local, 2 minutes for deploy)
+    const cooldownSeconds = localOnly ? 5 : 120;
+    const cooldownMs = cooldownSeconds * 1000;
+    
     if (lastBuildTimeRef.current) {
       const timeSinceLastBuild = Date.now() - lastBuildTimeRef.current;
-      const cooldownMs = 120000; // 2 minutes
       
       if (timeSinceLastBuild < cooldownMs) {
         console.log('[useCMSData] Build on cooldown, please wait');
@@ -147,10 +154,10 @@ const useCMSData = () => {
       }
     }
     
-    console.log('[useCMSData] Manual build triggered');
+    console.log('[useCMSData] Manual build triggered', localOnly ? '(local only)' : '(build and deploy)');
     lastBuildTimeRef.current = Date.now();
     setCanBuild(false);
-    setBuildCooldownSeconds(120);
+    setBuildCooldownSeconds(cooldownSeconds);
     
     // Start countdown timer
     const countdownInterval = setInterval(() => {
@@ -164,7 +171,7 @@ const useCMSData = () => {
       });
     }, 1000);
     
-    triggerBuild();
+    triggerBuild(localOnly);
   }, [triggerBuild]);
 
   // Schedule build 3 seconds after save (DISABLED FOR NOW)

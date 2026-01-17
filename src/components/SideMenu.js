@@ -7,10 +7,10 @@ const SideMenu = ({ currentSection, onSectionChange, isBuilding, lastSaved, onBu
     onSectionChange(sectionId);
   };
 
-  const handleBuildClick = (e) => {
+  const handleBuildClick = (e, localOnly = false) => {
     e.preventDefault();
     if (onBuildClick && !isBuilding && canBuild) {
-      onBuildClick();
+      onBuildClick(localOnly);
     }
   };
 
@@ -24,10 +24,10 @@ const SideMenu = ({ currentSection, onSectionChange, isBuilding, lastSaved, onBu
     <aside className="side-menu">
       <h2>CMS</h2>
       
-      {/* Build Button */}
+      {/* Build Buttons */}
       <div style={{ padding: '15px 20px', borderBottom: '1px solid #e2e8f0' }}>
         <button
-          onClick={handleBuildClick}
+          onClick={(e) => handleBuildClick(e, false)}
           disabled={isBuilding || !canBuild}
           style={{
             width: '100%',
@@ -44,7 +44,8 @@ const SideMenu = ({ currentSection, onSectionChange, isBuilding, lastSaved, onBu
             justifyContent: 'center',
             gap: '8px',
             boxShadow: (isBuilding || !canBuild) ? 'none' : '0 2px 4px rgba(0,0,0,0.1)',
-            transition: 'all 0.2s'
+            transition: 'all 0.2s',
+            marginBottom: '10px'
           }}
         >
           {isBuilding && (
@@ -58,6 +59,29 @@ const SideMenu = ({ currentSection, onSectionChange, isBuilding, lastSaved, onBu
             }}></div>
           )}
           {isBuilding ? 'Building...' : (!canBuild ? `Wait ${formatTime(buildCooldownSeconds)}` : 'Build and Deploy')}
+        </button>
+        
+        <button
+          onClick={(e) => handleBuildClick(e, true)}
+          disabled={isBuilding || !canBuild}
+          style={{
+            width: '100%',
+            padding: '10px 16px',
+            background: (isBuilding || !canBuild) ? '#e2e8f0' : 'white',
+            color: (isBuilding || !canBuild) ? '#94a3b8' : '#475569',
+            border: (isBuilding || !canBuild) ? '1px solid #cbd5e1' : '1px solid #cbd5e1',
+            borderRadius: '6px',
+            fontSize: '13px',
+            fontWeight: '600',
+            cursor: (isBuilding || !canBuild) ? 'not-allowed' : 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            transition: 'all 0.2s'
+          }}
+        >
+          Build Locally Only
         </button>
         
         {lastSaved && !isBuilding && (

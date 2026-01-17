@@ -47,9 +47,9 @@ export default async function handler(req, res) {
 
   // Handle POST request - trigger build
   if (req.method === 'POST') {
-    const { timestamp, trigger, data } = req.body;
+    const { timestamp, trigger, data, localOnly, vercelApiToken } = req.body;
 
-    console.log(`[Build API] Build request received at ${timestamp} (trigger: ${trigger})`);
+    console.log(`[Build API] Build request received at ${timestamp} (trigger: ${trigger}, localOnly: ${localOnly})`);
 
     // If a build is already in progress, reject this request (don't queue)
     if (isBuildInProgress) {
@@ -68,13 +68,13 @@ export default async function handler(req, res) {
     // Send immediate response with build in progress status
     res.status(200).json({ 
       status: 'building', 
-      message: 'Build started - exporting data and building main site',
+      message: localOnly ? 'Local build started - exporting data and building main site' : 'Build and deploy started - exporting data, building, and deploying to Vercel',
       timestamp: new Date().toISOString(),
       isBuildInProgress: true
     });
 
     // Export localStorage data and run the build asynchronously
-    exportDataAndBuild(data || {})
+    exportDataAndBuild(data || {}, localOnly, vercelApiToken)
       .then(() => {
         console.log('[Build API] Build completed successfully');
         const completionTime = new Date().toISOString();
@@ -92,12 +92,13 @@ export default async function handler(req, res) {
   }
 }
 
-const exportDataAndBuild = async (data) => {
+const exportDataAndBuild = async (data, localOnly = false, vercelApiToken = null) => {
   const projectRoot = path.resolve(__dirname, '..', '..');
   const mainSiteDataDir = path.join(projectRoot, 'main-site', 'src', 'data');
 
   console.log('[Build API] Exporting CMS data to main site...');
   console.log('[Build API] Data directory:', mainSiteDataDir);
+  console.log('[Build API] Local only mode:', localOnly);
 
   // Ensure main-site data directory exists
   if (!fs.existsSync(mainSiteDataDir)) {
@@ -162,15 +163,21 @@ const exportDataAndBuild = async (data) => {
 
     console.log('[Build API] Data export complete');
 
-    // Now trigger the main site build
-    return runMainSiteBuild(projectRoot);
+    // Now trigger the main site build (and optionally deploy)
+    if (localOnly) {
+      console.log('[Build API] Local only build requested');
+      return runMainSiteBuild(projectRoot, localOnly);
+    } else {
+      console.log('[Build API] Build and deploy to Vercel requested');
+      return runMainSiteBuildAndDeploy(projectRoot, vercelApiToken);
+    }
   } catch (error) {
     console.error('[Build API] Error exporting data:', error);
     throw error;
   }
 };
 
-const runMainSiteBuild = (projectRoot) => {
+const runMainSiteBuild = (projectRoot, localOnly = false) => {
   return new Promise((resolve, reject) => {
     const mainSiteDir = path.join(projectRoot, 'main-site');
     const publicDir = path.join(mainSiteDir, 'public');
@@ -179,9 +186,9 @@ const runMainSiteBuild = (projectRoot) => {
     console.log('[Build API] Main site directory:', mainSiteDir);
     console.log('[Build API] NODE_ENV:', process.env.NODE_ENV);
 
-    // Skip build in development mode - gatsby develop will pick up the changes automatically
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[Build API] Development mode detected - skipping Gatsby build');
+    // Skip build in local mode - gatsby develop will pick up the changes automatically
+    if (localOnly) {
+      console.log('[Build API] Local mode detected - skipping Gatsby build');
       console.log('[Build API] The gatsby develop server will automatically pick up data changes');
       resolve();
       return;
@@ -313,4 +320,129 @@ function copyDir(src, dest) {
       fs.copyFileSync(srcPath, destPath);
     }
   }
+}
+
+const runMainSiteBuildAndDeploy = (projectRoot, vercelApiToken) => {
+  return new Promise((resolve, reject) => {
+    const mainSiteDir = path.join(projectRoot, 'main-site');
+
+    console.log('[Build API] Starting Vercel deployment...');
+    console.log('[Build API] Main site directory:', mainSiteDir);
+    console.log('[Build API] NODE_ENV:', process.env.NODE_ENV);
+
+    // Skip build in development mode - gatsby develop will pick up the changes automatically
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[Build API] Development mode detected - skipping Vercel deployment');
+      console.log('[Build API] The gatsby develop server will automatically pick up data changes');
+      resolve();
+      return;
+    }
+
+    // Check if main-site exists
+    if (!fs.existsSync(mainSiteDir)) {
+      console.error('[Build API] main-site directory not found');
+      reject(new Error('main-site directory not found'));
+      return;
+    }
+
+    // Check if vercelApiToken is provided
+    if (!vercelApiToken || vercelApiToken.trim() === '') {
+      console.error('[Build API] Vercel API token not provided');
+      reject(new Error('Vercel API token is required for deployment. Please set it in Settings.'));
+      return;
+    }
+
+    // Check if node_modules exists in main-site
+    const mainSiteNodeModules = path.join(mainSiteDir, 'node_modules');
+    if (!fs.existsSync(mainSiteNodeModules)) {
+      console.log('[Build API] Installing main-site dependencies first...');
+
+      // Find npm binary and install dependencies first
+      findNpmBinary((npmPath) => {
+        // Add node bin directory to PATH
+        const nodeBinDir = path.dirname(npmPath);
+        const envWithPath = {
+          ...process.env,
+          PATH: `${nodeBinDir}:${process.env.PATH}`
+        };
+
+        exec(`"${npmPath}" install`, {
+          cwd: mainSiteDir,
+          env: envWithPath
+        }, (installError) => {
+          if (installError) {
+            console.error('[Build API] npm install failed:', installError);
+            reject(installError);
+            return;
+          }
+
+          console.log('[Build API] Dependencies installed, starting deployment...');
+          executeVercelDeploy(npmPath);
+        });
+      });
+    } else {
+      // Find npm binary for deployment step
+      findNpmBinary((npmPath) => {
+        executeVercelDeploy(npmPath);
+      });
+    }
+
+    function executeVercelDeploy(npmPath) {
+      // Add node bin directory to PATH
+      const nodeBinDir = path.dirname(npmPath);
+      const envWithPath = {
+        ...process.env,
+        PATH: `${nodeBinDir}:${process.env.PATH}`,
+        NODE_ENV: 'production',
+        VERCEL_TOKEN: vercelApiToken
+      };
+
+      // Check if Vercel CLI is installed
+      exec('which vercel', { env: envWithPath }, (whichError, whichStdout) => {
+        let vercelCommand = 'vercel';
+        
+        if (whichError) {
+          console.log('[Build API] Vercel CLI not found globally, trying npx...');
+          vercelCommand = 'npx vercel';
+        } else {
+          vercelCommand = whichStdout.trim();
+          console.log('[Build API] Found Vercel CLI at:', vercelCommand);
+        }
+
+        // Deploy to Vercel with production flag
+        console.log('[Build API] Deploying to Vercel...');
+        const deployProcess = exec(
+          `${vercelCommand} --prod --token="${vercelApiToken}" --yes`,
+          {
+            cwd: mainSiteDir,
+            env: envWithPath,
+            maxBuffer: 10 * 1024 * 1024 // 10MB buffer
+          },
+          (error, stdout, stderr) => {
+            if (error) {
+              console.error('[Build API] Vercel deployment error:', error);
+              console.error('[Build API] Deployment stderr:', stderr);
+              reject(error);
+              return;
+            }
+
+            console.log('[Build API] Vercel deployment completed successfully');
+            console.log('[Build API] Deployment output:', stdout);
+            resolve();
+          }
+        );
+
+        // Log deployment output in real-time
+        deployProcess.stdout.on('data', (data) => {
+          const output = data.toString().trim();
+          if (output) console.log('[Vercel Deploy]', output);
+        });
+
+        deployProcess.stderr.on('data', (data) => {
+          const output = data.toString().trim();
+          if (output) console.error('[Vercel Deploy Error]', output);
+        });
+      });
+    }
+  });
 }

@@ -79,9 +79,9 @@ const CMSPage = () => {
     setCurrentSection(sectionId);
   };
 
-  const handleManualBuild = () => {
+  const handleManualBuild = (localOnly = false) => {
     if (cmsData.manualTriggerBuild) {
-      cmsData.manualTriggerBuild();
+      cmsData.manualTriggerBuild(localOnly);
     }
   };
 
