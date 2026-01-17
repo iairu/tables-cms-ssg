@@ -1,7 +1,3 @@
-add import (json to localStorage) and export data (localStorage to json) into settings, importing will overwrite all localStorage data (clean then write)
-
----
-
 add new page components and change existing as follows:
 
 - Title Slide
@@ -108,3 +104,19 @@ fields and relational fields that are included in this extension should be saved
 ---
 
 add extension called Biometric for a database of users with fingerprints, face portraits, user data and sensitive data, this will be editable same way as the pedigree cats table with an expand button, show a warning within the picker that this is for demo only due to low or non-existent security
+
+---
+
+add more features to pedigree extension
+
+---
+
+add movie and show tracker extension (uses imdb numbering)
+
+---
+
+add notes extension
+
+---
+
+add asset upload and management extension (will switch upload to json for select from assets on all file upload input fields)
