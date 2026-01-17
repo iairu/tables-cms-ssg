@@ -147,6 +147,21 @@ exports.createPages = async ({ actions }) => {
     });
   }
 
+  // Create a catch-all client-side route for pages in development
+  // This enables hot reload without needing to restart the dev server
+  // We create this AFTER blog routes to ensure proper route priority
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[Gatsby Node] Creating catch-all page route for hot reload support');
+    createPage({
+      path: '/page-catch-all',
+      matchPath: '/:slug',
+      component: pageTemplate,
+      context: {
+        slug: null, // Will be extracted from URL on client-side
+      },
+    });
+  }
+
   // Create blog index page
   const blogIndexTemplate = path.resolve(__dirname, 'src/templates/blog-index.js');
   const context = {};

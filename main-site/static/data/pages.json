@@ -281,7 +281,7 @@
   {
     "id": "1768655048173",
     "title": "Lets continue with the build",
-    "slug": "new-page-1768655048173",
+    "slug": "continue-changed",
     "rows": [
       {
         "component": "Slide",
@@ -330,5 +330,61 @@
       }
     ],
     "lastPublished": 1768655059882
+  },
+  {
+    "id": "1768659252827",
+    "title": "New Page",
+    "slug": "new-page-1768659252827",
+    "rows": [
+      {
+        "component": "Slide",
+        "fields": {
+          "Slide heading": "",
+          "Slide content": ""
+        }
+      },
+      {
+        "component": "Reviews",
+        "fields": {
+          "reviews": [
+            {
+              "Review logo": "",
+              "Review content": "",
+              "Review author": ""
+            }
+          ]
+        }
+      }
+    ],
+    "history": [],
+    "lastPublished": null
+  },
+  {
+    "id": "1768659612521",
+    "title": "New Page",
+    "slug": "new-page-1768659612521",
+    "rows": [
+      {
+        "component": "Slide",
+        "fields": {
+          "Slide heading": "",
+          "Slide content": ""
+        }
+      },
+      {
+        "component": "Reviews",
+        "fields": {
+          "reviews": [
+            {
+              "Review logo": "",
+              "Review content": "",
+              "Review author": ""
+            }
+          ]
+        }
+      }
+    ],
+    "history": [],
+    "lastPublished": null
   }
 ]

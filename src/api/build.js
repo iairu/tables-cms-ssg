@@ -169,10 +169,10 @@ const exportDataAndBuild = async (data, localOnly = false, vercelApiToken = null
 
     // Now trigger the main site build (and optionally deploy)
     if (localOnly) {
-      console.log('[Build API] Local only build requested');
+      console.log('[Build API] Local only mode - skipping Gatsby build (gatsby develop will pick up changes)');
       return runMainSiteBuild(projectRoot, localOnly);
     } else {
-      console.log('[Build API] Build and deploy to Vercel requested');
+      console.log('[Build API] Production mode - running Gatsby build and deploying to Vercel');
       return runMainSiteBuildAndDeploy(projectRoot, vercelApiToken);
     }
   } catch (error) {
@@ -191,6 +191,8 @@ const runMainSiteBuild = (projectRoot, localOnly = false) => {
     console.log('[Build API] NODE_ENV:', process.env.NODE_ENV);
 
     // Skip build in local mode - gatsby develop will pick up the changes automatically
+    // Only when localOnly=true (development), we skip the build
+    // When localOnly=false (production), we run the full Gatsby build
     if (localOnly) {
       console.log('[Build API] Local mode detected - skipping Gatsby build');
       console.log('[Build API] The gatsby develop server will automatically pick up data changes');
@@ -330,17 +332,9 @@ const runMainSiteBuildAndDeploy = (projectRoot, vercelApiToken) => {
   return new Promise((resolve, reject) => {
     const mainSiteDir = path.join(projectRoot, 'main-site');
 
-    console.log('[Build API] Starting Vercel deployment...');
+    console.log('[Build API] Starting build and Vercel deployment...');
     console.log('[Build API] Main site directory:', mainSiteDir);
     console.log('[Build API] NODE_ENV:', process.env.NODE_ENV);
-
-    // Skip build in development mode - gatsby develop will pick up the changes automatically
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[Build API] Development mode detected - skipping Vercel deployment');
-      console.log('[Build API] The gatsby develop server will automatically pick up data changes');
-      resolve();
-      return;
-    }
 
     // Check if main-site exists
     if (!fs.existsSync(mainSiteDir)) {
@@ -356,6 +350,26 @@ const runMainSiteBuildAndDeploy = (projectRoot, vercelApiToken) => {
       return;
     }
 
+    // First, run the local build (with localOnly=false to ensure build runs), then deploy to Vercel
+    console.log('[Build API] Step 1: Running local Gatsby build for production...');
+    runMainSiteBuild(projectRoot, false) // Pass false to ensure build runs
+      .then(() => {
+        console.log('[Build API] Step 2: Deploying to Vercel...');
+        return deployToVercel(mainSiteDir, vercelApiToken);
+      })
+      .then(() => {
+        console.log('[Build API] Build and deployment completed successfully');
+        resolve();
+      })
+      .catch((error) => {
+        console.error('[Build API] Build or deployment failed:', error);
+        reject(error);
+      });
+  });
+};
+
+const deployToVercel = (mainSiteDir, vercelApiToken) => {
+  return new Promise((resolve, reject) => {
     // Check if node_modules exists in main-site
     const mainSiteNodeModules = path.join(mainSiteDir, 'node_modules');
     if (!fs.existsSync(mainSiteNodeModules)) {

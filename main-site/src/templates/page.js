@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const PageTemplate = ({ pageContext }) => {
+const PageTemplate = ({ pageContext, location }) => {
   const [page, setPage] = useState(pageContext.pageData || null);
   const [settings, setSettings] = useState(pageContext.settings || null);
   const [loading, setLoading] = useState(!pageContext.pageData);
@@ -8,6 +8,7 @@ const PageTemplate = ({ pageContext }) => {
   useEffect(() => {
     // If data is already in pageContext (production SSG), use it directly
     if (pageContext.pageData && pageContext.settings) {
+      console.log('[Page] Using prerendered data from pageContext (production mode)');
       setPage(pageContext.pageData);
       setSettings(pageContext.settings);
       setLoading(false);
@@ -15,25 +16,44 @@ const PageTemplate = ({ pageContext }) => {
     }
 
     // Otherwise fetch at runtime (development hot reload)
+    console.log('[Page] Fetching data at runtime from /data/*.json (development mode)');
+    // Extract slug from URL if not in pageContext (client-side routing via catch-all)
+    let slug = pageContext.slug;
+    if (!slug && location && location.pathname) {
+      // Extract slug from URL path like /my-page
+      const pathParts = location.pathname.split('/').filter(Boolean);
+      slug = pathParts[0]; // First part after domain is the slug
+      console.log('[Page] Extracted slug from URL:', slug);
+    }
+
+    // Fetch pages data
     fetch('/data/pages.json')
-      .then(res => res.json())
+      .then(res => {
+        console.log('[Page] Fetched /data/pages.json');
+        return res.json();
+      })
       .then(pagesData => {
-        const foundPage = pagesData.find(p => p.slug === pageContext.slug);
+        const foundPage = pagesData.find(p => p.slug === slug);
+        console.log('[Page] Found page:', foundPage ? foundPage.title : 'NOT FOUND');
         setPage(foundPage);
         
         // Fetch settings data
         return fetch('/data/settings.json');
       })
-      .then(res => res.json())
+      .then(res => {
+        console.log('[Page] Fetched /data/settings.json');
+        return res.json();
+      })
       .then(settingsData => {
+        console.log('[Page] Loaded settings:', settingsData.siteTitle);
         setSettings(settingsData);
         setLoading(false);
       })
       .catch(error => {
-        console.error('Error fetching data:', error);
+        console.error('[Page] Error fetching data:', error);
         setLoading(false);
       });
-  }, [pageContext.slug, pageContext.pageData, pageContext.settings]);
+  }, [pageContext.slug, pageContext.pageData, pageContext.settings, location]);
 
   if (loading) {
     return (
