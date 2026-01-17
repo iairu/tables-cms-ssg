@@ -1,7 +1,7 @@
 
 ---
 
-Add to each page:
+Add to each page, then adjust main-site to reflect:
 
 - Include in navigation dropdown (with choices: none (default), header, footer)
 - Dark theme toggle

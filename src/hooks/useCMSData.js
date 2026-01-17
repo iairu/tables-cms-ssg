@@ -83,6 +83,7 @@ const useCMSData = () => {
       pages: JSON.parse(localStorage.getItem('pages') || '[]'),
       blogArticles: JSON.parse(localStorage.getItem('blogArticles') || '[]'),
       catRows: JSON.parse(localStorage.getItem('catRows') || '[]'),
+      inventoryRows: JSON.parse(localStorage.getItem('inventoryRows') || '[]'),
       componentRows: JSON.parse(localStorage.getItem('componentRows') || '[]'),
       settings: JSON.parse(localStorage.getItem('settings') || '{"siteTitle":"TABLES","defaultLang":"en","theme":"light","vercelApiKey":"","languages":[{"code":"en","name":"English"}],"showBreadcrumbs":false}'),
       acl: JSON.parse(localStorage.getItem('acl') || '{}'),
@@ -223,6 +224,12 @@ const useCMSData = () => {
   // Components state
   const [componentRows, setComponentRows] = useState([]);
 
+  // Inventory state
+  const [inventoryRows, setInventoryRows] = useState([]);
+
+  // Contacts state
+  const [contactRows, setContactRows] = useState([]);
+
   // Settings state
   const [settings, setSettings] = useState({
     siteTitle: '',
@@ -248,7 +255,8 @@ const useCMSData = () => {
   const [extensions, setExtensions] = useState({
     'pages-extension-enabled': false,
     'blog-extension-enabled': false,
-    'pedigree-extension-enabled': false
+    'pedigree-extension-enabled': false,
+    'rental-extension-enabled': false
   });
 
   // Load data from localStorage on mount
@@ -258,6 +266,8 @@ const useCMSData = () => {
     const loadedBlogArticles = localStorage.getItem('blogArticles');
     const loadedCurrentBlogArticleId = localStorage.getItem('currentBlogArticleId');
     const loadedCatRows = localStorage.getItem('catRows');
+    const loadedInventoryRows = localStorage.getItem('inventoryRows');
+    const loadedContactRows = localStorage.getItem('contactRows');
     const loadedComponentRows = localStorage.getItem('componentRows');
     const loadedSettings = localStorage.getItem('settings');
     
@@ -282,6 +292,8 @@ const useCMSData = () => {
     if (loadedBlogArticles) setBlogArticles(JSON.parse(loadedBlogArticles));
     if (loadedCurrentBlogArticleId) setCurrentBlogArticleId(JSON.parse(loadedCurrentBlogArticleId));
     if (loadedCatRows) setCatRows(JSON.parse(loadedCatRows));
+    if (loadedInventoryRows) setInventoryRows(JSON.parse(loadedInventoryRows));
+    if (loadedContactRows) setContactRows(JSON.parse(loadedContactRows));
     if (loadedComponentRows) setComponentRows(JSON.parse(loadedComponentRows));
     if (loadedSettings) setSettings(JSON.parse(loadedSettings));
     if (loadedAcl) setAcl(JSON.parse(loadedAcl));
@@ -318,6 +330,16 @@ const useCMSData = () => {
     setCatRows(rows);
     localStorage.setItem('catRows', JSON.stringify(rows));
     scheduleBuild();
+  };
+
+  const saveInventoryRows = (newRows) => {
+    setInventoryRows(newRows);
+    localStorage.setItem('inventoryRows', JSON.stringify(newRows));
+  };
+
+  const saveContactRows = (newRows) => {
+    setContactRows(newRows);
+    localStorage.setItem('contactRows', JSON.stringify(newRows));
   };
 
   const saveComponentRows = (rows) => {
@@ -468,7 +490,13 @@ const useCMSData = () => {
     buildCooldownSeconds,
     
     // Data loaded flag
-    isDataLoaded
+    isDataLoaded,
+    
+    // Rental
+    inventoryRows,
+    saveInventoryRows,
+    contactRows,
+    saveContactRows
   };
 };
 

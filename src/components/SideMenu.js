@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'gatsby';
 
 const SideMenu = ({ currentSection, onSectionChange, isBuilding, lastSaved, onBuildClick, canBuild, buildCooldownSeconds, domain, vercelApiKey }) => {
+  const [isRentalSubMenuOpen, setIsRentalSubMenuOpen] = useState(false);
+
   const handleClick = (e, sectionId) => {
     e.preventDefault();
     onSectionChange(sectionId);
@@ -18,6 +20,11 @@ const SideMenu = ({ currentSection, onSectionChange, isBuilding, lastSaved, onBu
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const toggleRentalSubMenu = (e) => {
+    e.preventDefault();
+    setIsRentalSubMenuOpen(!isRentalSubMenuOpen);
   };
 
   return (
@@ -164,8 +171,27 @@ const SideMenu = ({ currentSection, onSectionChange, isBuilding, lastSaved, onBu
                   onClick={(e) => handleClick(e, 'cats')}
                   className={currentSection === 'cats' ? 'active' : ''}
                 >
-                  Cats
+                  Pedigree
                 </a>
+              )}
+              {extensions['rental-extension-enabled'] && (
+                <div>
+                      <a href="#rental-inventory" onClick={(e) => handleClick(e, 'rental-inventory')} className={currentSection === 'rental-inventory' ? 'active' : ''}>
+                        Inventory
+                      </a>
+                      <a href="#rental-attendance" onClick={(e) => handleClick(e, 'rental-attendance')} className={currentSection === 'rental-attendance' ? 'active' : ''}>
+                        Attendance
+                      </a>
+                      <a href="#rental-contacts" onClick={(e) => handleClick(e, 'rental-contacts')} className={currentSection === 'rental-contacts' ? 'active' : ''}>
+                        Contacts
+                      </a>
+                      <a href="#rental-reservations" onClick={(e) => handleClick(e, 'rental-reservations')} className={currentSection === 'rental-reservations' ? 'active' : ''}>
+                        Reservations
+                      </a>
+                      <a href="#rental-calendar" onClick={(e) => handleClick(e, 'rental-calendar')} className={currentSection === 'rental-calendar' ? 'active' : ''}>
+                        Calendar
+                      </a>
+                    </div>
               )}
             </>
           );
