@@ -12,9 +12,9 @@ Add to each page, then adjust main-site to reflect:
 
 ---
 
-add extension called Rental for rental solutions (will show in side menu new cms pages: Inventory tracking table page, (Employee) Attendance tracking table page, Customer contacts table page, Customer reservations table page, Customer reservations calendar page)
+modify extension called Rental for rental solutions by implementing (Employee) Attendance tracking table page, Customer reservations table page, Customer reservations calendar page
 
-fields and relational fields that are included in this extension should be saved in localStorage and based on this SQL from an older system:
+fields and relational fields that have to be included in rental extension should be saved in localStorage and based on this SQL from an older system:
 
 - [copy sql migration here from the project]
 
