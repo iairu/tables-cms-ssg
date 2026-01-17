@@ -244,6 +244,12 @@ table.page-list-table td button {
   margin-right: 0.5rem;
 }
 
+label {
+    display: flex;
+    flex-direction: row !important;
+    align-items: flex-start !important;
+}
+
 .drag-handle {
   cursor: grab;
   color: #64748b;

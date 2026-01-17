@@ -2,6 +2,19 @@ const { exec } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
+// Configure body parser to handle large payloads (base64 images)
+export const config = {
+  bodyParser: {
+    json: {
+      limit: '50mb'
+    },
+    urlencoded: {
+      limit: '50mb',
+      extended: true
+    }
+  }
+};
+
 // Utility to find npm binary path
 function findNpmBinary(callback) {
   // Try 'which npm' first
