@@ -8,7 +8,7 @@ import {
   getDefaultFieldsForComponent 
 } from './componentHelpers';
 
-const ComponentEditor = ({ rows, onChange }) => {
+const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
   const handleAddComponent = () => {
     const newRows = [...rows, { component: 'TitleSlide', fields: getDefaultFieldsForComponent('TitleSlide') }];
     onChange(newRows);
@@ -76,7 +76,31 @@ const ComponentEditor = ({ rows, onChange }) => {
 
   return (
     <div style={{ marginTop: '20px' }}>
-      <h3>Page Components</h3>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+        <h3 style={{ margin: 0 }}>Page Components</h3>
+        <span style={{ 
+          padding: '6px 12px', 
+          background: '#3b82f6', 
+          color: 'white', 
+          borderRadius: '6px', 
+          fontSize: '14px',
+          fontWeight: '600'
+        }}>
+          Editing in: {currentLanguage.toUpperCase()}
+        </span>
+      </div>
+      <p style={{ 
+        fontSize: '14px', 
+        color: '#64748b', 
+        marginBottom: '15px',
+        padding: '10px',
+        background: '#f1f5f9',
+        borderRadius: '6px',
+        border: '1px solid #e2e8f0'
+      }}>
+        ℹ️ All component content below is specific to the <strong>{currentLanguage.toUpperCase()}</strong> language. 
+        Switch languages using the dropdown above to edit content for other languages.
+      </p>
       {rows.map((row, rowIndex) => (
         <div key={rowIndex} style={{
           border: '1px solid #e2e8f0',
@@ -123,7 +147,7 @@ const ComponentEditor = ({ rows, onChange }) => {
           {row.component === 'TitleSlide' && (
             <div>
               <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Heading:</strong></label>
+                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Heading ({currentLanguage}):</strong></label>
                 <input
                   type="text"
                   value={row.fields.heading || ''}
@@ -133,7 +157,7 @@ const ComponentEditor = ({ rows, onChange }) => {
               </div>
               
               <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Alignment:</strong></label>
+                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Alignment ({currentLanguage}):</strong></label>
                 <select
                   value={row.fields.alignment || 'center'}
                   onChange={(e) => handleFieldChange(rowIndex, 'alignment', e.target.value)}
@@ -146,7 +170,7 @@ const ComponentEditor = ({ rows, onChange }) => {
               </div>
               
               <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Heading Size:</strong></label>
+                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Heading Size ({currentLanguage}):</strong></label>
                 <select
                   value={row.fields.headingSize || 'normal'}
                   onChange={(e) => handleFieldChange(rowIndex, 'headingSize', e.target.value)}
@@ -158,12 +182,12 @@ const ComponentEditor = ({ rows, onChange }) => {
               </div>
               
               <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Text:</strong></label>
+                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Text ({currentLanguage}):</strong></label>
                 {renderRichTextEditor(`editor-${rowIndex}-text`, row.fields.text, (value) => handleFieldChange(rowIndex, 'text', value))}
               </div>
               
               <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Buttons:</strong></label>
+                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Buttons ({currentLanguage}):</strong></label>
                 {renderButtonList(
                   row.fields.buttons,
                   () => handleArrayItemAdd(rowIndex, 'buttons', { icon: '', title: '', link: '', openAsPopup: false, showAsButton: true }),
@@ -180,12 +204,12 @@ const ComponentEditor = ({ rows, onChange }) => {
                     checked={row.fields.darkTheme || false}
                     onChange={(e) => handleFieldChange(rowIndex, 'darkTheme', e.target.checked)}
                   />
-                  <span>Dark theme</span>
+                  <span>Dark theme ({currentLanguage})</span>
                 </label>
               </div>
               
               <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Background Color:</strong></label>
+                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Background Color ({currentLanguage}):</strong></label>
                 <input
                   type="color"
                   value={row.fields.backgroundColor || '#ffffff'}
@@ -195,7 +219,7 @@ const ComponentEditor = ({ rows, onChange }) => {
               </div>
               
               <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Minimal Height (px):</strong></label>
+                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Minimal Height (px) ({currentLanguage}):</strong></label>
                 <input
                   type="number"
                   value={row.fields.minimalHeight || 400}
@@ -225,7 +249,7 @@ const ComponentEditor = ({ rows, onChange }) => {
                     checked={row.fields.scaleImageToWholeBackground || false}
                     onChange={(e) => handleFieldChange(rowIndex, 'scaleImageToWholeBackground', e.target.checked)}
                   />
-                  <span>Scale image to whole background</span>
+                  <span>Scale image to whole background ({currentLanguage})</span>
                 </label>
               </div>
               
@@ -237,7 +261,7 @@ const ComponentEditor = ({ rows, onChange }) => {
               )}
               
               <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Video Transparency (0-100):</strong></label>
+                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Video Transparency (0-100) ({currentLanguage}):</strong></label>
                 <input
                   type="number"
                   min="0"
@@ -249,7 +273,7 @@ const ComponentEditor = ({ rows, onChange }) => {
               </div>
               
               <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Video Link:</strong></label>
+                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Video Link ({currentLanguage}):</strong></label>
                 <input
                   type="text"
                   value={row.fields.videoLink || ''}
@@ -265,7 +289,7 @@ const ComponentEditor = ({ rows, onChange }) => {
           {row.component === 'Boxes' && (
             <div>
               <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Boxes:</strong></label>
+                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Boxes ({currentLanguage}):</strong></label>
                 {row.fields.boxes && row.fields.boxes.map((box, boxIndex) => (
                   <div key={boxIndex} style={{ background: 'white', padding: '15px', borderRadius: '6px', marginBottom: '10px', border: '1px solid #e2e8f0' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
@@ -280,7 +304,7 @@ const ComponentEditor = ({ rows, onChange }) => {
                     </div>
                     
                     <div style={{ marginBottom: '8px' }}>
-                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Heading:</label>
+                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Heading ({currentLanguage}):</label>
                       <input
                         type="text"
                         value={box.heading || ''}
@@ -290,7 +314,7 @@ const ComponentEditor = ({ rows, onChange }) => {
                     </div>
                     
                     <div style={{ marginBottom: '8px' }}>
-                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Subheading:</label>
+                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Subheading ({currentLanguage}):</label>
                       <input
                         type="text"
                         value={box.subheading || ''}
@@ -300,7 +324,7 @@ const ComponentEditor = ({ rows, onChange }) => {
                     </div>
                     
                     <div style={{ marginBottom: '8px' }}>
-                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Text:</label>
+                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Text ({currentLanguage}):</label>
                       {renderRichTextEditor(
                         `editor-${rowIndex}-boxes-${boxIndex}-text`, 
                         box.text || '', 
@@ -309,7 +333,7 @@ const ComponentEditor = ({ rows, onChange }) => {
                     </div>
                     
                     <div style={{ marginBottom: '8px' }}>
-                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Text in lower corner:</label>
+                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Text in lower corner ({currentLanguage}):</label>
                       <input
                         type="text"
                         value={box.lowerCornerText || ''}
@@ -319,7 +343,7 @@ const ComponentEditor = ({ rows, onChange }) => {
                     </div>
                     
                     <div style={{ marginBottom: '8px' }}>
-                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Icon:</label>
+                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Icon ({currentLanguage}):</label>
                       <button
                         type="button"
                         onClick={() => handleImageUpload(rowIndex, 'boxes', boxIndex, 'icon')}
@@ -342,7 +366,7 @@ const ComponentEditor = ({ rows, onChange }) => {
                     </div>
                     
                     <div style={{ marginBottom: '8px' }}>
-                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Horizontal Adjustment:</label>
+                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Horizontal Adjustment ({currentLanguage}):</label>
                       <input
                         type="number"
                         value={box.horizontalAdjustment || 0}
@@ -352,7 +376,7 @@ const ComponentEditor = ({ rows, onChange }) => {
                     </div>
                     
                     <div style={{ marginBottom: '8px' }}>
-                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Vertical Adjustment:</label>
+                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Vertical Adjustment ({currentLanguage}):</label>
                       <input
                         type="number"
                         value={box.verticalAdjustment || 0}
@@ -378,7 +402,7 @@ const ComponentEditor = ({ rows, onChange }) => {
                     checked={row.fields.darkTheme || false}
                     onChange={(e) => handleFieldChange(rowIndex, 'darkTheme', e.target.checked)}
                   />
-                  <span>Dark theme</span>
+                  <span>Dark theme ({currentLanguage})</span>
                 </label>
               </div>
               
@@ -402,7 +426,7 @@ const ComponentEditor = ({ rows, onChange }) => {
               )}
               
               <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Alternative Icon (if no logo):</strong></label>
+                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Alternative Icon (if no logo) ({currentLanguage}):</strong></label>
                 <input
                   type="text"
                   value={row.fields.alternativeIcon || ''}
@@ -414,7 +438,7 @@ const ComponentEditor = ({ rows, onChange }) => {
               </div>
               
               <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Text:</strong></label>
+                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Text ({currentLanguage}):</strong></label>
                 <input
                   type="text"
                   value={row.fields.text || ''}
@@ -424,7 +448,7 @@ const ComponentEditor = ({ rows, onChange }) => {
               </div>
               
               <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Buttons:</strong></label>
+                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Buttons ({currentLanguage}):</strong></label>
                 {renderButtonList(
                   row.fields.buttons,
                   () => handleArrayItemAdd(rowIndex, 'buttons', { icon: '', title: '', link: '', openAsPopup: false, showAsButton: true }),
@@ -451,7 +475,7 @@ const ComponentEditor = ({ rows, onChange }) => {
           {row.component === 'Flies' && (
             <div>
               <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Flies:</strong></label>
+                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Flies ({currentLanguage}):</strong></label>
                 {row.fields.flies && row.fields.flies.map((fly, flyIndex) => (
                   <div key={flyIndex} style={{ background: 'white', padding: '15px', borderRadius: '6px', marginBottom: '10px', border: '1px solid #e2e8f0' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
@@ -466,7 +490,7 @@ const ComponentEditor = ({ rows, onChange }) => {
                     </div>
                     
                     <div style={{ marginBottom: '8px' }}>
-                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Background Image:</label>
+                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Background Image ({currentLanguage}):</label>
                       <button
                         type="button"
                         onClick={() => handleImageUpload(rowIndex, 'flies', flyIndex, 'backgroundImage')}
@@ -489,7 +513,7 @@ const ComponentEditor = ({ rows, onChange }) => {
                     </div>
                     
                     <div style={{ marginBottom: '8px' }}>
-                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Margin from edge (%):</label>
+                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Margin from edge (%) ({currentLanguage}):</label>
                       <input
                         type="number"
                         value={fly.marginFromEdge || 0}
@@ -499,7 +523,7 @@ const ComponentEditor = ({ rows, onChange }) => {
                     </div>
                     
                     <div style={{ marginBottom: '8px' }}>
-                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Margin from top (%):</label>
+                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Margin from top (%) ({currentLanguage}):</label>
                       <input
                         type="number"
                         value={fly.marginFromTop || 0}
@@ -509,7 +533,7 @@ const ComponentEditor = ({ rows, onChange }) => {
                     </div>
                     
                     <div style={{ marginBottom: '8px' }}>
-                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Rotation (degrees):</label>
+                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Rotation (degrees) ({currentLanguage}):</label>
                       <input
                         type="number"
                         value={fly.rotation || 0}
@@ -519,7 +543,7 @@ const ComponentEditor = ({ rows, onChange }) => {
                     </div>
                     
                     <div style={{ marginBottom: '8px' }}>
-                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Scaling factor:</label>
+                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Scaling factor ({currentLanguage}):</label>
                       <input
                         type="number"
                         step="0.1"
@@ -530,7 +554,7 @@ const ComponentEditor = ({ rows, onChange }) => {
                     </div>
                     
                     <div style={{ marginBottom: '8px' }}>
-                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Transparency (0-100):</label>
+                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Transparency (0-100) ({currentLanguage}):</label>
                       <input
                         type="number"
                         min="0"
@@ -548,7 +572,7 @@ const ComponentEditor = ({ rows, onChange }) => {
                           checked={fly.showOnMobile || false}
                           onChange={(e) => handleArrayItemChange(rowIndex, 'flies', flyIndex, 'showOnMobile', e.target.checked)}
                         />
-                        <span style={{ fontSize: '14px' }}>Show on mobile</span>
+                        <span style={{ fontSize: '14px' }}>Show on mobile ({currentLanguage})</span>
                       </label>
                     </div>
                     
@@ -559,7 +583,7 @@ const ComponentEditor = ({ rows, onChange }) => {
                           checked={fly.stickToRightSide || false}
                           onChange={(e) => handleArrayItemChange(rowIndex, 'flies', flyIndex, 'stickToRightSide', e.target.checked)}
                         />
-                        <span style={{ fontSize: '14px' }}>Stick to right side</span>
+                        <span style={{ fontSize: '14px' }}>Stick to right side ({currentLanguage})</span>
                       </label>
                     </div>
                   </div>
@@ -574,7 +598,7 @@ const ComponentEditor = ({ rows, onChange }) => {
               </div>
               
               <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Blend Mode:</strong></label>
+                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Blend Mode ({currentLanguage}):</strong></label>
                 <select
                   value={row.fields.blendMode || 'normal'}
                   onChange={(e) => handleFieldChange(rowIndex, 'blendMode', e.target.value)}
@@ -593,7 +617,7 @@ const ComponentEditor = ({ rows, onChange }) => {
                     checked={row.fields.hideOverflow || false}
                     onChange={(e) => handleFieldChange(rowIndex, 'hideOverflow', e.target.checked)}
                   />
-                  <span>Hide overflow</span>
+                  <span>Hide overflow ({currentLanguage})</span>
                 </label>
               </div>
             </div>
@@ -605,15 +629,15 @@ const ComponentEditor = ({ rows, onChange }) => {
               {/* Left side */}
               <h4 style={{ marginTop: 0, marginBottom: '15px' }}>Left Side</h4>
               <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Left Heading:</strong></label>
+                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Left Heading ({currentLanguage}):</strong></label>
                 <input type="text" value={row.fields.leftHeading || ''} onChange={(e) => handleFieldChange(rowIndex, 'leftHeading', e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }} />
               </div>
               <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Left Text:</strong></label>
+                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Left Text ({currentLanguage}):</strong></label>
                 <textarea value={row.fields.leftText || ''} onChange={(e) => handleFieldChange(rowIndex, 'leftText', e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1', minHeight: '80px' }} />
               </div>
               <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Left Buttons:</strong></label>
+                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Left Buttons ({currentLanguage}):</strong></label>
                 {renderButtonList(
                   row.fields.leftButtons,
                   () => handleArrayItemAdd(rowIndex, 'leftButtons', { icon: '', title: '', link: '', openAsPopup: false, showAsButton: true }),
@@ -623,45 +647,45 @@ const ComponentEditor = ({ rows, onChange }) => {
                 )}
               </div>
               <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Left Background Color:</strong></label>
+                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Left Background Color ({currentLanguage}):</strong></label>
                 <input type="color" value={row.fields.leftBackgroundColor || '#ffffff'} onChange={(e) => handleFieldChange(rowIndex, 'leftBackgroundColor', e.target.value)} style={{ width: '100px', height: '40px' }} />
               </div>
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                   <input type="checkbox" checked={row.fields.leftDarkTheme || false} onChange={(e) => handleFieldChange(rowIndex, 'leftDarkTheme', e.target.checked)} />
-                  <span>Left Dark Theme</span>
+                  <span>Left Dark Theme ({currentLanguage})</span>
                 </label>
               </div>
               {renderImageUpload('Left Background Image', row.fields.leftBackgroundImage, () => handleImageUpload(rowIndex, 'leftBackgroundImage'), () => handleFieldChange(rowIndex, 'leftBackgroundImage', ''))}
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                   <input type="checkbox" checked={row.fields.fitLeftBackground || false} onChange={(e) => handleFieldChange(rowIndex, 'fitLeftBackground', e.target.checked)} />
-                  <span>Fit Left Background</span>
+                  <span>Fit Left Background ({currentLanguage})</span>
                 </label>
               </div>
               <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Minimal Left Height (px):</strong></label>
+                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Minimal Left Height (px) ({currentLanguage}):</strong></label>
                 <input type="number" value={row.fields.minimalLeftHeight || 300} onChange={(e) => handleFieldChange(rowIndex, 'minimalLeftHeight', parseInt(e.target.value) || 0)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }} />
               </div>
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                   <input type="checkbox" checked={row.fields.hideLeftOnMobile || false} onChange={(e) => handleFieldChange(rowIndex, 'hideLeftOnMobile', e.target.checked)} />
-                  <span>Hide Left on Mobile</span>
+                  <span>Hide Left on Mobile ({currentLanguage})</span>
                 </label>
               </div>
 
               {/* Right side */}
-              <h4 style={{ marginTop: '20px', marginBottom: '15px' }}>Right Side</h4>
+              <h4 style={{ marginTop: '20px', marginBottom: '15px' }}>Right Side ({currentLanguage})</h4>
               <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Right Heading:</strong></label>
+                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Right Heading ({currentLanguage}):</strong></label>
                 <input type="text" value={row.fields.rightHeading || ''} onChange={(e) => handleFieldChange(rowIndex, 'rightHeading', e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }} />
               </div>
               <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Right Text:</strong></label>
+                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Right Text ({currentLanguage}):</strong></label>
                 <textarea value={row.fields.rightText || ''} onChange={(e) => handleFieldChange(rowIndex, 'rightText', e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1', minHeight: '80px' }} />
               </div>
               <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Right Buttons:</strong></label>
+                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Right Buttons ({currentLanguage}):</strong></label>
                 {renderButtonList(
                   row.fields.rightButtons,
                   () => handleArrayItemAdd(rowIndex, 'rightButtons', { icon: '', title: '', link: '', openAsPopup: false, showAsButton: true }),
@@ -671,45 +695,45 @@ const ComponentEditor = ({ rows, onChange }) => {
                 )}
               </div>
               <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Right Background Color:</strong></label>
+                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Right Background Color ({currentLanguage}):</strong></label>
                 <input type="color" value={row.fields.rightBackgroundColor || '#ffffff'} onChange={(e) => handleFieldChange(rowIndex, 'rightBackgroundColor', e.target.value)} style={{ width: '100px', height: '40px' }} />
               </div>
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                   <input type="checkbox" checked={row.fields.rightDarkTheme || false} onChange={(e) => handleFieldChange(rowIndex, 'rightDarkTheme', e.target.checked)} />
-                  <span>Right Dark Theme</span>
+                  <span>Right Dark Theme ({currentLanguage})</span>
                 </label>
               </div>
               {renderImageUpload('Right Background Image', row.fields.rightBackgroundImage, () => handleImageUpload(rowIndex, 'rightBackgroundImage'), () => handleFieldChange(rowIndex, 'rightBackgroundImage', ''))}
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                   <input type="checkbox" checked={row.fields.fitRightBackground || false} onChange={(e) => handleFieldChange(rowIndex, 'fitRightBackground', e.target.checked)} />
-                  <span>Fit Right Background</span>
+                  <span>Fit Right Background ({currentLanguage})</span>
                 </label>
               </div>
               <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Minimal Right Height (px):</strong></label>
+                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Minimal Right Height (px) ({currentLanguage}):</strong></label>
                 <input type="number" value={row.fields.minimalRightHeight || 300} onChange={(e) => handleFieldChange(rowIndex, 'minimalRightHeight', parseInt(e.target.value) || 0)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }} />
               </div>
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                   <input type="checkbox" checked={row.fields.hideRightOnMobile || false} onChange={(e) => handleFieldChange(rowIndex, 'hideRightOnMobile', e.target.checked)} />
-                  <span>Hide Right on Mobile</span>
+                  <span>Hide Right on Mobile ({currentLanguage})</span>
                 </label>
               </div>
 
               {/* Global options */}
-              <h4 style={{ marginTop: '20px', marginBottom: '15px' }}>Global Options</h4>
+              <h4 style={{ marginTop: '20px', marginBottom: '15px' }}>Global Options ({currentLanguage})</h4>
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                   <input type="checkbox" checked={row.fields.largerSlide || false} onChange={(e) => handleFieldChange(rowIndex, 'largerSlide', e.target.checked)} />
-                  <span>Larger Slide</span>
+                  <span>Larger Slide ({currentLanguage})</span>
                 </label>
               </div>
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                   <input type="checkbox" checked={row.fields.switchOrderOnMobile || false} onChange={(e) => handleFieldChange(rowIndex, 'switchOrderOnMobile', e.target.checked)} />
-                  <span>Switch Order on Mobile</span>
+                  <span>Switch Order on Mobile ({currentLanguage})</span>
                 </label>
               </div>
             </div>
@@ -719,11 +743,11 @@ const ComponentEditor = ({ rows, onChange }) => {
           {row.component === 'Video' && (
             <div>
               <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>YouTube Video URL:</strong></label>
+                <label style={{ display: 'block', marginBottom: '5px' }}><strong>YouTube Video URL ({currentLanguage}):</strong></label>
                 <input type="text" value={row.fields.youtubeUrl || ''} onChange={(e) => handleFieldChange(rowIndex, 'youtubeUrl', e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }} placeholder="https://www.youtube.com/watch?v=..." />
               </div>
               <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Special Theme:</strong></label>
+                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Special Theme ({currentLanguage}):</strong></label>
                 <select value={row.fields.specialTheme || 'default'} onChange={(e) => handleFieldChange(rowIndex, 'specialTheme', e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }}>
                   <option value="default">Default</option>
                   <option value="iphone">iPhone</option>
@@ -739,7 +763,7 @@ const ComponentEditor = ({ rows, onChange }) => {
           {row.component === 'Ranking' && (
             <div>
               <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Ranks:</strong></label>
+                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Ranks ({currentLanguage}):</strong></label>
                 {row.fields.ranks && row.fields.ranks.map((rank, rankIndex) => (
                   <div key={rankIndex} style={{ background: 'white', padding: '15px', borderRadius: '6px', marginBottom: '10px', border: '1px solid #e2e8f0' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
@@ -747,11 +771,11 @@ const ComponentEditor = ({ rows, onChange }) => {
                       <button type="button" onClick={() => handleArrayItemRemove(rowIndex, 'ranks', rankIndex)} style={{ padding: '3px 10px', background: '#f87171', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}>Remove</button>
                     </div>
                     <div style={{ marginBottom: '8px' }}>
-                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Heading:</label>
+                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Heading ({currentLanguage}):</label>
                       <input type="text" value={rank.heading || ''} onChange={(e) => handleArrayItemChange(rowIndex, 'ranks', rankIndex, 'heading', e.target.value)} style={{ width: '100%', padding: '6px', borderRadius: '3px', border: '1px solid #cbd5e1' }} />
                     </div>
                     <div>
-                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Subheading:</label>
+                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Subheading ({currentLanguage}):</label>
                       <input type="text" value={rank.subheading || ''} onChange={(e) => handleArrayItemChange(rowIndex, 'ranks', rankIndex, 'subheading', e.target.value)} style={{ width: '100%', padding: '6px', borderRadius: '3px', border: '1px solid #cbd5e1' }} />
                     </div>
                   </div>
@@ -761,7 +785,7 @@ const ComponentEditor = ({ rows, onChange }) => {
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                   <input type="checkbox" checked={row.fields.darkMode || false} onChange={(e) => handleFieldChange(rowIndex, 'darkMode', e.target.checked)} />
-                  <span>Dark Mode</span>
+                  <span>Dark Mode ({currentLanguage})</span>
                 </label>
               </div>
               {renderImageUpload('Background Image', row.fields.backgroundImage, () => handleImageUpload(rowIndex, 'backgroundImage'), () => handleFieldChange(rowIndex, 'backgroundImage', ''))}
@@ -772,7 +796,7 @@ const ComponentEditor = ({ rows, onChange }) => {
           {row.component === 'References' && (
             <div>
               <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Reference Images:</strong></label>
+                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Reference Images ({currentLanguage}):</strong></label>
                 {row.fields.images && row.fields.images.map((image, imgIndex) => (
                   <div key={imgIndex} style={{ background: 'white', padding: '15px', borderRadius: '6px', marginBottom: '10px', border: '1px solid #e2e8f0' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
@@ -803,7 +827,7 @@ const ComponentEditor = ({ rows, onChange }) => {
           {row.component === 'Reviews' && (
             <div>
               <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Reviews:</strong></label>
+                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Reviews ({currentLanguage}):</strong></label>
                 {row.fields.reviews && row.fields.reviews.map((review, reviewIndex) => (
                   <div key={reviewIndex} style={{ background: 'white', padding: '15px', borderRadius: '6px', marginBottom: '10px', border: '1px solid #e2e8f0' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
@@ -811,11 +835,11 @@ const ComponentEditor = ({ rows, onChange }) => {
                       <button type="button" onClick={() => handleArrayItemRemove(rowIndex, 'reviews', reviewIndex)} style={{ padding: '3px 10px', background: '#f87171', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}>Remove</button>
                     </div>
                     <div style={{ marginBottom: '8px' }}>
-                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Review Text:</label>
+                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Review Text ({currentLanguage}):</label>
                       <textarea value={review.text || ''} onChange={(e) => handleArrayItemChange(rowIndex, 'reviews', reviewIndex, 'text', e.target.value)} style={{ width: '100%', padding: '6px', borderRadius: '3px', border: '1px solid #cbd5e1', minHeight: '80px' }} />
                     </div>
                     <div>
-                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Author:</label>
+                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Author ({currentLanguage}):</label>
                       <input type="text" value={review.author || ''} onChange={(e) => handleArrayItemChange(rowIndex, 'reviews', reviewIndex, 'author', e.target.value)} style={{ width: '100%', padding: '6px', borderRadius: '3px', border: '1px solid #cbd5e1' }} />
                     </div>
                   </div>
@@ -825,7 +849,7 @@ const ComponentEditor = ({ rows, onChange }) => {
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                   <input type="checkbox" checked={row.fields.darkTheme || false} onChange={(e) => handleFieldChange(rowIndex, 'darkTheme', e.target.checked)} />
-                  <span>Dark Theme</span>
+                  <span>Dark Theme ({currentLanguage})</span>
                 </label>
               </div>
             </div>

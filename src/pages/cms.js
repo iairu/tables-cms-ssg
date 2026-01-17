@@ -449,6 +449,7 @@ const PagesSection = ({ cmsData }) => {
           <ComponentEditor
             rows={currentLangContent?.rows || []}
             onChange={(newRows) => saveLocalizedContent(currentLanguage, { rows: newRows })}
+            currentLanguage={currentLanguage}
           />
         </div>
       </section>
