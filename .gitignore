@@ -17,6 +17,8 @@ public/
 # CMS data storage and build triggers
 .cms-data.json
 .build-trigger
+.build-state.json
+.build-lock
 
 # Build outputs
 dist/

@@ -2,5 +2,6 @@
   "siteTitle": "TABLES SSG Output",
   "defaultLang": "",
   "theme": "light",
-  "vercelApiKey": "***HIDDEN***"
+  "vercelApiKey": "***HIDDEN***",
+  "domain": "https://main-site-ruby.vercel.app"
 }

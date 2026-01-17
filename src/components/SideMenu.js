@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'gatsby';
 
-const SideMenu = ({ currentSection, onSectionChange, isBuilding, lastSaved, onBuildClick, canBuild, buildCooldownSeconds }) => {
+const SideMenu = ({ currentSection, onSectionChange, isBuilding, lastSaved, onBuildClick, canBuild, buildCooldownSeconds, domain, vercelApiKey }) => {
   const handleClick = (e, sectionId) => {
     e.preventDefault();
     onSectionChange(sectionId);
@@ -21,45 +21,76 @@ const SideMenu = ({ currentSection, onSectionChange, isBuilding, lastSaved, onBu
   };
 
   return (
-    <aside className="side-menu">
-      <h2>CMS</h2>
+    <aside className="side-menu">      
+      {/* Visit Deployment Button */}
+      {domain && (
+        <div style={{ padding: '15px 20px', borderBottom: '1px solid #e2e8f0' }}>
+          <a
+            href={domain}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              width: '100%',
+              padding: '12px 16px',
+              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+              transition: 'all 0.2s',
+              textDecoration: 'none'
+            }}
+          >
+            Visit Deployment
+          </a>
+        </div>
+      )}
       
       {/* Build Buttons */}
       <div style={{ padding: '15px 20px', borderBottom: '1px solid #e2e8f0' }}>
-        <button
-          onClick={(e) => handleBuildClick(e, false)}
-          disabled={isBuilding || !canBuild}
-          style={{
-            width: '100%',
-            padding: '12px 16px',
-            background: (isBuilding || !canBuild) ? '#94a3b8' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '6px',
-            fontSize: '14px',
-            fontWeight: '600',
-            cursor: (isBuilding || !canBuild) ? 'not-allowed' : 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-            boxShadow: (isBuilding || !canBuild) ? 'none' : '0 2px 4px rgba(0,0,0,0.1)',
-            transition: 'all 0.2s',
-            marginBottom: '10px'
-          }}
-        >
-          {isBuilding && (
-            <div style={{
-              width: '14px',
-              height: '14px',
-              border: '2px solid rgba(255, 255, 255, 0.3)',
-              borderTopColor: 'white',
-              borderRadius: '50%',
-              animation: 'spin 0.8s linear infinite'
-            }}></div>
-          )}
-          {isBuilding ? 'Building...' : (!canBuild ? `Wait ${formatTime(buildCooldownSeconds)}` : 'Build and Deploy')}
-        </button>
+        {vercelApiKey && (
+          <button
+            onClick={(e) => handleBuildClick(e, false)}
+            disabled={isBuilding || !canBuild}
+            style={{
+              width: '100%',
+              padding: '12px 16px',
+              background: (isBuilding || !canBuild) ? '#94a3b8' : 'linear-gradient(135deg, #333333 0%, #000000 100%)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: (isBuilding || !canBuild) ? 'not-allowed' : 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              boxShadow: (isBuilding || !canBuild) ? 'none' : '0 2px 4px rgba(0,0,0,0.1)',
+              transition: 'all 0.2s',
+              marginBottom: '10px'
+            }}
+          >
+            {isBuilding && (
+              <div style={{
+                width: '14px',
+                height: '14px',
+                border: '2px solid rgba(255, 255, 255, 0.3)',
+                borderTopColor: 'white',
+                borderRadius: '50%',
+                animation: 'spin 0.8s linear infinite'
+              }}></div>
+            )}
+            {isBuilding ? 'Building...' : (!canBuild ? `Wait ${formatTime(buildCooldownSeconds)}` : '▲ Build and Deploy')}
+          </button>
+        )}
         
         <button
           onClick={(e) => handleBuildClick(e, true)}

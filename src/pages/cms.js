@@ -95,6 +95,8 @@ const CMSPage = () => {
         onBuildClick={handleManualBuild}
         canBuild={cmsData.canBuild}
         buildCooldownSeconds={cmsData.buildCooldownSeconds}
+        domain={cmsData.settings.domain}
+        vercelApiKey={cmsData.settings.vercelApiKey}
       />
       <main>
 
@@ -2140,6 +2142,27 @@ const SettingsSection = ({ cmsData }) => {
           </label>
           <p style={{ fontSize: '14px', color: '#64748b', marginTop: '5px' }}>
             Get your deploy token from <a href="https://vercel.com/account/tokens">https://vercel.com/account/tokens</a>
+          </p>
+        </div>
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', marginBottom: '10px' }}>
+            <strong>Domain:</strong>
+            <input
+              type="text"
+              value={settings.domain || ''}
+              onChange={(e) => handleChange('domain', e.target.value)}
+              placeholder="e.g., https://yourdomain.vercel.app"
+              style={{
+                width: '100%',
+                padding: '10px',
+                marginTop: '5px',
+                borderRadius: '4px',
+                border: '1px solid #cbd5e1'
+              }}
+            />
+          </label>
+          <p style={{ fontSize: '14px', color: '#64748b', marginTop: '5px' }}>
+            Your deployment URL (used for the "Visit Deployment" button)
           </p>
         </div>
       </div>

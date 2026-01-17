@@ -331,7 +331,8 @@
         ]
       }
     ],
-    "lastPublished": 1768655059882
+    "lastPublished": 1768655059882,
+    "includeInMenu": true
   },
   {
     "id": "1768659252827",
@@ -360,7 +361,7 @@
     ],
     "history": [],
     "lastPublished": null,
-    "includeInMenu": true
+    "includeInMenu": false
   },
   {
     "id": "1768659612521",
