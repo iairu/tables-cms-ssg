@@ -84,7 +84,7 @@ const useCMSData = () => {
       blogArticles: JSON.parse(localStorage.getItem('blogArticles') || '[]'),
       catRows: JSON.parse(localStorage.getItem('catRows') || '[]'),
       componentRows: JSON.parse(localStorage.getItem('componentRows') || '[]'),
-      settings: JSON.parse(localStorage.getItem('settings') || '{"siteTitle":"TABLES","defaultLang":"en","theme":"light","vercelApiKey":"","languages":[{"code":"en","name":"English"}]}'),
+      settings: JSON.parse(localStorage.getItem('settings') || '{"siteTitle":"TABLES","defaultLang":"en","theme":"light","vercelApiKey":"","languages":[{"code":"en","name":"English"}],"showBreadcrumbs":false}'),
       acl: JSON.parse(localStorage.getItem('acl') || '{}'),
       extensions: JSON.parse(localStorage.getItem('extensions') || '{}')
     };
@@ -228,7 +228,8 @@ const useCMSData = () => {
     siteTitle: '',
     defaultLang: '',
     theme: 'light',
-    vercelApiKey: ''
+    vercelApiKey: '',
+    showBreadcrumbs: false
   });
 
   // Data loaded state

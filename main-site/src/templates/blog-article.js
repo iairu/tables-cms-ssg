@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { navigate } from 'gatsby';
+import { t, formatDate } from '../utils/localization';
+import Breadcrumbs from '../components/Breadcrumbs';
 
 const BlogArticleTemplate = ({ pageContext, location }) => {
   const [article, setArticle] = useState(pageContext.articleData || null);
@@ -207,7 +209,7 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
         justifyContent: 'center',
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
       }}>
-        <div>Loading...</div>
+        <div>{t('loading', currentLanguage)}</div>
       </div>
     );
   }
@@ -221,7 +223,7 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
         justifyContent: 'center',
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
       }}>
-        <div>Article not found</div>
+        <div>{t('notFound', currentLanguage)}</div>
       </div>
     );
   }
@@ -265,7 +267,7 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
                 </a>
               );
             })}
-            <a href={`/${currentLanguage}/blog`} style={{ color: 'white', textDecoration: 'none' }}>Blog</a>
+            <a href={`/${currentLanguage}/blog`} style={{ color: 'white', textDecoration: 'none' }}>{t('blog', currentLanguage)}</a>
             
             {/* Language Switcher */}
             <select
@@ -297,6 +299,18 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
         margin: '0 auto',
         padding: '3rem 2rem'
       }}>
+        {/* Breadcrumbs */}
+        {settings?.showBreadcrumbs && (
+          <Breadcrumbs
+            items={[
+              { label: t('home', currentLanguage), href: `/${currentLanguage}` },
+              { label: t('blog', currentLanguage), href: `/${currentLanguage}/blog` },
+              { label: articleContent.title || article.title, href: null }
+            ]}
+            currentLanguage={currentLanguage}
+          />
+        )}
+        
         {/* Article Header */}
         <article>
           <header style={{
@@ -323,15 +337,11 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
               marginTop: '0.5rem'
             }}>
               {(articleContent.author || article.author) && (
-                <span>By {articleContent.author || article.author}</span>
+                <span>{t('by', currentLanguage)} {articleContent.author || article.author}</span>
               )}
               {article.date && (
                 <span>
-                  {new Date(article.date).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
+                  {formatDate(article.date, currentLanguage, 'long')}
                 </span>
               )}
             </div>
@@ -404,7 +414,7 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
               transition: 'background 0.2s'
             }}
           >
-            ← Back to Blog
+            {t('backToBlog', currentLanguage)}
           </a>
         </div>
       </main>
@@ -423,7 +433,7 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
           color: '#64748b',
           fontSize: '0.875rem'
         }}>
-          <p>© {new Date().getFullYear()} {settings?.siteTitle || 'TABLES'}. Built with Gatsby.</p>
+          <p>© {new Date().getFullYear()} {settings?.siteTitle || 'TABLES'}. {t('builtWith', currentLanguage)}.</p>
         </div>
       </footer>
     </div>

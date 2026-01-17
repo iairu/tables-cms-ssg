@@ -1987,7 +1987,7 @@ const SettingsSection = ({ cmsData }) => {
         blogArticles: JSON.parse(localStorage.getItem('blogArticles') || '[]'),
         catRows: JSON.parse(localStorage.getItem('catRows') || '[]'),
         componentRows: JSON.parse(localStorage.getItem('componentRows') || '[]'),
-        settings: JSON.parse(localStorage.getItem('settings') || '{"siteTitle":"TABLES","defaultLang":"en","theme":"light","vercelApiKey":""}'),
+        settings: JSON.parse(localStorage.getItem('settings') || '{"siteTitle":"TABLES","defaultLang":"en","theme":"light","vercelApiKey":"","showBreadcrumbs":false}'),
         acl: JSON.parse(localStorage.getItem('acl') || '{}'),
         extensions: JSON.parse(localStorage.getItem('extensions') || '{}'),
         currentPageId: JSON.parse(localStorage.getItem('currentPageId') || 'null'),
@@ -2318,6 +2318,20 @@ const SettingsSection = ({ cmsData }) => {
           </label>
           <p style={{ fontSize: '14px', color: '#64748b', marginTop: '5px' }}>
             Your deployment URL (used for the "Visit Deployment" button)
+          </p>
+        </div>
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={settings.showBreadcrumbs || false}
+              onChange={(e) => handleChange('showBreadcrumbs', e.target.checked)}
+              style={{ cursor: 'pointer', width: '18px', height: '18px' }}
+            />
+            <strong>Show breadcrumbs on pages and articles</strong>
+          </label>
+          <p style={{ fontSize: '14px', color: '#64748b', marginTop: '5px' }}>
+            Display navigation breadcrumbs at the top of pages and blog articles
           </p>
         </div>
       </div>

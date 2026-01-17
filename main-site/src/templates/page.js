@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { navigate } from 'gatsby';
+import { t } from '../utils/localization';
+import Breadcrumbs from '../components/Breadcrumbs';
 
 const PageTemplate = ({ pageContext, location }) => {
   const [page, setPage] = useState(pageContext.pageData || null);
@@ -166,7 +168,7 @@ const PageTemplate = ({ pageContext, location }) => {
         justifyContent: 'center',
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
       }}>
-        <div>Loading...</div>
+        <div>{t('loading', currentLanguage)}</div>
       </div>
     );
   }
@@ -180,7 +182,7 @@ const PageTemplate = ({ pageContext, location }) => {
         justifyContent: 'center',
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
       }}>
-        <div>Page not found</div>
+        <div>{t('notFound', currentLanguage)}</div>
       </div>
     );
   }
@@ -261,7 +263,7 @@ const PageTemplate = ({ pageContext, location }) => {
                 </a>
               );
             })}
-            <a href={`/${currentLanguage}/blog`} style={{ color: 'white', textDecoration: 'none' }}>Blog</a>
+            <a href={`/${currentLanguage}/blog`} style={{ color: 'white', textDecoration: 'none' }}>{t('blog', currentLanguage)}</a>
             
             {/* Language Switcher */}
             <select
@@ -294,6 +296,17 @@ const PageTemplate = ({ pageContext, location }) => {
         margin: '0 auto',
         padding: '3rem 2rem'
       }}>
+        {/* Breadcrumbs */}
+        {settings?.showBreadcrumbs && page.slug !== 'home' && (
+          <Breadcrumbs
+            items={[
+              { label: t('home', currentLanguage), href: `/${currentLanguage}` },
+              { label: page.title, href: null }
+            ]}
+            currentLanguage={currentLanguage}
+          />
+        )}
+        
         <h1 style={{
           fontSize: '2.5rem',
           fontWeight: '700',
@@ -844,7 +857,7 @@ const PageTemplate = ({ pageContext, location }) => {
           color: '#64748b',
           fontSize: '0.875rem'
         }}>
-          <p>© {new Date().getFullYear()} {settings?.siteTitle || 'TABLES'}. Built with Gatsby.</p>
+          <p>© {new Date().getFullYear()} {settings?.siteTitle || 'TABLES'}. {t('builtWith', currentLanguage)}.</p>
         </div>
       </footer>
     </div>

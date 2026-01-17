@@ -159,7 +159,7 @@ const exportDataAndBuild = async (data, localOnly = false, vercelApiToken = null
     console.log(`[Build API] Exported ${catRows.length} cat rows`);
 
     // Export settings (with vercelApiKey hidden)
-    const settings = cmsData.settings || { siteTitle: 'TABLES', defaultLang: 'en', theme: 'light' };
+    const settings = cmsData.settings || { siteTitle: 'TABLES', defaultLang: 'en', theme: 'light', showBreadcrumbs: false };
     const settingsForExport = { ...settings };
     if (settingsForExport.vercelApiKey && settingsForExport.vercelApiKey.trim() !== '') {
       settingsForExport.vercelApiKey = '***HIDDEN***';

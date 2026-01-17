@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { navigate } from 'gatsby';
+import { t, formatDate, getMonthName } from '../utils/localization';
+import Breadcrumbs from '../components/Breadcrumbs';
 
 const BlogIndexTemplate = ({ pageContext }) => {
   const { lang = 'en' } = pageContext;
@@ -139,7 +141,7 @@ const BlogIndexTemplate = ({ pageContext }) => {
         justifyContent: 'center',
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
       }}>
-        <div>Loading...</div>
+        <div>{t('loading', currentLanguage)}</div>
       </div>
     );
   }
@@ -213,11 +215,6 @@ const BlogIndexTemplate = ({ pageContext }) => {
     });
   });
 
-  const monthNames = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ];
-
   return (
     <div style={{
       minHeight: '100vh',
@@ -257,7 +254,7 @@ const BlogIndexTemplate = ({ pageContext }) => {
                 </a>
               );
             })}
-            <a href={`/${currentLanguage}/blog`} style={{ color: 'white', textDecoration: 'none' }}>Blog</a>
+            <a href={`/${currentLanguage}/blog`} style={{ color: 'white', textDecoration: 'none' }}>{t('blog', currentLanguage)}</a>
             
             {/* Language Switcher */}
             <select
@@ -289,6 +286,17 @@ const BlogIndexTemplate = ({ pageContext }) => {
         margin: '0 auto',
         padding: '3rem 2rem'
       }}>
+        {/* Breadcrumbs */}
+        {settings?.showBreadcrumbs && (
+          <Breadcrumbs
+            items={[
+              { label: t('home', currentLanguage), href: `/${currentLanguage}` },
+              { label: t('blog', currentLanguage), href: null }
+            ]}
+            currentLanguage={currentLanguage}
+          />
+        )}
+        
         <h1 style={{
           fontSize: '2.5rem',
           fontWeight: '700',
@@ -306,7 +314,7 @@ const BlogIndexTemplate = ({ pageContext }) => {
             textAlign: 'center',
             color: '#64748b'
           }}>
-            <p>No blog articles yet. Create your first article in the CMS!</p>
+            <p>{t('noBlogPosts', currentLanguage)}</p>
           </div>
         ) : (
           Object.keys(groupedArticles).sort((a, b) => b - a).map(year => (
@@ -329,12 +337,12 @@ const BlogIndexTemplate = ({ pageContext }) => {
                   marginBottom: '2rem'
                 }}>
                   <h3 style={{
-                    fontSize: '1.5rem',
+                    fontSize: '1.25rem',
                     fontWeight: '600',
                     marginBottom: '1rem',
                     color: '#475569'
                   }}>
-                    {monthNames[month - 1]}
+                    {getMonthName(parseInt(month) - 1, currentLanguage, 'long')} {year}
                   </h3>
                   
                   <div style={{
@@ -384,7 +392,7 @@ const BlogIndexTemplate = ({ pageContext }) => {
                             alignItems: 'center',
                             gap: '0.25rem'
                           }}>
-                            📌 Pinned
+                            {t('pinned', currentLanguage)}
                           </div>
                         )}
                         <h4 style={{
@@ -405,15 +413,11 @@ const BlogIndexTemplate = ({ pageContext }) => {
                           fontSize: '0.875rem'
                         }}>
                           {(localizedContent.author || article.author) && (
-                            <span>By {localizedContent.author || article.author}</span>
+                            <span>{t('by', currentLanguage)} {localizedContent.author || article.author}</span>
                           )}
                           {article.date && (
                             <span>
-                              {new Date(article.date).toLocaleDateString('en-US', {
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric'
-                              })}
+                              {formatDate(article.date, currentLanguage, 'long')}
                             </span>
                           )}
                         </div>
@@ -494,7 +498,7 @@ const BlogIndexTemplate = ({ pageContext }) => {
           color: '#64748b',
           fontSize: '0.875rem'
         }}>
-          <p>© {new Date().getFullYear()} {settings?.siteTitle || 'TABLES'}. Built with Gatsby.</p>
+          <p>© {new Date().getFullYear()} {settings?.siteTitle || 'TABLES'}. {t('builtWith', currentLanguage)}.</p>
         </div>
       </footer>
     </div>
