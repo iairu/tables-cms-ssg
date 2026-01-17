@@ -1,0 +1,76 @@
+import React, { useEffect } from 'react';
+import { navigate } from 'gatsby';
+
+const BlogRedirect = ({ pageContext }) => {
+  useEffect(() => {
+    // Get browser language
+    const browserLang = navigator.language.split('-')[0]; // e.g., 'en-US' -> 'en'
+    
+    // Supported languages
+    const supportedLanguages = ['sk', 'en'];
+    
+    // Get user's saved preference from localStorage
+    const savedLang = typeof window !== 'undefined' ? localStorage.getItem('currentlang') : null;
+    
+    // Get available languages from context
+    const { languages, defaultLang } = pageContext;
+    const availableCodes = languages.map(l => l.code);
+    
+    // Determine which language to use (preference order: saved > browser (if supported) > default)
+    let targetLang = defaultLang;
+    
+    if (savedLang && availableCodes.includes(savedLang)) {
+      // Use saved preference from localStorage
+      targetLang = savedLang;
+      console.log('[Blog Redirect] Using saved preference:', savedLang);
+    } else if (supportedLanguages.includes(browserLang) && availableCodes.includes(browserLang)) {
+      // Use browser language only if it's in the supported list (sk, en)
+      targetLang = browserLang;
+      console.log('[Blog Redirect] Using browser language:', browserLang);
+    } else {
+      console.log('[Blog Redirect] Using default language:', defaultLang);
+    }
+    
+    // Save the chosen language to localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('currentlang', targetLang);
+    }
+    
+    // Redirect to the appropriate language blog index
+    navigate(`/${targetLang}/blog`, { replace: true });
+  }, [pageContext]);
+
+  return (
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      color: 'white'
+    }}>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{
+          width: '40px',
+          height: '40px',
+          border: '4px solid rgba(255, 255, 255, 0.3)',
+          borderTopColor: 'white',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite',
+          margin: '0 auto 20px'
+        }} />
+        <p style={{ fontSize: '18px', margin: 0 }}>Redirecting to blog...</p>
+        <style>{`
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    </div>
+  );
+};
+
+export default BlogRedirect;
+
+export const Head = () => <title>Redirecting...</title>;

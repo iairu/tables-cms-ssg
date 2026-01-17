@@ -1,22 +1,15 @@
 /**
- * Gatsby Node API for Main Site
- * Generates pages dynamically from CMS data stored in static JSON files
- * Data will be fetched at runtime from /data/*.json
+ * Gatsby Node API for Main Site - Multi-Language Support
+ * Generates pages dynamically from CMS data with language routing
+ * Pages: /{lang}/{slug}
+ * Blog: /{lang}/blog/{year}/{month}/{slug}
  */
 
 const path = require('path');
 const fs = require('fs');
 
-// Cache for development file watching
-let cachedCreatePages = null;
-
 exports.createPages = async ({ actions }) => {
   const { createPage } = actions;
-
-  // Cache the createPage function for hot reload
-  if (process.env.NODE_ENV === 'development') {
-    cachedCreatePages = { createPage };
-  }
 
   // Read CMS data from the static directory
   const staticDataDir = path.join(__dirname, 'static', 'data');
@@ -26,6 +19,28 @@ exports.createPages = async ({ actions }) => {
     fs.mkdirSync(staticDataDir, { recursive: true });
     console.log('[Gatsby Node] Created static/data directory');
   }
+
+  // Load settings to get available languages
+  const settingsFile = path.join(staticDataDir, 'settings.json');
+  let settings = { languages: [{ code: 'en', name: 'English' }], defaultLang: 'en' };
+  if (fs.existsSync(settingsFile)) {
+    try {
+      settings = JSON.parse(fs.readFileSync(settingsFile, 'utf8'));
+      if (!settings.languages) {
+        settings.languages = [{ code: 'en', name: 'English' }];
+      }
+      if (!settings.defaultLang) {
+        settings.defaultLang = 'en';
+      }
+      console.log(`[Gatsby Node] Loaded settings with ${settings.languages.length} languages`);
+    } catch (error) {
+      console.error('[Gatsby Node] Error reading settings.json:', error);
+    }
+  }
+
+  const languages = settings.languages;
+  const defaultLang = settings.defaultLang;
+  const isProduction = process.env.NODE_ENV === 'production';
 
   // Load pages data from static folder
   const pagesFile = path.join(staticDataDir, 'pages.json');
@@ -39,69 +54,67 @@ exports.createPages = async ({ actions }) => {
     }
   }
 
-  // Create pages
-  const pageTemplate = path.resolve(__dirname, 'src/templates/page.js');
-  
-  // Check if home page exists
-  const hasHomePage = pages.some(page => page.slug === 'home' || page.slug === '/');
-  
-  // Load settings for SSG optimization (production only)
-  const isProduction = process.env.NODE_ENV === 'production';
-  let settings = {};
-  
-  if (isProduction) {
-    const settingsFile = path.join(staticDataDir, 'settings.json');
-    if (fs.existsSync(settingsFile)) {
-      try {
-        settings = JSON.parse(fs.readFileSync(settingsFile, 'utf8'));
-        console.log('[Gatsby Node] Production build: Embedding data in pageContext for SSG optimization');
-      } catch (error) {
-        console.error('[Gatsby Node] Error reading settings.json:', error);
-      }
-    }
-  } else {
-    console.log('[Gatsby Node] Development mode: Templates will fetch JSON at runtime for hot reload');
-  }
-  
-  // Get menu pages (pages with includeInMenu or slug === 'home')
+  // Get menu pages
   const menuPages = pages.filter(p => p.includeInMenu || p.slug === 'home');
+
+  // Create pages for each language
+  const pageTemplate = path.resolve(__dirname, 'src/templates/page.js');
+  const redirectTemplate = path.resolve(__dirname, 'src/templates/language-redirect.js');
   
-  pages.forEach(page => {
-    const context = {
-      slug: page.slug,
-    };
-    
-    // Only pass data in production for SSG optimization
-    if (isProduction) {
-      context.pageData = page;
-      context.settings = settings;
-      context.menuPages = menuPages;
-    }
-    
-    createPage({
-      path: page.slug === 'home' ? '/' : `/${page.slug}`,
-      component: pageTemplate,
-      context: context,
+  // Create root redirect page
+  console.log('[Gatsby Node] Creating language detection redirect at /');
+  createPage({
+    path: '/',
+    component: redirectTemplate,
+    context: {
+      languages: languages.map(l => l.code),
+      defaultLang: defaultLang,
+      isProduction: isProduction,
+      settings: isProduction ? settings : null,
+      menuPages: isProduction ? menuPages : null,
+    },
+  });
+
+  languages.forEach(lang => {
+    pages.forEach(page => {
+      // Get localized content for this language
+      const localizedContent = page.translations && page.translations[lang.code] 
+        ? page.translations[lang.code] 
+        : { title: page.title, slug: page.slug, rows: page.rows };
+
+      const isHome = page.slug === 'home' || localizedContent.slug === 'home';
+      const pagePath = isHome 
+        ? `/${lang.code}`
+        : `/${lang.code}/${localizedContent.slug}`;
+      
+      console.log(`[Gatsby Node] Creating page: ${pagePath}`);
+      
+      const context = {
+        slug: localizedContent.slug,
+        language: lang.code,
+        pageId: page.id,
+      };
+      
+      // Only pass data in production for SSG optimization
+      if (isProduction) {
+        context.pageData = {
+          ...page,
+          title: localizedContent.title,
+          slug: localizedContent.slug,
+          rows: localizedContent.rows,
+        };
+        context.settings = settings;
+        context.menuPages = menuPages;
+        context.languages = languages;
+      }
+      
+      createPage({
+        path: pagePath,
+        component: pageTemplate,
+        context: context,
+      });
     });
   });
-  
-  // Create fallback home page if none exists
-  if (!hasHomePage) {
-    console.log('[Gatsby Node] No home page found, creating fallback home page');
-    const context = {};
-    
-    // Only pass data in production
-    if (isProduction) {
-      context.settings = settings;
-      context.menuPages = menuPages;
-    }
-    
-    createPage({
-      path: '/',
-      component: path.resolve(__dirname, 'src/templates/empty-home.js'),
-      context: context,
-    });
-  }
 
   // Load blog articles data from static folder
   const blogFile = path.join(staticDataDir, 'blog.json');
@@ -115,92 +128,150 @@ exports.createPages = async ({ actions }) => {
     }
   }
 
-  // Create blog article pages
+  // Create blog article pages for each language
   const blogTemplate = path.resolve(__dirname, 'src/templates/blog-article.js');
-  blogArticles.forEach(article => {
-    const pagePath = `/blog/${article.year}/${article.month}/${article.slug}`;
-    console.log(`[Gatsby Node] Creating blog page: ${pagePath}`);
+  
+  languages.forEach(lang => {
+    blogArticles.forEach(article => {
+      // Get localized content for this language
+      const hasTranslation = article.translations && article.translations[lang.code];
+      const localizedContent = hasTranslation
+        ? article.translations[lang.code]
+        : { title: article.title, slug: article.slug, content: article.content, author: article.author };
+
+      const pagePath = `/${lang.code}/blog/${article.year}/${article.month}/${localizedContent.slug}`;
+      console.log(`[Gatsby Node] Creating blog page: ${pagePath}${hasTranslation ? ' (translated)' : ' (fallback)'}`);
+      
+      const context = {
+        slug: localizedContent.slug,
+        language: lang.code,
+        articleId: article.id,
+      };
+      
+      // Only pass data in production for SSG optimization
+      if (isProduction) {
+        context.articleData = {
+          ...article,
+          title: localizedContent.title,
+          slug: localizedContent.slug,
+          content: localizedContent.content,
+          author: localizedContent.author,
+        };
+        context.settings = settings;
+        context.menuPages = menuPages;
+        context.languages = languages;
+      }
+      
+      createPage({
+        path: pagePath,
+        component: blogTemplate,
+        context: context,
+      });
+    });
+  });
+
+  // Create blog index pages for each language
+  const blogIndexTemplate = path.resolve(__dirname, 'src/templates/blog-index.js');
+  const blogRedirectTemplate = path.resolve(__dirname, 'src/templates/blog-redirect.js');
+  
+  // Create /blog redirect
+  console.log('[Gatsby Node] Creating blog language redirect at /blog');
+  createPage({
+    path: '/blog',
+    component: blogRedirectTemplate,
+    context: {
+      languages: languages.map(l => l.code),
+      defaultLang: defaultLang,
+    },
+  });
+
+  languages.forEach(lang => {
+    const pagePath = `/${lang.code}/blog`;
+    console.log(`[Gatsby Node] Creating blog index: ${pagePath}`);
     
     const context = {
-      slug: article.slug,
+      language: lang.code,
     };
     
     // Only pass data in production for SSG optimization
     if (isProduction) {
-      context.articleData = article;
+      // Localize article titles for the list
+      const localizedArticles = blogArticles.map(article => {
+        const localizedContent = article.translations && article.translations[lang.code]
+          ? article.translations[lang.code]
+          : { title: article.title, slug: article.slug };
+        
+        return {
+          ...article,
+          title: localizedContent.title,
+          slug: localizedContent.slug,
+        };
+      });
+      
+      context.articlesData = localizedArticles;
       context.settings = settings;
       context.menuPages = menuPages;
+      context.languages = languages;
     }
     
     createPage({
       path: pagePath,
-      component: blogTemplate,
+      component: blogIndexTemplate,
       context: context,
     });
   });
 
-  // Create a catch-all client-side route for blog articles in development
-  // This enables hot reload without needing to restart the dev server
+  // Create catch-all routes for development hot reload
   if (process.env.NODE_ENV === 'development') {
-    console.log('[Gatsby Node] Creating catch-all blog route for hot reload support');
+    console.log('[Gatsby Node] Creating catch-all routes for hot reload support');
+    
+    // Catch-all for blog articles
     createPage({
-      path: '/blog/catch-all',
-      matchPath: '/blog/:year/:month/:slug',
+      path: '/lang-blog-catch-all',
+      matchPath: '/:lang/blog/:year/:month/:slug',
       component: blogTemplate,
       context: {
-        slug: null, // Will be extracted from URL on client-side
+        slug: null,
+        language: null,
       },
     });
-  }
-
-  // Create a catch-all client-side route for pages in development
-  // This enables hot reload without needing to restart the dev server
-  // We create this AFTER blog routes to ensure proper route priority
-  if (process.env.NODE_ENV === 'development') {
-    console.log('[Gatsby Node] Creating catch-all page route for hot reload support');
+    
+    // Catch-all for pages
     createPage({
-      path: '/page-catch-all',
-      matchPath: '/:slug',
+      path: '/lang-page-catch-all',
+      matchPath: '/:lang/:slug',
       component: pageTemplate,
       context: {
-        slug: null, // Will be extracted from URL on client-side
+        slug: null,
+        language: null,
+      },
+    });
+
+    // Catch-all for language home pages
+    createPage({
+      path: '/lang-home-catch-all',
+      matchPath: '/:lang',
+      component: pageTemplate,
+      context: {
+        slug: 'home',
+        language: null,
       },
     });
   }
-
-  // Create blog index page
-  const blogIndexTemplate = path.resolve(__dirname, 'src/templates/blog-index.js');
-  const context = {};
-  
-  // Only pass data in production for SSG optimization
-  if (isProduction) {
-    context.articlesData = blogArticles;
-    context.settings = settings;
-    context.menuPages = menuPages;
-  }
-  
-  createPage({
-    path: '/blog',
-    component: blogIndexTemplate,
-    context: context,
-  });
 };
 
 /**
  * Setup file watching for static data files in development
- * Triggers Gatsby to rebuild routes when JSON files change
  */
 exports.onCreateDevServer = ({ app }) => {
   const staticDataDir = path.join(__dirname, 'static', 'data');
   
-  // Only watch in development
   if (process.env.NODE_ENV === 'development') {
     try {
       const chokidar = require('chokidar');
       const http = require('http');
       
       console.log('[Gatsby Node] 🔥 Setting up hot reload for static/data/*.json');
-      console.log('[Gatsby Node] Routes will rebuild automatically when data changes!');
       
       const watcher = chokidar.watch(path.join(staticDataDir, '*.json'), {
         ignoreInitial: true,
@@ -219,7 +290,6 @@ exports.onCreateDevServer = ({ app }) => {
         console.log(`\n[Gatsby Node] 🔄 Detected change in ${fileName}`);
         console.log('[Gatsby Node] 🚀 Triggering automatic route rebuild...\n');
         
-        // Trigger Gatsby's webhook to rebuild
         const options = {
           hostname: 'localhost',
           port: 3000,
@@ -229,17 +299,13 @@ exports.onCreateDevServer = ({ app }) => {
         
         const req = http.request(options, (res) => {
           if (res.statusCode === 200) {
-            console.log('[Gatsby Node] ✅ Routes rebuilt successfully!');
-            console.log('[Gatsby Node] 🎉 Your changes are now live!\n');
-          } else {
-            console.log(`[Gatsby Node] ⚠️ Rebuild returned status ${res.statusCode}`);
+            console.log('[Gatsby Node] ✅ Routes rebuilt successfully!\n');
           }
           setTimeout(() => { isRebuilding = false; }, 2000);
         });
         
         req.on('error', (error) => {
           console.error('[Gatsby Node] ❌ Error triggering rebuild:', error.message);
-          console.log('[Gatsby Node] 📝 Manual restart may be needed: npm run develop\n');
           isRebuilding = false;
         });
         
@@ -257,10 +323,7 @@ exports.onCreateDevServer = ({ app }) => {
       });
       
     } catch (error) {
-      console.log('[Gatsby Node] ⚠️ File watcher not available (chokidar not installed)');
-      console.log('[Gatsby Node] To enable hot reload, run:');
-      console.log('   npm install --save-dev chokidar\n');
+      console.log('[Gatsby Node] ⚠️ File watcher not available (install chokidar for hot reload)');
     }
   }
 };
-

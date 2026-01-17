@@ -1,9 +1,21 @@
 import React, { useState, useEffect } from 'react';
+import { navigate } from 'gatsby';
 
 const BlogArticleTemplate = ({ pageContext, location }) => {
   const [article, setArticle] = useState(pageContext.articleData || null);
   const [settings, setSettings] = useState(pageContext.settings || null);
   const [menuPages, setMenuPages] = useState(pageContext.menuPages || []);
+  const [languages, setLanguages] = useState(pageContext.languages || [{ code: 'en', name: 'English' }]);
+  const [currentLanguage, setCurrentLanguage] = useState(() => {
+    // Initialize from localStorage if available, otherwise use pageContext
+    if (typeof window !== 'undefined') {
+      const savedLang = localStorage.getItem('currentlang');
+      if (savedLang) {
+        return savedLang;
+      }
+    }
+    return pageContext.language || 'en';
+  });
   const [loading, setLoading] = useState(!pageContext.articleData);
 
   useEffect(() => {
@@ -13,6 +25,31 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
       setArticle(pageContext.articleData);
       setSettings(pageContext.settings);
       setMenuPages(pageContext.menuPages || []);
+      setLanguages(pageContext.languages || [{ code: 'en', name: 'English' }]);
+      
+      // Read currentLanguage from localStorage or initialize it
+      if (typeof window !== 'undefined') {
+        const savedLang = localStorage.getItem('currentlang');
+        if (savedLang) {
+          setCurrentLanguage(savedLang);
+        } else {
+          // Initialize with browser default if supported
+          const browserLang = navigator.language.split('-')[0];
+          const supportedLanguages = ['sk', 'en'];
+          const availableCodes = (pageContext.languages || []).map(l => l.code);
+          
+          if (supportedLanguages.includes(browserLang) && availableCodes.includes(browserLang)) {
+            setCurrentLanguage(browserLang);
+            localStorage.setItem('currentlang', browserLang);
+          } else {
+            setCurrentLanguage(pageContext.language || 'en');
+            localStorage.setItem('currentlang', pageContext.language || 'en');
+          }
+        }
+      } else {
+        setCurrentLanguage(pageContext.language || 'en');
+      }
+      
       setLoading(false);
       return;
     }
@@ -27,6 +64,35 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
       slug = pathParts[pathParts.length - 1];
     }
 
+    // Read currentLanguage from localStorage or initialize it
+    if (typeof window !== 'undefined') {
+      const savedLang = localStorage.getItem('currentlang');
+      if (savedLang) {
+        setCurrentLanguage(savedLang);
+      } else {
+        // Initialize with browser default if supported (will be validated after fetching settings)
+        const browserLang = navigator.language.split('-')[0];
+        const supportedLanguages = ['sk', 'en'];
+        
+        // Fetch settings first to validate
+        fetch('/data/settings.json')
+          .then(res => res.json())
+          .then(settingsData => {
+            const availableCodes = (settingsData.languages || []).map(l => l.code);
+            if (supportedLanguages.includes(browserLang) && availableCodes.includes(browserLang)) {
+              setCurrentLanguage(browserLang);
+              localStorage.setItem('currentlang', browserLang);
+            } else {
+              setCurrentLanguage(pageContext.language || 'en');
+              localStorage.setItem('currentlang', pageContext.language || 'en');
+            }
+          })
+          .catch(() => {
+            localStorage.setItem('currentlang', pageContext.language || 'en');
+          });
+      }
+    }
+
     // Fetch blog articles data
     fetch('/data/blog.json')
       .then(res => {
@@ -34,7 +100,17 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
         return res.json();
       })
       .then(blogData => {
-        const foundArticle = blogData.find(a => a.slug === slug);
+        // Search by base slug or localized slug in translations
+        const foundArticle = blogData.find(a => {
+          if (a.slug === slug) return true;
+          // Check if slug matches any translation
+          if (a.translations) {
+            for (const lang in a.translations) {
+              if (a.translations[lang].slug === slug) return true;
+            }
+          }
+          return false;
+        });
         console.log('[Blog Article] Found article:', foundArticle ? foundArticle.title : 'NOT FOUND');
         setArticle(foundArticle);
         
@@ -60,6 +136,7 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
       .then(settingsData => {
         console.log('[Blog Article] Loaded settings:', settingsData.siteTitle);
         setSettings(settingsData);
+        setLanguages(settingsData.languages || [{ code: 'en', name: 'English' }]);
         setLoading(false);
       })
       .catch(error => {
@@ -67,6 +144,59 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
         setLoading(false);
       });
   }, [pageContext.slug, pageContext.articleData, pageContext.settings, location]);
+
+  // Helper function to get localized content
+  const getLocalizedContent = (article, lang) => {
+    if (article.translations && article.translations[lang]) {
+      return article.translations[lang];
+    }
+    return {
+      title: article.title,
+      slug: article.slug,
+      author: article.author,
+      content: article.content,
+      category: article.category,
+      tags: article.tags,
+    };
+  };
+
+  // Handle language change
+  const handleLanguageChange = (newLang) => {
+    // Save preference to localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('currentlang', newLang);
+    }
+    
+    // Get localized slug for current article
+    let targetSlug = article.slug;
+    if (article.translations && article.translations[newLang]) {
+      targetSlug = article.translations[newLang].slug;
+    }
+    
+    // Navigate to the new language version
+    const date = new Date(article.date);
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    navigate(`/${newLang}/blog/${year}/${month}/${targetSlug}`);
+  };
+
+  // Get localized menu page title
+  const getLocalizedPageTitle = (menuPage, lang) => {
+    if (menuPage.translations && menuPage.translations[lang]) {
+      return menuPage.translations[lang].title || menuPage.title;
+    }
+    return menuPage.title;
+  };
+
+  // Get localized menu page slug
+  const getLocalizedPageSlug = (menuPage, lang) => {
+    if (menuPage.translations && menuPage.translations[lang]) {
+      return menuPage.translations[lang].slug || menuPage.slug;
+    }
+    return menuPage.slug;
+  };
+
+  const articleContent = article ? getLocalizedContent(article, currentLanguage) : {};
 
   if (loading) {
     return (
@@ -118,17 +248,45 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
           <h1 style={{ margin: 0, fontSize: '1.5rem' }}>
             {settings?.siteTitle || 'TABLES'}
           </h1>
-          <nav>
-            {menuPages.map(menuPage => (
-              <a 
-                key={menuPage.id}
-                href={menuPage.slug === 'home' ? '/' : `/${menuPage.slug}`}
-                style={{ color: 'white', marginRight: '1.5rem', textDecoration: 'none' }}
-              >
-                {menuPage.title}
-              </a>
-            ))}
-            <a href="/blog" style={{ color: 'white', marginRight: '1.5rem', textDecoration: 'none' }}>Blog</a>
+          <nav style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+            {menuPages.map(menuPage => {
+              const localizedSlug = getLocalizedPageSlug(menuPage, currentLanguage);
+              const localizedTitle = getLocalizedPageTitle(menuPage, currentLanguage);
+              const isHome = menuPage.slug === 'home' || localizedSlug === 'home';
+              const href = isHome ? `/${currentLanguage}` : `/${currentLanguage}/${localizedSlug}`;
+              
+              return (
+                <a 
+                  key={menuPage.id}
+                  href={href}
+                  style={{ color: 'white', textDecoration: 'none' }}
+                >
+                  {localizedTitle}
+                </a>
+              );
+            })}
+            <a href={`/${currentLanguage}/blog`} style={{ color: 'white', textDecoration: 'none' }}>Blog</a>
+            
+            {/* Language Switcher */}
+            <select
+              value={currentLanguage}
+              onChange={(e) => handleLanguageChange(e.target.value)}
+              style={{
+                background: 'rgba(255, 255, 255, 0.2)',
+                color: 'white',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                borderRadius: '4px',
+                padding: '5px 10px',
+                cursor: 'pointer',
+                fontSize: '14px',
+              }}
+            >
+              {languages.map(language => (
+                <option key={language.code} value={language.code} style={{ color: '#333' }}>
+                  {language.name}
+                </option>
+              ))}
+            </select>
           </nav>
         </div>
       </header>
@@ -153,7 +311,7 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
               color: '#0f172a',
               lineHeight: '1.2'
             }}>
-              {article.title}
+              {articleContent.title || article.title}
             </h1>
             
             <div style={{
@@ -162,10 +320,10 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
               gap: '1rem',
               color: '#64748b',
               fontSize: '0.875rem',
-              marginBottom: '1rem'
+              marginTop: '0.5rem'
             }}>
-              {article.author && (
-                <span style={{ fontWeight: '600' }}>By {article.author}</span>
+              {(articleContent.author || article.author) && (
+                <span>By {articleContent.author || article.author}</span>
               )}
               {article.date && (
                 <span>
@@ -178,26 +336,27 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
               )}
             </div>
             
-            {(article.category || article.tags) && (
+            {((articleContent.category || article.category) || (articleContent.tags || article.tags)) && (
               <div style={{
                 display: 'flex',
                 flexWrap: 'wrap',
                 gap: '0.5rem',
-                alignItems: 'center'
+                alignItems: 'center',
+                marginTop: '1rem'
               }}>
-                {article.category && (
+                {(articleContent.category || article.category) && (
                   <span style={{
                     background: '#e0e7ff',
                     color: '#3730a3',
                     padding: '0.25rem 0.75rem',
                     borderRadius: '9999px',
-                    fontSize: '0.75rem',
+                    fontSize: '0.875rem',
                     fontWeight: '600'
                   }}>
-                    {article.category}
+                    {articleContent.category || article.category}
                   </span>
                 )}
-                {article.tags && article.tags.split(',').map((tag, idx) => (
+                {(articleContent.tags || article.tags) && (articleContent.tags || article.tags).split(',').map((tag, idx) => (
                   <span 
                     key={idx}
                     style={{
@@ -205,7 +364,7 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
                       color: '#475569',
                       padding: '0.25rem 0.75rem',
                       borderRadius: '9999px',
-                      fontSize: '0.75rem'
+                      fontSize: '0.875rem'
                     }}
                   >
                     {tag.trim()}
@@ -222,7 +381,7 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
             color: '#334155',
             whiteSpace: 'pre-wrap'
           }}>
-            {article.content}
+            {articleContent.content || article.content}
           </div>
         </article>
 
@@ -233,7 +392,7 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
           borderTop: '1px solid #e2e8f0'
         }}>
           <a 
-            href="/blog"
+            href={`/${currentLanguage}/blog`}
             style={{
               display: 'inline-block',
               padding: '0.75rem 1.5rem',

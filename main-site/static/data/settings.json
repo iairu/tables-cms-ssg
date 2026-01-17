@@ -3,5 +3,15 @@
   "defaultLang": "",
   "theme": "light",
   "vercelApiKey": "***HIDDEN***",
-  "domain": "https://main-site-ruby.vercel.app"
+  "domain": "https://main-site-ruby.vercel.app",
+  "languages": [
+    {
+      "code": "sk",
+      "name": "Slovak"
+    },
+    {
+      "code": "en",
+      "name": "English"
+    }
+  ]
 }

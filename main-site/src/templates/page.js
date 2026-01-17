@@ -1,9 +1,21 @@
 import React, { useState, useEffect } from 'react';
+import { navigate } from 'gatsby';
 
 const PageTemplate = ({ pageContext, location }) => {
   const [page, setPage] = useState(pageContext.pageData || null);
   const [settings, setSettings] = useState(pageContext.settings || null);
   const [menuPages, setMenuPages] = useState(pageContext.menuPages || []);
+  const [languages, setLanguages] = useState(pageContext.languages || [{ code: 'en', name: 'English' }]);
+  const [currentLanguage, setCurrentLanguage] = useState(() => {
+    // Initialize from localStorage if available, otherwise use pageContext
+    if (typeof window !== 'undefined') {
+      const savedLang = localStorage.getItem('currentlang');
+      if (savedLang) {
+        return savedLang;
+      }
+    }
+    return pageContext.language || 'en';
+  });
   const [loading, setLoading] = useState(!pageContext.pageData);
 
   useEffect(() => {
@@ -13,53 +25,137 @@ const PageTemplate = ({ pageContext, location }) => {
       setPage(pageContext.pageData);
       setSettings(pageContext.settings);
       setMenuPages(pageContext.menuPages || []);
+      setLanguages(pageContext.languages || [{ code: 'en', name: 'English' }]);
+      
+      // Read currentLanguage from localStorage
+      if (typeof window !== 'undefined') {
+        const savedLang = localStorage.getItem('currentlang');
+        if (savedLang) {
+          setCurrentLanguage(savedLang);
+        } else {
+          // Initialize with browser default if supported
+          const browserLang = navigator.language.split('-')[0];
+          const supportedLanguages = ['sk', 'en'];
+          const availableCodes = (pageContext.languages || []).map(l => l.code);
+          
+          if (supportedLanguages.includes(browserLang) && availableCodes.includes(browserLang)) {
+            setCurrentLanguage(browserLang);
+            localStorage.setItem('currentlang', browserLang);
+          } else {
+            setCurrentLanguage(pageContext.language || 'en');
+            localStorage.setItem('currentlang', pageContext.language || 'en');
+          }
+        }
+      } else {
+        setCurrentLanguage(pageContext.language || 'en');
+      }
+      
       setLoading(false);
       return;
     }
 
     // Otherwise fetch at runtime (development hot reload)
     console.log('[Page] Fetching data at runtime from /data/*.json (development mode)');
-    // Extract slug from URL if not in pageContext (client-side routing via catch-all)
+    
+    // Extract language and slug from URL
+    let lang = pageContext.language;
     let slug = pageContext.slug;
-    if (!slug && location && location.pathname) {
-      // Extract slug from URL path like /my-page
+    
+    if (!lang && location && location.pathname) {
       const pathParts = location.pathname.split('/').filter(Boolean);
-      slug = pathParts[0]; // First part after domain is the slug
-      console.log('[Page] Extracted slug from URL:', slug);
+      lang = pathParts[0] || 'en'; // First part is language
+      slug = pathParts[1] || 'home'; // Second part is slug (or 'home' if at /{lang})
+      console.log('[Page] Extracted from URL - lang:', lang, 'slug:', slug);
+    }
+    
+    // Read currentLanguage from localStorage or initialize it
+    if (typeof window !== 'undefined') {
+      const savedLang = localStorage.getItem('currentlang');
+      if (savedLang) {
+        setCurrentLanguage(savedLang);
+      } else {
+        // Initialize with browser default if supported
+        const browserLang = navigator.language.split('-')[0];
+        const supportedLanguages = ['sk', 'en'];
+        
+        setCurrentLanguage(lang);
+        
+        // Will update with browser default after fetching languages
+        fetch('/data/settings.json')
+          .then(res => res.json())
+          .then(settingsData => {
+            const availableCodes = (settingsData.languages || []).map(l => l.code);
+            if (supportedLanguages.includes(browserLang) && availableCodes.includes(browserLang)) {
+              setCurrentLanguage(browserLang);
+              localStorage.setItem('currentlang', browserLang);
+            } else {
+              localStorage.setItem('currentlang', lang);
+            }
+          })
+          .catch(() => {
+            localStorage.setItem('currentlang', lang);
+          });
+      }
     }
 
-    // Fetch pages data
-    fetch('/data/pages.json')
+    // Fetch settings first to get languages
+    fetch('/data/settings.json')
+      .then(res => res.json())
+      .then(settingsData => {
+        console.log('[Page] Loaded settings:', settingsData.siteTitle);
+        setSettings(settingsData);
+        setLanguages(settingsData.languages || [{ code: 'en', name: 'English' }]);
+        
+        // Fetch pages data
+        return fetch('/data/pages.json');
+      })
       .then(res => {
         console.log('[Page] Fetched /data/pages.json');
         return res.json();
       })
       .then(pagesData => {
-        const foundPage = pagesData.find(p => p.slug === slug);
-        console.log('[Page] Found page:', foundPage ? foundPage.title : 'NOT FOUND');
-        setPage(foundPage);
+        // Find page by ID or slug
+        let foundPage = null;
         
-        // Set menu pages (pages with includeInMenu or slug === 'home')
+        if (pageContext.pageId) {
+          foundPage = pagesData.find(p => p.id === pageContext.pageId);
+        } else {
+          // Search in default content or translations
+          foundPage = pagesData.find(p => {
+            if (p.slug === slug) return true;
+            if (p.translations && p.translations[lang] && p.translations[lang].slug === slug) return true;
+            return false;
+          });
+        }
+        
+        if (foundPage) {
+          // Get localized content
+          const localizedContent = foundPage.translations && foundPage.translations[lang]
+            ? foundPage.translations[lang]
+            : { title: foundPage.title, slug: foundPage.slug, rows: foundPage.rows };
+          
+          setPage({
+            ...foundPage,
+            title: localizedContent.title,
+            slug: localizedContent.slug,
+            rows: localizedContent.rows
+          });
+        } else {
+          console.log('[Page] Page not found');
+          setPage(null);
+        }
+        
+        // Set menu pages
         const menu = pagesData.filter(p => p.includeInMenu || p.slug === 'home');
         setMenuPages(menu);
         
-        // Fetch settings data
-        return fetch('/data/settings.json');
-      })
-      .then(res => {
-        console.log('[Page] Fetched /data/settings.json');
-        return res.json();
-      })
-      .then(settingsData => {
-        console.log('[Page] Loaded settings:', settingsData.siteTitle);
-        setSettings(settingsData);
         setLoading(false);
       })
       .catch(error => {
         console.error('[Page] Error fetching data:', error);
         setLoading(false);
       });
-  }, [pageContext.slug, pageContext.pageData, pageContext.settings, location]);
+  }, [pageContext.slug, pageContext.pageData, pageContext.settings, pageContext.language, pageContext.pageId, location]);
 
   if (loading) {
     return (
@@ -90,6 +186,41 @@ const PageTemplate = ({ pageContext, location }) => {
   }
 
   const rows = page.rows || [];
+  
+  // Handle language change
+  const handleLanguageChange = (newLang) => {
+    // Save preference to localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('currentlang', newLang);
+    }
+    
+    // Get localized slug for current page
+    let targetSlug = page.slug;
+    if (page.translations && page.translations[newLang]) {
+      targetSlug = page.translations[newLang].slug;
+    }
+    
+    // Navigate to the new language version
+    const isHome = page.slug === 'home' || targetSlug === 'home';
+    const newPath = isHome ? `/${newLang}` : `/${newLang}/${targetSlug}`;
+    navigate(newPath);
+  };
+  
+  // Get localized menu page title
+  const getLocalizedPageTitle = (menuPage, lang) => {
+    if (menuPage.translations && menuPage.translations[lang]) {
+      return menuPage.translations[lang].title;
+    }
+    return menuPage.title;
+  };
+  
+  // Get localized menu page slug
+  const getLocalizedPageSlug = (menuPage, lang) => {
+    if (menuPage.translations && menuPage.translations[lang]) {
+      return menuPage.translations[lang].slug;
+    }
+    return menuPage.slug;
+  };
 
   return (
     <div style={{
@@ -113,17 +244,46 @@ const PageTemplate = ({ pageContext, location }) => {
           <h1 style={{ margin: 0, fontSize: '1.5rem' }}>
             {settings?.siteTitle || 'TABLES'}
           </h1>
-          <nav>
-            {menuPages.map(menuPage => (
-              <a 
-                key={menuPage.id}
-                href={menuPage.slug === 'home' ? '/' : `/${menuPage.slug}`}
-                style={{ color: 'white', marginRight: '1.5rem', textDecoration: 'none' }}
-              >
-                {menuPage.title}
-              </a>
-            ))}
-            <a href="/blog" style={{ color: 'white', marginRight: '1.5rem', textDecoration: 'none' }}>Blog</a>
+          <nav style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+            {menuPages.map(menuPage => {
+              const localizedSlug = getLocalizedPageSlug(menuPage, currentLanguage);
+              const localizedTitle = getLocalizedPageTitle(menuPage, currentLanguage);
+              const isHome = menuPage.slug === 'home' || localizedSlug === 'home';
+              const href = isHome ? `/${currentLanguage}` : `/${currentLanguage}/${localizedSlug}`;
+              
+              return (
+                <a 
+                  key={menuPage.id}
+                  href={href}
+                  style={{ color: 'white', textDecoration: 'none' }}
+                >
+                  {localizedTitle}
+                </a>
+              );
+            })}
+            <a href={`/${currentLanguage}/blog`} style={{ color: 'white', textDecoration: 'none' }}>Blog</a>
+            
+            {/* Language Switcher */}
+            <select
+              value={currentLanguage}
+              onChange={(e) => handleLanguageChange(e.target.value)}
+              style={{
+                background: 'rgba(255, 255, 255, 0.2)',
+                color: 'white',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                borderRadius: '4px',
+                padding: '5px 10px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500'
+              }}
+            >
+              {languages.map(lang => (
+                <option key={lang.code} value={lang.code} style={{ color: '#000' }}>
+                  {lang.name}
+                </option>
+              ))}
+            </select>
           </nav>
         </div>
       </header>
@@ -696,11 +856,13 @@ export default PageTemplate;
 export const Head = ({ pageContext }) => {
   const title = pageContext.pageData?.title || pageContext.slug;
   const siteTitle = pageContext.settings?.siteTitle || 'TABLES';
+  const language = pageContext.language || 'en';
   
   return (
     <>
       <title>{title} | {siteTitle}</title>
       <meta name="description" content={title} />
+      <html lang={language} />
     </>
   );
 };

@@ -2,7 +2,7 @@ add support for multiple languages as per settings property languages (new prope
 
 ---
 
-improve the theme picker in settings to show actual themes named: Default, StrukShow Brand Special, iairu Brand Special, Synthwave, Matrix, Monokai, GitHub, VSCode, Anime, Historic Paper, Senior Citizen, ayu
+improve the theme picker in settings to show actual themes named: Default, StrukShow Brand Special, iairu Brand Special, Synthwave, Matrix, Monokai, GitHub, VSCode, Anime, Historic Paper, Senior Citizen, ayu; add css for all of these themes to the frontend, utilize body class "theme-[themeName]" to switch between them
 
 add "show breadcrumbs on pages and articles" toggle to settings
 

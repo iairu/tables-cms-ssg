@@ -1,9 +1,22 @@
 import React, { useState, useEffect } from 'react';
+import { navigate } from 'gatsby';
 
 const BlogIndexTemplate = ({ pageContext }) => {
+  const { lang = 'en' } = pageContext;
   const [articles, setArticles] = useState(pageContext.articlesData || []);
   const [settings, setSettings] = useState(pageContext.settings || null);
   const [menuPages, setMenuPages] = useState(pageContext.menuPages || []);
+  const [languages, setLanguages] = useState(pageContext.languages || [{ code: 'en', name: 'English' }]);
+  const [currentLanguage, setCurrentLanguage] = useState(() => {
+    // Initialize from localStorage if available, otherwise use pageContext
+    if (typeof window !== 'undefined') {
+      const savedLang = localStorage.getItem('currentlang');
+      if (savedLang) {
+        return savedLang;
+      }
+    }
+    return lang;
+  });
   const [loading, setLoading] = useState(!pageContext.articlesData);
 
   useEffect(() => {
@@ -18,11 +31,66 @@ const BlogIndexTemplate = ({ pageContext }) => {
       setArticles(sortedArticles);
       setSettings(pageContext.settings);
       setMenuPages(pageContext.menuPages || []);
+      setLanguages(pageContext.languages || [{ code: 'en', name: 'English' }]);
+      
+      // Read currentLanguage from localStorage or initialize it
+      if (typeof window !== 'undefined') {
+        const savedLang = localStorage.getItem('currentlang');
+        if (savedLang) {
+          setCurrentLanguage(savedLang);
+        } else {
+          // Initialize with browser default if supported
+          const browserLang = navigator.language.split('-')[0];
+          const supportedLanguages = ['sk', 'en'];
+          const availableCodes = (pageContext.languages || []).map(l => l.code);
+          
+          if (supportedLanguages.includes(browserLang) && availableCodes.includes(browserLang)) {
+            setCurrentLanguage(browserLang);
+            localStorage.setItem('currentlang', browserLang);
+          } else {
+            setCurrentLanguage(lang);
+            localStorage.setItem('currentlang', lang);
+          }
+        }
+      } else {
+        setCurrentLanguage(lang);
+      }
+      
       setLoading(false);
       return;
     }
 
     // Otherwise fetch at runtime (development hot reload)
+    
+    // Read currentLanguage from localStorage or initialize it
+    if (typeof window !== 'undefined') {
+      const savedLang = localStorage.getItem('currentlang');
+      if (savedLang) {
+        setCurrentLanguage(savedLang);
+      } else {
+        // Initialize with browser default if supported (will be validated after fetching settings)
+        const browserLang = navigator.language.split('-')[0];
+        const supportedLanguages = ['sk', 'en'];
+        
+        // Fetch settings first to validate
+        fetch('/data/settings.json')
+          .then(res => res.json())
+          .then(settingsData => {
+            const availableCodes = (settingsData.languages || []).map(l => l.code);
+            if (supportedLanguages.includes(browserLang) && availableCodes.includes(browserLang)) {
+              setCurrentLanguage(browserLang);
+              localStorage.setItem('currentlang', browserLang);
+            } else {
+              setCurrentLanguage(lang);
+              localStorage.setItem('currentlang', lang);
+            }
+          })
+          .catch(() => {
+            localStorage.setItem('currentlang', lang);
+          });
+      }
+    }
+    
     fetch('/data/blog.json')
       .then(res => res.json())
       .then(blogData => {
@@ -53,6 +121,7 @@ const BlogIndexTemplate = ({ pageContext }) => {
       .then(res => res.json())
       .then(settingsData => {
         setSettings(settingsData);
+        setLanguages(settingsData.languages || [{ code: 'en', name: 'English' }]);
         setLoading(false);
       })
       .catch(error => {
@@ -75,9 +144,56 @@ const BlogIndexTemplate = ({ pageContext }) => {
     );
   }
 
+  // Helper function to get localized content
+  const getLocalizedContent = (article, lang) => {
+    if (article.translations && article.translations[lang]) {
+      return article.translations[lang];
+    }
+    return {
+      title: article.title,
+      slug: article.slug,
+      author: article.author,
+      content: article.content,
+    };
+  };
+
+  // Filter articles by current language
+  const filteredArticles = articles.filter(article => {
+    const localizedContent = getLocalizedContent(article, currentLanguage);
+    // Only show articles that have content in the current language
+    return localizedContent.title && localizedContent.slug;
+  });
+
+  // Handle language change
+  const handleLanguageChange = (newLang) => {
+    // Save preference to localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('currentlang', newLang);
+    }
+    
+    // Navigate to the new language blog index
+    navigate(`/${newLang}/blog`);
+  };
+
+  // Get localized menu page title
+  const getLocalizedPageTitle = (menuPage, lang) => {
+    if (menuPage.translations && menuPage.translations[lang]) {
+      return menuPage.translations[lang].title || menuPage.title;
+    }
+    return menuPage.title;
+  };
+
+  // Get localized menu page slug
+  const getLocalizedPageSlug = (menuPage, lang) => {
+    if (menuPage.translations && menuPage.translations[lang]) {
+      return menuPage.translations[lang].slug || menuPage.slug;
+    }
+    return menuPage.slug;
+  };
+
   // Group articles by year and month
   const groupedArticles = {};
-  articles.forEach(article => {
+  filteredArticles.forEach(article => {
     const year = article.year;
     const month = article.month;
     if (!groupedArticles[year]) groupedArticles[year] = {};
@@ -124,17 +240,45 @@ const BlogIndexTemplate = ({ pageContext }) => {
           <h1 style={{ margin: 0, fontSize: '1.5rem' }}>
             {settings?.siteTitle || 'TABLES'}
           </h1>
-          <nav>
-            {menuPages.map(menuPage => (
-              <a 
-                key={menuPage.id}
-                href={menuPage.slug === 'home' ? '/' : `/${menuPage.slug}`}
-                style={{ color: 'white', marginRight: '1.5rem', textDecoration: 'none' }}
-              >
-                {menuPage.title}
-              </a>
-            ))}
-            <a href="/blog" style={{ color: 'white', marginRight: '1.5rem', textDecoration: 'none' }}>Blog</a>
+          <nav style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+            {menuPages.map(menuPage => {
+              const localizedSlug = getLocalizedPageSlug(menuPage, currentLanguage);
+              const localizedTitle = getLocalizedPageTitle(menuPage, currentLanguage);
+              const isHome = menuPage.slug === 'home' || localizedSlug === 'home';
+              const href = isHome ? `/${currentLanguage}` : `/${currentLanguage}/${localizedSlug}`;
+              
+              return (
+                <a 
+                  key={menuPage.id}
+                  href={href}
+                  style={{ color: 'white', textDecoration: 'none' }}
+                >
+                  {localizedTitle}
+                </a>
+              );
+            })}
+            <a href={`/${currentLanguage}/blog`} style={{ color: 'white', textDecoration: 'none' }}>Blog</a>
+            
+            {/* Language Switcher */}
+            <select
+              value={currentLanguage}
+              onChange={(e) => handleLanguageChange(e.target.value)}
+              style={{
+                background: 'rgba(255, 255, 255, 0.2)',
+                color: 'white',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                borderRadius: '4px',
+                padding: '5px 10px',
+                cursor: 'pointer',
+                fontSize: '14px',
+              }}
+            >
+              {languages.map(language => (
+                <option key={language.code} value={language.code} style={{ color: '#333' }}>
+                  {language.name}
+                </option>
+              ))}
+            </select>
           </nav>
         </div>
       </header>
@@ -197,10 +341,12 @@ const BlogIndexTemplate = ({ pageContext }) => {
                     display: 'grid',
                     gap: '1rem'
                   }}>
-                    {groupedArticles[year][month].map(article => (
+                    {groupedArticles[year][month].map(article => {
+                      const localizedContent = getLocalizedContent(article, currentLanguage);
+                      return (
                       <a 
                         key={article.id}
-                        href={`/blog/${article.year}/${article.month}/${article.slug}`}
+                        href={`/${currentLanguage}/blog/${article.year}/${article.month}/${localizedContent.slug}`}
                         style={{
                           display: 'block',
                           background: article.highlighted ? '#fefce8' : 'white',
@@ -248,7 +394,7 @@ const BlogIndexTemplate = ({ pageContext }) => {
                           color: '#0f172a',
                           paddingRight: article.highlighted ? '6rem' : '0'
                         }}>
-                          {article.title}
+                          {localizedContent.title}
                         </h4>
                         
                         <div style={{
@@ -258,8 +404,8 @@ const BlogIndexTemplate = ({ pageContext }) => {
                           color: '#64748b',
                           fontSize: '0.875rem'
                         }}>
-                          {article.author && (
-                            <span>By {article.author}</span>
+                          {(localizedContent.author || article.author) && (
+                            <span>By {localizedContent.author || article.author}</span>
                           )}
                           {article.date && (
                             <span>
@@ -272,7 +418,7 @@ const BlogIndexTemplate = ({ pageContext }) => {
                           )}
                         </div>
                         
-                        {(article.category || article.tags) && (
+                        {((localizedContent.category || article.category) || (localizedContent.tags || article.tags)) && (
                           <div style={{
                             display: 'flex',
                             flexWrap: 'wrap',
@@ -280,7 +426,7 @@ const BlogIndexTemplate = ({ pageContext }) => {
                             alignItems: 'center',
                             marginTop: '0.75rem'
                           }}>
-                            {article.category && (
+                            {(localizedContent.category || article.category) && (
                               <span style={{
                                 background: '#e0e7ff',
                                 color: '#3730a3',
@@ -289,10 +435,10 @@ const BlogIndexTemplate = ({ pageContext }) => {
                                 fontSize: '0.75rem',
                                 fontWeight: '600'
                               }}>
-                                {article.category}
+                                {localizedContent.category || article.category}
                               </span>
                             )}
-                            {article.tags && article.tags.split(',').map((tag, idx) => (
+                            {(localizedContent.tags || article.tags) && (localizedContent.tags || article.tags).split(',').map((tag, idx) => (
                               <span 
                                 key={idx}
                                 style={{
@@ -309,7 +455,7 @@ const BlogIndexTemplate = ({ pageContext }) => {
                           </div>
                         )}
                         
-                        {article.content && (
+                        {(localizedContent.content || article.content) && (
                           <p style={{
                             marginTop: '1rem',
                             color: '#475569',
@@ -320,11 +466,12 @@ const BlogIndexTemplate = ({ pageContext }) => {
                             WebkitLineClamp: 2,
                             WebkitBoxOrient: 'vertical'
                           }}>
-                            {article.content}
+                            {localizedContent.content || article.content}
                           </p>
                         )}
                       </a>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               ))}

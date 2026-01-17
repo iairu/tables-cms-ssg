@@ -103,7 +103,7 @@ const CMSPage = () => {
 
 // Pages Section Component
 const PagesSection = ({ cmsData }) => {
-  const { pages, currentPageId, saveCurrentPageId, addPage, deletePage, updatePage } = cmsData;
+  const { pages, currentPageId, saveCurrentPageId, addPage, deletePage, updatePage, settings } = cmsData;
   const [editMode, setEditMode] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [pageToDelete, setPageToDelete] = useState(null);
@@ -111,15 +111,18 @@ const PagesSection = ({ cmsData }) => {
   const [selectedHistoryIndex, setSelectedHistoryIndex] = useState(null);
   const [saveSuccessModalOpen, setSaveSuccessModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentLanguage, setCurrentLanguage] = useState(settings?.defaultLang || 'en');
 
   const handleAddPage = () => {
     const newId = addPage();
     saveCurrentPageId(newId);
+    setCurrentLanguage(settings?.defaultLang || 'en');
     setEditMode(true);
   };
 
   const handleEditPage = (id) => {
     saveCurrentPageId(id);
+    setCurrentLanguage(settings?.defaultLang || 'en');
     setEditMode(true);
   };
 
@@ -199,11 +202,55 @@ const PagesSection = ({ cmsData }) => {
 
   const currentPage = pages.find(p => p.id === currentPageId);
 
+  // Get current language content
+  const getLocalizedContent = (page, lang) => {
+    if (!page.translations || !page.translations[lang]) {
+      return {
+        title: page.title || '',
+        slug: page.slug || '',
+        rows: page.rows || []
+      };
+    }
+    return page.translations[lang];
+  };
+
+  const saveLocalizedContent = (lang, updates) => {
+    if (!currentPage) return;
+    
+    const translations = currentPage.translations || {};
+    const currentLangData = translations[lang] || {
+      title: currentPage.title || '',
+      slug: currentPage.slug || '',
+      rows: currentPage.rows || []
+    };
+    
+    translations[lang] = { ...currentLangData, ...updates };
+    
+    // If it's the default language, also update the main fields
+    if (lang === settings?.defaultLang) {
+      updatePage(currentPage.id, { ...updates, translations });
+    } else {
+      updatePage(currentPage.id, { translations });
+    }
+  };
+
+  const currentLangContent = currentPage ? getLocalizedContent(currentPage, currentLanguage) : null;
+
+  // Generate full URL for the page
+  const getPageUrl = (page, lang) => {
+    const protocol = window.location.protocol;
+    const host = window.location.hostname;
+    const port = window.location.port ? `:${window.location.port}` : '';
+    const langContent = getLocalizedContent(page, lang);
+    return `${protocol}//${host}${port}/${lang}/${langContent.slug}`;
+  };
+
   // Filter pages based on fuzzy search query
   const filteredPages = pages.filter(page => {
+    const defaultContent = getLocalizedContent(page, settings?.defaultLang || 'en');
     return (
-      fuzzyMatch(page.title, searchQuery) ||
-      fuzzyMatch(page.slug, searchQuery)
+      fuzzyMatch(defaultContent.title, searchQuery) ||
+      fuzzyMatch(defaultContent.slug, searchQuery)
     );
   });
 
@@ -316,6 +363,24 @@ const PagesSection = ({ cmsData }) => {
             <span>Edit Page</span>
           </h1>
           <div className="adjustment-buttons">
+            <select
+              value={currentLanguage}
+              onChange={(e) => setCurrentLanguage(e.target.value)}
+              style={{
+                padding: '8px 12px',
+                borderRadius: '4px',
+                border: '1px solid #cbd5e1',
+                marginRight: '10px',
+                background: 'white',
+                cursor: 'pointer'
+              }}
+            >
+              {(settings?.languages || [{ code: 'en', name: 'English' }]).map(lang => (
+                <option key={lang.code} value={lang.code}>
+                  {lang.name} ({lang.code})
+                </option>
+              ))}
+            </select>
             <a href="#" onClick={(e) => { e.preventDefault(); handleBackToList(); }}>← Back to Pages</a>
             <a href="#" onClick={(e) => { e.preventDefault(); handleShowHistory(); }}>History</a>
             <a href="#" onClick={(e) => { e.preventDefault(); handleSaveToHistory(); }} className="highlighted">Save to History</a>
@@ -326,11 +391,11 @@ const PagesSection = ({ cmsData }) => {
 
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
-              <strong>Title:</strong>
+              <strong>Title ({currentLanguage}):</strong>
               <input
                 type="text"
-                value={currentPage.title}
-                onChange={(e) => updatePage(currentPage.id, { title: e.target.value })}
+                value={currentLangContent?.title || ''}
+                onChange={(e) => saveLocalizedContent(currentLanguage, { title: e.target.value })}
                 style={{
                   width: '100%',
                   padding: '10px',
@@ -343,10 +408,10 @@ const PagesSection = ({ cmsData }) => {
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
-              <strong>Slug:</strong>
+              <strong>Slug ({currentLanguage}):</strong>
               <input
                 type="text"
-                value={currentPage.slug}
+                value={currentLangContent?.slug || ''}
                 onChange={(e) => {
                   const newSlug = e.target.value;
                   const updates = { slug: newSlug };
@@ -354,7 +419,7 @@ const PagesSection = ({ cmsData }) => {
                   if (newSlug === 'home') {
                     updates.includeInMenu = true;
                   }
-                  updatePage(currentPage.id, updates);
+                  saveLocalizedContent(currentLanguage, updates);
                 }}
                 style={{
                   width: '100%',
@@ -365,6 +430,9 @@ const PagesSection = ({ cmsData }) => {
                 }}
               />
             </label>
+            <p style={{ fontSize: '14px', color: '#64748b', marginTop: '5px' }}>
+              Full URL: {getPageUrl(currentPage, currentLanguage)}
+            </p>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: '10px', cursor: currentPage.slug === 'home' ? 'not-allowed' : 'pointer' }}>
@@ -379,8 +447,8 @@ const PagesSection = ({ cmsData }) => {
             </label>
           </div>
           <ComponentEditor
-            rows={currentPage.rows || []}
-            onChange={(newRows) => updatePage(currentPage.id, { rows: newRows })}
+            rows={currentLangContent?.rows || []}
+            onChange={(newRows) => saveLocalizedContent(currentLanguage, { rows: newRows })}
           />
         </div>
       </section>
@@ -422,8 +490,8 @@ const PagesSection = ({ cmsData }) => {
           <tbody>
             {filteredPages.map(page => (
               <tr key={page.id} className={page.id === currentPageId ? 'active' : ''}>
-                <td>{page.title}</td>
-                <td>{page.slug}</td>
+                <td>{getLocalizedContent(page, settings?.defaultLang || 'en').title}</td>
+                <td>{getLocalizedContent(page, settings?.defaultLang || 'en').slug}</td>
                 <td>
                   <input
                     type="checkbox"
@@ -495,7 +563,7 @@ const PagesSection = ({ cmsData }) => {
 
 // Blog Section Component
 const BlogSection = ({ cmsData }) => {
-  const { blogArticles, currentBlogArticleId, saveCurrentBlogArticleId, addBlogArticle, deleteBlogArticle, updateBlogArticle, isBuilding } = cmsData;
+  const { blogArticles, currentBlogArticleId, saveCurrentBlogArticleId, addBlogArticle, deleteBlogArticle, updateBlogArticle, isBuilding, settings } = cmsData;
   const [editMode, setEditMode] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -504,15 +572,18 @@ const BlogSection = ({ cmsData }) => {
   const [selectedHistoryIndex, setSelectedHistoryIndex] = useState(null);
   const [saveSuccessModalOpen, setSaveSuccessModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentLanguage, setCurrentLanguage] = useState(settings?.defaultLang || 'en');
 
   const handleAddArticle = () => {
     const newId = addBlogArticle();
     saveCurrentBlogArticleId(newId);
+    setCurrentLanguage(settings?.defaultLang || 'en');
     setEditMode(true);
   };
 
   const handleEditArticle = (id) => {
     saveCurrentBlogArticleId(id);
+    setCurrentLanguage(settings?.defaultLang || 'en');
     setEditMode(true);
   };
 
@@ -601,12 +672,69 @@ const BlogSection = ({ cmsData }) => {
 
   const currentArticle = blogArticles.find(a => a.id === currentBlogArticleId);
 
+  // Get current language content
+  const getLocalizedContent = (article, lang) => {
+    if (!article.translations || !article.translations[lang]) {
+      return {
+        title: article.title || '',
+        slug: article.slug || '',
+        author: article.author || '',
+        content: article.content || '',
+        category: article.category || '',
+        tags: article.tags || ''
+      };
+    }
+    return article.translations[lang];
+  };
+
+  const saveLocalizedContent = (lang, updates) => {
+    if (!currentArticle) return;
+    
+    setIsSaving(true);
+    
+    const translations = currentArticle.translations || {};
+    const currentLangData = translations[lang] || {
+      title: currentArticle.title || '',
+      slug: currentArticle.slug || '',
+      author: currentArticle.author || '',
+      content: currentArticle.content || '',
+      category: currentArticle.category || '',
+      tags: currentArticle.tags || ''
+    };
+    
+    translations[lang] = { ...currentLangData, ...updates };
+    
+    // If it's the default language, also update the main fields
+    if (lang === settings?.defaultLang) {
+      updateBlogArticle(currentArticle.id, { ...updates, translations });
+    } else {
+      updateBlogArticle(currentArticle.id, { translations });
+    }
+    
+    setTimeout(() => setIsSaving(false), 800);
+  };
+
+  const currentLangContent = currentArticle ? getLocalizedContent(currentArticle, currentLanguage) : null;
+
+  // Generate full URL for the article (/{lang}/{year}/{month}/{slug})
+  const getArticleUrl = (article, lang) => {
+    const protocol = window.location.protocol;
+    const host = window.location.hostname;
+    const port = window.location.port ? `:${window.location.port}` : '';
+    const langContent = getLocalizedContent(article, lang);
+    const date = new Date(article.date);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    return `${protocol}//${host}${port}/${lang}/${year}/${month}/${langContent.slug}`;
+  };
+
   // Filter blog articles based on fuzzy search query
   const filteredBlogArticles = blogArticles.filter(article => {
+    const defaultContent = getLocalizedContent(article, settings?.defaultLang || 'en');
     return (
-      fuzzyMatch(article.title, searchQuery) ||
-      fuzzyMatch(article.author, searchQuery) ||
-      fuzzyMatch(article.slug, searchQuery)
+      fuzzyMatch(defaultContent.title, searchQuery) ||
+      fuzzyMatch(defaultContent.author, searchQuery) ||
+      fuzzyMatch(defaultContent.slug, searchQuery)
     );
   });
 
@@ -759,6 +887,24 @@ const BlogSection = ({ cmsData }) => {
             )}
           </h1>
           <div className="adjustment-buttons">
+            <select
+              value={currentLanguage}
+              onChange={(e) => setCurrentLanguage(e.target.value)}
+              style={{
+                padding: '8px 12px',
+                borderRadius: '4px',
+                border: '1px solid #cbd5e1',
+                marginRight: '10px',
+                background: 'white',
+                cursor: 'pointer'
+              }}
+            >
+              {(settings?.languages || [{ code: 'en', name: 'English' }]).map(lang => (
+                <option key={lang.code} value={lang.code}>
+                  {lang.name} ({lang.code})
+                </option>
+              ))}
+            </select>
             <a href="#" onClick={(e) => { e.preventDefault(); handleBackToList(); }}>← Back to Blog</a>
             <a href="#" onClick={(e) => { e.preventDefault(); handleShowHistory(); }}>History</a>
             <a href="#" onClick={(e) => { e.preventDefault(); handleSaveToHistory(); }} className="highlighted">Save to History</a>
@@ -769,11 +915,11 @@ const BlogSection = ({ cmsData }) => {
 
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
-              <strong>Title:</strong>
+              <strong>Title ({currentLanguage}):</strong>
               <input
                 type="text"
-                value={currentArticle.title}
-                onChange={(e) => handleUpdateArticle(currentArticle.id, { title: e.target.value })}
+                value={currentLangContent?.title || ''}
+                onChange={(e) => saveLocalizedContent(currentLanguage, { title: e.target.value })}
                 style={{
                   width: '100%',
                   padding: '10px',
@@ -786,11 +932,31 @@ const BlogSection = ({ cmsData }) => {
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
-              <strong>Slug:</strong>
+              <strong>Slug ({currentLanguage}):</strong>
               <input
                 type="text"
-                value={currentArticle.slug}
-                onChange={(e) => handleUpdateArticle(currentArticle.id, { slug: e.target.value })}
+                value={currentLangContent?.slug || ''}
+                onChange={(e) => saveLocalizedContent(currentLanguage, { slug: e.target.value })}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  marginTop: '5px',
+                  borderRadius: '4px',
+                  border: '1px solid #cbd5e1'
+                }}
+              />
+            </label>
+            <p style={{ fontSize: '14px', color: '#64748b', marginTop: '5px' }}>
+              Full URL: {getArticleUrl(currentArticle, currentLanguage)}
+            </p>
+          </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '10px' }}>
+              <strong>Author ({currentLanguage}):</strong>
+              <input
+                type="text"
+                value={currentLangContent?.author || ''}
+                onChange={(e) => saveLocalizedContent(currentLanguage, { author: e.target.value })}
                 style={{
                   width: '100%',
                   padding: '10px',
@@ -803,28 +969,11 @@ const BlogSection = ({ cmsData }) => {
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
-              <strong>Author:</strong>
+              <strong>Category ({currentLanguage}):</strong>
               <input
                 type="text"
-                value={currentArticle.author}
-                onChange={(e) => handleUpdateArticle(currentArticle.id, { author: e.target.value })}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  borderRadius: '4px',
-                  border: '1px solid #cbd5e1'
-                }}
-              />
-            </label>
-          </div>
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '10px' }}>
-              <strong>Category:</strong>
-              <input
-                type="text"
-                value={currentArticle.category || ''}
-                onChange={(e) => handleUpdateArticle(currentArticle.id, { category: e.target.value })}
+                value={currentLangContent?.category || ''}
+                onChange={(e) => saveLocalizedContent(currentLanguage, { category: e.target.value })}
                 style={{
                   width: '100%',
                   padding: '10px',
@@ -838,11 +987,11 @@ const BlogSection = ({ cmsData }) => {
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
-              <strong>Tags:</strong>
+              <strong>Tags ({currentLanguage}):</strong>
               <input
                 type="text"
-                value={currentArticle.tags || ''}
-                onChange={(e) => handleUpdateArticle(currentArticle.id, { tags: e.target.value })}
+                value={currentLangContent?.tags || ''}
+                onChange={(e) => saveLocalizedContent(currentLanguage, { tags: e.target.value })}
                 style={{
                   width: '100%',
                   padding: '10px',
@@ -867,10 +1016,10 @@ const BlogSection = ({ cmsData }) => {
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
-              <strong>Content:</strong>
+              <strong>Content ({currentLanguage}):</strong>
               <textarea
-                value={currentArticle.content}
-                onChange={(e) => handleUpdateArticle(currentArticle.id, { content: e.target.value })}
+                value={currentLangContent?.content || ''}
+                onChange={(e) => saveLocalizedContent(currentLanguage, { content: e.target.value })}
                 rows="15"
                 style={{
                   width: '100%',
@@ -924,12 +1073,14 @@ const BlogSection = ({ cmsData }) => {
           <tbody>
             {filteredBlogArticles
               .sort((a, b) => new Date(b.date) - new Date(a.date))
-              .map(article => (
+              .map(article => {
+                const defaultContent = getLocalizedContent(article, settings?.defaultLang || 'en');
+                return (
                 <tr key={article.id}>
-                  <td>{article.title}</td>
-                  <td>{article.author}</td>
+                  <td>{defaultContent.title}</td>
+                  <td>{defaultContent.author}</td>
                   <td>{new Date(article.date).toLocaleDateString()}</td>
-                  <td>{article.slug}</td>
+                  <td>{defaultContent.slug}</td>
                   <td>
                     <input
                       type="checkbox"
@@ -943,7 +1094,8 @@ const BlogSection = ({ cmsData }) => {
                     <button onClick={() => handleDeleteClick(article.id)}>Delete</button>
                   </td>
                 </tr>
-              ))}
+              );
+              })}
           </tbody>
         </table>
       </div>
@@ -1797,6 +1949,35 @@ const SettingsSection = ({ cmsData }) => {
     saveSettings({ ...settings, [field]: value });
   };
 
+  const handleAddLanguage = () => {
+    const langCode = window.prompt('Enter language code (e.g., en, sk, de):');
+    if (!langCode) return;
+    
+    const langName = window.prompt('Enter language name (e.g., English, Slovak, German):');
+    if (!langName) return;
+    
+    const currentLanguages = settings.languages || [];
+    const newLanguage = { code: langCode.toLowerCase(), name: langName };
+    
+    // Check if language already exists
+    if (currentLanguages.some(lang => lang.code === newLanguage.code)) {
+      alert('Language already exists!');
+      return;
+    }
+    
+    saveSettings({ ...settings, languages: [...currentLanguages, newLanguage] });
+  };
+
+  const handleRemoveLanguage = (langCode) => {
+    if (!window.confirm(`Are you sure you want to remove this language? This will not delete existing content.`)) {
+      return;
+    }
+    
+    const currentLanguages = settings.languages || [];
+    const updatedLanguages = currentLanguages.filter(lang => lang.code !== langCode);
+    saveSettings({ ...settings, languages: updatedLanguages });
+  };
+
   const handleExportData = () => {
     try {
       // Collect all localStorage data
@@ -1981,23 +2162,100 @@ const SettingsSection = ({ cmsData }) => {
             This will appear on the homepage
           </p>
         </div>
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', marginBottom: '10px' }}>
-            <strong>Default Language:</strong>
-            <input
-              type="text"
-              value={settings.defaultLang}
-              onChange={(e) => handleChange('defaultLang', e.target.value)}
-              placeholder="e.g., en, es, fr"
-              style={{
-                width: '100%',
-                padding: '10px',
-                marginTop: '5px',
-                borderRadius: '4px',
-                border: '1px solid #cbd5e1'
-              }}
-            />
-          </label>
+        <div style={{ marginBottom: '30px', padding: '20px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+          <h2 style={{ marginTop: '0', marginBottom: '15px', fontSize: '18px', fontWeight: 'bold' }}>Languages</h2>
+          <p style={{ fontSize: '14px', color: '#64748b', marginBottom: '15px' }}>
+            Manage available languages for your content. The default language will be used for editing new content.
+          </p>
+          
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '10px' }}>
+              <strong>Default Language:</strong>
+              <select
+                value={settings.defaultLang || 'en'}
+                onChange={(e) => handleChange('defaultLang', e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  marginTop: '5px',
+                  borderRadius: '4px',
+                  border: '1px solid #cbd5e1'
+                }}
+              >
+                {(settings.languages || [{ code: 'en', name: 'English' }]).map(lang => (
+                  <option key={lang.code} value={lang.code}>{lang.name} ({lang.code})</option>
+                ))}
+              </select>
+            </label>
+            <p style={{ fontSize: '14px', color: '#64748b', marginTop: '5px' }}>
+              Default language for editing new content
+            </p>
+          </div>
+
+          <div style={{ marginBottom: '15px' }}>
+            <strong style={{ display: 'block', marginBottom: '10px' }}>Available Languages:</strong>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {(settings.languages || [{ code: 'en', name: 'English' }]).map(lang => (
+                <div key={lang.code} style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '10px 15px',
+                  background: 'white',
+                  borderRadius: '6px',
+                  border: '1px solid #e2e8f0'
+                }}>
+                  <div>
+                    <strong>{lang.name}</strong>
+                    <span style={{ color: '#64748b', marginLeft: '10px' }}>({lang.code})</span>
+                    {lang.code === settings.defaultLang && (
+                      <span style={{
+                        marginLeft: '10px',
+                        padding: '2px 8px',
+                        background: '#10b981',
+                        color: 'white',
+                        borderRadius: '4px',
+                        fontSize: '12px',
+                        fontWeight: '600'
+                      }}>DEFAULT</span>
+                    )}
+                  </div>
+                  {lang.code !== 'en' && (
+                    <button
+                      onClick={() => handleRemoveLanguage(lang.code)}
+                      style={{
+                        padding: '5px 10px',
+                        background: '#ef4444',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: '12px'
+                      }}
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <button
+            onClick={handleAddLanguage}
+            style={{
+              padding: '10px 20px',
+              background: '#3b82f6',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontWeight: '500',
+              fontSize: '14px'
+            }}
+          >
+            + Add Language
+          </button>
         </div>
         <div style={{ marginBottom: '20px' }}>
           <label style={{ display: 'block', marginBottom: '10px' }}>
