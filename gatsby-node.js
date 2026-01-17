@@ -4,7 +4,10 @@
  */
 
 exports.createPages = async ({ actions }) => {
-  const { createPage } = actions
+  const { createPage } = actions;
+  
+  // Cache actions for hot reload in development
+  cachedActions = actions;
 
   // Create CMS page at /cms/
   createPage({

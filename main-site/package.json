@@ -7,9 +7,7 @@
     "develop": "gatsby develop -p 3000",
     "build": "gatsby build",
     "serve": "gatsby serve",
-    "clean": "gatsby clean",
-    "server": "node server.js",
-    "prod": "npm run build && npm run server"
+    "clean": "gatsby clean"
   },
   "keywords": [
     "gatsby",
@@ -32,6 +30,7 @@
     "@types/node": "^25.0.8",
     "@types/react": "^19.2.8",
     "@types/react-dom": "^19.2.3",
+    "chokidar": "^5.0.0",
     "typescript": "^5.9.3"
   },
   "overrides": {

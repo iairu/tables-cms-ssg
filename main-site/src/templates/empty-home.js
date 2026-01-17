@@ -1,8 +1,36 @@
-import React from 'react';
-import { graphql } from 'gatsby';
+import React, { useState, useEffect } from 'react';
 
-const EmptyHomeTemplate = ({ data }) => {
-  const settings = data?.settings;
+const EmptyHomeTemplate = () => {
+  const [settings, setSettings] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Fetch settings data
+    fetch('/data/settings.json')
+      .then(res => res.json())
+      .then(settingsData => {
+        setSettings(settingsData);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error('Error fetching settings:', error);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      }}>
+        <div>Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div style={{
@@ -124,21 +152,11 @@ const EmptyHomeTemplate = ({ data }) => {
   );
 };
 
-export const query = graphql`
-  query {
-    settings {
-      siteTitle
-      defaultLang
-      theme
-    }
-  }
-`;
-
 export default EmptyHomeTemplate;
 
-export const Head = ({ data }) => (
+export const Head = () => (
   <>
-    <title>{data?.settings?.siteTitle || 'TABLES'}</title>
+    <title>TABLES</title>
     <meta name="description" content="Welcome to your new site. Add content through the CMS to get started." />
   </>
 );

@@ -1,116 +1,46 @@
 /**
  * Gatsby Node API for Main Site
- * Generates pages dynamically from CMS data stored in data files
+ * Generates pages dynamically from CMS data stored in static JSON files
+ * Data will be fetched at runtime from /data/*.json
  */
 
 const path = require('path');
 const fs = require('fs');
 
-exports.sourceNodes = ({ actions, createNodeId, createContentDigest }) => {
-  const { createNode } = actions;
+// Cache for development file watching
+let cachedCreatePages = null;
 
-  // Read CMS data from the data directory
-  const dataDir = path.join(__dirname, 'src', 'data');
-  
-  // Ensure data directory exists
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-  }
-
-  // Load pages data
-  const pagesFile = path.join(dataDir, 'pages.json');
-  if (fs.existsSync(pagesFile)) {
-    const pagesData = JSON.parse(fs.readFileSync(pagesFile, 'utf8'));
-    pagesData.forEach((page, index) => {
-      createNode({
-        ...page,
-        rows: JSON.stringify(page.rows || []), // Store rows as JSON string
-        id: createNodeId(`Page-${page.id || index}`),
-        parent: null,
-        children: [],
-        internal: {
-          type: 'Page',
-          contentDigest: createContentDigest(page),
-        },
-      });
-    });
-  }
-
-  // Load blog articles data
-  const blogFile = path.join(dataDir, 'blog.json');
-  if (fs.existsSync(blogFile)) {
-    const blogData = JSON.parse(fs.readFileSync(blogFile, 'utf8'));
-    blogData.forEach((article, index) => {
-      createNode({
-        ...article,
-        id: createNodeId(`BlogArticle-${article.id || index}`),
-        parent: null,
-        children: [],
-        internal: {
-          type: 'BlogArticle',
-          contentDigest: createContentDigest(article),
-        },
-      });
-    });
-  }
-
-  // Load cats data
-  const catsFile = path.join(dataDir, 'cats.json');
-  if (fs.existsSync(catsFile)) {
-    const catsData = JSON.parse(fs.readFileSync(catsFile, 'utf8'));
-    createNode({
-      cats: catsData,
-      id: createNodeId('Cats'),
-      parent: null,
-      children: [],
-      internal: {
-        type: 'CatsData',
-        contentDigest: createContentDigest(catsData),
-      },
-    });
-  }
-
-  // Load settings data
-  const settingsFile = path.join(dataDir, 'settings.json');
-  if (fs.existsSync(settingsFile)) {
-    const settingsData = JSON.parse(fs.readFileSync(settingsFile, 'utf8'));
-    createNode({
-      ...settingsData,
-      id: createNodeId('Settings'),
-      parent: null,
-      children: [],
-      internal: {
-        type: 'Settings',
-        contentDigest: createContentDigest(settingsData),
-      },
-    });
-  }
-};
-
-exports.createPages = async ({ graphql, actions }) => {
+exports.createPages = async ({ actions }) => {
   const { createPage } = actions;
 
-  // Query all pages
-  const pagesResult = await graphql(`
-    query {
-      allPage {
-        nodes {
-          id
-          slug
-          title
-        }
-      }
-    }
-  `);
+  // Cache the createPage function for hot reload
+  if (process.env.NODE_ENV === 'development') {
+    cachedCreatePages = { createPage };
+  }
 
-  if (pagesResult.errors) {
-    console.error('Error querying pages:', pagesResult.errors);
-    return;
+  // Read CMS data from the static directory
+  const staticDataDir = path.join(__dirname, 'static', 'data');
+  
+  // Ensure static data directory exists
+  if (!fs.existsSync(staticDataDir)) {
+    fs.mkdirSync(staticDataDir, { recursive: true });
+    console.log('[Gatsby Node] Created static/data directory');
+  }
+
+  // Load pages data from static folder
+  const pagesFile = path.join(staticDataDir, 'pages.json');
+  let pages = [];
+  if (fs.existsSync(pagesFile)) {
+    try {
+      pages = JSON.parse(fs.readFileSync(pagesFile, 'utf8'));
+      console.log(`[Gatsby Node] Loaded ${pages.length} pages from static data`);
+    } catch (error) {
+      console.error('[Gatsby Node] Error reading pages.json:', error);
+    }
   }
 
   // Create pages
   const pageTemplate = path.resolve(__dirname, 'src/templates/page.js');
-  const pages = pagesResult.data.allPage.nodes;
   
   // Check if home page exists
   const hasHomePage = pages.some(page => page.slug === 'home' || page.slug === '/');
@@ -120,7 +50,6 @@ exports.createPages = async ({ graphql, actions }) => {
       path: page.slug === 'home' ? '/' : `/${page.slug}`,
       component: pageTemplate,
       context: {
-        id: page.id,
         slug: page.slug,
       },
     });
@@ -136,38 +65,45 @@ exports.createPages = async ({ graphql, actions }) => {
     });
   }
 
-  // Query all blog articles
-  const blogResult = await graphql(`
-    query {
-      allBlogArticle(sort: { date: DESC }) {
-        nodes {
-          id
-          slug
-          title
-          year
-          month
-        }
-      }
+  // Load blog articles data from static folder
+  const blogFile = path.join(staticDataDir, 'blog.json');
+  let blogArticles = [];
+  if (fs.existsSync(blogFile)) {
+    try {
+      blogArticles = JSON.parse(fs.readFileSync(blogFile, 'utf8'));
+      console.log(`[Gatsby Node] Loaded ${blogArticles.length} blog articles from static data`);
+    } catch (error) {
+      console.error('[Gatsby Node] Error reading blog.json:', error);
     }
-  `);
-
-  if (blogResult.errors) {
-    console.error('Error querying blog articles:', blogResult.errors);
-    return;
   }
 
   // Create blog article pages
   const blogTemplate = path.resolve(__dirname, 'src/templates/blog-article.js');
-  blogResult.data.allBlogArticle.nodes.forEach(article => {
+  blogArticles.forEach(article => {
+    const pagePath = `/blog/${article.year}/${article.month}/${article.slug}`;
+    console.log(`[Gatsby Node] Creating blog page: ${pagePath}`);
     createPage({
-      path: `/blog/${article.year}/${article.month}/${article.slug}`,
+      path: pagePath,
       component: blogTemplate,
       context: {
-        id: article.id,
         slug: article.slug,
       },
     });
   });
+
+  // Create a catch-all client-side route for blog articles in development
+  // This enables hot reload without needing to restart the dev server
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[Gatsby Node] Creating catch-all blog route for hot reload support');
+    createPage({
+      path: '/blog/catch-all',
+      matchPath: '/blog/:year/:month/:slug',
+      component: blogTemplate,
+      context: {
+        slug: null, // Will be extracted from URL on client-side
+      },
+    });
+  }
 
   // Create blog index page
   const blogIndexTemplate = path.resolve(__dirname, 'src/templates/blog-index.js');
@@ -176,3 +112,82 @@ exports.createPages = async ({ graphql, actions }) => {
     component: blogIndexTemplate,
   });
 };
+
+/**
+ * Setup file watching for static data files in development
+ * Triggers Gatsby to rebuild routes when JSON files change
+ */
+exports.onCreateDevServer = ({ app }) => {
+  const staticDataDir = path.join(__dirname, 'static', 'data');
+  
+  // Only watch in development
+  if (process.env.NODE_ENV === 'development') {
+    try {
+      const chokidar = require('chokidar');
+      const http = require('http');
+      
+      console.log('[Gatsby Node] 🔥 Setting up hot reload for static/data/*.json');
+      console.log('[Gatsby Node] Routes will rebuild automatically when data changes!');
+      
+      const watcher = chokidar.watch(path.join(staticDataDir, '*.json'), {
+        ignoreInitial: true,
+        persistent: true,
+      });
+      
+      let isRebuilding = false;
+      
+      const triggerRebuild = (fileName) => {
+        if (isRebuilding) {
+          console.log('[Gatsby Node] ⏳ Rebuild already in progress, skipping...');
+          return;
+        }
+        
+        isRebuilding = true;
+        console.log(`\n[Gatsby Node] 🔄 Detected change in ${fileName}`);
+        console.log('[Gatsby Node] 🚀 Triggering automatic route rebuild...\n');
+        
+        // Trigger Gatsby's webhook to rebuild
+        const options = {
+          hostname: 'localhost',
+          port: 3000,
+          path: '/__refresh',
+          method: 'POST',
+        };
+        
+        const req = http.request(options, (res) => {
+          if (res.statusCode === 200) {
+            console.log('[Gatsby Node] ✅ Routes rebuilt successfully!');
+            console.log('[Gatsby Node] 🎉 Your changes are now live!\n');
+          } else {
+            console.log(`[Gatsby Node] ⚠️ Rebuild returned status ${res.statusCode}`);
+          }
+          setTimeout(() => { isRebuilding = false; }, 2000);
+        });
+        
+        req.on('error', (error) => {
+          console.error('[Gatsby Node] ❌ Error triggering rebuild:', error.message);
+          console.log('[Gatsby Node] 📝 Manual restart may be needed: npm run develop\n');
+          isRebuilding = false;
+        });
+        
+        req.end();
+      };
+      
+      watcher.on('change', (filePath) => {
+        const fileName = path.basename(filePath);
+        triggerRebuild(fileName);
+      });
+      
+      watcher.on('add', (filePath) => {
+        const fileName = path.basename(filePath);
+        triggerRebuild(fileName);
+      });
+      
+    } catch (error) {
+      console.log('[Gatsby Node] ⚠️ File watcher not available (chokidar not installed)');
+      console.log('[Gatsby Node] To enable hot reload, run:');
+      console.log('   npm install --save-dev chokidar\n');
+    }
+  }
+};
+

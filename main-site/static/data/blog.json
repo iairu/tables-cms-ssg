@@ -1,0 +1,72 @@
+[
+  {
+    "id": "1768426129758",
+    "title": "Welcome to your blog!",
+    "content": "This is the first blog entry!",
+    "author": "Ondrej",
+    "date": "2026-01-14T21:28:49.758Z",
+    "year": 2026,
+    "month": 1,
+    "slug": "welcome",
+    "history": [
+      {
+        "timestamp": 1768652648261,
+        "content": "test abc",
+        "title": "testing some info",
+        "author": "Ondrej",
+        "slug": "new-article-1768426129758"
+      },
+      {
+        "timestamp": 1768653762261,
+        "content": "This is the first blog entry!",
+        "title": "Welcome to your blog!",
+        "author": "Ondrej",
+        "slug": "welcome"
+      }
+    ]
+  },
+  {
+    "id": "1768655891975",
+    "title": "Demo article",
+    "content": "a",
+    "author": "b",
+    "date": "2026-01-17T13:18:11.975Z",
+    "year": 2026,
+    "month": 1,
+    "slug": "new-article-1768655891975",
+    "history": []
+  },
+  {
+    "id": "1768656805770",
+    "title": "New Article ahh",
+    "content": "Here we go again! and again and again",
+    "author": "Ondrej",
+    "date": "2026-01-17T13:33:25.770Z",
+    "year": 2026,
+    "month": 1,
+    "slug": "new-article-1768656805770",
+    "history": []
+  },
+  {
+    "id": "1768657450738",
+    "title": "New Article",
+    "content": "",
+    "author": "",
+    "date": "2026-01-17T13:44:10.738Z",
+    "year": 2026,
+    "month": 1,
+    "slug": "new-article-1768657450738",
+    "history": []
+  },
+  {
+    "id": "1768657493853",
+    "title": "New Article hello!",
+    "content": "",
+    "author": "",
+    "date": "2026-01-17T13:44:53.853Z",
+    "year": 2026,
+    "month": 1,
+    "slug": "new-article-1768657493853",
+    "history": []
+  }
+]

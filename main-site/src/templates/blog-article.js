@@ -1,9 +1,67 @@
-import React from 'react';
-import { graphql } from 'gatsby';
+import React, { useState, useEffect } from 'react';
 
-const BlogArticleTemplate = ({ data }) => {
-  const article = data.blogArticle;
-  const settings = data.settings;
+const BlogArticleTemplate = ({ pageContext, location }) => {
+  const [article, setArticle] = useState(null);
+  const [settings, setSettings] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Extract slug from URL if not in pageContext (client-side routing)
+    let slug = pageContext.slug;
+    if (!slug && location && location.pathname) {
+      // Extract slug from URL path like /blog/2026/1/my-article
+      const pathParts = location.pathname.split('/').filter(Boolean);
+      slug = pathParts[pathParts.length - 1];
+    }
+
+    // Fetch blog articles data
+    fetch('/data/blog.json')
+      .then(res => res.json())
+      .then(blogData => {
+        const foundArticle = blogData.find(a => a.slug === slug);
+        setArticle(foundArticle);
+        
+        // Fetch settings data
+        return fetch('/data/settings.json');
+      })
+      .then(res => res.json())
+      .then(settingsData => {
+        setSettings(settingsData);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+        setLoading(false);
+      });
+  }, [pageContext.slug, location]);
+
+  if (loading) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      }}>
+        <div>Loading...</div>
+      </div>
+    );
+  }
+
+  if (!article) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      }}>
+        <div>Article not found</div>
+      </div>
+    );
+  }
 
   return (
     <div style={{
@@ -135,31 +193,11 @@ const BlogArticleTemplate = ({ data }) => {
   );
 };
 
-export const query = graphql`
-  query($id: String!) {
-    blogArticle(id: { eq: $id }) {
-      id
-      title
-      slug
-      content
-      author
-      date
-      year
-      month
-    }
-    settings {
-      siteTitle
-      defaultLang
-      theme
-    }
-  }
-`;
-
 export default BlogArticleTemplate;
 
-export const Head = ({ data }) => (
+export const Head = ({ pageContext }) => (
   <>
-    <title>{data.blogArticle.title} | {data.settings?.siteTitle || 'TABLES'}</title>
-    <meta name="description" content={data.blogArticle.content?.substring(0, 160) || data.blogArticle.title} />
+    <title>{pageContext.slug} | TABLES</title>
+    <meta name="description" content={pageContext.slug} />
   </>
 );

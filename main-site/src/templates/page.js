@@ -1,12 +1,61 @@
-import React from 'react';
-import { graphql } from 'gatsby';
+import React, { useState, useEffect } from 'react';
 
-const PageTemplate = ({ data }) => {
-  const page = data.page;
-  const settings = data.settings;
-  
-  // Parse rows from JSON string
-  const rows = page.rows ? JSON.parse(page.rows) : [];
+const PageTemplate = ({ pageContext }) => {
+  const [page, setPage] = useState(null);
+  const [settings, setSettings] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Fetch pages data
+    fetch('/data/pages.json')
+      .then(res => res.json())
+      .then(pagesData => {
+        const foundPage = pagesData.find(p => p.slug === pageContext.slug);
+        setPage(foundPage);
+        
+        // Fetch settings data
+        return fetch('/data/settings.json');
+      })
+      .then(res => res.json())
+      .then(settingsData => {
+        setSettings(settingsData);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+        setLoading(false);
+      });
+  }, [pageContext.slug]);
+
+  if (loading) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      }}>
+        <div>Loading...</div>
+      </div>
+    );
+  }
+
+  if (!page) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      }}>
+        <div>Page not found</div>
+      </div>
+    );
+  }
+
+  const rows = page.rows || [];
 
   return (
     <div style={{
@@ -215,27 +264,11 @@ const PageTemplate = ({ data }) => {
   );
 };
 
-export const query = graphql`
-  query($id: String!) {
-    page(id: { eq: $id }) {
-      id
-      title
-      slug
-      rows
-    }
-    settings {
-      siteTitle
-      defaultLang
-      theme
-    }
-  }
-`;
-
 export default PageTemplate;
 
-export const Head = ({ data }) => (
+export const Head = ({ pageContext }) => (
   <>
-    <title>{data.page.title} | {data.settings?.siteTitle || 'TABLES'}</title>
-    <meta name="description" content={data.page.title} />
+    <title>{pageContext.slug} | TABLES</title>
+    <meta name="description" content={pageContext.slug} />
   </>
 );

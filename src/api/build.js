@@ -94,15 +94,15 @@ export default async function handler(req, res) {
 
 const exportDataAndBuild = async (data, localOnly = false, vercelApiToken = null) => {
   const projectRoot = path.resolve(__dirname, '..', '..');
-  const mainSiteDataDir = path.join(projectRoot, 'main-site', 'src', 'data');
+  const mainSiteStaticDir = path.join(projectRoot, 'main-site', 'static', 'data');
 
   console.log('[Build API] Exporting CMS data to main site...');
-  console.log('[Build API] Data directory:', mainSiteDataDir);
+  console.log('[Build API] Data directory:', mainSiteStaticDir);
   console.log('[Build API] Local only mode:', localOnly);
 
-  // Ensure main-site data directory exists
-  if (!fs.existsSync(mainSiteDataDir)) {
-    fs.mkdirSync(mainSiteDataDir, { recursive: true });
+  // Ensure main-site static data directory exists
+  if (!fs.existsSync(mainSiteStaticDir)) {
+    fs.mkdirSync(mainSiteStaticDir, { recursive: true });
   }
 
   try {
@@ -121,7 +121,7 @@ const exportDataAndBuild = async (data, localOnly = false, vercelApiToken = null
     // Export pages
     const pages = cmsData.pages || [];
     fs.writeFileSync(
-      path.join(mainSiteDataDir, 'pages.json'),
+      path.join(mainSiteStaticDir, 'pages.json'),
       JSON.stringify(pages, null, 2),
       'utf8'
     );
@@ -130,7 +130,7 @@ const exportDataAndBuild = async (data, localOnly = false, vercelApiToken = null
     // Export blog articles
     const blogArticles = cmsData.blogArticles || [];
     fs.writeFileSync(
-      path.join(mainSiteDataDir, 'blog.json'),
+      path.join(mainSiteStaticDir, 'blog.json'),
       JSON.stringify(blogArticles, null, 2),
       'utf8'
     );
@@ -139,22 +139,26 @@ const exportDataAndBuild = async (data, localOnly = false, vercelApiToken = null
     // Export cats data
     const catRows = cmsData.catRows || [];
     fs.writeFileSync(
-      path.join(mainSiteDataDir, 'cats.json'),
+      path.join(mainSiteStaticDir, 'cats.json'),
       JSON.stringify(catRows, null, 2),
       'utf8'
     );
     console.log(`[Build API] Exported ${catRows.length} cat rows`);
 
-    // Export settings
+    // Export settings (with vercelApiKey hidden)
     const settings = cmsData.settings || { siteTitle: 'TABLES', defaultLang: 'en', theme: 'light' };
+    const settingsForExport = { ...settings };
+    if (settingsForExport.vercelApiKey && settingsForExport.vercelApiKey.trim() !== '') {
+      settingsForExport.vercelApiKey = '***HIDDEN***';
+    }
     fs.writeFileSync(
-      path.join(mainSiteDataDir, 'settings.json'),
-      JSON.stringify(settings, null, 2),
+      path.join(mainSiteStaticDir, 'settings.json'),
+      JSON.stringify(settingsForExport, null, 2),
       'utf8'
     );
-    console.log('[Build API] Exported settings');
+    console.log('[Build API] Exported settings (vercelApiKey hidden)');
 
-    // Save data to persistent storage for future builds
+    // Save data to persistent storage for future builds (with real vercelApiKey)
     fs.writeFileSync(
       path.join(projectRoot, '.cms-data.json'),
       JSON.stringify(cmsData, null, 2),
