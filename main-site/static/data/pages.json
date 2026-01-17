@@ -254,7 +254,8 @@
         ]
       }
     ],
-    "lastPublished": 1768653811487
+    "lastPublished": 1768653811487,
+    "includeInMenu": false
   },
   {
     "id": "1768652085996",
@@ -276,7 +277,8 @@
       }
     ],
     "history": [],
-    "lastPublished": 1768652142015
+    "lastPublished": 1768652142015,
+    "includeInMenu": true
   },
   {
     "id": "1768655048173",
@@ -357,7 +359,8 @@
       }
     ],
     "history": [],
-    "lastPublished": null
+    "lastPublished": null,
+    "includeInMenu": true
   },
   {
     "id": "1768659612521",

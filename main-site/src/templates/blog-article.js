@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 const BlogArticleTemplate = ({ pageContext, location }) => {
   const [article, setArticle] = useState(pageContext.articleData || null);
   const [settings, setSettings] = useState(pageContext.settings || null);
+  const [menuPages, setMenuPages] = useState(pageContext.menuPages || []);
   const [loading, setLoading] = useState(!pageContext.articleData);
 
   useEffect(() => {
@@ -11,6 +12,7 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
       console.log('[Blog Article] Using prerendered data from pageContext (production mode)');
       setArticle(pageContext.articleData);
       setSettings(pageContext.settings);
+      setMenuPages(pageContext.menuPages || []);
       setLoading(false);
       return;
     }
@@ -35,6 +37,18 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
         const foundArticle = blogData.find(a => a.slug === slug);
         console.log('[Blog Article] Found article:', foundArticle ? foundArticle.title : 'NOT FOUND');
         setArticle(foundArticle);
+        
+        // Fetch pages data for menu
+        return fetch('/data/pages.json');
+      })
+      .then(res => {
+        console.log('[Blog Article] Fetched /data/pages.json');
+        return res.json();
+      })
+      .then(pagesData => {
+        // Set menu pages (pages with includeInMenu or slug === 'home')
+        const menu = pagesData.filter(p => p.includeInMenu || p.slug === 'home');
+        setMenuPages(menu);
         
         // Fetch settings data
         return fetch('/data/settings.json');
@@ -105,7 +119,15 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
             {settings?.siteTitle || 'TABLES'}
           </h1>
           <nav>
-            <a href="/" style={{ color: 'white', marginRight: '1.5rem', textDecoration: 'none' }}>Home</a>
+            {menuPages.map(menuPage => (
+              <a 
+                key={menuPage.id}
+                href={menuPage.slug === 'home' ? '/' : `/${menuPage.slug}`}
+                style={{ color: 'white', marginRight: '1.5rem', textDecoration: 'none' }}
+              >
+                {menuPage.title}
+              </a>
+            ))}
             <a href="/blog" style={{ color: 'white', marginRight: '1.5rem', textDecoration: 'none' }}>Blog</a>
           </nav>
         </div>
@@ -139,7 +161,8 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
               alignItems: 'center',
               gap: '1rem',
               color: '#64748b',
-              fontSize: '0.875rem'
+              fontSize: '0.875rem',
+              marginBottom: '1rem'
             }}>
               {article.author && (
                 <span style={{ fontWeight: '600' }}>By {article.author}</span>
@@ -154,6 +177,42 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
                 </span>
               )}
             </div>
+            
+            {(article.category || article.tags) && (
+              <div style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '0.5rem',
+                alignItems: 'center'
+              }}>
+                {article.category && (
+                  <span style={{
+                    background: '#e0e7ff',
+                    color: '#3730a3',
+                    padding: '0.25rem 0.75rem',
+                    borderRadius: '9999px',
+                    fontSize: '0.75rem',
+                    fontWeight: '600'
+                  }}>
+                    {article.category}
+                  </span>
+                )}
+                {article.tags && article.tags.split(',').map((tag, idx) => (
+                  <span 
+                    key={idx}
+                    style={{
+                      background: '#f1f5f9',
+                      color: '#475569',
+                      padding: '0.25rem 0.75rem',
+                      borderRadius: '9999px',
+                      fontSize: '0.75rem'
+                    }}
+                  >
+                    {tag.trim()}
+                  </span>
+                ))}
+              </div>
+            )}
           </header>
 
           {/* Article Content */}

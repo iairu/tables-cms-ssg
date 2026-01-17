@@ -2,18 +2,29 @@ import React, { useState, useEffect } from 'react';
 
 const EmptyHomeTemplate = ({ pageContext }) => {
   const [settings, setSettings] = useState(pageContext.settings || null);
+  const [menuPages, setMenuPages] = useState(pageContext.menuPages || []);
   const [loading, setLoading] = useState(!pageContext.settings);
 
   useEffect(() => {
     // If data is already in pageContext (production SSG), use it directly
     if (pageContext.settings) {
       setSettings(pageContext.settings);
+      setMenuPages(pageContext.menuPages || []);
       setLoading(false);
       return;
     }
 
     // Otherwise fetch at runtime (development hot reload)
-    fetch('/data/settings.json')
+    fetch('/data/pages.json')
+      .then(res => res.json())
+      .then(pagesData => {
+        // Set menu pages (pages with includeInMenu or slug === 'home')
+        const menu = pagesData.filter(p => p.includeInMenu || p.slug === 'home');
+        setMenuPages(menu);
+        
+        // Fetch settings data
+        return fetch('/data/settings.json');
+      })
       .then(res => res.json())
       .then(settingsData => {
         setSettings(settingsData);
@@ -64,7 +75,15 @@ const EmptyHomeTemplate = ({ pageContext }) => {
             {settings?.siteTitle || 'TABLES'}
           </h1>
           <nav>
-            <a href="/" style={{ color: 'white', marginRight: '1.5rem', textDecoration: 'none' }}>Home</a>
+            {menuPages.map(menuPage => (
+              <a 
+                key={menuPage.id}
+                href={menuPage.slug === 'home' ? '/' : `/${menuPage.slug}`}
+                style={{ color: 'white', marginRight: '1.5rem', textDecoration: 'none' }}
+              >
+                {menuPage.title}
+              </a>
+            ))}
             <a href="/blog" style={{ color: 'white', marginRight: '1.5rem', textDecoration: 'none' }}>Blog</a>
           </nav>
         </div>

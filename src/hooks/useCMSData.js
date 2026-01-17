@@ -148,10 +148,10 @@ const useCMSData = () => {
     if (lastBuildTimeRef.current) {
       const timeSinceLastBuild = Date.now() - lastBuildTimeRef.current;
       
-      if (timeSinceLastBuild < cooldownMs) {
-        console.log('[useCMSData] Build on cooldown, please wait');
-        return;
-      }
+      // if (timeSinceLastBuild < cooldownMs) {
+      //   console.log('[useCMSData] Build on cooldown, please wait');
+      //   return;
+      // }
     }
     
     console.log('[useCMSData] Manual build triggered', localOnly ? '(local only)' : '(build and deploy)');
@@ -345,7 +345,8 @@ const useCMSData = () => {
       slug: 'new-page-' + newId,
       rows: defaultPageRows(),
       history: [],
-      lastPublished: null
+      lastPublished: null,
+      includeInMenu: false
     };
     const updatedPages = [...pages, newPage];
     savePages(updatedPages);
@@ -379,7 +380,10 @@ const useCMSData = () => {
       year: now.getFullYear(),
       month: now.getMonth() + 1,
       slug: 'new-article-' + newId,
-      history: []
+      history: [],
+      category: '',
+      tags: '',
+      highlighted: false
     };
     const updatedArticles = [...blogArticles, newArticle];
     saveBlogArticles(updatedArticles);

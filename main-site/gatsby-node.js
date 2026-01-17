@@ -63,6 +63,9 @@ exports.createPages = async ({ actions }) => {
     console.log('[Gatsby Node] Development mode: Templates will fetch JSON at runtime for hot reload');
   }
   
+  // Get menu pages (pages with includeInMenu or slug === 'home')
+  const menuPages = pages.filter(p => p.includeInMenu || p.slug === 'home');
+  
   pages.forEach(page => {
     const context = {
       slug: page.slug,
@@ -72,6 +75,7 @@ exports.createPages = async ({ actions }) => {
     if (isProduction) {
       context.pageData = page;
       context.settings = settings;
+      context.menuPages = menuPages;
     }
     
     createPage({
@@ -89,6 +93,7 @@ exports.createPages = async ({ actions }) => {
     // Only pass data in production
     if (isProduction) {
       context.settings = settings;
+      context.menuPages = menuPages;
     }
     
     createPage({
@@ -124,6 +129,7 @@ exports.createPages = async ({ actions }) => {
     if (isProduction) {
       context.articleData = article;
       context.settings = settings;
+      context.menuPages = menuPages;
     }
     
     createPage({
@@ -170,6 +176,7 @@ exports.createPages = async ({ actions }) => {
   if (isProduction) {
     context.articlesData = blogArticles;
     context.settings = settings;
+    context.menuPages = menuPages;
   }
   
   createPage({

@@ -54,8 +54,8 @@ export default async function handler(req, res) {
     // If a build is already in progress, reject this request (don't queue)
     if (isBuildInProgress) {
       console.log('[Build API] Build already in progress, rejecting request');
-      return res.status(409).json({ 
-        status: 'conflict', 
+      return res.status(409).json({
+        status: 'conflict',
         message: 'Build already in progress, please wait',
         isBuildInProgress: true
       });
@@ -66,8 +66,8 @@ export default async function handler(req, res) {
     console.log('[Build API] Build status set to IN PROGRESS');
 
     // Send immediate response with build in progress status
-    res.status(200).json({ 
-      status: 'building', 
+    res.status(200).json({
+      status: 'building',
       message: localOnly ? 'Local build started - exporting data and building main site' : 'Build and deploy started - exporting data, building, and deploying to Vercel',
       timestamp: new Date().toISOString(),
       isBuildInProgress: true
@@ -418,7 +418,7 @@ const deployToVercel = (mainSiteDir, vercelApiToken) => {
       // Check if Vercel CLI is installed
       exec('which vercel', { env: envWithPath }, (whichError, whichStdout) => {
         let vercelCommand = 'vercel';
-        
+
         if (whichError) {
           console.log('[Build API] Vercel CLI not found globally, trying npx...');
           vercelCommand = 'npx vercel';
@@ -458,7 +458,7 @@ const deployToVercel = (mainSiteDir, vercelApiToken) => {
 
         deployProcess.stderr.on('data', (data) => {
           const output = data.toString().trim();
-          if (output) console.error('[Vercel Deploy Error]', output);
+          if (output) console.log('[Vercel Deploy]', output); // bug where stdout is sent to stderr, so we handle errors by ignoring them as if they're non-errors
         });
       });
     }

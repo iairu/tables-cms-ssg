@@ -26,17 +26,6 @@
     ]
   },
   {
-    "id": "1768655891975",
-    "title": "Demo article",
-    "content": "a",
-    "author": "b",
-    "date": "2026-01-17T13:18:11.975Z",
-    "year": 2026,
-    "month": 1,
-    "slug": "new-article-1768655891975",
-    "history": []
-  },
-  {
     "id": "1768656805770",
     "title": "New Article ahh",
     "content": "Here we go again! and again and again",
@@ -45,50 +34,6 @@
     "year": 2026,
     "month": 1,
     "slug": "new-article-1768656805770",
-    "history": []
-  },
-  {
-    "id": "1768657450738",
-    "title": "New Article",
-    "content": "",
-    "author": "",
-    "date": "2026-01-17T13:44:10.738Z",
-    "year": 2026,
-    "month": 1,
-    "slug": "new-article-1768657450738",
-    "history": []
-  },
-  {
-    "id": "1768657493853",
-    "title": "New Article hello! again",
-    "content": "",
-    "author": "",
-    "date": "2026-01-17T13:44:53.853Z",
-    "year": 2026,
-    "month": 1,
-    "slug": "new-article-1768657493853",
-    "history": []
-  },
-  {
-    "id": "1768658354979",
-    "title": "Newestest Article",
-    "content": "",
-    "author": "",
-    "date": "2026-01-17T13:59:14.979Z",
-    "year": 2026,
-    "month": 1,
-    "slug": "new-article-1768658354979",
-    "history": []
-  },
-  {
-    "id": "1768659273927",
-    "title": "testing",
-    "content": "",
-    "author": "",
-    "date": "2026-01-17T14:14:33.927Z",
-    "year": 2026,
-    "month": 1,
-    "slug": "new-article-1768659273927",
     "history": []
   }
 ]

@@ -586,7 +586,15 @@ const PagesSection = ({ cmsData }) => {
               <input
                 type="text"
                 value={currentPage.slug}
-                onChange={(e) => updatePage(currentPage.id, { slug: e.target.value })}
+                onChange={(e) => {
+                  const newSlug = e.target.value;
+                  const updates = { slug: newSlug };
+                  // Auto-enable includeInMenu if slug is set to 'home'
+                  if (newSlug === 'home') {
+                    updates.includeInMenu = true;
+                  }
+                  updatePage(currentPage.id, updates);
+                }}
                 style={{
                   width: '100%',
                   padding: '10px',
@@ -595,6 +603,18 @@ const PagesSection = ({ cmsData }) => {
                   border: '1px solid #cbd5e1'
                 }}
               />
+            </label>
+          </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: '10px', cursor: currentPage.slug === 'home' ? 'not-allowed' : 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={currentPage.slug === 'home' ? true : (currentPage.includeInMenu || false)}
+                onChange={(e) => updatePage(currentPage.id, { includeInMenu: e.target.checked })}
+                disabled={currentPage.slug === 'home'}
+                style={{ cursor: currentPage.slug === 'home' ? 'not-allowed' : 'pointer', width: '18px', height: '18px', opacity: currentPage.slug === 'home' ? 0.6 : 1 }}
+              />
+              <strong style={{ opacity: currentPage.slug === 'home' ? 0.6 : 1 }}>Include in header menu?</strong>
             </label>
           </div>
           <ComponentEditor
@@ -633,6 +653,7 @@ const PagesSection = ({ cmsData }) => {
             <tr>
               <th>Title</th>
               <th>Slug</th>
+              <th>In Menu?</th>
               <th>Last Published</th>
               <th>Actions</th>
             </tr>
@@ -642,6 +663,15 @@ const PagesSection = ({ cmsData }) => {
               <tr key={page.id} className={page.id === currentPageId ? 'active' : ''}>
                 <td>{page.title}</td>
                 <td>{page.slug}</td>
+                <td>
+                  <input
+                    type="checkbox"
+                    checked={page.slug === 'home' ? true : (page.includeInMenu || false)}
+                    onChange={(e) => updatePage(page.id, { includeInMenu: e.target.checked })}
+                    disabled={page.slug === 'home'}
+                    style={{ cursor: page.slug === 'home' ? 'not-allowed' : 'pointer', opacity: page.slug === 'home' ? 0.6 : 1 }}
+                  />
+                </td>
                 <td>{page.lastPublished ? new Date(page.lastPublished).toLocaleString() : 'Never'}</td>
                 <td>
                   <button onClick={() => handleEditPage(page.id)}>Edit</button>
@@ -1029,6 +1059,53 @@ const BlogSection = ({ cmsData }) => {
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
+              <strong>Category:</strong>
+              <input
+                type="text"
+                value={currentArticle.category || ''}
+                onChange={(e) => handleUpdateArticle(currentArticle.id, { category: e.target.value })}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  marginTop: '5px',
+                  borderRadius: '4px',
+                  border: '1px solid #cbd5e1'
+                }}
+                placeholder="e.g., Technology, News, Tutorial"
+              />
+            </label>
+          </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '10px' }}>
+              <strong>Tags:</strong>
+              <input
+                type="text"
+                value={currentArticle.tags || ''}
+                onChange={(e) => handleUpdateArticle(currentArticle.id, { tags: e.target.value })}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  marginTop: '5px',
+                  borderRadius: '4px',
+                  border: '1px solid #cbd5e1'
+                }}
+                placeholder="e.g., javascript, react, web-development (comma-separated)"
+              />
+            </label>
+          </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={currentArticle.highlighted || false}
+                onChange={(e) => handleUpdateArticle(currentArticle.id, { highlighted: e.target.checked })}
+                style={{ cursor: 'pointer', width: '18px', height: '18px' }}
+              />
+              <strong>Highlight (Pin on Top)?</strong>
+            </label>
+          </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Content:</strong>
               <textarea
                 value={currentArticle.content}
@@ -1079,6 +1156,7 @@ const BlogSection = ({ cmsData }) => {
               <th>Author</th>
               <th>Date</th>
               <th>Slug</th>
+              <th>Pinned?</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -1091,6 +1169,14 @@ const BlogSection = ({ cmsData }) => {
                   <td>{article.author}</td>
                   <td>{new Date(article.date).toLocaleDateString()}</td>
                   <td>{article.slug}</td>
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={article.highlighted || false}
+                      onChange={(e) => updateBlogArticle(article.id, { highlighted: e.target.checked })}
+                      style={{ cursor: 'pointer' }}
+                    />
+                  </td>
                   <td>
                     <button onClick={() => handleEditArticle(article.id)}>Edit</button>
                     <button onClick={() => handleDeleteClick(article.id)}>Delete</button>

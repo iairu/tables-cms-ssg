@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 const PageTemplate = ({ pageContext, location }) => {
   const [page, setPage] = useState(pageContext.pageData || null);
   const [settings, setSettings] = useState(pageContext.settings || null);
+  const [menuPages, setMenuPages] = useState(pageContext.menuPages || []);
   const [loading, setLoading] = useState(!pageContext.pageData);
 
   useEffect(() => {
@@ -11,6 +12,7 @@ const PageTemplate = ({ pageContext, location }) => {
       console.log('[Page] Using prerendered data from pageContext (production mode)');
       setPage(pageContext.pageData);
       setSettings(pageContext.settings);
+      setMenuPages(pageContext.menuPages || []);
       setLoading(false);
       return;
     }
@@ -36,6 +38,10 @@ const PageTemplate = ({ pageContext, location }) => {
         const foundPage = pagesData.find(p => p.slug === slug);
         console.log('[Page] Found page:', foundPage ? foundPage.title : 'NOT FOUND');
         setPage(foundPage);
+        
+        // Set menu pages (pages with includeInMenu or slug === 'home')
+        const menu = pagesData.filter(p => p.includeInMenu || p.slug === 'home');
+        setMenuPages(menu);
         
         // Fetch settings data
         return fetch('/data/settings.json');
@@ -108,7 +114,15 @@ const PageTemplate = ({ pageContext, location }) => {
             {settings?.siteTitle || 'TABLES'}
           </h1>
           <nav>
-            <a href="/" style={{ color: 'white', marginRight: '1.5rem', textDecoration: 'none' }}>Home</a>
+            {menuPages.map(menuPage => (
+              <a 
+                key={menuPage.id}
+                href={menuPage.slug === 'home' ? '/' : `/${menuPage.slug}`}
+                style={{ color: 'white', marginRight: '1.5rem', textDecoration: 'none' }}
+              >
+                {menuPage.title}
+              </a>
+            ))}
             <a href="/blog" style={{ color: 'white', marginRight: '1.5rem', textDecoration: 'none' }}>Blog</a>
           </nav>
         </div>
