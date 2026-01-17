@@ -45,23 +45,56 @@ exports.createPages = async ({ actions }) => {
   // Check if home page exists
   const hasHomePage = pages.some(page => page.slug === 'home' || page.slug === '/');
   
+  // Load settings for SSG optimization (production only)
+  const isProduction = process.env.NODE_ENV === 'production';
+  let settings = {};
+  
+  if (isProduction) {
+    const settingsFile = path.join(staticDataDir, 'settings.json');
+    if (fs.existsSync(settingsFile)) {
+      try {
+        settings = JSON.parse(fs.readFileSync(settingsFile, 'utf8'));
+        console.log('[Gatsby Node] Production build: Embedding data in pageContext for SSG optimization');
+      } catch (error) {
+        console.error('[Gatsby Node] Error reading settings.json:', error);
+      }
+    }
+  } else {
+    console.log('[Gatsby Node] Development mode: Templates will fetch JSON at runtime for hot reload');
+  }
+  
   pages.forEach(page => {
+    const context = {
+      slug: page.slug,
+    };
+    
+    // Only pass data in production for SSG optimization
+    if (isProduction) {
+      context.pageData = page;
+      context.settings = settings;
+    }
+    
     createPage({
       path: page.slug === 'home' ? '/' : `/${page.slug}`,
       component: pageTemplate,
-      context: {
-        slug: page.slug,
-      },
+      context: context,
     });
   });
   
   // Create fallback home page if none exists
   if (!hasHomePage) {
     console.log('[Gatsby Node] No home page found, creating fallback home page');
+    const context = {};
+    
+    // Only pass data in production
+    if (isProduction) {
+      context.settings = settings;
+    }
+    
     createPage({
       path: '/',
       component: path.resolve(__dirname, 'src/templates/empty-home.js'),
-      context: {},
+      context: context,
     });
   }
 
@@ -82,12 +115,21 @@ exports.createPages = async ({ actions }) => {
   blogArticles.forEach(article => {
     const pagePath = `/blog/${article.year}/${article.month}/${article.slug}`;
     console.log(`[Gatsby Node] Creating blog page: ${pagePath}`);
+    
+    const context = {
+      slug: article.slug,
+    };
+    
+    // Only pass data in production for SSG optimization
+    if (isProduction) {
+      context.articleData = article;
+      context.settings = settings;
+    }
+    
     createPage({
       path: pagePath,
       component: blogTemplate,
-      context: {
-        slug: article.slug,
-      },
+      context: context,
     });
   });
 
@@ -107,9 +149,18 @@ exports.createPages = async ({ actions }) => {
 
   // Create blog index page
   const blogIndexTemplate = path.resolve(__dirname, 'src/templates/blog-index.js');
+  const context = {};
+  
+  // Only pass data in production for SSG optimization
+  if (isProduction) {
+    context.articlesData = blogArticles;
+    context.settings = settings;
+  }
+  
   createPage({
     path: '/blog',
     component: blogIndexTemplate,
+    context: context,
   });
 };
 

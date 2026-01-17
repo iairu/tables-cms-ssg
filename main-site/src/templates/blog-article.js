@@ -1,11 +1,22 @@
 import React, { useState, useEffect } from 'react';
 
 const BlogArticleTemplate = ({ pageContext, location }) => {
-  const [article, setArticle] = useState(null);
-  const [settings, setSettings] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [article, setArticle] = useState(pageContext.articleData || null);
+  const [settings, setSettings] = useState(pageContext.settings || null);
+  const [loading, setLoading] = useState(!pageContext.articleData);
 
   useEffect(() => {
+    // If data is already in pageContext (production SSG), use it directly
+    if (pageContext.articleData && pageContext.settings) {
+      console.log('[Blog Article] Using prerendered data from pageContext (production mode)');
+      setArticle(pageContext.articleData);
+      setSettings(pageContext.settings);
+      setLoading(false);
+      return;
+    }
+
+    // Otherwise fetch at runtime (development hot reload)
+    console.log('[Blog Article] Fetching data at runtime from /data/*.json (development mode)');
     // Extract slug from URL if not in pageContext (client-side routing)
     let slug = pageContext.slug;
     if (!slug && location && location.pathname) {
@@ -16,16 +27,24 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
 
     // Fetch blog articles data
     fetch('/data/blog.json')
-      .then(res => res.json())
+      .then(res => {
+        console.log('[Blog Article] Fetched /data/blog.json');
+        return res.json();
+      })
       .then(blogData => {
         const foundArticle = blogData.find(a => a.slug === slug);
+        console.log('[Blog Article] Found article:', foundArticle ? foundArticle.title : 'NOT FOUND');
         setArticle(foundArticle);
         
         // Fetch settings data
         return fetch('/data/settings.json');
       })
-      .then(res => res.json())
+      .then(res => {
+        console.log('[Blog Article] Fetched /data/settings.json');
+        return res.json();
+      })
       .then(settingsData => {
+        console.log('[Blog Article] Loaded settings:', settingsData.siteTitle);
         setSettings(settingsData);
         setLoading(false);
       })
@@ -33,7 +52,7 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
         console.error('Error fetching data:', error);
         setLoading(false);
       });
-  }, [pageContext.slug, location]);
+  }, [pageContext.slug, pageContext.articleData, pageContext.settings, location]);
 
   if (loading) {
     return (
@@ -195,9 +214,14 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
 
 export default BlogArticleTemplate;
 
-export const Head = ({ pageContext }) => (
-  <>
-    <title>{pageContext.slug} | TABLES</title>
-    <meta name="description" content={pageContext.slug} />
-  </>
-);
+export const Head = ({ pageContext }) => {
+  const title = pageContext.articleData?.title || pageContext.slug;
+  const siteTitle = pageContext.settings?.siteTitle || 'TABLES';
+  
+  return (
+    <>
+      <title>{title} | {siteTitle}</title>
+      <meta name="description" content={pageContext.articleData?.content?.substring(0, 160) || title} />
+    </>
+  );
+};

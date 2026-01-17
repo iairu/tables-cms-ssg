@@ -1,11 +1,18 @@
 import React, { useState, useEffect } from 'react';
 
-const EmptyHomeTemplate = () => {
-  const [settings, setSettings] = useState(null);
-  const [loading, setLoading] = useState(true);
+const EmptyHomeTemplate = ({ pageContext }) => {
+  const [settings, setSettings] = useState(pageContext.settings || null);
+  const [loading, setLoading] = useState(!pageContext.settings);
 
   useEffect(() => {
-    // Fetch settings data
+    // If data is already in pageContext (production SSG), use it directly
+    if (pageContext.settings) {
+      setSettings(pageContext.settings);
+      setLoading(false);
+      return;
+    }
+
+    // Otherwise fetch at runtime (development hot reload)
     fetch('/data/settings.json')
       .then(res => res.json())
       .then(settingsData => {
@@ -16,7 +23,7 @@ const EmptyHomeTemplate = () => {
         console.error('Error fetching settings:', error);
         setLoading(false);
       });
-  }, []);
+  }, [pageContext.settings]);
 
   if (loading) {
     return (
@@ -154,9 +161,13 @@ const EmptyHomeTemplate = () => {
 
 export default EmptyHomeTemplate;
 
-export const Head = () => (
-  <>
-    <title>TABLES</title>
-    <meta name="description" content="Welcome to your new site. Add content through the CMS to get started." />
-  </>
-);
+export const Head = ({ pageContext }) => {
+  const siteTitle = pageContext.settings?.siteTitle || 'TABLES';
+  
+  return (
+    <>
+      <title>{siteTitle}</title>
+      <meta name="description" content="Welcome to your new site. Add content through the CMS to get started." />
+    </>
+  );
+};

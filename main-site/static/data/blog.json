@@ -60,13 +60,24 @@
   },
   {
     "id": "1768657493853",
-    "title": "New Article hello!",
+    "title": "New Article hello! again",
     "content": "",
     "author": "",
     "date": "2026-01-17T13:44:53.853Z",
     "year": 2026,
     "month": 1,
     "slug": "new-article-1768657493853",
+    "history": []
+  },
+  {
+    "id": "1768658354979",
+    "title": "Newestest Article",
+    "content": "",
+    "author": "",
+    "date": "2026-01-17T13:59:14.979Z",
+    "year": 2026,
+    "month": 1,
+    "slug": "new-article-1768658354979",
     "history": []
   }
 ]

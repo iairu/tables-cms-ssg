@@ -1,12 +1,20 @@
 import React, { useState, useEffect } from 'react';
 
 const PageTemplate = ({ pageContext }) => {
-  const [page, setPage] = useState(null);
-  const [settings, setSettings] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(pageContext.pageData || null);
+  const [settings, setSettings] = useState(pageContext.settings || null);
+  const [loading, setLoading] = useState(!pageContext.pageData);
 
   useEffect(() => {
-    // Fetch pages data
+    // If data is already in pageContext (production SSG), use it directly
+    if (pageContext.pageData && pageContext.settings) {
+      setPage(pageContext.pageData);
+      setSettings(pageContext.settings);
+      setLoading(false);
+      return;
+    }
+
+    // Otherwise fetch at runtime (development hot reload)
     fetch('/data/pages.json')
       .then(res => res.json())
       .then(pagesData => {
@@ -25,7 +33,7 @@ const PageTemplate = ({ pageContext }) => {
         console.error('Error fetching data:', error);
         setLoading(false);
       });
-  }, [pageContext.slug]);
+  }, [pageContext.slug, pageContext.pageData, pageContext.settings]);
 
   if (loading) {
     return (
@@ -266,9 +274,14 @@ const PageTemplate = ({ pageContext }) => {
 
 export default PageTemplate;
 
-export const Head = ({ pageContext }) => (
-  <>
-    <title>{pageContext.slug} | TABLES</title>
-    <meta name="description" content={pageContext.slug} />
-  </>
-);
+export const Head = ({ pageContext }) => {
+  const title = pageContext.pageData?.title || pageContext.slug;
+  const siteTitle = pageContext.settings?.siteTitle || 'TABLES';
+  
+  return (
+    <>
+      <title>{title} | {siteTitle}</title>
+      <meta name="description" content={title} />
+    </>
+  );
+};

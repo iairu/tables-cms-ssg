@@ -1,12 +1,21 @@
 import React, { useState, useEffect } from 'react';
 
-const BlogIndexTemplate = () => {
-  const [articles, setArticles] = useState([]);
-  const [settings, setSettings] = useState(null);
-  const [loading, setLoading] = useState(true);
+const BlogIndexTemplate = ({ pageContext }) => {
+  const [articles, setArticles] = useState(pageContext.articlesData || []);
+  const [settings, setSettings] = useState(pageContext.settings || null);
+  const [loading, setLoading] = useState(!pageContext.articlesData);
 
   useEffect(() => {
-    // Fetch blog articles data
+    // If data is already in pageContext (production SSG), use it directly
+    if (pageContext.articlesData && pageContext.settings) {
+      const sortedArticles = pageContext.articlesData.sort((a, b) => new Date(b.date) - new Date(a.date));
+      setArticles(sortedArticles);
+      setSettings(pageContext.settings);
+      setLoading(false);
+      return;
+    }
+
+    // Otherwise fetch at runtime (development hot reload)
     fetch('/data/blog.json')
       .then(res => res.json())
       .then(blogData => {
@@ -26,7 +35,7 @@ const BlogIndexTemplate = () => {
         console.error('Error fetching data:', error);
         setLoading(false);
       });
-  }, []);
+  }, [pageContext.articlesData, pageContext.settings]);
 
   if (loading) {
     return (
@@ -50,6 +59,13 @@ const BlogIndexTemplate = () => {
     if (!groupedArticles[year]) groupedArticles[year] = {};
     if (!groupedArticles[year][month]) groupedArticles[year][month] = [];
     groupedArticles[year][month].push(article);
+  });
+
+  // Sort articles within each month by date descending
+  Object.keys(groupedArticles).forEach(year => {
+    Object.keys(groupedArticles[year]).forEach(month => {
+      groupedArticles[year][month].sort((a, b) => new Date(b.date) - new Date(a.date));
+    });
   });
 
   const monthNames = [
@@ -246,9 +262,13 @@ const BlogIndexTemplate = () => {
 
 export default BlogIndexTemplate;
 
-export const Head = () => (
-  <>
-    <title>Blog | TABLES</title>
-    <meta name="description" content="Blog articles and updates" />
-  </>
-);
+export const Head = ({ pageContext }) => {
+  const siteTitle = pageContext.settings?.siteTitle || 'TABLES';
+  
+  return (
+    <>
+      <title>Blog | {siteTitle}</title>
+      <meta name="description" content="Blog articles and updates" />
+    </>
+  );
+};
