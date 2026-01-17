@@ -1,12 +1,28 @@
 [
   {
     "id": "1768426129758",
-    "title": "New Article",
-    "content": "test abc",
-    "author": "",
+    "title": "Welcome to your blog!",
+    "content": "This is the first blog entry!",
+    "author": "Ondrej",
     "date": "2026-01-14T21:28:49.758Z",
     "year": 2026,
     "month": 1,
-    "slug": "new-article-1768426129758"
+    "slug": "welcome",
+    "history": [
+      {
+        "timestamp": 1768652648261,
+        "content": "test abc",
+        "title": "testing some info",
+        "author": "Ondrej",
+        "slug": "new-article-1768426129758"
+      },
+      {
+        "timestamp": 1768653762261,
+        "content": "This is the first blog entry!",
+        "title": "Welcome to your blog!",
+        "author": "Ondrej",
+        "slug": "welcome"
+      }
+    ]
   }
 ]

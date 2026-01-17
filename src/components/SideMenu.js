@@ -57,33 +57,9 @@ const SideMenu = ({ currentSection, onSectionChange, isBuilding, lastSaved, onBu
               animation: 'spin 0.8s linear infinite'
             }}></div>
           )}
-          {isBuilding ? 'Building...' : (!canBuild ? `Wait ${formatTime(buildCooldownSeconds)}` : '🚀 Build Site')}
+          {isBuilding ? 'Building...' : (!canBuild ? `Wait ${formatTime(buildCooldownSeconds)}` : 'Build and Deploy')}
         </button>
         
-        {/* Build Status Notifications */}
-        {isBuilding && (
-          <div style={{
-            marginTop: '10px',
-            background: '#3b82f6',
-            color: 'white',
-            padding: '8px 12px',
-            borderRadius: '6px',
-            fontSize: '12px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
-          }}>
-            <div style={{
-              width: '12px',
-              height: '12px',
-              border: '2px solid rgba(255, 255, 255, 0.3)',
-              borderTopColor: 'white',
-              borderRadius: '50%',
-              animation: 'spin 0.8s linear infinite'
-            }}></div>
-            Building site...
-          </div>
-        )}
         {lastSaved && !isBuilding && (
           <div style={{
             marginTop: '10px',
@@ -100,34 +76,52 @@ const SideMenu = ({ currentSection, onSectionChange, isBuilding, lastSaved, onBu
       </div>
       <div>
         <h3>Content</h3>
-        <a 
-          href="#pages" 
-          onClick={(e) => handleClick(e, 'pages')}
-          className={currentSection === 'pages' ? 'active' : ''}
-        >
-          Pages
-        </a>
-        <a 
-          href="#blog" 
-          onClick={(e) => handleClick(e, 'blog')}
-          className={currentSection === 'blog' ? 'active' : ''}
-        >
-          Blog
-        </a>
-        <a 
-          href="#cats" 
-          onClick={(e) => handleClick(e, 'cats')}
-          className={currentSection === 'cats' ? 'active' : ''}
-        >
-          Cats
-        </a>
-        <a 
+        {(() => {
+          let extensions = {};
+          try {
+            extensions = JSON.parse(localStorage.getItem('extensions') || '{}');
+          } catch (e) {
+            extensions = {};
+          }
+          return (
+            <>
+              {extensions['pages-extension-enabled'] && (
+                <a 
+                  href="#pages" 
+                  onClick={(e) => handleClick(e, 'pages')}
+                  className={currentSection === 'pages' ? 'active' : ''}
+                >
+                  Pages
+                </a>
+              )}
+              {extensions['blog-extension-enabled'] && (
+                <a 
+                  href="#blog" 
+                  onClick={(e) => handleClick(e, 'blog')}
+                  className={currentSection === 'blog' ? 'active' : ''}
+                >
+                  Blog
+                </a>
+              )}
+              {extensions['pedigree-extension-enabled'] && (
+                <a 
+                  href="#cats" 
+                  onClick={(e) => handleClick(e, 'cats')}
+                  className={currentSection === 'cats' ? 'active' : ''}
+                >
+                  Cats
+                </a>
+              )}
+            </>
+          );
+        })()}
+        {/* <a 
           href="#components" 
           onClick={(e) => handleClick(e, 'components')}
           className={currentSection === 'components' ? 'active' : ''}
         >
           Components
-        </a>
+        </a>*/}
       </div>
       <div>
         <h3>Configuration</h3>
@@ -138,13 +132,13 @@ const SideMenu = ({ currentSection, onSectionChange, isBuilding, lastSaved, onBu
         >
           Settings
         </a>
-        <a 
+        {/* <a 
           href="#acl" 
           onClick={(e) => handleClick(e, 'acl')}
           className={currentSection === 'acl' ? 'active' : ''}
         >
           ACL
-        </a>
+        </a>*/}
         <a 
           href="#extensions" 
           onClick={(e) => handleClick(e, 'extensions')}
@@ -152,20 +146,6 @@ const SideMenu = ({ currentSection, onSectionChange, isBuilding, lastSaved, onBu
         >
           Extensions
         </a>
-        <a 
-          href="#display-if" 
-          onClick={(e) => handleClick(e, 'display-if')}
-          className={currentSection === 'display-if' ? 'active' : ''}
-        >
-          Display-if
-        </a>
-        <nav className="sub-navigation">
-          <a href="#" onClick={(e) => e.preventDefault()}>Subitem 1</a>
-          <a href="#" onClick={(e) => e.preventDefault()}>Subitem 2</a>
-          <a href="#" onClick={(e) => e.preventDefault()}>Subitem 3</a>
-          <a href="#" onClick={(e) => e.preventDefault()}>Subitem 4</a>
-          <a href="#" onClick={(e) => e.preventDefault()}>Subitem 5</a>
-        </nav>
       </div>
       <style>{`
         @keyframes spin {

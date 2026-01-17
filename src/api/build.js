@@ -177,6 +177,15 @@ const runMainSiteBuild = (projectRoot) => {
 
     console.log('[Build API] Starting main site Gatsby build...');
     console.log('[Build API] Main site directory:', mainSiteDir);
+    console.log('[Build API] NODE_ENV:', process.env.NODE_ENV);
+
+    // Skip build in development mode - gatsby develop will pick up the changes automatically
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[Build API] Development mode detected - skipping Gatsby build');
+      console.log('[Build API] The gatsby develop server will automatically pick up data changes');
+      resolve();
+      return;
+    }
 
     // Check if main-site exists
     if (!fs.existsSync(mainSiteDir)) {

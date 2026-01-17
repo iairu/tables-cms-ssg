@@ -18,15 +18,15 @@ let buildQueue = [];
 
 // Build API endpoint
 app.post('/api/build', async (req, res) => {
-  const { timestamp, trigger } = req.body;
+  const { timestamp, trigger, data } = req.body;
 
   console.log(`[Build API] Build request received at ${timestamp} (trigger: ${trigger})`);
 
   // If a build is already in progress, queue this request
   if (isBuildInProgress) {
     console.log('[Build API] Build already in progress, queuing request');
-    buildQueue.push({ timestamp, trigger });
-    return res.status(202).json({ 
+    buildQueue.push({ timestamp, trigger, data });
+    return res.status(202).json({
       status: 'queued', 
       message: 'Build already in progress, request queued',
       queueLength: buildQueue.length
@@ -44,7 +44,7 @@ app.post('/api/build', async (req, res) => {
   });
 
   // Run the build asynchronously
-  runBuild()
+  runBuild(data)
     .then(() => {
       console.log('[Build API] Build completed successfully');
       lastBuildTime = new Date().toISOString();
@@ -53,10 +53,11 @@ app.post('/api/build', async (req, res) => {
       // Process next item in queue if any
       if (buildQueue.length > 0) {
         console.log(`[Build API] Processing ${buildQueue.length} queued builds`);
+        const queuedData = buildQueue[buildQueue.length - 1].data; // Get latest data
         buildQueue = []; // Clear queue (we only need one build for all queued requests)
         setTimeout(() => {
           isBuildInProgress = true;
-          runBuild()
+          runBuild(queuedData)
             .then(() => {
               isBuildInProgress = false;
               lastBuildTime = new Date().toISOString();
@@ -83,8 +84,56 @@ app.get('/api/build/status', (req, res) => {
   });
 });
 
+// Function to trigger Vercel deployment
+const deployToVercel = (vercelApiKey) => {
+  return new Promise((resolve, reject) => {
+    if (!vercelApiKey || vercelApiKey === '') {
+      console.log('[Deploy] No Vercel API key provided, skipping deployment');
+      resolve({ skipped: true });
+      return;
+    }
+
+    console.log('[Deploy] Triggering Vercel deployment...');
+    
+    // Use Vercel Deploy Hook or CLI
+    // This assumes you're using Vercel CLI with the API token
+    const deployProcess = exec(
+      `vercel --prod --token ${vercelApiKey} --yes`,
+      {
+        cwd: __dirname,
+        env: { ...process.env },
+        maxBuffer: 10 * 1024 * 1024 // 10MB buffer
+      },
+      (error, stdout, stderr) => {
+        if (error) {
+          console.error('[Deploy] Deployment error:', error);
+          console.error('[Deploy] stderr:', stderr);
+          // Don't reject - just log the error
+          resolve({ error: error.message });
+          return;
+        }
+
+        console.log('[Deploy] Deployment completed successfully');
+        console.log('[Deploy] Output:', stdout);
+        resolve({ success: true, output: stdout });
+      }
+    );
+
+    // Log deployment output in real-time
+    deployProcess.stdout.on('data', (data) => {
+      const output = data.toString().trim();
+      if (output) console.log('[Deploy]', output);
+    });
+
+    deployProcess.stderr.on('data', (data) => {
+      const output = data.toString().trim();
+      if (output) console.error('[Deploy Error]', output);
+    });
+  });
+};
+
 // Function to run Gatsby build
-const runBuild = () => {
+const runBuild = (cmsData) => {
   return new Promise((resolve, reject) => {
     const projectRoot = __dirname;
     const publicDir = path.join(projectRoot, 'public');
@@ -113,7 +162,30 @@ const runBuild = () => {
         // Check if public directory was created
         if (fs.existsSync(publicDir)) {
           console.log('[Build API] Public directory exists');
-          resolve();
+          
+          // Deploy to Vercel if API key is available
+          if (cmsData && cmsData.settings && cmsData.settings.vercelApiKey) {
+            console.log('[Build API] Vercel API key found, starting deployment...');
+            deployToVercel(cmsData.settings.vercelApiKey)
+              .then((deployResult) => {
+                if (deployResult.skipped) {
+                  console.log('[Build API] Deployment skipped');
+                } else if (deployResult.error) {
+                  console.error('[Build API] Deployment failed:', deployResult.error);
+                } else {
+                  console.log('[Build API] Deployment successful');
+                }
+                resolve();
+              })
+              .catch((deployError) => {
+                console.error('[Build API] Deployment error:', deployError);
+                // Don't fail the build if deployment fails
+                resolve();
+              });
+          } else {
+            console.log('[Build API] No Vercel API key found, skipping deployment');
+            resolve();
+          }
         } else {
           console.error('[Build API] Public directory not found');
           reject(new Error('Public directory not created'));

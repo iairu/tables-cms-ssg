@@ -84,7 +84,7 @@ const useCMSData = () => {
       blogArticles: JSON.parse(localStorage.getItem('blogArticles') || '[]'),
       catRows: JSON.parse(localStorage.getItem('catRows') || '[]'),
       componentRows: JSON.parse(localStorage.getItem('componentRows') || '[]'),
-      settings: JSON.parse(localStorage.getItem('settings') || '{"siteTitle":"TABLES","defaultLang":"en","theme":"light"}'),
+      settings: JSON.parse(localStorage.getItem('settings') || '{"siteTitle":"TABLES","defaultLang":"en","theme":"light","vercelApiKey":""}'),
       acl: JSON.parse(localStorage.getItem('acl') || '{}'),
       extensions: JSON.parse(localStorage.getItem('extensions') || '{}')
     };
@@ -211,9 +211,7 @@ const useCMSData = () => {
   const [currentBlogArticleId, setCurrentBlogArticleId] = useState(null);
 
   // Cats state
-  const [catRows, setCatRows] = useState([
-    { name: '', breed: '', owner: '' }
-  ]);
+  const [catRows, setCatRows] = useState([]);
 
   // Components state
   const [componentRows, setComponentRows] = useState([]);
@@ -222,8 +220,12 @@ const useCMSData = () => {
   const [settings, setSettings] = useState({
     siteTitle: '',
     defaultLang: '',
-    theme: 'light'
+    theme: 'light',
+    vercelApiKey: ''
   });
+
+  // Data loaded state
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
 
   // ACL state
   const [acl, setAcl] = useState({
@@ -262,6 +264,9 @@ const useCMSData = () => {
     if (loadedSettings) setSettings(JSON.parse(loadedSettings));
     if (loadedAcl) setAcl(JSON.parse(loadedAcl));
     if (loadedExtensions) setExtensions(JSON.parse(loadedExtensions));
+    
+    // Mark data as loaded
+    setIsDataLoaded(true);
   }, []);
 
   // Save functions
@@ -366,7 +371,8 @@ const useCMSData = () => {
       date: now.toISOString(),
       year: now.getFullYear(),
       month: now.getMonth() + 1,
-      slug: 'new-article-' + newId
+      slug: 'new-article-' + newId,
+      history: []
     };
     const updatedArticles = [...blogArticles, newArticle];
     saveBlogArticles(updatedArticles);
@@ -433,7 +439,10 @@ const useCMSData = () => {
     lastSaved,
     manualTriggerBuild,
     canBuild,
-    buildCooldownSeconds
+    buildCooldownSeconds,
+    
+    // Data loaded flag
+    isDataLoaded
   };
 };
 

@@ -2,7 +2,12 @@
   {
     "name": "test",
     "breed": "",
-    "owner": ""
+    "owner": "",
+    "fullName": "demo",
+    "titlesBeforeName": "Meow",
+    "titlesAfterName": "Meowy",
+    "gender": "Male",
+    "alternativeName": "meow meowy"
   },
   {
     "name": "",

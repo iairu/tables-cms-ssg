@@ -1,5 +1,6 @@
 {
-  "siteTitle": "test",
+  "siteTitle": "TABLES SSG Output",
   "defaultLang": "",
-  "theme": "light"
+  "theme": "light",
+  "vercelApiKey": "SttvUxyYAhjrU1AXwd2jekJP"
 }
