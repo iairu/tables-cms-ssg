@@ -119,6 +119,17 @@ const PagesSection = ({ cmsData }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentLanguage, setCurrentLanguage] = useState(settings?.defaultLang || 'en');
 
+  useEffect(() => {
+    // Ensure that a page with slug 'home' always exists
+    if (pages && !pages.some(p => p.slug === 'home')) {
+      addPage({
+        title: 'Homepage',
+        slug: 'home',
+        includeInMenu: true,
+      });
+    }
+  }, [pages, addPage]);
+
   const handleAddPage = () => {
     const newId = addPage();
     saveCurrentPageId(newId);
@@ -418,6 +429,7 @@ const PagesSection = ({ cmsData }) => {
               <input
                 type="text"
                 value={currentLangContent?.slug || ''}
+                disabled={currentPage.slug === 'home'}
                 onChange={(e) => {
                   const newSlug = e.target.value;
                   const updates = { slug: newSlug };
@@ -432,7 +444,9 @@ const PagesSection = ({ cmsData }) => {
                   padding: '10px',
                   marginTop: '5px',
                   borderRadius: '4px',
-                  border: '1px solid #cbd5e1'
+                  border: '1px solid #cbd5e1',
+                  background: currentPage.slug === 'home' ? '#f3f4f6' : 'white',
+                  cursor: currentPage.slug === 'home' ? 'not-allowed' : 'auto'
                 }}
               />
             </label>
@@ -440,6 +454,7 @@ const PagesSection = ({ cmsData }) => {
               {/* Full URL: {getPageUrl(currentPage, currentLanguage)}*/}
             </p>
           </div>
+
           <div style={{ }}>
             <label style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: '10px', cursor: currentPage.slug === 'home' ? 'not-allowed' : 'pointer' }}>
               <input
@@ -451,6 +466,147 @@ const PagesSection = ({ cmsData }) => {
               />
               <strong style={{ opacity: currentPage.slug === 'home' ? 0.6 : 1 }}>Include in header menu?</strong>
             </label>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+            {/* Column 1 */}
+            <div>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', marginBottom: '10px' }}>
+                  <strong>Theme Version Toggle:</strong>
+                  <select
+                    value={currentPage.themeVersion || 'auto'}
+                    onChange={(e) => updatePage(currentPage.id, { themeVersion: e.target.value })}
+                    style={{
+                      width: '100%',
+                      padding: '10px',
+                      marginTop: '5px',
+                      borderRadius: '4px',
+                      border: '1px solid #cbd5e1'
+                    }}
+                  >
+                    <option value="auto">Auto (theme-auto-ver)</option>
+                    <option value="light">Light (theme-light-ver)</option>
+                    <option value="dark">Dark (theme-dark-ver)</option>
+                  </select>
+                </label>
+                <p style={{ fontSize: '14px', color: '#64748b', marginTop: '5px' }}>
+                  Adds class to body element for theme styling
+                </p>
+              </div>
+
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', marginBottom: '10px' }}>
+                  <strong>Button and Link Color (page-wide):</strong>
+                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: '5px' }}>
+                    <input
+                      type="color"
+                      value={currentPage.buttonLinkColor || '#3b82f6'}
+                      onChange={(e) => updatePage(currentPage.id, { buttonLinkColor: e.target.value })}
+                      style={{
+                        width: '60px',
+                        height: '40px',
+                        borderRadius: '4px',
+                        border: '1px solid #cbd5e1',
+                        cursor: 'pointer'
+                      }}
+                    />
+                    <input
+                      type="text"
+                      value={currentPage.buttonLinkColor || ''}
+                      onChange={(e) => updatePage(currentPage.id, { buttonLinkColor: e.target.value })}
+                      placeholder="#3b82f6"
+                      style={{
+                        flex: 1,
+                        padding: '10px',
+                        borderRadius: '4px',
+                        border: '1px solid #cbd5e1'
+                      }}
+                    />
+                  </div>
+                </label>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '10px' }}>
+                  <strong>Enforced Theme (override global):</strong>
+                  <select
+                    value={currentPage.enforcedTheme || ''}
+                    onChange={(e) => updatePage(currentPage.id, { enforcedTheme: e.target.value })}
+                    style={{
+                      width: '100%',
+                      padding: '10px',
+                      marginTop: '5px',
+                      borderRadius: '4px',
+                      border: '1px solid #cbd5e1'
+                    }}
+                  >
+                    <option value="">Use global theme setting</option>
+                    <option value="light">Light theme</option>
+                    <option value="dark">Dark theme</option>
+                    <option value="auto">Auto theme</option>
+                  </select>
+                </label>
+                <p style={{ fontSize: '14px', color: '#64748b', marginTop: '5px' }}>
+                  Override the site-wide theme for this page only
+                </p>
+              </div>
+            </div>
+
+            {/* Column 2 */}
+            <div>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', marginBottom: '10px' }}>
+                  <strong>Site Meta Description ({currentLanguage}):</strong>
+                  <textarea
+                    value={currentLangContent?.metaDescription || currentPage.metaDescription || ''}
+                    onChange={(e) => {
+                      const updates = { metaDescription: e.target.value };
+                      if (currentLanguage === settings.defaultLang) {
+                        updatePage(currentPage.id, updates);
+                      } else {
+                        saveLocalizedContent(currentLanguage, updates);
+                      }
+                    }}
+                    rows="3"
+                    style={{
+                      width: '100%',
+                      padding: '10px',
+                      marginTop: '5px',
+                      borderRadius: '4px',
+                      border: '1px solid #cbd5e1',
+                      fontFamily: 'inherit',
+                      resize: 'vertical'
+                    }}
+                    placeholder="Enter page description for SEO..."
+                  />
+                </label>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '10px' }}>
+                  <strong>Sitemap Page Priority:</strong>
+                  <input
+                    type="number"
+                    min="0"
+                    max="1"
+                    step="0.1"
+                    value={currentPage.sitemapPriority !== undefined ? currentPage.sitemapPriority : 0.5}
+                    onChange={(e) => updatePage(currentPage.id, { sitemapPriority: parseFloat(e.target.value) })}
+                    style={{
+                      width: '100%',
+                      padding: '10px',
+                      marginTop: '5px',
+                      borderRadius: '4px',
+                      border: '1px solid #cbd5e1'
+                    }}
+                  />
+                </label>
+                <p style={{ fontSize: '14px', color: '#64748b', marginTop: '5px' }}>
+                  Value between 0.0 and 1.0 (default: 0.5)
+                </p>
+              </div>
+            </div>
           </div>
           <ComponentEditor
             rows={currentLangContent?.rows || []}

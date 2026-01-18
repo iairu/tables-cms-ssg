@@ -238,7 +238,11 @@ const BlogIndexTemplate = ({ pageContext }) => {
             {settings?.siteTitle || 'TABLES'}
           </h1>
           <nav style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-            {menuPages.map(menuPage => {
+            {menuPages.filter(menuPage => {
+              // Filter based on navigationDropdown setting
+              const navDropdown = menuPage.navigationDropdown || 'none';
+              return navDropdown === 'none' || navDropdown === 'header';
+            }).map(menuPage => {
               const localizedSlug = getLocalizedPageSlug(menuPage, currentLanguage);
               const localizedTitle = getLocalizedPageTitle(menuPage, currentLanguage);
               const isHome = menuPage.slug === 'home' || localizedSlug === 'home';
@@ -493,12 +497,54 @@ const BlogIndexTemplate = ({ pageContext }) => {
       }}>
         <div style={{
           maxWidth: '1200px',
-          margin: '0 auto',
-          textAlign: 'center',
-          color: '#64748b',
-          fontSize: '0.875rem'
+          margin: '0 auto'
         }}>
-          <p>© {new Date().getFullYear()} {settings?.siteTitle || 'TABLES'}. {t('builtWith', currentLanguage)}.</p>
+          {/* Footer Navigation */}
+          {menuPages.filter(menuPage => {
+            const navDropdown = menuPage.navigationDropdown || 'none';
+            return navDropdown === 'footer';
+          }).length > 0 && (
+            <nav style={{
+              display: 'flex',
+              justifyContent: 'center',
+              gap: '2rem',
+              marginBottom: '2rem',
+              flexWrap: 'wrap'
+            }}>
+              {menuPages.filter(menuPage => {
+                const navDropdown = menuPage.navigationDropdown || 'none';
+                return navDropdown === 'footer';
+              }).map(menuPage => {
+                const localizedSlug = getLocalizedPageSlug(menuPage, currentLanguage);
+                const localizedTitle = getLocalizedPageTitle(menuPage, currentLanguage);
+                const isHome = menuPage.slug === 'home' || localizedSlug === 'home';
+                const href = isHome ? `/${currentLanguage}` : `/${currentLanguage}/${localizedSlug}`;
+                
+                return (
+                  <a 
+                    key={menuPage.id}
+                    href={href}
+                    style={{ 
+                      color: '#64748b', 
+                      textDecoration: 'none',
+                      fontSize: '0.875rem',
+                      transition: 'color 0.2s'
+                    }}
+                  >
+                    {localizedTitle}
+                  </a>
+                );
+              })}
+            </nav>
+          )}
+          
+          <div style={{
+            textAlign: 'center',
+            color: '#64748b',
+            fontSize: '0.875rem'
+          }}>
+            <p>© {new Date().getFullYear()} {settings?.siteTitle || 'TABLES'}. {t('builtWith', currentLanguage)}.</p>
+          </div>
         </div>
       </footer>
     </div>

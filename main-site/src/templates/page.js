@@ -20,6 +20,31 @@ const PageTemplate = ({ pageContext, location }) => {
   });
   const [loading, setLoading] = useState(!pageContext.pageData);
 
+  // Apply theme version class to body
+  useEffect(() => {
+    if (typeof document !== 'undefined' && page) {
+      // Remove any existing theme version classes
+      document.body.classList.remove('theme-auto-ver', 'theme-light-ver', 'theme-dark-ver');
+      
+      // Apply theme version class
+      const themeVersion = page.themeVersion || 'auto';
+      document.body.classList.add(`theme-${themeVersion}-ver`);
+      
+      // Apply button/link color as CSS variable if set
+      if (page.buttonLinkColor) {
+        document.documentElement.style.setProperty('--page-button-color', page.buttonLinkColor);
+      } else {
+        document.documentElement.style.removeProperty('--page-button-color');
+      }
+      
+      // Cleanup on unmount
+      return () => {
+        document.body.classList.remove('theme-auto-ver', 'theme-light-ver', 'theme-dark-ver');
+        document.documentElement.style.removeProperty('--page-button-color');
+      };
+    }
+  }, [page]);
+
   useEffect(() => {
     // If data is already in pageContext (production SSG), use it directly
     if (pageContext.pageData && pageContext.settings) {
@@ -224,13 +249,24 @@ const PageTemplate = ({ pageContext, location }) => {
     return menuPage.slug;
   };
 
+  // Get localized meta description
+  const metaDescription = page.translations && page.translations[currentLanguage]?.metaDescription 
+    ? page.translations[currentLanguage].metaDescription 
+    : page.metaDescription || '';
+
   return (
-    <div style={{
-      minHeight: '100vh',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-    }}>
-      {/* Header */}
-      <header style={{
+    <>
+      {/* Meta tags */}
+      {typeof document !== 'undefined' && metaDescription && (
+        <meta name="description" content={metaDescription} />
+      )}
+      
+      <div style={{
+        minHeight: '100vh',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      }}>
+        {/* Header */}
+        <header style={{
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         color: 'white',
         padding: '2rem',
@@ -247,7 +283,11 @@ const PageTemplate = ({ pageContext, location }) => {
             {settings?.siteTitle || 'TABLES'}
           </h1>
           <nav style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-            {menuPages.map(menuPage => {
+            {menuPages.filter(menuPage => {
+              // Filter based on navigationDropdown setting
+              const navDropdown = menuPage.navigationDropdown || 'none';
+              return navDropdown === 'none' || navDropdown === 'header';
+            }).map(menuPage => {
               const localizedSlug = getLocalizedPageSlug(menuPage, currentLanguage);
               const localizedTitle = getLocalizedPageTitle(menuPage, currentLanguage);
               const isHome = menuPage.slug === 'home' || localizedSlug === 'home';
@@ -852,29 +892,78 @@ const PageTemplate = ({ pageContext, location }) => {
       }}>
         <div style={{
           maxWidth: '1200px',
-          margin: '0 auto',
-          textAlign: 'center',
-          color: '#64748b',
-          fontSize: '0.875rem'
+          margin: '0 auto'
         }}>
-          <p>© {new Date().getFullYear()} {settings?.siteTitle || 'TABLES'}. {t('builtWith', currentLanguage)}.</p>
+          {/* Footer Navigation */}
+          {menuPages.filter(menuPage => {
+            const navDropdown = menuPage.navigationDropdown || 'none';
+            return navDropdown === 'footer';
+          }).length > 0 && (
+            <nav style={{
+              display: 'flex',
+              justifyContent: 'center',
+              gap: '2rem',
+              marginBottom: '2rem',
+              flexWrap: 'wrap'
+            }}>
+              {menuPages.filter(menuPage => {
+                const navDropdown = menuPage.navigationDropdown || 'none';
+                return navDropdown === 'footer';
+              }).map(menuPage => {
+                const localizedSlug = getLocalizedPageSlug(menuPage, currentLanguage);
+                const localizedTitle = getLocalizedPageTitle(menuPage, currentLanguage);
+                const isHome = menuPage.slug === 'home' || localizedSlug === 'home';
+                const href = isHome ? `/${currentLanguage}` : `/${currentLanguage}/${localizedSlug}`;
+                
+                return (
+                  <a 
+                    key={menuPage.id}
+                    href={href}
+                    style={{ 
+                      color: '#64748b', 
+                      textDecoration: 'none',
+                      fontSize: '0.875rem',
+                      transition: 'color 0.2s'
+                    }}
+                  >
+                    {localizedTitle}
+                  </a>
+                );
+              })}
+            </nav>
+          )}
+          
+          <div style={{
+            textAlign: 'center',
+            color: '#64748b',
+            fontSize: '0.875rem'
+          }}>
+            <p>© {new Date().getFullYear()} {settings?.siteTitle || 'TABLES'}. {t('builtWith', currentLanguage)}.</p>
+          </div>
         </div>
       </footer>
     </div>
+    </>
   );
 };
 
 export default PageTemplate;
 
 export const Head = ({ pageContext }) => {
-  const title = pageContext.pageData?.title || pageContext.slug;
+  const page = pageContext.pageData;
+  const title = page?.title || pageContext.slug;
   const siteTitle = pageContext.settings?.siteTitle || 'TABLES';
   const language = pageContext.language || 'en';
+  
+  // Get localized meta description
+  const metaDescription = page?.translations && page.translations[language]?.metaDescription 
+    ? page.translations[language].metaDescription 
+    : page?.metaDescription || title;
   
   return (
     <>
       <title>{title} | {siteTitle}</title>
-      <meta name="description" content={title} />
+      <meta name="description" content={metaDescription} />
       <html lang={language} />
     </>
   );

@@ -374,8 +374,8 @@ const useCMSData = () => {
     ];
   };
 
-  const addPage = () => {
-    const newId = Date.now().toString();
+  const addPage = (initialData = {}) => {
+    const newId = initialData.id || Date.now().toString();
     const newPage = {
       id: newId,
       title: 'New Page',
@@ -383,7 +383,14 @@ const useCMSData = () => {
       rows: defaultPageRows(),
       history: [],
       lastPublished: null,
-      includeInMenu: false
+      includeInMenu: false,
+      navigationDropdown: 'none', // none, header, footer
+      themeVersion: 'auto', // auto, light, dark
+      enforcedTheme: '', // empty string means use global theme
+      metaDescription: '',
+      buttonLinkColor: '',
+      sitemapPriority: 0.5,
+      ...initialData
     };
     const updatedPages = [...pages, newPage];
     savePages(updatedPages);

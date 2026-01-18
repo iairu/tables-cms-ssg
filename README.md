@@ -135,6 +135,40 @@ Static HTML files created
 
 ## Key Features
 
+### New Page Configuration Features (Latest Update)
+
+Each page in the CMS now includes advanced configuration options:
+
+1. **Navigation Dropdown**
+   - Control where pages appear in navigation
+   - Options: None (default), Header, Footer
+   - Allows separate header and footer menu management
+
+2. **Theme Version Toggle**
+   - Choose theme variant for the page
+   - Options: Auto, Light, Dark
+   - Adds corresponding class to body element (`theme-auto-ver`, `theme-light-ver`, `theme-dark-ver`)
+
+3. **Enforced Theme**
+   - Override global theme setting for specific pages
+   - Options: Use global (default), Light, Dark, Auto
+   - Useful for landing pages or special sections
+
+4. **Site Meta Description**
+   - Multi-language SEO description support
+   - Improves search engine visibility
+   - Localized per language
+
+5. **Button and Link Color**
+   - Page-wide color customization
+   - Visual color picker + hex input
+   - Applied via CSS variable `--page-button-color`
+
+6. **Sitemap Priority**
+   - Control page importance in sitemap.xml
+   - Range: 0.0 to 1.0 (default: 0.5)
+   - Used for SEO optimization
+
 ### CMS Site Features
 
 1. **Page Management**
@@ -349,6 +383,26 @@ Returns current build status.
 - Exported before each build
 - Read by gatsby-node.js
 - Source of truth for static site generation
+
+## Sitemap Generation
+
+The system automatically generates a `sitemap.xml` file during production builds:
+
+- **Location**: `main-site/static/sitemap.xml`
+- **Includes**: All pages and blog articles across all languages
+- **Priority Support**: Uses `sitemapPriority` field from page configuration
+- **Updated**: Automatically regenerated on each build
+- **Format**: Standard XML sitemap protocol
+
+Example sitemap entry:
+```xml
+<url>
+  <loc>https://example.com/en/about</loc>
+  <lastmod>2024-01-15</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.8</priority>
+</url>
+```
 
 ## Technology Stack
 

@@ -258,6 +258,70 @@ exports.createPages = async ({ actions }) => {
       },
     });
   }
+  // Generate sitemap.xml with priority support
+  if (isProduction) {
+    console.log('[Gatsby Node] Generating sitemap.xml');
+    
+    const sitemapEntries = [];
+    const baseUrl = process.env.GATSBY_SITE_URL || 'https://example.com';
+    
+    // Add pages to sitemap
+    languages.forEach(lang => {
+      pages.forEach(page => {
+        const localizedSlug = page.translations && page.translations[lang.code]
+          ? page.translations[lang.code].slug
+          : page.slug;
+        
+        const isHome = page.slug === 'home' || localizedSlug === 'home';
+        const url = isHome 
+          ? `${baseUrl}/${lang.code}`
+          : `${baseUrl}/${lang.code}/${localizedSlug}`;
+        
+        const priority = page.sitemapPriority !== undefined ? page.sitemapPriority : 0.5;
+        const lastMod = page.lastPublished ? new Date(page.lastPublished).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+        
+        sitemapEntries.push({
+          url,
+          priority,
+          lastmod: lastMod,
+          changefreq: 'weekly'
+        });
+      });
+      
+      // Add blog pages
+      blogArticles.forEach(article => {
+        const localizedSlug = article.translations && article.translations[lang.code]
+          ? article.translations[lang.code].slug
+          : article.slug;
+        
+        const url = `${baseUrl}/${lang.code}/blog/${article.year}/${article.month}/${localizedSlug}`;
+        const lastMod = article.date ? new Date(article.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+        
+        sitemapEntries.push({
+          url,
+          priority: 0.6,
+          lastmod: lastMod,
+          changefreq: 'monthly'
+        });
+      });
+    });
+    
+    // Generate XML
+    const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${sitemapEntries.map(entry => `  <url>
+    <loc>${entry.url}</loc>
+    <lastmod>${entry.lastmod}</lastmod>
+    <changefreq>${entry.changefreq}</changefreq>
+    <priority>${entry.priority}</priority>
+  </url>`).join('\n')}
+</urlset>`;
+    
+    // Write sitemap to static folder
+    const sitemapPath = path.join(__dirname, 'static', 'sitemap.xml');
+    fs.writeFileSync(sitemapPath, sitemapXml);
+    console.log(`[Gatsby Node] Sitemap generated with ${sitemapEntries.length} entries`);
+  }
 };
 
 /**
