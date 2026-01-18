@@ -395,7 +395,7 @@ const PagesSection = ({ cmsData }) => {
 
         <div className="component-table-container">
 
-          <div style={{ marginBottom: '20px' }}>
+          <div style={{  }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Title ({currentLanguage}):</strong>
               <input
@@ -412,7 +412,7 @@ const PagesSection = ({ cmsData }) => {
               />
             </label>
           </div>
-          <div style={{ marginBottom: '20px' }}>
+          <div style={{ }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Slug ({currentLanguage}):</strong>
               <input
@@ -437,10 +437,10 @@ const PagesSection = ({ cmsData }) => {
               />
             </label>
             <p style={{ fontSize: '14px', color: '#64748b', marginTop: '5px' }}>
-              Full URL: {getPageUrl(currentPage, currentLanguage)}
+              {/* Full URL: {getPageUrl(currentPage, currentLanguage)}*/}
             </p>
           </div>
-          <div style={{ marginBottom: '20px' }}>
+          <div style={{ }}>
             <label style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: '10px', cursor: currentPage.slug === 'home' ? 'not-allowed' : 'pointer' }}>
               <input
                 type="checkbox"
@@ -954,7 +954,7 @@ const BlogSection = ({ cmsData }) => {
               />
             </label>
             <p style={{ fontSize: '14px', color: '#64748b', marginTop: '5px' }}>
-              Full URL: {getArticleUrl(currentArticle, currentLanguage)}
+              {/* Full URL: {getArticleUrl(currentArticle, currentLanguage)}*/}
             </p>
           </div>
           <div style={{ marginBottom: '20px' }}>

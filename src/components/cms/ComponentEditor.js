@@ -102,7 +102,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
         Switch languages using the dropdown above to edit content for other languages.
       </p>
       {rows.map((row, rowIndex) => (
-        <div key={rowIndex} style={{
+        <div className="single-component-editor" key={rowIndex} style={{
           border: '1px solid #e2e8f0',
           borderRadius: '8px',
           padding: '20px',
