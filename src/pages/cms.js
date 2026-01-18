@@ -93,8 +93,8 @@ const CMSPage = () => {
         {currentSection === 'rental-inventory' && <RentalInventorySection cmsData={cmsData} />}
         {currentSection === 'rental-attendance' && <RentalAttendanceSection />}
         {currentSection === 'rental-contacts' && <RentalContactsSection cmsData={cmsData} />}
-        {currentSection === 'rental-reservations' && <RentalReservationsSection />}
-        {currentSection === 'rental-calendar' && <RentalCalendarSection />}
+        {currentSection === 'rental-reservations' && <RentalReservationsSection cmsData={cmsData} />}
+        {currentSection === 'rental-calendar' && <RentalCalendarSection cmsData={cmsData} />}
       </main>
       <style>{`
         @keyframes spin {
@@ -2663,7 +2663,8 @@ const RentalInventorySection = ({ cmsData }) => {
     supplier: '',
     status: 'In Stock',
     lastRestocked: '',
-    notes: ''
+    notes: '',
+    public: false
   };
 
   const handleAddItem = () => {
@@ -2870,6 +2871,17 @@ const RentalInventorySection = ({ cmsData }) => {
               />
             </label>
           </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={editingItem.public || false}
+                onChange={(e) => handleUpdateItem(editingItemIndex, 'public', e.target.checked)}
+                style={{ cursor: 'pointer', width: '18px', height: '18px' }}
+              />
+              <strong>Public (visible in catalog)</strong>
+            </label>
+          </div>
         </div>
       </section>
     );
@@ -2905,6 +2917,7 @@ const RentalInventorySection = ({ cmsData }) => {
               <th>Quantity</th>
               <th>Location</th>
               <th>Status</th>
+              <th>Public</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -2982,6 +2995,14 @@ const RentalInventorySection = ({ cmsData }) => {
                   </select>
                 </td>
                 <td>
+                  <input
+                    type="checkbox"
+                    checked={item.public || false}
+                    onChange={(e) => handleUpdateItem(actualIndex, 'public', e.target.checked)}
+                    style={{ cursor: 'pointer' }}
+                  />
+                </td>
+                <td>
                   <button onClick={() => handleExpandItem(actualIndex)} style={{ marginRight: '5px' }}>Expand</button>
                   <button onClick={() => handleDeleteClick(actualIndex)}>Delete</button>
                 </td>
@@ -3041,14 +3062,92 @@ const RentalInventorySection = ({ cmsData }) => {
   );
 };
 
-const RentalAttendanceSection = () => {
+const RentalAttendanceSection = ({ cmsData }) => {
+  const { attendanceRows, saveAttendanceRows } = cmsData;
+
+  const handleAddRow = () => {
+    const newRow = {
+      id: Date.now().toString(),
+      employeeName: '',
+      date: new Date().toISOString().slice(0, 10),
+      timeIn: '',
+      timeOut: ''
+    };
+    saveAttendanceRows([newRow, ...attendanceRows]);
+  };
+
+  const handleUpdateRow = (index, field, value) => {
+    const newRows = [...attendanceRows];
+    newRows[index][field] = value;
+    saveAttendanceRows(newRows);
+  };
+
+  const handleRemoveRow = (index) => {
+    const newRows = attendanceRows.filter((_, i) => i !== index);
+    saveAttendanceRows(newRows);
+  };
+
   return (
     <section className="main-section active" id="rental-attendance">
       <header>
         <h1>Attendance</h1>
+        <div className="adjustment-buttons">
+          <a href="#" onClick={(e) => { e.preventDefault(); handleAddRow(); }} className="highlighted">+ Add Record</a>
+        </div>
       </header>
-      <div>
-        <p>Coming soon.</p>
+      <div className="component-table-container">
+        <table className="page-list-table">
+          <thead>
+            <tr>
+              <th>Employee Name</th>
+              <th>Date</th>
+              <th>Time In</th>
+              <th>Time Out</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {attendanceRows.map((row, index) => (
+              <tr key={row.id}>
+                <td>
+                  <input
+                    type="text"
+                    value={row.employeeName}
+                    onChange={(e) => handleUpdateRow(index, 'employeeName', e.target.value)}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                  />
+                </td>
+                <td>
+                  <input
+                    type="date"
+                    value={row.date}
+                    onChange={(e) => handleUpdateRow(index, 'date', e.target.value)}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                  />
+                </td>
+                <td>
+                  <input
+                    type="time"
+                    value={row.timeIn}
+                    onChange={(e) => handleUpdateRow(index, 'timeIn', e.target.value)}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                  />
+                </td>
+                <td>
+                  <input
+                    type="time"
+                    value={row.timeOut}
+                    onChange={(e) => handleUpdateRow(index, 'timeOut', e.target.value)}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                  />
+                </td>
+                <td>
+                  <button onClick={() => handleRemoveRow(index)}>Delete</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </section>
   );
@@ -3782,27 +3881,194 @@ const RentalContactsSection = ({ cmsData }) => {
   );
 };
 
-const RentalReservationsSection = () => {
+const RentalReservationsSection = ({ cmsData }) => {
+  const { reservationRows, saveReservationRows, inventoryRows, contactRows } = cmsData;
+
+  const handleAddRow = () => {
+    const newRow = {
+      id: Date.now().toString(),
+      customerName: '',
+      itemName: '',
+      startDate: new Date().toISOString().slice(0, 10),
+      endDate: new Date().toISOString().slice(0, 10),
+      status: 'Confirmed'
+    };
+    saveReservationRows([newRow, ...reservationRows]);
+  };
+
+  const handleUpdateRow = (index, field, value) => {
+    const newRows = [...reservationRows];
+    newRows[index][field] = value;
+    saveReservationRows(newRows);
+  };
+
+  const handleRemoveRow = (index) => {
+    const newRows = reservationRows.filter((_, i) => i !== index);
+    saveReservationRows(newRows);
+  };
+
   return (
     <section className="main-section active" id="rental-reservations">
       <header>
         <h1>Reservations</h1>
+        <div className="adjustment-buttons">
+          <a href="#" onClick={(e) => { e.preventDefault(); handleAddRow(); }} className="highlighted">+ Add Reservation</a>
+        </div>
       </header>
-      <div>
-        <p>Coming soon.</p>
+      <div className="component-table-container">
+        <table className="page-list-table">
+          <thead>
+            <tr>
+              <th>Customer Name</th>
+              <th>Item Name</th>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {reservationRows.map((row, index) => (
+              <tr key={row.id}>
+                <td>
+                  <select
+                    value={row.customerName}
+                    onChange={(e) => handleUpdateRow(index, 'customerName', e.target.value)}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                  >
+                    <option value="">Select Customer</option>
+                    {contactRows.map(contact => (
+                      <option key={contact.email} value={contact.fullName}>{contact.fullName}</option>
+                    ))}
+                  </select>
+                </td>
+                <td>
+                  <select
+                    value={row.itemName}
+                    onChange={(e) => handleUpdateRow(index, 'itemName', e.target.value)}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                  >
+                    <option value="">Select Item</option>
+                    {inventoryRows.map(item => (
+                      <option key={item.sku} value={item.itemName}>{item.itemName}</option>
+                    ))}
+                  </select>
+                </td>
+                <td>
+                  <input
+                    type="date"
+                    value={row.startDate}
+                    onChange={(e) => handleUpdateRow(index, 'startDate', e.target.value)}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                  />
+                </td>
+                <td>
+                  <input
+                    type="date"
+                    value={row.endDate}
+                    onChange={(e) => handleUpdateRow(index, 'endDate', e.target.value)}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                  />
+                </td>
+                <td>
+                  <select
+                    value={row.status}
+                    onChange={(e) => handleUpdateRow(index, 'status', e.target.value)}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                  >
+                    <option value="Confirmed">Confirmed</option>
+                    <option value="Picked Up">Picked Up</option>
+                    <option value="Returned">Returned</option>
+                    <option value="Cancelled">Cancelled</option>
+                  </select>
+                </td>
+                <td>
+                  <button onClick={() => handleRemoveRow(index)}>Delete</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </section>
   );
 };
 
-const RentalCalendarSection = () => {
+const RentalCalendarSection = ({ cmsData }) => {
+  const { reservationRows } = cmsData;
+  const [currentDate, setCurrentDate] = useState(new Date());
+
+  const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+  const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+  const startDate = new Date(startOfMonth);
+  startDate.setDate(startDate.getDate() - startDate.getDay());
+  const endDate = new Date(endOfMonth);
+  endDate.setDate(endDate.getDate() + (6 - endDate.getDay()));
+
+  const calendarDays = [];
+  let date = new Date(startDate);
+  while (date <= endDate) {
+    calendarDays.push(new Date(date));
+    date.setDate(date.getDate() + 1);
+  }
+
+  const reservationsByDate = {};
+  if(reservationRows) {
+    reservationRows.forEach(res => {
+      const start = new Date(res.startDate);
+      const end = new Date(res.endDate);
+      let d = new Date(start);
+      while (d <= end) {
+        const dateString = d.toISOString().slice(0, 10);
+        if (!reservationsByDate[dateString]) {
+          reservationsByDate[dateString] = [];
+        }
+        reservationsByDate[dateString].push(res);
+        d.setDate(d.getDate() + 1);
+      }
+    });
+  }
+
+  const prevMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+  };
+
+  const nextMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
+  };
+
   return (
     <section className="main-section active" id="rental-calendar">
       <header>
         <h1>Calendar</h1>
+        <div className="adjustment-buttons">
+          <button onClick={prevMonth}>&lt; Prev</button>
+          <span style={{ margin: '0 10px', fontWeight: 'bold' }}>
+            {currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
+          </span>
+          <button onClick={nextMonth}>Next &gt;</button>
+        </div>
       </header>
-      <div>
-        <p>Coming soon.</p>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', border: '1px solid #ccc' }}>
+        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+          <div key={day} style={{ padding: '10px', fontWeight: 'bold', textAlign: 'center', border: '1px solid #ccc', background: '#f0f0f0' }}>{day}</div>
+        ))}
+        {calendarDays.map(day => {
+          const dateString = day.toISOString().slice(0, 10);
+          const reservations = reservationsByDate[dateString] || [];
+          return (
+            <div key={day.toString()} style={{ padding: '10px', border: '1px solid #ccc', minHeight: '100px', background: day.getMonth() === currentDate.getMonth() ? 'white' : '#f9f9f9' }}>
+              <div>{day.getDate()}</div>
+              <div>
+                {reservations.map(res => (
+                  <div key={res.id} style={{ fontSize: '12px', background: '#e0e7ff', padding: '2px', borderRadius: '2px', marginTop: '2px' }}>
+                    {res.itemName} - {res.customerName}
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </section>
   );

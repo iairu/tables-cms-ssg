@@ -19,6 +19,21 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
     return pageContext.language || 'en';
   });
   const [loading, setLoading] = useState(!pageContext.articleData);
+  const [showCatalogLink, setShowCatalogLink] = useState(false);
+
+  useEffect(() => {
+    fetch('/data/inventory.json')
+      .then(res => res.json())
+      .then(data => {
+        const hasPublicItems = data.some(item => item.public);
+        if (hasPublicItems) {
+          setShowCatalogLink(true);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching inventory data for catalog link:', error);
+      });
+  }, []);
 
   useEffect(() => {
     // If data is already in pageContext (production SSG), use it directly
@@ -272,6 +287,7 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
               );
             })}
             <a href={`/${currentLanguage}/blog`} style={{ color: 'white', textDecoration: 'none' }}>{t('blog', currentLanguage)}</a>
+            {showCatalogLink && <a href="/catalog" style={{ color: 'white', textDecoration: 'none' }}>Catalog</a>}
             
             {/* Language Switcher */}
             <select

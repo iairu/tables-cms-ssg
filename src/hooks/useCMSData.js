@@ -84,6 +84,8 @@ const useCMSData = () => {
       blogArticles: JSON.parse(localStorage.getItem('blogArticles') || '[]'),
       catRows: JSON.parse(localStorage.getItem('catRows') || '[]'),
       inventoryRows: JSON.parse(localStorage.getItem('inventoryRows') || '[]'),
+      attendanceRows: JSON.parse(localStorage.getItem('attendanceRows') || '[]'),
+      reservationRows: JSON.parse(localStorage.getItem('reservationRows') || '[]'),
       componentRows: JSON.parse(localStorage.getItem('componentRows') || '[]'),
       settings: JSON.parse(localStorage.getItem('settings') || '{"siteTitle":"TABLES","defaultLang":"en","theme":"light","vercelApiKey":"","languages":[{"code":"en","name":"English"}],"showBreadcrumbs":false}'),
       acl: JSON.parse(localStorage.getItem('acl') || '{}'),
@@ -230,6 +232,12 @@ const useCMSData = () => {
   // Contacts state
   const [contactRows, setContactRows] = useState([]);
 
+  // Attendance state
+  const [attendanceRows, setAttendanceRows] = useState([]);
+
+  // Reservation state
+  const [reservationRows, setReservationRows] = useState([]);
+
   // Settings state
   const [settings, setSettings] = useState({
     siteTitle: '',
@@ -268,6 +276,8 @@ const useCMSData = () => {
     const loadedCatRows = localStorage.getItem('catRows');
     const loadedInventoryRows = localStorage.getItem('inventoryRows');
     const loadedContactRows = localStorage.getItem('contactRows');
+    const loadedAttendanceRows = localStorage.getItem('attendanceRows');
+    const loadedReservationRows = localStorage.getItem('reservationRows');
     const loadedComponentRows = localStorage.getItem('componentRows');
     const loadedSettings = localStorage.getItem('settings');
     
@@ -294,6 +304,8 @@ const useCMSData = () => {
     if (loadedCatRows) setCatRows(JSON.parse(loadedCatRows));
     if (loadedInventoryRows) setInventoryRows(JSON.parse(loadedInventoryRows));
     if (loadedContactRows) setContactRows(JSON.parse(loadedContactRows));
+    if (loadedAttendanceRows) setAttendanceRows(JSON.parse(loadedAttendanceRows));
+    if (loadedReservationRows) setReservationRows(JSON.parse(loadedReservationRows));
     if (loadedComponentRows) setComponentRows(JSON.parse(loadedComponentRows));
     if (loadedSettings) setSettings(JSON.parse(loadedSettings));
     if (loadedAcl) setAcl(JSON.parse(loadedAcl));
@@ -340,6 +352,16 @@ const useCMSData = () => {
   const saveContactRows = (newRows) => {
     setContactRows(newRows);
     localStorage.setItem('contactRows', JSON.stringify(newRows));
+  };
+
+  const saveAttendanceRows = (newRows) => {
+    setAttendanceRows(newRows);
+    localStorage.setItem('attendanceRows', JSON.stringify(newRows));
+  };
+
+  const saveReservationRows = (newRows) => {
+    setReservationRows(newRows);
+    localStorage.setItem('reservationRows', JSON.stringify(newRows));
   };
 
   const saveComponentRows = (rows) => {
@@ -503,7 +525,11 @@ const useCMSData = () => {
     inventoryRows,
     saveInventoryRows,
     contactRows,
-    saveContactRows
+    saveContactRows,
+    attendanceRows,
+    saveAttendanceRows,
+    reservationRows,
+    saveReservationRows
   };
 };
 

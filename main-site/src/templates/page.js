@@ -19,6 +19,21 @@ const PageTemplate = ({ pageContext, location }) => {
     return pageContext.language || 'en';
   });
   const [loading, setLoading] = useState(!pageContext.pageData);
+  const [showCatalogLink, setShowCatalogLink] = useState(false);
+
+  useEffect(() => {
+    fetch('/data/inventory.json')
+      .then(res => res.json())
+      .then(data => {
+        const hasPublicItems = data.some(item => item.public);
+        if (hasPublicItems) {
+          setShowCatalogLink(true);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching inventory data for catalog link:', error);
+      });
+  }, []);
 
   // Apply theme version class to body
   useEffect(() => {
@@ -304,6 +319,7 @@ const PageTemplate = ({ pageContext, location }) => {
               );
             })}
             <a href={`/${currentLanguage}/blog`} style={{ color: 'white', textDecoration: 'none' }}>{t('blog', currentLanguage)}</a>
+            {showCatalogLink && <a href="/catalog" style={{ color: 'white', textDecoration: 'none' }}>Catalog</a>}
             
             {/* Language Switcher */}
             <select
