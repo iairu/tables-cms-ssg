@@ -1,5 +1,5 @@
 
-<img src="static/assets/tables-logo.svg" alt="Tables CMS Logo" />
+<img src="static/assets/tables-logo.svg" alt="Tables CMS Logo" width="400" />
 
 # TABLES CMS Architecture
 
