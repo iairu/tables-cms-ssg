@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { fuzzyMatch } from '../utils';
+import FuzzySearchDropdown from '../FuzzySearchDropdown';
+import FamilyTree from '../FamilyTree';
 
 const CatsSection = ({ cmsData }) => {
   const { catRows, saveCatRows } = cmsData;
@@ -7,6 +9,7 @@ const CatsSection = ({ cmsData }) => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [catToDelete, setCatToDelete] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showFamilyTree, setShowFamilyTree] = useState(false);
 
   const defaultCat = {
     titlesBeforeName: '',
@@ -34,7 +37,9 @@ const CatsSection = ({ cmsData }) => {
     countryOfCurrentResidence: '',
     ownershipNotes: '',
     personalInfo: '',
-    dateOfLastOwnershipChange: ''
+    dateOfLastOwnershipChange: '',
+    sire: '',
+    dam: ''
   };
 
   const handleAddCat = () => {
@@ -99,6 +104,7 @@ const CatsSection = ({ cmsData }) => {
             <span>Editing cat {editingCat.fullName || '(Unnamed)'}</span>
           </h1>
           <div className="adjustment-buttons">
+            <a href="#" onClick={(e) => { e.preventDefault(); setShowFamilyTree(true); }} style={{ marginRight: '10px' }}>Family Tree</a>
             <a href="#" onClick={(e) => { e.preventDefault(); handleCloseModal(); }}>← Back to Cats registry</a>
           </div>
         </header>
@@ -208,6 +214,28 @@ const CatsSection = ({ cmsData }) => {
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
               </select>
+            </label>
+          </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '10px' }}>
+              <strong>Sire:</strong>
+              <FuzzySearchDropdown
+                options={catRows.filter(cat => cat.gender === 'Male')}
+                value={editingCat.sire || ''}
+                onChange={(value) => handleUpdateCat(editingCatIndex, 'sire', value)}
+                placeholder="Select sire"
+              />
+            </label>
+          </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '10px' }}>
+              <strong>Dam:</strong>
+              <FuzzySearchDropdown
+                options={catRows.filter(cat => cat.gender === 'Female')}
+                value={editingCat.dam || ''}
+                onChange={(value) => handleUpdateCat(editingCatIndex, 'dam', value)}
+                placeholder="Select dam"
+              />
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
@@ -551,6 +579,13 @@ const CatsSection = ({ cmsData }) => {
             </label>
           </div>
         </div>
+        {showFamilyTree && (
+          <FamilyTree
+            cat={editingCat}
+            allCats={catRows}
+            onClose={() => setShowFamilyTree(false)}
+          />
+        )}
       </section>
     );
   }
