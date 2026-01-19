@@ -99,7 +99,7 @@ const CMSPage = () => {
         {currentSection === 'acl' && <ACLSection cmsData={cmsData} />}
         {currentSection === 'extensions' && <ExtensionsSection cmsData={cmsData} />}
         {currentSection === 'rental-inventory' && <RentalInventorySection cmsData={cmsData} />}
-        {currentSection === 'rental-attendance' && <RentalAttendanceSection />}
+        {currentSection === 'rental-attendance' && <RentalAttendanceSection cmsData={cmsData} />}
         {currentSection === 'rental-contacts' && <RentalContactsSection cmsData={cmsData} />}
         {currentSection === 'rental-reservations' && <RentalReservationsSection cmsData={cmsData} />}
         {currentSection === 'rental-calendar' && <RentalCalendarSection cmsData={cmsData} />}
@@ -537,7 +537,7 @@ const RentalAttendanceSection = ({ cmsData }) => {
       id: Date.now().toString(),
       employeeName: '',
       date: new Date().toISOString().slice(0, 10),
-      timeIn: '',
+      timeIn: new Date().toTimeString().slice(0, 5),
       timeOut: ''
     };
     saveAttendanceRows([newRow, ...attendanceRows]);
@@ -569,6 +569,7 @@ const RentalAttendanceSection = ({ cmsData }) => {
               <th>Employee Name</th>
               <th>Date</th>
               <th>Time In</th>
+              <th>Clock Out</th>
               <th>Time Out</th>
               <th>Actions</th>
             </tr>
@@ -602,8 +603,20 @@ const RentalAttendanceSection = ({ cmsData }) => {
                 </td>
                 <td>
                   <input
+                    type="checkbox"
+                    checked={!!row.timeOut}
+                    onChange={(e) => {
+                      const newTimeOut = e.target.checked ? new Date().toTimeString().slice(0, 5) : '';
+                      handleUpdateRow(index, 'timeOut', newTimeOut);
+                    }}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                  />
+                </td>
+                <td>
+                  <input
                     type="time"
                     value={row.timeOut}
+                    disabled={!row.timeOut}
                     onChange={(e) => handleUpdateRow(index, 'timeOut', e.target.value)}
                     style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '4px' }}
                   />
