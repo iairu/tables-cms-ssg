@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { fuzzyMatch } from '../utils';
 import FuzzySearchDropdown from '../FuzzySearchDropdown';
 import FamilyTree from '../FamilyTree';
+import DescendantsTree from '../DescendantsTree';
 
 const CatsSection = ({ cmsData }) => {
   const { catRows, saveCatRows } = cmsData;
@@ -10,6 +11,7 @@ const CatsSection = ({ cmsData }) => {
   const [catToDelete, setCatToDelete] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showFamilyTree, setShowFamilyTree] = useState(false);
+  const [showDescendantsTree, setShowDescendantsTree] = useState(false);
 
   const defaultCat = {
     titlesBeforeName: '',
@@ -105,6 +107,7 @@ const CatsSection = ({ cmsData }) => {
           </h1>
           <div className="adjustment-buttons">
             <a href="#" onClick={(e) => { e.preventDefault(); setShowFamilyTree(true); }} style={{ marginRight: '10px' }}>Family Tree</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); setShowDescendantsTree(true); }} style={{ marginRight: '10px' }}>Descendants Tree</a>
             <a href="#" onClick={(e) => { e.preventDefault(); handleCloseModal(); }}>← Back to Cats registry</a>
           </div>
         </header>
@@ -584,6 +587,13 @@ const CatsSection = ({ cmsData }) => {
             cat={editingCat}
             allCats={catRows}
             onClose={() => setShowFamilyTree(false)}
+          />
+        )}
+        {showDescendantsTree && (
+          <DescendantsTree
+            cat={editingCat}
+            allCats={catRows}
+            onClose={() => setShowDescendantsTree(false)}
           />
         )}
       </section>
