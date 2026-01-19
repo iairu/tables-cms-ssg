@@ -3,6 +3,12 @@ import { Link } from 'gatsby';
 
 const SideMenu = ({ currentSection, onSectionChange, isBuilding, lastSaved, onBuildClick, canBuild, buildCooldownSeconds, domain, vercelApiKey }) => {
   const [isRentalSubMenuOpen, setIsRentalSubMenuOpen] = useState(false);
+  let extensions = {};
+  try {
+    extensions = JSON.parse(localStorage.getItem('extensions') || '{}');
+  } catch (e) {
+    extensions = {};
+  }
 
   const handleClick = (e, sectionId) => {
     e.preventDefault();
@@ -30,7 +36,7 @@ const SideMenu = ({ currentSection, onSectionChange, isBuilding, lastSaved, onBu
   return (
     <aside className="side-menu">      
       {/* Visit Deployment Button */}
-      {domain && (
+      {(extensions['pages-extension-enabled'] || extensions['blog-extension-enabled']) && domain && (
         <div style={{ padding: '15px 20px', borderBottom: '1px solid #e2e8f0' }}>
           <a
             href={domain}
@@ -55,14 +61,15 @@ const SideMenu = ({ currentSection, onSectionChange, isBuilding, lastSaved, onBu
               textDecoration: 'none'
             }}
           >
-            Visit Deployment
+            <span>Visit Domain</span>
+            {/* <Icon icon="fa-solid fa-external-link-alt" />*/}
           </a>
         </div>
       )}
       
       {/* Build Buttons */}
       <div style={{ padding: '15px 20px', borderBottom: '1px solid #e2e8f0' }}>
-        {vercelApiKey && (
+        {(extensions['pages-extension-enabled'] || extensions['blog-extension-enabled']) && vercelApiKey && (
           <button
             onClick={(e) => handleBuildClick(e, false)}
             disabled={isBuilding || !canBuild}
@@ -98,7 +105,7 @@ const SideMenu = ({ currentSection, onSectionChange, isBuilding, lastSaved, onBu
             {isBuilding ? 'Building...' : (!canBuild ? `Wait ${formatTime(buildCooldownSeconds)}` : '▲ Build and Deploy')}
           </button>
         )}
-        
+        {(extensions['pages-extension-enabled'] || extensions['blog-extension-enabled']) && (
         <button
           onClick={(e) => handleBuildClick(e, true)}
           disabled={isBuilding || !canBuild}
@@ -121,6 +128,7 @@ const SideMenu = ({ currentSection, onSectionChange, isBuilding, lastSaved, onBu
         >
           Build Locally Only
         </button>
+        )}
         
         {lastSaved && !isBuilding && (
           <div style={{
@@ -139,12 +147,7 @@ const SideMenu = ({ currentSection, onSectionChange, isBuilding, lastSaved, onBu
       <div>
         <h3>Content</h3>
         {(() => {
-          let extensions = {};
-          try {
-            extensions = JSON.parse(localStorage.getItem('extensions') || '{}');
-          } catch (e) {
-            extensions = {};
-          }
+          
           return (
             <>
               {extensions['pages-extension-enabled'] && (
