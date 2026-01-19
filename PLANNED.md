@@ -84,7 +84,7 @@ add a visual editor for pages and articles
 
 ---
 
-add more features to pedigree extension
+add more features to pedigree extension including a family tree, breed history, and genetic analysis
 
 ---
 

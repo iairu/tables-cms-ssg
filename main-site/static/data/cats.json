@@ -1,12 +1,30 @@
 [
   {
-    "name": "test",
+    "titlesBeforeName": "",
+    "fullName": "",
+    "titlesAfterName": "",
+    "emsColor": "",
     "breed": "",
-    "owner": "",
-    "fullName": "demo",
-    "titlesBeforeName": "Meow",
-    "titlesAfterName": "Meowy",
-    "gender": "Male",
-    "alternativeName": "meow meowy"
+    "gender": "",
+    "dateOfBirth": "",
+    "geneticTests": "",
+    "breedingStation": "",
+    "countryCode": "",
+    "alternativeName": "",
+    "printNameLine1": "",
+    "printNameLine2": "",
+    "dateOfDeath": "",
+    "originalRegNo": "",
+    "lastRegNo": "",
+    "regNo2": "",
+    "regNo3": "",
+    "notes": "",
+    "breeder": "",
+    "currentOwner": "",
+    "countryOfOrigin": "",
+    "countryOfCurrentResidence": "",
+    "ownershipNotes": "",
+    "personalInfo": "",
+    "dateOfLastOwnershipChange": ""
   }
 ]

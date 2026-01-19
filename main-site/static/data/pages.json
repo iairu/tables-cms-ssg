@@ -1,6 +1,6 @@
 [
   {
-    "id": "1768764956811",
+    "id": "1768769719335",
     "title": "Homepage",
     "slug": "home",
     "rows": [
@@ -8,7 +8,10 @@
         "component": "Slide",
         "fields": {
           "Slide heading": "",
-          "Slide content": ""
+          "Slide content": "",
+          "leftHeading": "test",
+          "rightHeading": "test test",
+          "rightBackgroundColor": "#ffd433"
         }
       },
       {
@@ -24,33 +27,8 @@
         }
       }
     ],
-    "history": [
-      {
-        "timestamp": 1768765080088,
-        "rows": [
-          {
-            "component": "Slide",
-            "fields": {
-              "Slide heading": "",
-              "Slide content": ""
-            }
-          },
-          {
-            "component": "Reviews",
-            "fields": {
-              "reviews": [
-                {
-                  "Review logo": "",
-                  "Review content": "",
-                  "Review author": ""
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    "lastPublished": 1768765080088,
+    "history": [],
+    "lastPublished": null,
     "includeInMenu": true,
     "navigationDropdown": "none",
     "themeVersion": "auto",
@@ -67,99 +45,10 @@
             "component": "Slide",
             "fields": {
               "Slide heading": "",
-              "Slide content": ""
-            }
-          },
-          {
-            "component": "Reviews",
-            "fields": {
-              "reviews": [
-                {
-                  "Review logo": "",
-                  "Review content": "",
-                  "Review author": ""
-                }
-              ]
-            }
-          }
-        ],
-        "metaDescription": "test"
-      }
-    }
-  },
-  {
-    "id": "1768764967948",
-    "title": "New Page",
-    "slug": "new-page-1768764967948",
-    "rows": [
-      {
-        "component": "Slide",
-        "fields": {
-          "Slide heading": "",
-          "Slide content": "",
-          "leftHeading": "test",
-          "rightHeading": "test"
-        }
-      },
-      {
-        "component": "Reviews",
-        "fields": {
-          "reviews": [
-            {
-              "Review logo": "",
-              "Review content": "",
-              "Review author": ""
-            }
-          ]
-        }
-      }
-    ],
-    "history": [
-      {
-        "timestamp": 1768764972212,
-        "rows": [
-          {
-            "component": "Slide",
-            "fields": {
-              "Slide heading": "",
-              "Slide content": ""
-            }
-          },
-          {
-            "component": "Reviews",
-            "fields": {
-              "reviews": [
-                {
-                  "Review logo": "",
-                  "Review content": "",
-                  "Review author": ""
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    "lastPublished": 1768764972212,
-    "includeInMenu": false,
-    "navigationDropdown": "none",
-    "themeVersion": "auto",
-    "enforcedTheme": "",
-    "metaDescription": "",
-    "buttonLinkColor": "",
-    "sitemapPriority": 0.5,
-    "translations": {
-      "en": {
-        "title": "Demo Page",
-        "slug": "demo",
-        "rows": [
-          {
-            "component": "Slide",
-            "fields": {
-              "Slide heading": "",
               "Slide content": "",
               "leftHeading": "test",
-              "rightHeading": "test"
+              "rightHeading": "test test",
+              "rightBackgroundColor": "#ffd433"
             }
           },
           {

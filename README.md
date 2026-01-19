@@ -1,4 +1,5 @@
-![TABLES Logo](src/assets/tables-logo.svg)
+
+<img src="src/assets/tables-logo.svg" alt="Tables CMS Logo" />
 
 # TABLES CMS Architecture
 

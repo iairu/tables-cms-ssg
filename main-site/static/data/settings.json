@@ -1,9 +1,9 @@
 {
-  "siteTitle": "TABLES SSG Output",
+  "siteTitle": "StrukShow",
   "defaultLang": "",
   "theme": "light",
   "vercelApiKey": "***HIDDEN***",
-  "domain": "https://main-site-ruby.vercel.app",
+  "showBreadcrumbs": true,
   "languages": [
     {
       "code": "sk",
@@ -14,5 +14,5 @@
       "name": "English"
     }
   ],
-  "showBreadcrumbs": true
+  "domain": "https://main-site-ruby.vercel.app/"
 }

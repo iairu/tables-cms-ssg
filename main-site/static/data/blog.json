@@ -1,57 +1,34 @@
 [
   {
-    "id": "1768426129758",
-    "title": "Welcome to your blog!",
-    "content": "This is the first blog entry!",
-    "author": "Ondrej",
-    "date": "2026-01-14T21:28:49.758Z",
+    "id": "1768768665007",
+    "title": "New Article",
+    "content": "",
+    "author": "",
+    "date": "2026-01-18T20:37:45.007Z",
     "year": 2026,
     "month": 1,
-    "slug": "welcome",
-    "history": [
-      {
-        "timestamp": 1768652648261,
-        "content": "test abc",
-        "title": "testing some info",
-        "author": "Ondrej",
-        "slug": "new-article-1768426129758"
-      },
-      {
-        "timestamp": 1768653762261,
-        "content": "This is the first blog entry!",
-        "title": "Welcome to your blog!",
-        "author": "Ondrej",
-        "slug": "welcome"
-      },
-      {
-        "timestamp": 1768680266235,
-        "content": "This is the first blog entry!",
-        "title": "Welcome to your blog!",
-        "author": "Ondrej",
-        "slug": "welcome"
-      }
-    ],
+    "slug": "new-article-1768768665007",
+    "history": [],
+    "category": "",
+    "tags": "",
     "highlighted": true,
     "translations": {
+      "en": {
+        "title": "New Article",
+        "slug": "new-article-1768768665007",
+        "author": "Andrew",
+        "content": "test english",
+        "category": "",
+        "tags": ""
+      },
       "sk": {
-        "title": "Vitaj vo svojom blogu!",
-        "slug": "vitaj",
+        "title": "Nový kúsok",
+        "slug": "new-article-1768768665007",
         "author": "Ondrej",
-        "content": "Toto je prvý kúsok blogu!",
+        "content": "test sk",
         "category": "",
         "tags": ""
       }
     }
-  },
-  {
-    "id": "1768656805770",
-    "title": "New Article ahh",
-    "content": "Here we go again! and again and again",
-    "author": "Ondrej",
-    "date": "2026-01-17T13:33:25.770Z",
-    "year": 2026,
-    "month": 1,
-    "slug": "new-article-1768656805770",
-    "history": []
   }
 ]
