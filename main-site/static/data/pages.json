@@ -15,12 +15,12 @@
     "sitemapPriority": 0.5
   },
   {
-    "id": "1768812338454",
+    "id": "1768816855994",
     "title": "New Page",
-    "slug": "new-page-1768812338454",
+    "slug": "new-page-1768816855994",
     "rows": [],
     "history": [],
-    "lastEdited": 1768812538281,
+    "lastEdited": 1768816873999,
     "includeInMenu": true,
     "navigationDropdown": "none",
     "themeVersion": "auto",
@@ -29,9 +29,14 @@
     "buttonLinkColor": "",
     "sitemapPriority": 0.5,
     "translations": {
+      "sk": {
+        "title": "Nová stránka",
+        "slug": "new-page-1768816855994",
+        "rows": []
+      },
       "en": {
-        "title": "New Page a test a",
-        "slug": "new-page-1768812338454",
+        "title": "New Page test či bude slovensky ok",
+        "slug": "new-page-1768816855994",
         "rows": []
       }
     }

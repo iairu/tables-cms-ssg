@@ -407,12 +407,41 @@ const useCMSData = () => {
     ];
   };
 
-  const addPage = (initialData = {}) => {
+  const addPage = (settings, initialData = {}) => {
     const newId = initialData.id || Date.now().toString();
+
+    const isHomepage = initialData.slug === 'home';
+    const enTitle = isHomepage ? 'Homepage' : 'New Page';
+    const skTitle = isHomepage ? 'Domovská stránka' : 'Nová stránka';
+
+    const translations = {};
+    if (settings && settings.languages) {
+        settings.languages.forEach(lang => {
+            let title;
+            switch(lang.code) {
+                case 'sk':
+                    title = skTitle;
+                    break;
+                case 'en':
+                default:
+                    title = enTitle;
+                    break;
+            }
+            translations[lang.code] = {
+                title: title,
+                slug: initialData.slug || `new-page-${newId}`,
+                rows: defaultPageRows(),
+            };
+        });
+    }
+
+    const defaultLang = settings?.defaultLang || 'en';
+    const defaultTitle = translations[defaultLang]?.title || enTitle;
+
     const newPage = {
       id: newId,
-      title: 'New Page',
-      slug: 'new-page-' + newId,
+      title: defaultTitle,
+      slug: initialData.slug || `new-page-${newId}`,
       rows: defaultPageRows(),
       history: [],
       lastEdited: Date.now(),
@@ -423,7 +452,8 @@ const useCMSData = () => {
       metaDescription: '',
       buttonLinkColor: '',
       sitemapPriority: 0.5,
-      ...initialData
+      ...initialData,
+      translations: translations,
     };
     const updatedPages = [...pages, newPage];
     savePages(updatedPages);

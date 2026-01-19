@@ -16,16 +16,15 @@ const PagesSection = ({ cmsData }) => {
   useEffect(() => {
     // Ensure that a page with slug 'home' always exists, but only after data is loaded
     if (cmsData.isDataLoaded && pages && !pages.some(p => p.slug === 'home')) {
-      addPage({
-        title: 'Homepage',
+      addPage(settings, {
         slug: 'home',
         includeInMenu: true,
       });
     }
-  }, [pages, addPage, cmsData.isDataLoaded]);
+  }, [pages, addPage, cmsData.isDataLoaded, settings]);
 
   const handleAddPage = () => {
-    const newId = addPage();
+    const newId = addPage(settings);
     saveCurrentPageId(newId);
     setCurrentLanguage(settings?.defaultLang || 'en');
     setEditMode(true);
