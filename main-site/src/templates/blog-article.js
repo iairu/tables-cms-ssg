@@ -174,6 +174,7 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
       content: article.content,
       category: article.category,
       tags: article.tags,
+      metaDescription: article.metaDescription,
     };
   };
 
@@ -505,13 +506,25 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
 export default BlogArticleTemplate;
 
 export const Head = ({ pageContext }) => {
-  const title = pageContext.articleData?.title || pageContext.slug;
-  const siteTitle = pageContext.settings?.siteTitle || 'TABLES';
-  
+  const article = pageContext.articleData;
+  const language = pageContext.language || 'en';
+  const settings = pageContext.settings;
+
+  const localizedContent = article?.translations?.[language] || article;
+
+  const title = localizedContent?.title || pageContext.slug;
+  const siteTitle = settings?.siteTitle || 'TABLES';
+
+  const metaDescription = localizedContent?.metaDescription
+    || settings?.defaultMetaDescription
+    || article?.content?.substring(0, 160)
+    || title;
+
   return (
     <>
       <title>{title} | {siteTitle}</title>
-      <meta name="description" content={pageContext.articleData?.content?.substring(0, 160) || title} />
+      <meta name="description" content={metaDescription} />
+      <html lang={language} />
     </>
   );
 };

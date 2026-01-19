@@ -981,9 +981,10 @@ export const Head = ({ pageContext }) => {
   const language = pageContext.language || 'en';
   
   // Get localized meta description
-  const metaDescription = page?.translations && page.translations[language]?.metaDescription 
-    ? page.translations[language].metaDescription 
-    : page?.metaDescription || title;
+  const metaDescription = (page?.translations && page.translations[language]?.metaDescription) 
+    || page?.metaDescription 
+    || pageContext.settings?.defaultMetaDescription
+    || title;
   
   return (
     <>

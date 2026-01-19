@@ -238,6 +238,28 @@ const SettingsSection = ({ cmsData }) => {
             This will appear on the homepage
           </p>
         </div>
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', marginBottom: '10px' }}>
+            <strong>Default Meta Description:</strong>
+            <textarea
+              value={settings.defaultMetaDescription || ''}
+              onChange={(e) => handleChange('defaultMetaDescription', e.target.value)}
+              placeholder="Enter a default meta description for your site"
+              rows="3"
+              style={{
+                width: '100%',
+                padding: '10px',
+                marginTop: '5px',
+                borderRadius: '4px',
+                border: '1px solid #cbd5e1',
+                fontFamily: 'inherit'
+              }}
+            />
+          </label>
+          <p style={{ fontSize: '14px', color: '#64748b', marginTop: '5px' }}>
+            This will be used as the default meta description for pages that don't have a specific one.
+          </p>
+        </div>
         <div style={{ marginBottom: '30px', padding: '20px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
           <h2 style={{ marginTop: '0', marginBottom: '15px', fontSize: '18px', fontWeight: 'bold' }}>Languages</h2>
           <p style={{ fontSize: '14px', color: '#64748b', marginBottom: '15px' }}>

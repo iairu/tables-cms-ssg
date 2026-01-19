@@ -120,7 +120,8 @@ const BlogSection = ({ cmsData }) => {
         author: article.author || '',
         content: article.content || '',
         category: article.category || '',
-        tags: article.tags || ''
+        tags: article.tags || '',
+        metaDescription: article.metaDescription || ''
       };
     }
     return article.translations[lang];
@@ -138,7 +139,8 @@ const BlogSection = ({ cmsData }) => {
       author: currentArticle.author || '',
       content: currentArticle.content || '',
       category: currentArticle.category || '',
-      tags: currentArticle.tags || ''
+      tags: currentArticle.tags || '',
+      metaDescription: ''
     };
     
     translations[lang] = { ...currentLangData, ...updates };
@@ -388,6 +390,25 @@ const BlogSection = ({ cmsData }) => {
             <p style={{ fontSize: '14px', color: '#64748b', marginTop: '5px' }}>
               {/* Full URL: {getArticleUrl(currentArticle, currentLanguage)}*/}
             </p>
+          </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '10px' }}>
+              <strong>Meta Description ({currentLanguage}):</strong>
+              <textarea
+                value={currentLangContent?.metaDescription || ''}
+                onChange={(e) => saveLocalizedContent(currentLanguage, { metaDescription: e.target.value })}
+                rows="3"
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  marginTop: '5px',
+                  borderRadius: '4px',
+                  border: '1px solid #cbd5e1',
+                  fontFamily: 'inherit'
+                }}
+                placeholder="Enter a meta description for this article"
+              />
+            </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
