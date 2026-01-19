@@ -28,9 +28,13 @@ const Header = ({
           justifyContent: 'space-between',
           alignItems: 'center'
         }}>
-          <h1 style={{ margin: 0, fontSize: '1.5rem' }}>
-            {settings?.siteTitle || 'TABLES'}
-          </h1>
+          {settings.siteLogo ? (
+            <img src={settings.siteLogo} alt={settings.siteTitle} style={{ maxHeight: '40px' }} />
+          ) : (
+            <h1 style={{ margin: 0, fontSize: '1.5rem' }}>
+              {settings?.siteTitle || 'TABLES'}
+            </h1>
+          )}
           <nav>
             {menuPages.map(menuPage => (
               <a 
@@ -62,9 +66,13 @@ const Header = ({
         justifyContent: 'space-between',
         alignItems: 'center'
       }}>
-        <h1 style={{ margin: 0, fontSize: '1.5rem' }}>
-          {settings?.siteTitle || 'TABLES'}
-        </h1>
+        {settings.siteLogo ? (
+          <img src={settings.siteLogo} alt={settings.siteTitle} style={{ maxHeight: '40px' }} />
+        ) : (
+          <h1 style={{ margin: 0, fontSize: '1.5rem' }}>
+            {settings?.siteTitle || 'TABLES'}
+          </h1>
+        )}
         <nav style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
           {menuPages.filter(menuPage => {
             const navDropdown = menuPage.navigationDropdown || 'none';

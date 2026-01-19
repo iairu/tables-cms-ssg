@@ -1,10 +1,18 @@
 import React from 'react';
+import { toBase64 } from '../utils';
 
 const SettingsSection = ({ cmsData }) => {
   const { settings, saveSettings } = cmsData;
 
   const handleChange = (field, value) => {
     saveSettings({ ...settings, [field]: value });
+  };
+
+  const handleFileChange = async (field, file) => {
+    if (file) {
+      const base64 = await toBase64(file);
+      handleChange(field, base64);
+    }
   };
 
   const handleAddLanguage = () => {
@@ -237,6 +245,78 @@ const SettingsSection = ({ cmsData }) => {
           <p style={{ fontSize: '14px', color: '#64748b', marginTop: '5px' }}>
             This will appear on the homepage
           </p>
+        </div>
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', marginBottom: '10px' }}>
+            <strong>Site Logo:</strong>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleFileChange('siteLogo', e.target.files[0])}
+              style={{
+                width: '100%',
+                padding: '10px',
+                marginTop: '5px',
+                borderRadius: '4px',
+                border: '1px solid #cbd5e1'
+              }}
+            />
+          </label>
+          {settings.siteLogo && (
+            <div style={{ marginTop: '10px' }}>
+              <img src={settings.siteLogo} alt="Site Logo Preview" style={{ maxWidth: '200px', maxHeight: '100px', border: '1px solid #e2e8f0', borderRadius: '4px' }} />
+              <button
+                onClick={() => handleChange('siteLogo', '')}
+                style={{
+                  marginLeft: '10px',
+                  padding: '5px 10px',
+                  background: '#ef4444',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer'
+                }}
+              >
+                Remove
+              </button>
+            </div>
+          )}
+        </div>
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', marginBottom: '10px' }}>
+            <strong>Site Favicon:</strong>
+            <input
+              type="file"
+              accept="image/png, image/x-icon, image/svg+xml"
+              onChange={(e) => handleFileChange('siteFavicon', e.target.files[0])}
+              style={{
+                width: '100%',
+                padding: '10px',
+                marginTop: '5px',
+                borderRadius: '4px',
+                border: '1px solid #cbd5e1'
+              }}
+            />
+          </label>
+          {settings.siteFavicon && (
+            <div style={{ marginTop: '10px' }}>
+              <img src={settings.siteFavicon} alt="Favicon Preview" style={{ width: '32px', height: '32px', border: '1px solid #e2e8f0', borderRadius: '4px' }} />
+              <button
+                onClick={() => handleChange('siteFavicon', '')}
+                style={{
+                  marginLeft: '10px',
+                  padding: '5px 10px',
+                  background: '#ef4444',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer'
+                }}
+              >
+                Remove
+              </button>
+            </div>
+          )}
         </div>
         <div style={{ marginBottom: '20px' }}>
           <label style={{ display: 'block', marginBottom: '10px' }}>

@@ -143,6 +143,7 @@ export const Head = ({ pageContext }) => {
     <>
       <title>{siteTitle}</title>
       <meta name="description" content="Welcome to your new site. Add content through the CMS to get started." />
+      {pageContext.settings.siteFavicon && <link rel="icon" href={pageContext.settings.siteFavicon} />}
     </>
   );
 };

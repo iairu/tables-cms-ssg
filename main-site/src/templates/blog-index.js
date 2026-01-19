@@ -461,6 +461,7 @@ export const Head = ({ pageContext }) => {
     <>
       <title>Blog | {siteTitle}</title>
       <meta name="description" content="Blog articles and updates" />
+      {pageContext.settings.siteFavicon && <link rel="icon" href={pageContext.settings.siteFavicon} />}
     </>
   );
 };

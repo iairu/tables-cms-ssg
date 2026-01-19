@@ -420,6 +420,7 @@ export const Head = ({ pageContext }) => {
     <>
       <title>{title} | {siteTitle}</title>
       <meta name="description" content={metaDescription} />
+      {pageContext.settings.siteFavicon && <link rel="icon" href={pageContext.settings.siteFavicon} />}
       <html lang={language} />
     </>
   );

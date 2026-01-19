@@ -1,10 +1,5 @@
 
-
-
----
-
-add site logo and site favicon upload to settings (will be saved as base64 just like images in page components),
-show the site favicon in main-site and logo in header
+have shared Head.js just like Header.js but for <head>
 
 ---
 
