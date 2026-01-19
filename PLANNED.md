@@ -1,90 +1,27 @@
 
----
-
-## ✅ IMPLEMENTED - Page Configuration Features
-
-All the following features have been successfully implemented:
-
-### 1. Navigation Dropdown ✅
-- **CMS Interface**: Dropdown selector with options: None (default), Header, Footer
-- **Field**: `navigationDropdown` (values: 'none', 'header', 'footer')
-- **Implementation**: Pages filter in header/footer navigation based on this setting
-- **Location**: `src/pages/cms.js` (lines ~455-474)
-
-### 2. Theme Version Toggle ✅
-- **CMS Interface**: Dropdown with options: Auto, Light, Dark
-- **Field**: `themeVersion` (values: 'auto', 'light', 'dark')
-- **Implementation**: Adds class to body element (`theme-auto-ver`, `theme-light-ver`, `theme-dark-ver`)
-- **Location**: CMS UI at `src/pages/cms.js` (lines ~476-497), Applied in `main-site/src/templates/page.js` via useEffect
-
-### 3. Enforced Theme (Page Override) ✅
-- **CMS Interface**: Dropdown to override global theme for specific page
-- **Field**: `enforcedTheme` (values: '', 'light', 'dark', 'auto')
-- **Implementation**: Overrides site-wide theme setting for the current page
-- **Location**: `src/pages/cms.js` (lines ~499-522)
-
-### 4. Site Meta Description ✅
-- **CMS Interface**: Textarea for SEO description (multi-language support)
-- **Field**: `metaDescription` (stored in page root and translations)
-- **Implementation**: Used in `<Head>` component for SEO meta tags
-- **Location**: CMS UI at `src/pages/cms.js` (lines ~524-551), Applied in `main-site/src/templates/page.js` Head export
-
-### 5. Button and Link Color Picker ✅
-- **CMS Interface**: Color picker + text input for page-wide button/link colors
-- **Field**: `buttonLinkColor` (hex color value)
-- **Implementation**: Applies CSS variable `--page-button-color` to document root
-- **Location**: CMS UI at `src/pages/cms.js` (lines ~553-582), Applied in `main-site/src/templates/page.js` via useEffect
-
-### 6. Sitemap Page Priority ✅
-- **CMS Interface**: Number input (0.0 - 1.0, default: 0.5)
-- **Field**: `sitemapPriority` (float value)
-- **Implementation**: Used in sitemap.xml generation with priority values
-- **Location**: CMS UI at `src/pages/cms.js` (lines ~584-597), Sitemap generation in `main-site/gatsby-node.js` (lines ~261-323)
-
-## Technical Details
-
-### Data Structure Changes
-- **File**: `src/hooks/useCMSData.js`
-- **New fields added to page objects**:
-  - `navigationDropdown: 'none'` (default)
-  - `themeVersion: 'auto'` (default)
-  - `enforcedTheme: ''` (default - empty means use global)
-  - `metaDescription: ''`
-  - `buttonLinkColor: ''`
-  - `sitemapPriority: 0.5` (default)
-
-### Frontend Integration
-- **Templates Updated**:
-  - `main-site/src/templates/page.js` - Full implementation with theme handling, meta tags, navigation filtering, and footer navigation
-  - `main-site/src/templates/blog-article.js` - Navigation filtering for header/footer
-  - `main-site/src/templates/blog-index.js` - Navigation filtering for header/footer
-
-### Sitemap Generation
-- **File**: `main-site/gatsby-node.js`
-- Generates `static/sitemap.xml` during production build
-- Includes all pages and blog articles across all languages
-- Uses `sitemapPriority` field for priority values
-- Includes lastmod, changefreq, and priority for each URL
+refactor rental*section to be in a separate Rental*Section.js similar to BlogSection.js and others
 
 ---
 
-modify extension called Rental for rental solutions by implementing (Employee) Attendance tracking table page, Customer reservations table page, Customer reservations calendar page
+update sidemenu and routing so that Pages will be on /cms/pages, Blog on /cms/blog and so on for Pedigree on /cms/pedigree, Inventory on /cms/inventory, Attendance on /cms/attendance, Customers on /cms/customers, Employees on /cms/employees, Reservations on /cms/reservations, Calendar on /cms/calendar, Settings on /cms/settings and Extensions on /cms/extensions
 
-fields and relational fields that have to be included in rental extension should be saved in localStorage and based on this SQL from an older system:
+update routing for actions so that page with slug will be on /cms/pages/[slug]/[action] (e.g., /cms/pages/about/edit), blog post with slug will be on /cms/blog/[yyyy/mm/slug]/[action] (e.g., /cms/blog/[2026/01/demo-slug]/edit)
 
-- [copy sql migration here from the project]
-
----
-
-add extension called Biometric for a database of users with fingerprints, face portraits, user data and sensitive data, this will be editable same way as the pedigree cats table with an expand button, show a warning within the picker that this is for demo only due to low or non-existent security
+similarly pedigree cats will now have ids and actions will be on /cms/pedigree/[id]/[action] (e.g., /cms/pedigree/1/edit), same for inventory on /cms/inventory/[id]/[action] (e.g., /cms/inventory/1/edit), and reservations on /cms/reservations/[id]/[action] (e.g., /cms/reservations/1/edit), and employees on /cms/employees/[id]/[action] (e.g., /cms/employees/1/edit), and customers on /cms/customers/[id]/[action] (e.g., /cms/customers/1/edit), and attendance on /cms/attendance/[id]/[action] (e.g., /cms/attendance/1/edit)
 
 ---
 
-add a visual editor for pages and articles
+add extension called Biometric for a database of users with fingerprints imgs (left thumb, right thumb, palm), face mugshot (with grouping and better sort: front, back, left side, right side), user data and sensitive data (place of origin, date of birth, gender, height, weight, eye color, hair color, skin color, blood type, Rh factor, national ID, social security number, passport number, driver's license number, first name, last name, middle names, marriage status, children, spouse name, ...), this will be editable same way as the pedigree cats table with an expand button, show a warning within the picker that this is for demo only due to low or non-existent security
 
 ---
 
-add more features to pedigree extension including a family tree, breed history, and genetic analysis
+add a visual or compact editor for pages and articles
+
+---
+
+improve pedigree family and descendants trees by color coding sire/male light blue and dam/female pink, add links to parents and siblings expandos
+
+add more features to pedigree extension including breed history, and genetic analysis
 
 ---
 
@@ -101,3 +38,5 @@ add notes extension
 ---
 
 add asset upload and management extension (will switch upload to json for select from assets on all file upload input fields)
+
+---
