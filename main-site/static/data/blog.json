@@ -1,31 +1,49 @@
 [
   {
-    "id": "1768768665007",
+    "id": "1768807536440",
     "title": "New Article",
     "content": "",
     "author": "",
-    "date": "2026-01-18T20:37:45.007Z",
+    "date": "2026-01-19T07:25:36.440Z",
     "year": 2026,
     "month": 1,
-    "slug": "new-article-1768768665007",
+    "slug": "new-article-1768807536440",
     "history": [],
     "category": "",
     "tags": "",
-    "highlighted": true,
+    "highlighted": false,
+    "lastEdited": 1768807543153,
     "translations": {
       "en": {
-        "title": "New Article",
-        "slug": "new-article-1768768665007",
-        "author": "Andrew",
-        "content": "test english",
+        "title": "New Article demo",
+        "slug": "new-article-1768807536440",
+        "author": "",
+        "content": "",
         "category": "",
         "tags": ""
-      },
-      "sk": {
-        "title": "Nový kúsok",
-        "slug": "new-article-1768768665007",
-        "author": "Ondrej",
-        "content": "test sk",
+      }
+    }
+  },
+  {
+    "id": "1768810732967",
+    "title": "New Article",
+    "content": "",
+    "author": "",
+    "date": "2026-01-19T08:18:52.967Z",
+    "year": 2026,
+    "month": 1,
+    "slug": "new-article-1768810732967",
+    "history": [],
+    "category": "",
+    "tags": "",
+    "highlighted": false,
+    "lastEdited": 1768810736430,
+    "translations": {
+      "en": {
+        "title": "New Article test",
+        "slug": "new-article-1768810732967",
+        "author": "",
+        "content": "",
         "category": "",
         "tags": ""
       }

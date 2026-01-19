@@ -36,6 +36,24 @@ const SettingsSection = ({ cmsData }) => {
     saveSettings({ ...settings, languages: updatedLanguages });
   };
 
+  const handleAddSocialMedia = () => {
+    const currentSocialMedia = settings.socialMedia || [];
+    saveSettings({ ...settings, socialMedia: [...currentSocialMedia, { platform: '', url: '' }] });
+  };
+
+  const handleRemoveSocialMedia = (index) => {
+    const currentSocialMedia = settings.socialMedia || [];
+    const updatedSocialMedia = currentSocialMedia.filter((_, i) => i !== index);
+    saveSettings({ ...settings, socialMedia: updatedSocialMedia });
+  };
+
+  const handleSocialMediaChange = (index, field, value) => {
+    const currentSocialMedia = settings.socialMedia || [];
+    const updatedSocialMedia = [...currentSocialMedia];
+    updatedSocialMedia[index][field] = value;
+    saveSettings({ ...settings, socialMedia: updatedSocialMedia });
+  };
+
   const handleExportData = () => {
     try {
       // Collect all localStorage data
@@ -313,6 +331,81 @@ const SettingsSection = ({ cmsData }) => {
             }}
           >
             + Add Language
+          </button>
+        </div>
+        <div style={{ marginBottom: '30px', padding: '20px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+          <h2 style={{ marginTop: '0', marginBottom: '15px', fontSize: '18px', fontWeight: 'bold' }}>Social Media Links</h2>
+          <p style={{ fontSize: '14px', color: '#64748b', marginBottom: '15px' }}>
+            Add links to your social media profiles. These will be displayed in the site footer or other designated areas.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+            {(settings.socialMedia || []).map((social, index) => (
+              <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <select
+                  value={social.platform}
+                  onChange={(e) => handleSocialMediaChange(index, 'platform', e.target.value)}
+                  style={{
+                    width: '150px',
+                    padding: '10px',
+                    borderRadius: '4px',
+                    border: '1px solid #cbd5e1'
+                  }}
+                >
+                  <option value="">Select Platform</option>
+                  <option value="X">X (Twitter)</option>
+                  <option value="Facebook">Facebook</option>
+                  <option value="Instagram">Instagram</option>
+                  <option value="YouTube">YouTube</option>
+                  <option value="Reddit">Reddit</option>
+                  <option value="Patreon">Patreon</option>
+                  <option value="LinkedIn">LinkedIn</option>
+                  <option value="GitHub">GitHub</option>
+                  <option value="TikTok">TikTok</option>
+                </select>
+                <input
+                  type="text"
+                  value={social.url}
+                  onChange={(e) => handleSocialMediaChange(index, 'url', e.target.value)}
+                  placeholder="Enter URL"
+                  style={{
+                    flex: '1',
+                    padding: '10px',
+                    borderRadius: '4px',
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+                <button
+                  onClick={() => handleRemoveSocialMedia(index)}
+                  style={{
+                    padding: '5px 10px',
+                    background: '#ef4444',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '12px'
+                  }}
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={handleAddSocialMedia}
+            style={{
+              marginTop: '15px',
+              padding: '10px 20px',
+              background: '#3b82f6',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontWeight: '500',
+              fontSize: '14px'
+            }}
+          >
+            + Add Social Media Link
           </button>
         </div>
         <div style={{ marginBottom: '20px' }}>

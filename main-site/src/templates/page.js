@@ -321,6 +321,15 @@ const PageTemplate = ({ pageContext, location }) => {
             <a href={`/${currentLanguage}/blog`} style={{ color: 'white', textDecoration: 'none' }}>{t('blog', currentLanguage)}</a>
             {showCatalogLink && <a href="/catalog" style={{ color: 'white', textDecoration: 'none' }}>Catalog</a>}
             
+            {/* Social Media Links */}
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+              {settings.socialMedia && settings.socialMedia.map(social => (
+                <a key={social.platform} href={social.url} target="_blank" rel="noopener noreferrer" title={social.platform} style={{ color: 'white', textDecoration: 'none' }}>
+                  {social.platform}
+                </a>
+              ))}
+            </div>
+
             {/* Language Switcher */}
             <select
               value={currentLanguage}

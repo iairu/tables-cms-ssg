@@ -14,5 +14,19 @@
       "name": "English"
     }
   ],
-  "domain": "https://main-site-ruby.vercel.app/"
+  "domain": "https://main-site-ruby.vercel.app/",
+  "socialMedia": [
+    {
+      "platform": "X",
+      "url": "https://x.com/"
+    },
+    {
+      "platform": "YouTube",
+      "url": "https://youtube.com/"
+    },
+    {
+      "platform": "LinkedIn",
+      "url": "https://linkedin.com/"
+    }
+  ]
 }
