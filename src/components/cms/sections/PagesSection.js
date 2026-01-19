@@ -14,15 +14,15 @@ const PagesSection = ({ cmsData }) => {
   const [currentLanguage, setCurrentLanguage] = useState(settings?.defaultLang || 'en');
 
   useEffect(() => {
-    // Ensure that a page with slug 'home' always exists
-    if (pages && !pages.some(p => p.slug === 'home')) {
+    // Ensure that a page with slug 'home' always exists, but only after data is loaded
+    if (cmsData.isDataLoaded && pages && !pages.some(p => p.slug === 'home')) {
       addPage({
         title: 'Homepage',
         slug: 'home',
         includeInMenu: true,
       });
     }
-  }, [pages, addPage]);
+  }, [pages, addPage, cmsData.isDataLoaded]);
 
   const handleAddPage = () => {
     const newId = addPage();

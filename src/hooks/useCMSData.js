@@ -415,7 +415,7 @@ const useCMSData = () => {
       slug: 'new-page-' + newId,
       rows: defaultPageRows(),
       history: [],
-      lastEdited: null,
+      lastEdited: Date.now(),
       includeInMenu: false,
       navigationDropdown: 'none', // none, header, footer
       themeVersion: 'auto', // auto, light, dark
@@ -474,7 +474,7 @@ const useCMSData = () => {
       category: '',
       tags: '',
       highlighted: false,
-      lastEdited: null
+      lastEdited: Date.now()
     };
     const updatedArticles = [...blogArticles, newArticle];
     saveBlogArticles(updatedArticles);
