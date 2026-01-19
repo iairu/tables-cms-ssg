@@ -100,7 +100,8 @@ const CMSPage = () => {
         {currentSection === 'extensions' && <ExtensionsSection cmsData={cmsData} />}
         {currentSection === 'rental-inventory' && <RentalInventorySection cmsData={cmsData} />}
         {currentSection === 'rental-attendance' && <RentalAttendanceSection cmsData={cmsData} />}
-        {currentSection === 'rental-contacts' && <RentalContactsSection cmsData={cmsData} />}
+        {currentSection === 'rental-customers' && <RentalCustomersSection cmsData={cmsData} />}
+        {currentSection === 'rental-employees' && <RentalEmployeesSection cmsData={cmsData} />}
         {currentSection === 'rental-reservations' && <RentalReservationsSection cmsData={cmsData} />}
         {currentSection === 'rental-calendar' && <RentalCalendarSection cmsData={cmsData} />}
       </main>
@@ -530,7 +531,7 @@ const RentalInventorySection = ({ cmsData }) => {
 
 // RentalAttendanceSection - keeping in main file for now
 const RentalAttendanceSection = ({ cmsData }) => {
-  const { attendanceRows, saveAttendanceRows } = cmsData;
+  const { attendanceRows, saveAttendanceRows, employeeRows } = cmsData;
 
   const handleAddRow = () => {
     const newRow = {
@@ -578,12 +579,16 @@ const RentalAttendanceSection = ({ cmsData }) => {
             {attendanceRows.map((row, index) => (
               <tr key={row.id}>
                 <td>
-                  <input
-                    type="text"
+                  <select
                     value={row.employeeName}
                     onChange={(e) => handleUpdateRow(index, 'employeeName', e.target.value)}
                     style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '4px' }}
-                  />
+                  >
+                    <option value="">Select Employee</option>
+                    {employeeRows.map(employee => (
+                      <option key={employee.email} value={employee.fullName}>{employee.fullName}</option>
+                    ))}
+                  </select>
                 </td>
                 <td>
                   <input
@@ -597,8 +602,8 @@ const RentalAttendanceSection = ({ cmsData }) => {
                   <input
                     type="time"
                     value={row.timeIn}
-                    onChange={(e) => handleUpdateRow(index, 'timeIn', e.target.value)}
-                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                    readOnly
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '4px', backgroundColor: '#f4f4f5' }}
                   />
                 </td>
                 <td>
@@ -633,14 +638,14 @@ const RentalAttendanceSection = ({ cmsData }) => {
   );
 };
 
-const RentalContactsSection = ({ cmsData }) => {
-  const { contactRows, saveContactRows } = cmsData;
-  const [editingContactIndex, setEditingContactIndex] = useState(null);
+const RentalCustomersSection = ({ cmsData }) => {
+  const { customerRows, saveCustomerRows } = cmsData;
+  const [editingCustomerIndex, setEditingCustomerIndex] = useState(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [contactToDelete, setContactToDelete] = useState(null);
+  const [CustomerToDelete, setCustomerToDelete] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const defaultContact = {
+  const defaultCustomer = {
     fullName: '',
     email: '',
     phone: '',
@@ -667,73 +672,73 @@ const RentalContactsSection = ({ cmsData }) => {
     preferences: ''
   };
 
-  const handleAddContact = () => {
-    const newContact = {
-      ...defaultContact,
+  const handleAddCustomer = () => {
+    const newCustomer = {
+      ...defaultCustomer,
       dateAdded: new Date().toISOString().split('T')[0]
     };
-    saveContactRows([newContact, ...contactRows]);
+    saveCustomerRows([newCustomer, ...customerRows]);
   };
 
-  const handleRemoveContact = (index) => {
-    const newRows = contactRows.filter((_, i) => i !== index);
-    saveContactRows(newRows);
+  const handleRemoveCustomer = (index) => {
+    const newRows = customerRows.filter((_, i) => i !== index);
+    saveCustomerRows(newRows);
   };
 
-  const handleUpdateContact = (index, field, value) => {
-    const newRows = [...contactRows];
+  const handleUpdateCustomer = (index, field, value) => {
+    const newRows = [...customerRows];
     newRows[index][field] = value;
-    saveContactRows(newRows);
+    saveCustomerRows(newRows);
   };
 
-  const handleExpandContact = (index) => {
-    setEditingContactIndex(index);
+  const handleExpandCustomer = (index) => {
+    setEditingCustomerIndex(index);
   };
 
   const handleCloseModal = () => {
-    setEditingContactIndex(null);
+    setEditingCustomerIndex(null);
   };
 
   const handleDeleteClick = (index) => {
-    setContactToDelete(index);
+    setCustomerToDelete(index);
     setDeleteModalOpen(true);
   };
 
   const handleConfirmDelete = () => {
-    if (contactToDelete !== null) {
-      handleRemoveContact(contactToDelete);
+    if (CustomerToDelete !== null) {
+      handleRemoveCustomer(CustomerToDelete);
       setDeleteModalOpen(false);
-      setContactToDelete(null);
+      setCustomerToDelete(null);
     }
   };
 
   const handleCancelDelete = () => {
     setDeleteModalOpen(false);
-    setContactToDelete(null);
+    setCustomerToDelete(null);
   };
 
-  const editingContact = editingContactIndex !== null ? contactRows[editingContactIndex] : null;
+  const editingCustomer = editingCustomerIndex !== null ? customerRows[editingCustomerIndex] : null;
 
-  // Filter contacts based on fuzzy search query
-  const filteredContactRows = contactRows.filter(contact => {
+  // Filter Customers based on fuzzy search query
+  const filteredCustomerRows = customerRows.filter(Customer => {
     return (
-      fuzzyMatch(contact.fullName || '', searchQuery) ||
-      fuzzyMatch(contact.email || '', searchQuery) ||
-      fuzzyMatch(contact.phone || '', searchQuery) ||
-      fuzzyMatch(contact.contactType || '', searchQuery) ||
-      fuzzyMatch(contact.company || '', searchQuery)
+      fuzzyMatch(Customer.fullName || '', searchQuery) ||
+      fuzzyMatch(Customer.email || '', searchQuery) ||
+      fuzzyMatch(Customer.phone || '', searchQuery) ||
+      fuzzyMatch(Customer.contactType || '', searchQuery) ||
+      fuzzyMatch(Customer.company || '', searchQuery)
     );
   });
 
-  if (editingContact) {
+  if (editingCustomer) {
     return (
-      <section className="main-section active" id="rental-contacts-editor">
+      <section className="main-section active" id="rental-Customers-editor">
         <header style={{ position: 'sticky', top: 0, backgroundColor: 'white', zIndex: 100, borderBottom: '1px solid #e5e7eb' }}>
           <h1>
-            <span>Editing contact {editingContact.fullName || '(Unnamed)'}</span>
+            <span>Editing Customer {editingCustomer.fullName || '(Unnamed)'}</span>
           </h1>
           <div className="adjustment-buttons">
-            <a href="#" onClick={(e) => { e.preventDefault(); handleCloseModal(); }}>← Back to Contacts</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); handleCloseModal(); }}>← Back to Customers</a>
           </div>
         </header>
         <div style={{ padding: '20px', maxWidth: '800px' }}>
@@ -742,8 +747,8 @@ const RentalContactsSection = ({ cmsData }) => {
               <strong>Full Name: <span style={{ color: '#ef4444' }}>*</span></strong>
               <input
                 type="text"
-                value={editingContact.fullName || ''}
-                onChange={(e) => handleUpdateContact(editingContactIndex, 'fullName', e.target.value)}
+                value={editingCustomer.fullName || ''}
+                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'fullName', e.target.value)}
                 required
                 style={{
                   width: '100%',
@@ -760,8 +765,8 @@ const RentalContactsSection = ({ cmsData }) => {
               <strong>Email: <span style={{ color: '#ef4444' }}>*</span></strong>
               <input
                 type="email"
-                value={editingContact.email || ''}
-                onChange={(e) => handleUpdateContact(editingContactIndex, 'email', e.target.value)}
+                value={editingCustomer.email || ''}
+                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'email', e.target.value)}
                 required
                 style={{
                   width: '100%',
@@ -778,8 +783,8 @@ const RentalContactsSection = ({ cmsData }) => {
               <strong>Phone:</strong>
               <input
                 type="tel"
-                value={editingContact.phone || ''}
-                onChange={(e) => handleUpdateContact(editingContactIndex, 'phone', e.target.value)}
+                value={editingCustomer.phone || ''}
+                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'phone', e.target.value)}
                 style={{
                   width: '100%',
                   padding: '10px',
@@ -794,8 +799,8 @@ const RentalContactsSection = ({ cmsData }) => {
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Contact Type: <span style={{ color: '#ef4444' }}>*</span></strong>
               <select
-                value={editingContact.contactType || ''}
-                onChange={(e) => handleUpdateContact(editingContactIndex, 'contactType', e.target.value)}
+                value={editingCustomer.contactType || ''}
+                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'contactType', e.target.value)}
                 required
                 style={{
                   width: '100%',
@@ -819,8 +824,8 @@ const RentalContactsSection = ({ cmsData }) => {
               <strong>Company:</strong>
               <input
                 type="text"
-                value={editingContact.company || ''}
-                onChange={(e) => handleUpdateContact(editingContactIndex, 'company', e.target.value)}
+                value={editingCustomer.company || ''}
+                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'company', e.target.value)}
                 style={{
                   width: '100%',
                   padding: '10px',
@@ -836,8 +841,8 @@ const RentalContactsSection = ({ cmsData }) => {
               <strong>Address:</strong>
               <input
                 type="text"
-                value={editingContact.address || ''}
-                onChange={(e) => handleUpdateContact(editingContactIndex, 'address', e.target.value)}
+                value={editingCustomer.address || ''}
+                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'address', e.target.value)}
                 style={{
                   width: '100%',
                   padding: '10px',
@@ -853,8 +858,8 @@ const RentalContactsSection = ({ cmsData }) => {
               <strong>City:</strong>
               <input
                 type="text"
-                value={editingContact.city || ''}
-                onChange={(e) => handleUpdateContact(editingContactIndex, 'city', e.target.value)}
+                value={editingCustomer.city || ''}
+                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'city', e.target.value)}
                 style={{
                   width: '100%',
                   padding: '10px',
@@ -870,8 +875,8 @@ const RentalContactsSection = ({ cmsData }) => {
               <strong>State/Province:</strong>
               <input
                 type="text"
-                value={editingContact.state || ''}
-                onChange={(e) => handleUpdateContact(editingContactIndex, 'state', e.target.value)}
+                value={editingCustomer.state || ''}
+                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'state', e.target.value)}
                 style={{
                   width: '100%',
                   padding: '10px',
@@ -887,8 +892,8 @@ const RentalContactsSection = ({ cmsData }) => {
               <strong>Zip Code:</strong>
               <input
                 type="text"
-                value={editingContact.zipCode || ''}
-                onChange={(e) => handleUpdateContact(editingContactIndex, 'zipCode', e.target.value)}
+                value={editingCustomer.zipCode || ''}
+                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'zipCode', e.target.value)}
                 style={{
                   width: '100%',
                   padding: '10px',
@@ -904,8 +909,8 @@ const RentalContactsSection = ({ cmsData }) => {
               <strong>Country:</strong>
               <input
                 type="text"
-                value={editingContact.country || ''}
-                onChange={(e) => handleUpdateContact(editingContactIndex, 'country', e.target.value)}
+                value={editingCustomer.country || ''}
+                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'country', e.target.value)}
                 style={{
                   width: '100%',
                   padding: '10px',
@@ -921,8 +926,8 @@ const RentalContactsSection = ({ cmsData }) => {
               <strong>Date Added:</strong>
               <input
                 type="date"
-                value={editingContact.dateAdded || ''}
-                onChange={(e) => handleUpdateContact(editingContactIndex, 'dateAdded', e.target.value)}
+                value={editingCustomer.dateAdded || ''}
+                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'dateAdded', e.target.value)}
                 style={{
                   width: '100%',
                   padding: '10px',
@@ -937,8 +942,8 @@ const RentalContactsSection = ({ cmsData }) => {
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Preferred Contact Method:</strong>
               <select
-                value={editingContact.preferredContact || ''}
-                onChange={(e) => handleUpdateContact(editingContactIndex, 'preferredContact', e.target.value)}
+                value={editingCustomer.preferredContact || ''}
+                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'preferredContact', e.target.value)}
                 style={{
                   width: '100%',
                   padding: '10px',
@@ -959,8 +964,8 @@ const RentalContactsSection = ({ cmsData }) => {
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Status:</strong>
               <select
-                value={editingContact.status || ''}
-                onChange={(e) => handleUpdateContact(editingContactIndex, 'status', e.target.value)}
+                value={editingCustomer.status || ''}
+                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'status', e.target.value)}
                 style={{
                   width: '100%',
                   padding: '10px',
@@ -982,8 +987,8 @@ const RentalContactsSection = ({ cmsData }) => {
               <strong>Date of Birth:</strong>
               <input
                 type="date"
-                value={editingContact.dateOfBirth || ''}
-                onChange={(e) => handleUpdateContact(editingContactIndex, 'dateOfBirth', e.target.value)}
+                value={editingCustomer.dateOfBirth || ''}
+                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'dateOfBirth', e.target.value)}
                 style={{
                   width: '100%',
                   padding: '10px',
@@ -999,8 +1004,8 @@ const RentalContactsSection = ({ cmsData }) => {
               <strong>Identification Number:</strong>
               <input
                 type="text"
-                value={editingContact.identificationNumber || ''}
-                onChange={(e) => handleUpdateContact(editingContactIndex, 'identificationNumber', e.target.value)}
+                value={editingCustomer.identificationNumber || ''}
+                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'identificationNumber', e.target.value)}
                 style={{
                   width: '100%',
                   padding: '10px',
@@ -1016,8 +1021,8 @@ const RentalContactsSection = ({ cmsData }) => {
               <strong>Total Reservations:</strong>
               <input
                 type="number"
-                value={editingContact.totalReservations || ''}
-                onChange={(e) => handleUpdateContact(editingContactIndex, 'totalReservations', e.target.value)}
+                value={editingCustomer.totalReservations || ''}
+                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'totalReservations', e.target.value)}
                 style={{
                   width: '100%',
                   padding: '10px',
@@ -1033,8 +1038,8 @@ const RentalContactsSection = ({ cmsData }) => {
               <strong>Last Reservation Date:</strong>
               <input
                 type="date"
-                value={editingContact.lastReservationDate || ''}
-                onChange={(e) => handleUpdateContact(editingContactIndex, 'lastReservationDate', e.target.value)}
+                value={editingCustomer.lastReservationDate || ''}
+                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'lastReservationDate', e.target.value)}
                 style={{
                   width: '100%',
                   padding: '10px',
@@ -1050,8 +1055,8 @@ const RentalContactsSection = ({ cmsData }) => {
               <strong>Credit Score:</strong>
               <input
                 type="number"
-                value={editingContact.creditScore || ''}
-                onChange={(e) => handleUpdateContact(editingContactIndex, 'creditScore', e.target.value)}
+                value={editingCustomer.creditScore || ''}
+                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'creditScore', e.target.value)}
                 style={{
                   width: '100%',
                   padding: '10px',
@@ -1067,8 +1072,8 @@ const RentalContactsSection = ({ cmsData }) => {
               <strong>Payment Method:</strong>
               <input
                 type="text"
-                value={editingContact.paymentMethod || ''}
-                onChange={(e) => handleUpdateContact(editingContactIndex, 'paymentMethod', e.target.value)}
+                value={editingCustomer.paymentMethod || ''}
+                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'paymentMethod', e.target.value)}
                 style={{
                   width: '100%',
                   padding: '10px',
@@ -1084,8 +1089,8 @@ const RentalContactsSection = ({ cmsData }) => {
               <strong>Emergency Contact:</strong>
               <input
                 type="text"
-                value={editingContact.emergencyContact || ''}
-                onChange={(e) => handleUpdateContact(editingContactIndex, 'emergencyContact', e.target.value)}
+                value={editingCustomer.emergencyContact || ''}
+                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'emergencyContact', e.target.value)}
                 style={{
                   width: '100%',
                   padding: '10px',
@@ -1101,8 +1106,8 @@ const RentalContactsSection = ({ cmsData }) => {
               <strong>Emergency Phone:</strong>
               <input
                 type="tel"
-                value={editingContact.emergencyPhone || ''}
-                onChange={(e) => handleUpdateContact(editingContactIndex, 'emergencyPhone', e.target.value)}
+                value={editingCustomer.emergencyPhone || ''}
+                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'emergencyPhone', e.target.value)}
                 style={{
                   width: '100%',
                   padding: '10px',
@@ -1117,8 +1122,8 @@ const RentalContactsSection = ({ cmsData }) => {
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Preferences:</strong>
               <textarea
-                value={editingContact.preferences || ''}
-                onChange={(e) => handleUpdateContact(editingContactIndex, 'preferences', e.target.value)}
+                value={editingCustomer.preferences || ''}
+                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'preferences', e.target.value)}
                 rows="3"
                 style={{
                   width: '100%',
@@ -1134,8 +1139,8 @@ const RentalContactsSection = ({ cmsData }) => {
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Reservation History:</strong>
               <textarea
-                value={editingContact.reservationHistory || ''}
-                onChange={(e) => handleUpdateContact(editingContactIndex, 'reservationHistory', e.target.value)}
+                value={editingCustomer.reservationHistory || ''}
+                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'reservationHistory', e.target.value)}
                 rows="4"
                 style={{
                   width: '100%',
@@ -1151,8 +1156,8 @@ const RentalContactsSection = ({ cmsData }) => {
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Notes:</strong>
               <textarea
-                value={editingContact.notes || ''}
-                onChange={(e) => handleUpdateContact(editingContactIndex, 'notes', e.target.value)}
+                value={editingCustomer.notes || ''}
+                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'notes', e.target.value)}
                 rows="4"
                 style={{
                   width: '100%',
@@ -1170,13 +1175,13 @@ const RentalContactsSection = ({ cmsData }) => {
   }
 
   return (
-    <section className="main-section active" id="rental-contacts">
+    <section className="main-section active" id="rental-Customers">
       <header>
-        <h1>Contacts</h1>
+        <h1>Customers</h1>
         <div className="adjustment-buttons">
           <input
             type="text"
-            placeholder="Search contacts..."
+            placeholder="Search Customers..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             style={{
@@ -1187,7 +1192,7 @@ const RentalContactsSection = ({ cmsData }) => {
               width: '200px'
             }}
           />
-          <a href="#" onClick={(e) => { e.preventDefault(); handleAddContact(); }} className="highlighted">+ Add Contact</a>
+          <a href="#" onClick={(e) => { e.preventDefault(); handleAddCustomer(); }} className="highlighted">+ Add Customer</a>
         </div>
       </header>
       <div className="component-table-container">
@@ -1204,16 +1209,16 @@ const RentalContactsSection = ({ cmsData }) => {
             </tr>
           </thead>
           <tbody>
-            {filteredContactRows.map((contact, index) => {
-              // Find the actual index in the original contactRows array
-              const actualIndex = contactRows.indexOf(contact);
+            {filteredCustomerRows.map((Customer, index) => {
+              // Find the actual index in the original CustomerRows array
+              const actualIndex = customerRows.indexOf(Customer);
               return (
               <tr key={actualIndex}>
                 <td>
                   <input
                     type="text"
-                    value={contact.fullName || ''}
-                    onChange={(e) => handleUpdateContact(actualIndex, 'fullName', e.target.value)}
+                    value={Customer.fullName || ''}
+                    onChange={(e) => handleUpdateCustomer(actualIndex, 'fullName', e.target.value)}
                     required
                     style={{
                       width: '100%',
@@ -1226,8 +1231,8 @@ const RentalContactsSection = ({ cmsData }) => {
                 <td>
                   <input
                     type="email"
-                    value={contact.email || ''}
-                    onChange={(e) => handleUpdateContact(actualIndex, 'email', e.target.value)}
+                    value={Customer.email || ''}
+                    onChange={(e) => handleUpdateCustomer(actualIndex, 'email', e.target.value)}
                     required
                     style={{
                       width: '100%',
@@ -1240,8 +1245,8 @@ const RentalContactsSection = ({ cmsData }) => {
                 <td>
                   <input
                     type="tel"
-                    value={contact.phone || ''}
-                    onChange={(e) => handleUpdateContact(actualIndex, 'phone', e.target.value)}
+                    value={Customer.phone || ''}
+                    onChange={(e) => handleUpdateCustomer(actualIndex, 'phone', e.target.value)}
                     style={{
                       width: '100%',
                       padding: '8px',
@@ -1252,8 +1257,8 @@ const RentalContactsSection = ({ cmsData }) => {
                 </td>
                 <td>
                   <select
-                    value={contact.contactType || ''}
-                    onChange={(e) => handleUpdateContact(actualIndex, 'contactType', e.target.value)}
+                    value={Customer.contactType || ''}
+                    onChange={(e) => handleUpdateCustomer(actualIndex, 'contactType', e.target.value)}
                     required
                     style={{
                       width: '100%',
@@ -1273,8 +1278,8 @@ const RentalContactsSection = ({ cmsData }) => {
                 <td>
                   <input
                     type="text"
-                    value={contact.company || ''}
-                    onChange={(e) => handleUpdateContact(actualIndex, 'company', e.target.value)}
+                    value={Customer.company || ''}
+                    onChange={(e) => handleUpdateCustomer(actualIndex, 'company', e.target.value)}
                     style={{
                       width: '100%',
                       padding: '8px',
@@ -1285,8 +1290,8 @@ const RentalContactsSection = ({ cmsData }) => {
                 </td>
                 <td>
                   <select
-                    value={contact.status || ''}
-                    onChange={(e) => handleUpdateContact(actualIndex, 'status', e.target.value)}
+                    value={Customer.status || ''}
+                    onChange={(e) => handleUpdateCustomer(actualIndex, 'status', e.target.value)}
                     style={{
                       width: '100%',
                       padding: '8px',
@@ -1302,7 +1307,7 @@ const RentalContactsSection = ({ cmsData }) => {
                   </select>
                 </td>
                 <td>
-                  <button onClick={() => handleExpandContact(actualIndex)} style={{ marginRight: '5px' }}>Expand</button>
+                  <button onClick={() => handleExpandCustomer(actualIndex)} style={{ marginRight: '5px' }}>Expand</button>
                   <button onClick={() => handleDeleteClick(actualIndex)}>Delete</button>
                 </td>
               </tr>
@@ -1335,7 +1340,686 @@ const RentalContactsSection = ({ cmsData }) => {
           }}>
             <h2 style={{ marginTop: 0, marginBottom: '15px', fontSize: '1.25rem' }}>Confirm Delete</h2>
             <p style={{ marginBottom: '25px', color: '#64748b' }}>
-              Are you sure you want to delete this contact? This action cannot be undone.
+              Are you sure you want to delete this Customer? This action cannot be undone.
+            </p>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <button onClick={handleCancelDelete} style={{
+                padding: '8px 16px',
+                borderRadius: '4px',
+                border: '1px solid #cbd5e1',
+                backgroundColor: 'white',
+                cursor: 'pointer'
+              }}>Cancel</button>
+              <button onClick={handleConfirmDelete} style={{
+                padding: '8px 16px',
+                borderRadius: '4px',
+                border: 'none',
+                backgroundColor: '#ef4444',
+                color: 'white',
+                cursor: 'pointer'
+              }}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </section>
+  );
+};const RentalEmployeesSection = ({ cmsData }) => {
+  const { employeeRows, saveEmployeeRows } = cmsData;
+  const [editingEmployeeIndex, setEditingEmployeeIndex] = useState(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [employeeToDelete, setEmployeeToDelete] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const defaultEmployee = {
+    fullName: '',
+    email: '',
+    phone: '',
+    company: '',
+    address: '',
+    city: '',
+    state: '',
+    zipCode: '',
+    country: '',
+    dateAdded: '',
+    preferredContact: '',
+    status: '',
+    notes: '',
+    reservationHistory: '',
+    totalReservations: '',
+    lastReservationDate: '',
+    creditScore: '',
+    paymentMethod: '',
+    emergencyContact: '',
+    emergencyPhone: '',
+    identificationNumber: '',
+    dateOfBirth: '',
+    preferences: ''
+  };
+
+  const handleAddEmployee = () => {
+    const newEmployee = {
+      ...defaultEmployee,
+      dateAdded: new Date().toISOString().split('T')[0]
+    };
+    saveEmployeeRows([newEmployee, ...employeeRows]);
+  };
+
+  const handleRemoveEmployee = (index) => {
+    const newRows = employeeRows.filter((_, i) => i !== index);
+    saveEmployeeRows(newRows);
+  };
+
+  const handleUpdateEmployee = (index, field, value) => {
+    const newRows = [...employeeRows];
+    newRows[index][field] = value;
+    saveEmployeeRows(newRows);
+  };
+
+  const handleExpandEmployee = (index) => {
+    setEditingEmployeeIndex(index);
+  };
+
+  const handleCloseModal = () => {
+    setEditingEmployeeIndex(null);
+  };
+
+  const handleDeleteClick = (index) => {
+    setEmployeeToDelete(index);
+    setDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (employeeToDelete !== null) {
+      handleRemoveEmployee(employeeToDelete);
+      setDeleteModalOpen(false);
+      setEmployeeToDelete(null);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteModalOpen(false);
+    setEmployeeToDelete(null);
+  };
+
+  const editingEmployee = editingEmployeeIndex !== null ? employeeRows[editingEmployeeIndex] : null;
+
+  // Filter employees based on fuzzy search query
+  const filteredEmployeeRows = employeeRows.filter(employee => {
+    return (
+      fuzzyMatch(employee.fullName || '', searchQuery) ||
+      fuzzyMatch(employee.email || '', searchQuery) ||
+      fuzzyMatch(employee.phone || '', searchQuery) ||
+      fuzzyMatch(employee.company || '', searchQuery)
+    );
+  });
+
+  if (editingEmployee) {
+    return (
+      <section className="main-section active" id="rental-employees-editor">
+        <header style={{ position: 'sticky', top: 0, backgroundColor: 'white', zIndex: 100, borderBottom: '1px solid #e5e7eb' }}>
+          <h1>
+            <span>Editing employee {editingEmployee.fullName || '(Unnamed)'}</span>
+          </h1>
+          <div className="adjustment-buttons">
+            <a href="#" onClick={(e) => { e.preventDefault(); handleCloseModal(); }}>← Back to Employees</a>
+          </div>
+        </header>
+        <div style={{ padding: '20px', maxWidth: '800px' }}>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '10px' }}>
+              <strong>Full Name: <span style={{ color: '#ef4444' }}>*</span></strong>
+              <input
+                type="text"
+                value={editingEmployee.fullName || ''}
+                onChange={(e) => handleUpdateEmployee(editingEmployeeIndex, 'fullName', e.target.value)}
+                required
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  marginTop: '5px',
+                  borderRadius: '4px',
+                  border: '1px solid #cbd5e1'
+                }}
+              />
+            </label>
+          </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '10px' }}>
+              <strong>Email: <span style={{ color: '#ef4444' }}>*</span></strong>
+              <input
+                type="email"
+                value={editingEmployee.email || ''}
+                onChange={(e) => handleUpdateEmployee(editingEmployeeIndex, 'email', e.target.value)}
+                required
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  marginTop: '5px',
+                  borderRadius: '4px',
+                  border: '1px solid #cbd5e1'
+                }}
+              />
+            </label>
+          </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '10px' }}>
+              <strong>Phone:</strong>
+              <input
+                type="tel"
+                value={editingEmployee.phone || ''}
+                onChange={(e) => handleUpdateEmployee(editingEmployeeIndex, 'phone', e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  marginTop: '5px',
+                  borderRadius: '4px',
+                  border: '1px solid #cbd5e1'
+                }}
+              />
+            </label>
+          </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '10px' }}>
+              <strong>Company:</strong>
+              <input
+                type="text"
+                value={editingEmployee.company || ''}
+                onChange={(e) => handleUpdateEmployee(editingEmployeeIndex, 'company', e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  marginTop: '5px',
+                  borderRadius: '4px',
+                  border: '1px solid #cbd5e1'
+                }}
+              />
+            </label>
+          </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '10px' }}>
+              <strong>Address:</strong>
+              <input
+                type="text"
+                value={editingEmployee.address || ''}
+                onChange={(e) => handleUpdateEmployee(editingEmployeeIndex, 'address', e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  marginTop: '5px',
+                  borderRadius: '4px',
+                  border: '1px solid #cbd5e1'
+                }}
+              />
+            </label>
+          </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '10px' }}>
+              <strong>City:</strong>
+              <input
+                type="text"
+                value={editingEmployee.city || ''}
+                onChange={(e) => handleUpdateEmployee(editingEmployeeIndex, 'city', e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  marginTop: '5px',
+                  borderRadius: '4px',
+                  border: '1px solid #cbd5e1'
+                }}
+              />
+            </label>
+          </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '10px' }}>
+              <strong>State/Province:</strong>
+              <input
+                type="text"
+                value={editingEmployee.state || ''}
+                onChange={(e) => handleUpdateEmployee(editingEmployeeIndex, 'state', e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  marginTop: '5px',
+                  borderRadius: '4px',
+                  border: '1px solid #cbd5e1'
+                }}
+              />
+            </label>
+          </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '10px' }}>
+              <strong>Zip Code:</strong>
+              <input
+                type="text"
+                value={editingEmployee.zipCode || ''}
+                onChange={(e) => handleUpdateEmployee(editingEmployeeIndex, 'zipCode', e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  marginTop: '5px',
+                  borderRadius: '4px',
+                  border: '1px solid #cbd5e1'
+                }}
+              />
+            </label>
+          </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '10px' }}>
+              <strong>Country:</strong>
+              <input
+                type="text"
+                value={editingEmployee.country || ''}
+                onChange={(e) => handleUpdateEmployee(editingEmployeeIndex, 'country', e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  marginTop: '5px',
+                  borderRadius: '4px',
+                  border: '1px solid #cbd5e1'
+                }}
+              />
+            </label>
+          </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '10px' }}>
+              <strong>Date Added:</strong>
+              <input
+                type="date"
+                value={editingEmployee.dateAdded || ''}
+                onChange={(e) => handleUpdateEmployee(editingEmployeeIndex, 'dateAdded', e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  marginTop: '5px',
+                  borderRadius: '4px',
+                  border: '1px solid #cbd5e1'
+                }}
+              />
+            </label>
+          </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '10px' }}>
+              <strong>Preferred Contact Method:</strong>
+              <select
+                value={editingEmployee.preferredContact || ''}
+                onChange={(e) => handleUpdateEmployee(editingEmployeeIndex, 'preferredContact', e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  marginTop: '5px',
+                  borderRadius: '4px',
+                  border: '1px solid #cbd5e1'
+                }}
+              >
+                <option value="">Select method</option>
+                <option value="Email">Email</option>
+                <option value="Phone">Phone</option>
+                <option value="SMS">SMS</option>
+                <option value="Mail">Mail</option>
+              </select>
+            </label>
+          </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '10px' }}>
+              <strong>Status:</strong>
+              <select
+                value={editingEmployee.status || ''}
+                onChange={(e) => handleUpdateEmployee(editingEmployeeIndex, 'status', e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  marginTop: '5px',
+                  borderRadius: '4px',
+                  border: '1px solid #cbd5e1'
+                }}
+              >
+                <option value="">Select status</option>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+                <option value="Pending">Pending</option>
+                <option value="Blacklisted">Blacklisted</option>
+              </select>
+            </label>
+          </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '10px' }}>
+              <strong>Date of Birth:</strong>
+              <input
+                type="date"
+                value={editingEmployee.dateOfBirth || ''}
+                onChange={(e) => handleUpdateEmployee(editingEmployeeIndex, 'dateOfBirth', e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  marginTop: '5px',
+                  borderRadius: '4px',
+                  border: '1px solid #cbd5e1'
+                }}
+              />
+            </label>
+          </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '10px' }}>
+              <strong>Identification Number:</strong>
+              <input
+                type="text"
+                value={editingEmployee.identificationNumber || ''}
+                onChange={(e) => handleUpdateEmployee(editingEmployeeIndex, 'identificationNumber', e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  marginTop: '5px',
+                  borderRadius: '4px',
+                  border: '1px solid #cbd5e1'
+                }}
+              />
+            </label>
+          </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '10px' }}>
+              <strong>Total Reservations:</strong>
+              <input
+                type="number"
+                value={editingEmployee.totalReservations || ''}
+                onChange={(e) => handleUpdateEmployee(editingEmployeeIndex, 'totalReservations', e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  marginTop: '5px',
+                  borderRadius: '4px',
+                  border: '1px solid #cbd5e1'
+                }}
+              />
+            </label>
+          </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '10px' }}>
+              <strong>Last Reservation Date:</strong>
+              <input
+                type="date"
+                value={editingEmployee.lastReservationDate || ''}
+                onChange={(e) => handleUpdateEmployee(editingEmployeeIndex, 'lastReservationDate', e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  marginTop: '5px',
+                  borderRadius: '4px',
+                  border: '1px solid #cbd5e1'
+                }}
+              />
+            </label>
+          </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '10px' }}>
+              <strong>Credit Score:</strong>
+              <input
+                type="number"
+                value={editingEmployee.creditScore || ''}
+                onChange={(e) => handleUpdateEmployee(editingEmployeeIndex, 'creditScore', e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  marginTop: '5px',
+                  borderRadius: '4px',
+                  border: '1px solid #cbd5e1'
+                }}
+              />
+            </label>
+          </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '10px' }}>
+              <strong>Payment Method:</strong>
+              <input
+                type="text"
+                value={editingEmployee.paymentMethod || ''}
+                onChange={(e) => handleUpdateEmployee(editingEmployeeIndex, 'paymentMethod', e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  marginTop: '5px',
+                  borderRadius: '4px',
+                  border: '1px solid #cbd5e1'
+                }}
+              />
+            </label>
+          </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '10px' }}>
+              <strong>Emergency Contact:</strong>
+              <input
+                type="text"
+                value={editingEmployee.emergencyContact || ''}
+                onChange={(e) => handleUpdateEmployee(editingEmployeeIndex, 'emergencyContact', e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  marginTop: '5px',
+                  borderRadius: '4px',
+                  border: '1px solid #cbd5e1'
+                }}
+              />
+            </label>
+          </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '10px' }}>
+              <strong>Emergency Phone:</strong>
+              <input
+                type="tel"
+                value={editingEmployee.emergencyPhone || ''}
+                onChange={(e) => handleUpdateEmployee(editingEmployeeIndex, 'emergencyPhone', e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  marginTop: '5px',
+                  borderRadius: '4px',
+                  border: '1px solid #cbd5e1'
+                }}
+              />
+            </label>
+          </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '10px' }}>
+              <strong>Preferences:</strong>
+              <textarea
+                value={editingEmployee.preferences || ''}
+                onChange={(e) => handleUpdateEmployee(editingEmployeeIndex, 'preferences', e.target.value)}
+                rows="3"
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  marginTop: '5px',
+                  borderRadius: '4px',
+                  border: '1px solid #cbd5e1'
+                }}
+              />
+            </label>
+          </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '10px' }}>
+              <strong>Reservation History:</strong>
+              <textarea
+                value={editingEmployee.reservationHistory || ''}
+                onChange={(e) => handleUpdateEmployee(editingEmployeeIndex, 'reservationHistory', e.target.value)}
+                rows="4"
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  marginTop: '5px',
+                  borderRadius: '4px',
+                  border: '1px solid #cbd5e1'
+                }}
+              />
+            </label>
+          </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '10px' }}>
+              <strong>Notes:</strong>
+              <textarea
+                value={editingEmployee.notes || ''}
+                onChange={(e) => handleUpdateEmployee(editingEmployeeIndex, 'notes', e.target.value)}
+                rows="4"
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  marginTop: '5px',
+                  borderRadius: '4px',
+                  border: '1px solid #cbd5e1'
+                }}
+              />
+            </label>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="main-section active" id="rental-employees">
+      <header>
+        <h1>Employees</h1>
+        <div className="adjustment-buttons">
+          <input
+            type="text"
+            placeholder="Search employees..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{
+              padding: '8px 12px',
+              borderRadius: '4px',
+              border: '1px solid #cbd5e1',
+              marginRight: '10px',
+              width: '200px'
+            }}
+          />
+          <a href="#" onClick={(e) => { e.preventDefault(); handleAddEmployee(); }} className="highlighted">+ Add Employee</a>
+        </div>
+      </header>
+      <div className="component-table-container">
+        <table className="page-list-table">
+          <thead>
+            <tr>
+              <th>Full Name <span style={{ color: '#ef4444' }}>*</span></th>
+              <th>Email <span style={{ color: '#ef4444' }}>*</span></th>
+              <th>Phone</th>
+              <th>Company</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredEmployeeRows.map((employee, index) => {
+              // Find the actual index in the original employeeRows array
+              const actualIndex = employeeRows.indexOf(employee);
+              return (
+              <tr key={actualIndex}>
+                <td>
+                  <input
+                    type="text"
+                    value={employee.fullName || ''}
+                    onChange={(e) => handleUpdateEmployee(actualIndex, 'fullName', e.target.value)}
+                    required
+                    style={{
+                      width: '100%',
+                      padding: '8px',
+                      border: '1px solid #cbd5e1',
+                      borderRadius: '4px'
+                    }}
+                  />
+                </td>
+                <td>
+                  <input
+                    type="email"
+                    value={employee.email || ''}
+                    onChange={(e) => handleUpdateEmployee(actualIndex, 'email', e.target.value)}
+                    required
+                    style={{
+                      width: '100%',
+                      padding: '8px',
+                      border: '1px solid #cbd5e1',
+                      borderRadius: '4px'
+                    }}
+                  />
+                </td>
+                <td>
+                  <input
+                    type="tel"
+                    value={employee.phone || ''}
+                    onChange={(e) => handleUpdateEmployee(actualIndex, 'phone', e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '8px',
+                      border: '1px solid #cbd5e1',
+                      borderRadius: '4px'
+                    }}
+                  />
+                </td>
+                <td>
+                  <input
+                    type="text"
+                    value={employee.company || ''}
+                    onChange={(e) => handleUpdateEmployee(actualIndex, 'company', e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '8px',
+                      border: '1px solid #cbd5e1',
+                      borderRadius: '4px'
+                    }}
+                  />
+                </td>
+                <td>
+                  <select
+                    value={employee.status || ''}
+                    onChange={(e) => handleUpdateEmployee(actualIndex, 'status', e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '8px',
+                      border: '1px solid #cbd5e1',
+                      borderRadius: '4px'
+                    }}
+                  >
+                    <option value="">Select</option>
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Blacklisted">Blacklisted</option>
+                  </select>
+                </td>
+                <td>
+                  <button onClick={() => handleExpandEmployee(actualIndex)} style={{ marginRight: '5px' }}>Expand</button>
+                  <button onClick={() => handleDeleteClick(actualIndex)}>Delete</button>
+                </td>
+              </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {deleteModalOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            padding: '30px',
+            borderRadius: '8px',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+            maxWidth: '400px',
+            width: '90%'
+          }}>
+            <h2 style={{ marginTop: 0, marginBottom: '15px', fontSize: '1.25rem' }}>Confirm Delete</h2>
+            <p style={{ marginBottom: '25px', color: '#64748b' }}>
+              Are you sure you want to delete this employee? This action cannot be undone.
             </p>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
               <button onClick={handleCancelDelete} style={{
@@ -1360,15 +2044,15 @@ const RentalContactsSection = ({ cmsData }) => {
     </section>
   );
 };
-
 const RentalReservationsSection = ({ cmsData }) => {
-  const { reservationRows, saveReservationRows, inventoryRows, contactRows } = cmsData;
+  const { reservationRows, saveReservationRows, inventoryRows, customerRows, employeeRows } = cmsData;
 
   const handleAddRow = () => {
     const newRow = {
       id: Date.now().toString(),
       customerName: '',
       itemName: '',
+      responsibleEmployee: '',
       startDate: new Date().toISOString().slice(0, 10),
       endDate: new Date().toISOString().slice(0, 10),
       status: 'Confirmed'
@@ -1401,6 +2085,7 @@ const RentalReservationsSection = ({ cmsData }) => {
             <tr>
               <th>Customer Name</th>
               <th>Item Name</th>
+              <th>Responsible Employee</th>
               <th>Start Date</th>
               <th>End Date</th>
               <th>Status</th>
@@ -1417,8 +2102,8 @@ const RentalReservationsSection = ({ cmsData }) => {
                     style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '4px' }}
                   >
                     <option value="">Select Customer</option>
-                    {contactRows.map(contact => (
-                      <option key={contact.email} value={contact.fullName}>{contact.fullName}</option>
+                    {customerRows.map(customer => (
+                      <option key={customer.email} value={customer.fullName}>{customer.fullName}</option>
                     ))}
                   </select>
                 </td>
@@ -1431,6 +2116,18 @@ const RentalReservationsSection = ({ cmsData }) => {
                     <option value="">Select Item</option>
                     {inventoryRows.map(item => (
                       <option key={item.sku} value={item.itemName}>{item.itemName}</option>
+                    ))}
+                  </select>
+                </td>
+                <td>
+                  <select
+                    value={row.responsibleEmployee}
+                    onChange={(e) => handleUpdateRow(index, 'responsibleEmployee', e.target.value)}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                  >
+                    <option value="">Select Employee</option>
+                    {employeeRows.map(employee => (
+                      <option key={employee.email} value={employee.fullName}>{employee.fullName}</option>
                     ))}
                   </select>
                 </td>
@@ -1540,11 +2237,37 @@ const RentalCalendarSection = ({ cmsData }) => {
             <div key={day.toString()} style={{ padding: '10px', border: '1px solid #ccc', minHeight: '100px', background: day.getMonth() === currentDate.getMonth() ? 'white' : '#f9f9f9' }}>
               <div>{day.getDate()}</div>
               <div>
-                {reservations.map(res => (
-                  <div key={res.id} style={{ fontSize: '12px', background: '#e0e7ff', padding: '2px', borderRadius: '2px', marginTop: '2px' }}>
-                    {res.itemName} - {res.customerName}
-                  </div>
-                ))}
+                {reservations.map(res => {
+                  // Generate a unique color for each responsibleEmployee
+                  // We'll use a hash function to map the responsibleEmployee string to a color
+                  function stringToColor(str) {
+                    if (!str) return '#e0e7ff';
+                    let hash = 0;
+                    for (let i = 0; i < str.length; i++) {
+                      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+                    }
+                    // Generate color in HSL for better distribution
+                    const hue = Math.abs(hash) % 360;
+                    return `hsl(${hue}, 70%, 85%)`;
+                  }
+                  const bgColor = stringToColor(res.responsibleEmployee);
+                  return (
+                    <div
+                      key={res.id}
+                      style={{
+                        fontSize: '12px',
+                        background: bgColor,
+                        padding: '2px',
+                        borderRadius: '2px',
+                        marginTop: '2px'
+                      }}
+                    >
+                      <b>{res.itemName}</b><br />
+                      {res.customerName}<br />
+                      <i>{res.responsibleEmployee}</i>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           );

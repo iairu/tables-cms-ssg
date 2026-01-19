@@ -182,8 +182,11 @@ const SideMenu = ({ currentSection, onSectionChange, isBuilding, lastSaved, onBu
                       <a href="#rental-attendance" onClick={(e) => handleClick(e, 'rental-attendance')} className={currentSection === 'rental-attendance' ? 'active' : ''}>
                         Attendance
                       </a>
-                      <a href="#rental-contacts" onClick={(e) => handleClick(e, 'rental-contacts')} className={currentSection === 'rental-contacts' ? 'active' : ''}>
-                        Contacts
+                      <a href="#rental-customers" onClick={(e) => handleClick(e, 'rental-customers')} className={currentSection === 'rental-customers' ? 'active' : ''}>
+                        Customers
+                      </a>
+                      <a href="#rental-employees" onClick={(e) => handleClick(e, 'rental-employees')} className={currentSection === 'rental-employees' ? 'active' : ''}>
+                        Employees
                       </a>
                       <a href="#rental-reservations" onClick={(e) => handleClick(e, 'rental-reservations')} className={currentSection === 'rental-reservations' ? 'active' : ''}>
                         Reservations

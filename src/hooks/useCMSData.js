@@ -230,7 +230,10 @@ const useCMSData = () => {
   const [inventoryRows, setInventoryRows] = useState([]);
 
   // Contacts state
-  const [contactRows, setContactRows] = useState([]);
+  const [customerRows, setCustomerRows] = useState([]);
+
+  // Employees state
+  const [employeeRows, setEmployeeRows] = useState([]);
 
   // Attendance state
   const [attendanceRows, setAttendanceRows] = useState([]);
@@ -275,7 +278,8 @@ const useCMSData = () => {
     const loadedCurrentBlogArticleId = localStorage.getItem('currentBlogArticleId');
     const loadedCatRows = localStorage.getItem('catRows');
     const loadedInventoryRows = localStorage.getItem('inventoryRows');
-    const loadedContactRows = localStorage.getItem('contactRows');
+    const loadedCustomerRows = localStorage.getItem('customerRows');
+    const loadedEmployeeRows = localStorage.getItem('employeeRows');
     const loadedAttendanceRows = localStorage.getItem('attendanceRows');
     const loadedReservationRows = localStorage.getItem('reservationRows');
     const loadedComponentRows = localStorage.getItem('componentRows');
@@ -303,7 +307,8 @@ const useCMSData = () => {
     if (loadedCurrentBlogArticleId) setCurrentBlogArticleId(JSON.parse(loadedCurrentBlogArticleId));
     if (loadedCatRows) setCatRows(JSON.parse(loadedCatRows));
     if (loadedInventoryRows) setInventoryRows(JSON.parse(loadedInventoryRows));
-    if (loadedContactRows) setContactRows(JSON.parse(loadedContactRows));
+    if (loadedCustomerRows) setCustomerRows(JSON.parse(loadedCustomerRows));
+    if (loadedEmployeeRows) setEmployeeRows(JSON.parse(loadedEmployeeRows));
     if (loadedAttendanceRows) setAttendanceRows(JSON.parse(loadedAttendanceRows));
     if (loadedReservationRows) setReservationRows(JSON.parse(loadedReservationRows));
     if (loadedComponentRows) setComponentRows(JSON.parse(loadedComponentRows));
@@ -349,9 +354,14 @@ const useCMSData = () => {
     localStorage.setItem('inventoryRows', JSON.stringify(newRows));
   };
 
-  const saveContactRows = (newRows) => {
-    setContactRows(newRows);
-    localStorage.setItem('contactRows', JSON.stringify(newRows));
+  const saveCustomerRows = (newRows) => {
+    setCustomerRows(newRows);
+    localStorage.setItem('customerRows', JSON.stringify(newRows));
+  };
+
+  const saveEmployeeRows = (newRows) => {
+    setEmployeeRows(newRows);
+    localStorage.setItem('employeeRows', JSON.stringify(newRows));
   };
 
   const saveAttendanceRows = (newRows) => {
@@ -524,8 +534,10 @@ const useCMSData = () => {
     // Rental
     inventoryRows,
     saveInventoryRows,
-    contactRows,
-    saveContactRows,
+    customerRows,
+    saveCustomerRows,
+    employeeRows,
+    saveEmployeeRows,
     attendanceRows,
     saveAttendanceRows,
     reservationRows,
