@@ -195,20 +195,7 @@ exports.createPages = async ({ actions }) => {
     
     // Only pass data in production for SSG optimization
     if (isProduction) {
-      // Localize article titles for the list
-      const localizedArticles = blogArticles.map(article => {
-        const localizedContent = article.translations && article.translations[lang.code]
-          ? article.translations[lang.code]
-          : { title: article.title, slug: article.slug };
-        
-        return {
-          ...article,
-          title: localizedContent.title,
-          slug: localizedContent.slug,
-        };
-      });
-      
-      context.articlesData = localizedArticles;
+      context.articlesData = blogArticles;
       context.settings = settings;
       context.menuPages = menuPages;
       context.languages = languages;

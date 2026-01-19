@@ -318,7 +318,7 @@ const PageTemplate = ({ pageContext, location }) => {
                 </a>
               );
             })}
-            <a href={`/${currentLanguage}/blog`} style={{ color: 'white', textDecoration: 'none' }}>{t('blog', currentLanguage)}</a>
+            {settings?.hasBlogArticles && <a href={`/${currentLanguage}/blog`} style={{ color: 'white', textDecoration: 'none' }}>{t('blog', currentLanguage)}</a>}
             {showCatalogLink && <a href="/catalog" style={{ color: 'white', textDecoration: 'none' }}>Catalog</a>}
             
             {/* Social Media Links */}

@@ -1,7 +1,13 @@
 
-refactor Rental...Section to be in a separate Rental...Section.js similar to BlogSection.js and others
+blog is improperly showing english pinned article in both english and slovak, and not showing slovak pinned article in either
 
-remove default components from new page
+---
+
+add sitemap to footer alongside accessibility A+ and A- buttons
+
+---
+
+add support for page groups: page group will contain multiple pages and on main-site will be on /[lang]/[group]/[page], default group is "Direct Pages" (always exists) served on /[lang]/[page]. All currently existing pages will be moved to this group.
 
 ---
 

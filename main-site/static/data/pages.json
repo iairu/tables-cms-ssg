@@ -1,29 +1,9 @@
 [
   {
-    "id": "1768811064499",
+    "id": "1768811711206",
     "title": "Homepage",
     "slug": "home",
-    "rows": [
-      {
-        "component": "Slide",
-        "fields": {
-          "Slide heading": "",
-          "Slide content": ""
-        }
-      },
-      {
-        "component": "Reviews",
-        "fields": {
-          "reviews": [
-            {
-              "Review logo": "",
-              "Review content": "",
-              "Review author": ""
-            }
-          ]
-        }
-      }
-    ],
+    "rows": [],
     "history": [],
     "lastEdited": null,
     "includeInMenu": true,
@@ -33,5 +13,27 @@
     "metaDescription": "",
     "buttonLinkColor": "",
     "sitemapPriority": 0.5
+  },
+  {
+    "id": "1768812338454",
+    "title": "New Page",
+    "slug": "new-page-1768812338454",
+    "rows": [],
+    "history": [],
+    "lastEdited": 1768812538281,
+    "includeInMenu": true,
+    "navigationDropdown": "none",
+    "themeVersion": "auto",
+    "enforcedTheme": "",
+    "metaDescription": "",
+    "buttonLinkColor": "",
+    "sitemapPriority": 0.5,
+    "translations": {
+      "en": {
+        "title": "New Page a test a",
+        "slug": "new-page-1768812338454",
+        "rows": []
+      }
+    }
   }
 ]

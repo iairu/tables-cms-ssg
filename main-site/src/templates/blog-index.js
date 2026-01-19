@@ -20,6 +20,7 @@ const BlogIndexTemplate = ({ pageContext }) => {
     return lang;
   });
   const [loading, setLoading] = useState(!pageContext.articlesData);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     // If data is already in pageContext (production SSG), use it directly
@@ -159,11 +160,17 @@ const BlogIndexTemplate = ({ pageContext }) => {
     };
   };
 
-  // Filter articles by current language
+  // Filter articles to ensure they have content in at least one language
   const filteredArticles = articles.filter(article => {
-    const localizedContent = getLocalizedContent(article, currentLanguage);
-    // Only show articles that have content in the current language
-    return localizedContent.title && localizedContent.slug;
+    const defaultContent = article.title && article.slug && article.content && article.content.trim() !== '';
+    if (defaultContent) {
+      return true;
+    }
+    // Check if there is at least one translation with content
+    if (article.translations) {
+      return Object.values(article.translations).some(t => t.title && t.slug && t.content && t.content.trim() !== '');
+    }
+    return false;
   });
 
   // Handle language change
@@ -193,27 +200,149 @@ const BlogIndexTemplate = ({ pageContext }) => {
     return menuPage.slug;
   };
 
-  // Group articles by year and month
-  const groupedArticles = {};
-  filteredArticles.forEach(article => {
-    const year = article.year;
-    const month = article.month;
-    if (!groupedArticles[year]) groupedArticles[year] = {};
-    if (!groupedArticles[year][month]) groupedArticles[year][month] = [];
-    groupedArticles[year][month].push(article);
-  });
+  // Pagination logic
+  const articlesPerPage = 10;
+  const pinnedArticles = filteredArticles.filter(article => article.highlighted);
+  const regularArticles = filteredArticles.filter(article => !article.highlighted);
 
-  // Sort articles within each month by highlighted first, then date descending
-  Object.keys(groupedArticles).forEach(year => {
-    Object.keys(groupedArticles[year]).forEach(month => {
-      groupedArticles[year][month].sort((a, b) => {
-        // Sort highlighted articles first, then by date
-        if (a.highlighted && !b.highlighted) return -1;
-        if (!a.highlighted && b.highlighted) return 1;
-        return new Date(b.date) - new Date(a.date);
-      });
-    });
-  });
+  const indexOfLastArticle = currentPage * articlesPerPage;
+  const indexOfFirstArticle = indexOfLastArticle - articlesPerPage;
+  const currentRegularArticles = regularArticles.slice(indexOfFirstArticle, indexOfLastArticle);
+  const totalPages = Math.ceil(regularArticles.length / articlesPerPage);
+
+  const handlePageChange = (pageNumber) => {
+    if (pageNumber > 0 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
+
+  const renderArticle = (article) => {
+    const localizedContent = getLocalizedContent(article, currentLanguage);
+    return (
+      <a
+        key={article.id}
+        href={`/${currentLanguage}/blog/${article.year}/${article.month}/${localizedContent.slug}`}
+        style={{
+          display: 'block',
+          background: article.highlighted ? '#fefce8' : 'white',
+          padding: '1.5rem',
+          borderRadius: '0.5rem',
+          textDecoration: 'none',
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+          transition: 'all 0.2s',
+          border: article.highlighted ? '2px solid #facc15' : '1px solid #e2e8f0',
+          position: 'relative'
+        }}
+        onMouseOver={(e) => {
+          e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+          e.currentTarget.style.transform = 'translateY(-2px)';
+          e.currentTarget.style.borderColor = '#667eea';
+        }}
+        onMouseOut={(e) => {
+          e.currentTarget.style.boxShadow = '0 1px 3px 0 rgba(0, 0, 0, 0.1)';
+          e.currentTarget.style.transform = 'translateY(0)';
+          e.currentTarget.style.borderColor = article.highlighted ? '#facc15' : '#e2e8f0';
+        }}
+      >
+        {article.highlighted && (
+          <div style={{
+            position: 'absolute',
+            top: '1rem',
+            right: '1rem',
+            background: '#fbbf24',
+            color: '#78350f',
+            padding: '0.25rem 0.5rem',
+            borderRadius: '0.25rem',
+            fontSize: '0.75rem',
+            fontWeight: '600',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.25rem'
+          }}>
+            {t('pinned', currentLanguage)}
+          </div>
+        )}
+        <h4 style={{
+          fontSize: '1.25rem',
+          fontWeight: '600',
+          marginBottom: '0.5rem',
+          color: '#0f172a',
+          paddingRight: article.highlighted ? '6rem' : '0'
+        }}>
+          {localizedContent.title}
+        </h4>
+        
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '1rem',
+          color: '#64748b',
+          fontSize: '0.875rem'
+        }}>
+          {(localizedContent.author || article.author) && (
+            <span>{t('by', currentLanguage)} {localizedContent.author || article.author}</span>
+          )}
+          {article.date && (
+            <span>
+              {formatDate(article.date, currentLanguage, 'long')}
+            </span>
+          )}
+        </div>
+        
+        {((localizedContent.category || article.category) || (localizedContent.tags || article.tags)) && (
+          <div style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '0.5rem',
+            alignItems: 'center',
+            marginTop: '0.75rem'
+          }}>
+            {(localizedContent.category || article.category) && (
+              <span style={{
+                background: '#e0e7ff',
+                color: '#3730a3',
+                padding: '0.25rem 0.5rem',
+                borderRadius: '9999px',
+                fontSize: '0.75rem',
+                fontWeight: '600'
+              }}>
+                {localizedContent.category || article.category}
+              </span>
+            )}
+            {(localizedContent.tags || article.tags) && (localizedContent.tags || article.tags).split(',').map((tag, idx) => (
+              <span 
+                key={idx}
+                style={{
+                  background: '#f1f5f9',
+                  color: '#475569',
+                  padding: '0.25rem 0.5rem',
+                  borderRadius: '9999px',
+                  fontSize: '0.75rem'
+                }}
+              >
+                {tag.trim()}
+              </span>
+            ))}
+          </div>
+        )}
+        
+        {(localizedContent.content || article.content) && (
+          <p style={{
+            marginTop: '1rem',
+            color: '#475569',
+            lineHeight: '1.6',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical'
+          }}>
+            {localizedContent.content || article.content}
+          </p>
+        )}
+      </a>
+    );
+  };
 
   return (
     <div style={{
@@ -258,8 +387,17 @@ const BlogIndexTemplate = ({ pageContext }) => {
                 </a>
               );
             })}
-            <a href={`/${currentLanguage}/blog`} style={{ color: 'white', textDecoration: 'none' }}>{t('blog', currentLanguage)}</a>
+            {settings?.hasBlogArticles && <a href={`/${currentLanguage}/blog`} style={{ color: 'white', textDecoration: 'none' }}>{t('blog', currentLanguage)}</a>}
             
+            {/* Social Media Links */}
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+              {settings.socialMedia && settings.socialMedia.map(social => (
+                <a key={social.platform} href={social.url} target="_blank" rel="noopener noreferrer" title={social.platform} style={{ color: 'white', textDecoration: 'none' }}>
+                  {social.platform}
+                </a>
+              ))}
+            </div>
+
             {/* Language Switcher */}
             <select
               value={currentLanguage}
@@ -310,7 +448,7 @@ const BlogIndexTemplate = ({ pageContext }) => {
           Blog
         </h1>
 
-        {Object.keys(groupedArticles).length === 0 ? (
+        {pinnedArticles.length === 0 && currentRegularArticles.length === 0 ? (
           <div style={{
             background: '#f8fafc',
             padding: '3rem',
@@ -321,170 +459,46 @@ const BlogIndexTemplate = ({ pageContext }) => {
             <p>{t('noBlogPosts', currentLanguage)}</p>
           </div>
         ) : (
-          Object.keys(groupedArticles).sort((a, b) => b - a).map(year => (
-            <div key={year} style={{
-              marginBottom: '3rem'
-            }}>
-              <h2 style={{
-                fontSize: '2rem',
-                fontWeight: '600',
-                marginBottom: '1.5rem',
-                color: '#1e293b',
-                paddingBottom: '0.5rem',
-                borderBottom: '2px solid #e2e8f0'
-              }}>
-                {year}
-              </h2>
-              
-              {Object.keys(groupedArticles[year]).sort((a, b) => b - a).map(month => (
-                <div key={month} style={{
-                  marginBottom: '2rem'
-                }}>
-                  <h3 style={{
-                    fontSize: '1.25rem',
-                    fontWeight: '600',
-                    marginBottom: '1rem',
-                    color: '#475569'
-                  }}>
-                    {getMonthName(parseInt(month) - 1, currentLanguage, 'long')} {year}
-                  </h3>
-                  
-                  <div style={{
-                    display: 'grid',
-                    gap: '1rem'
-                  }}>
-                    {groupedArticles[year][month].map(article => {
-                      const localizedContent = getLocalizedContent(article, currentLanguage);
-                      return (
-                      <a 
-                        key={article.id}
-                        href={`/${currentLanguage}/blog/${article.year}/${article.month}/${localizedContent.slug}`}
-                        style={{
-                          display: 'block',
-                          background: article.highlighted ? '#fefce8' : 'white',
-                          padding: '1.5rem',
-                          borderRadius: '0.5rem',
-                          textDecoration: 'none',
-                          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-                          transition: 'all 0.2s',
-                          border: article.highlighted ? '2px solid #facc15' : '1px solid #e2e8f0',
-                          position: 'relative'
-                        }}
-                        onMouseOver={(e) => {
-                          e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
-                          e.currentTarget.style.transform = 'translateY(-2px)';
-                          e.currentTarget.style.borderColor = '#667eea';
-                        }}
-                        onMouseOut={(e) => {
-                          e.currentTarget.style.boxShadow = '0 1px 3px 0 rgba(0, 0, 0, 0.1)';
-                          e.currentTarget.style.transform = 'translateY(0)';
-                          e.currentTarget.style.borderColor = article.highlighted ? '#facc15' : '#e2e8f0';
-                        }}
-                      >
-                        {article.highlighted && (
-                          <div style={{
-                            position: 'absolute',
-                            top: '1rem',
-                            right: '1rem',
-                            background: '#fbbf24',
-                            color: '#78350f',
-                            padding: '0.25rem 0.5rem',
-                            borderRadius: '0.25rem',
-                            fontSize: '0.75rem',
-                            fontWeight: '600',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.25rem'
-                          }}>
-                            {t('pinned', currentLanguage)}
-                          </div>
-                        )}
-                        <h4 style={{
-                          fontSize: '1.25rem',
-                          fontWeight: '600',
-                          marginBottom: '0.5rem',
-                          color: '#0f172a',
-                          paddingRight: article.highlighted ? '6rem' : '0'
-                        }}>
-                          {localizedContent.title}
-                        </h4>
-                        
-                        <div style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '1rem',
-                          color: '#64748b',
-                          fontSize: '0.875rem'
-                        }}>
-                          {(localizedContent.author || article.author) && (
-                            <span>{t('by', currentLanguage)} {localizedContent.author || article.author}</span>
-                          )}
-                          {article.date && (
-                            <span>
-                              {formatDate(article.date, currentLanguage, 'long')}
-                            </span>
-                          )}
-                        </div>
-                        
-                        {((localizedContent.category || article.category) || (localizedContent.tags || article.tags)) && (
-                          <div style={{
-                            display: 'flex',
-                            flexWrap: 'wrap',
-                            gap: '0.5rem',
-                            alignItems: 'center',
-                            marginTop: '0.75rem'
-                          }}>
-                            {(localizedContent.category || article.category) && (
-                              <span style={{
-                                background: '#e0e7ff',
-                                color: '#3730a3',
-                                padding: '0.25rem 0.5rem',
-                                borderRadius: '9999px',
-                                fontSize: '0.75rem',
-                                fontWeight: '600'
-                              }}>
-                                {localizedContent.category || article.category}
-                              </span>
-                            )}
-                            {(localizedContent.tags || article.tags) && (localizedContent.tags || article.tags).split(',').map((tag, idx) => (
-                              <span 
-                                key={idx}
-                                style={{
-                                  background: '#f1f5f9',
-                                  color: '#475569',
-                                  padding: '0.25rem 0.5rem',
-                                  borderRadius: '9999px',
-                                  fontSize: '0.75rem'
-                                }}
-                              >
-                                {tag.trim()}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                        
-                        {(localizedContent.content || article.content) && (
-                          <p style={{
-                            marginTop: '1rem',
-                            color: '#475569',
-                            lineHeight: '1.6',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            display: '-webkit-box',
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: 'vertical'
-                          }}>
-                            {localizedContent.content || article.content}
-                          </p>
-                        )}
-                      </a>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
-            </div>
-          ))
+          <div style={{ display: 'grid', gap: '1.5rem' }}>
+            {pinnedArticles.map(article => renderArticle(article))}
+            {currentRegularArticles.map(article => renderArticle(article))}
+          </div>
+        )}
+
+        {totalPages > 1 && (
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', marginTop: '3rem' }}>
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              style={{
+                padding: '0.5rem 1rem',
+                borderRadius: '0.375rem',
+                border: '1px solid #cbd5e1',
+                background: currentPage === 1 ? '#f8fafc' : 'white',
+                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                color: currentPage === 1 ? '#94a3b8' : '#334155'
+              }}
+            >
+              {t('previous', currentLanguage)}
+            </button>
+            <span style={{ color: '#475569', fontSize: '0.875rem' }}>
+              {t('page', currentLanguage)} {currentPage} {t('of', currentLanguage)} {totalPages}
+            </span>
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              style={{
+                padding: '0.5rem 1rem',
+                borderRadius: '0.375rem',
+                border: '1px solid #cbd5e1',
+                background: currentPage === totalPages ? '#f8fafc' : 'white',
+                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                color: currentPage === totalPages ? '#94a3b8' : '#334155'
+              }}
+            >
+              {t('next', currentLanguage)}
+            </button>
+          </div>
         )}
       </main>
 

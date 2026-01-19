@@ -161,6 +161,7 @@ const exportDataAndBuild = async (data, localOnly = false, vercelApiToken = null
     // Export settings (with vercelApiKey hidden)
     const settings = cmsData.settings || { siteTitle: 'TABLES', defaultLang: 'en', theme: 'light', showBreadcrumbs: false };
     const settingsForExport = { ...settings };
+    settingsForExport.hasBlogArticles = blogArticles.length > 0;
     if (settingsForExport.vercelApiKey && settingsForExport.vercelApiKey.trim() !== '') {
       settingsForExport.vercelApiKey = '***HIDDEN***';
     }

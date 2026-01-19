@@ -28,5 +28,6 @@
       "platform": "LinkedIn",
       "url": "https://linkedin.com/"
     }
-  ]
+  ],
+  "hasBlogArticles": true
 }

@@ -1,51 +1,400 @@
 [
   {
-    "id": "1768807536440",
+    "id": "1768812912167",
     "title": "New Article",
     "content": "",
     "author": "",
-    "date": "2026-01-19T07:25:36.440Z",
+    "date": "2026-01-19T08:55:12.167Z",
     "year": 2026,
     "month": 1,
-    "slug": "new-article-1768807536440",
+    "slug": "new-article-1768812912167",
     "history": [],
     "category": "",
     "tags": "",
-    "highlighted": false,
-    "lastEdited": 1768807543153,
+    "highlighted": true,
+    "lastEdited": 1768812978733,
     "translations": {
       "en": {
-        "title": "New Article demo",
-        "slug": "new-article-1768807536440",
+        "title": "Filled in english but empy in slovak",
+        "slug": "new-article-1768812912167",
         "author": "",
-        "content": "",
+        "content": "Hello!",
         "category": "",
-        "tags": ""
+        "tags": "",
+        "metaDescription": ""
       }
     }
   },
   {
-    "id": "1768810732967",
+    "id": "1768812929647",
     "title": "New Article",
     "content": "",
     "author": "",
-    "date": "2026-01-19T08:18:52.967Z",
+    "date": "2026-01-19T08:55:29.647Z",
     "year": 2026,
     "month": 1,
-    "slug": "new-article-1768810732967",
+    "slug": "new-article-1768812929647",
     "history": [],
     "category": "",
     "tags": "",
     "highlighted": false,
-    "lastEdited": 1768810736430,
+    "lastEdited": 1768812947423,
     "translations": {
       "en": {
-        "title": "New Article test",
-        "slug": "new-article-1768810732967",
+        "title": "Filled in both languages",
+        "slug": "new-article-1768812929647",
         "author": "",
-        "content": "",
+        "content": "hi!",
         "category": "",
-        "tags": ""
+        "tags": "",
+        "metaDescription": ""
+      },
+      "sk": {
+        "title": "Vyplnené v oboch jazykoch",
+        "slug": "new-article-1768812929647",
+        "author": "",
+        "content": "ahoj!",
+        "category": "",
+        "tags": "",
+        "metaDescription": ""
+      }
+    }
+  },
+  {
+    "id": "1768812951019",
+    "title": "New Article",
+    "content": "",
+    "author": "",
+    "date": "2026-01-19T08:55:51.019Z",
+    "year": 2026,
+    "month": 1,
+    "slug": "new-article-1768812951019",
+    "history": [],
+    "category": "",
+    "tags": "",
+    "highlighted": true,
+    "lastEdited": 1768814667903,
+    "translations": {
+      "sk": {
+        "title": "Vyplnené v sk ale prázdne v en",
+        "slug": "new-article-1768812951019",
+        "author": "",
+        "content": "test ahoj!",
+        "category": "",
+        "tags": "",
+        "metaDescription": ""
+      }
+    }
+  },
+  {
+    "id": "1768815131184",
+    "title": "New Article",
+    "content": "",
+    "author": "",
+    "date": "2026-01-19T09:32:11.184Z",
+    "year": 2026,
+    "month": 1,
+    "slug": "new-article-1768815131184",
+    "history": [],
+    "category": "",
+    "tags": "",
+    "highlighted": false,
+    "lastEdited": 1768815135794,
+    "translations": {
+      "en": {
+        "title": "New Article a",
+        "slug": "new-article-1768815131184",
+        "author": "",
+        "content": "test",
+        "category": "",
+        "tags": "",
+        "metaDescription": ""
+      }
+    }
+  },
+  {
+    "id": "1768815135834",
+    "title": "New Article",
+    "content": "",
+    "author": "",
+    "date": "2026-01-19T09:32:15.834Z",
+    "year": 2026,
+    "month": 1,
+    "slug": "new-article-1768815135834",
+    "history": [],
+    "category": "",
+    "tags": "",
+    "highlighted": false,
+    "lastEdited": 1768815139883,
+    "translations": {
+      "en": {
+        "title": "New Article b",
+        "slug": "new-article-1768815135834",
+        "author": "",
+        "content": "test",
+        "category": "",
+        "tags": "",
+        "metaDescription": ""
+      }
+    }
+  },
+  {
+    "id": "1768815139446",
+    "title": "New Article",
+    "content": "",
+    "author": "",
+    "date": "2026-01-19T09:32:19.446Z",
+    "year": 2026,
+    "month": 1,
+    "slug": "new-article-1768815139446",
+    "history": [],
+    "category": "",
+    "tags": "",
+    "highlighted": false,
+    "lastEdited": 1768815143616,
+    "translations": {
+      "en": {
+        "title": "New Article c",
+        "slug": "new-article-1768815139446",
+        "author": "",
+        "content": "test",
+        "category": "",
+        "tags": "",
+        "metaDescription": ""
+      }
+    }
+  },
+  {
+    "id": "1768815143352",
+    "title": "New Article",
+    "content": "",
+    "author": "",
+    "date": "2026-01-19T09:32:23.352Z",
+    "year": 2026,
+    "month": 1,
+    "slug": "new-article-1768815143352",
+    "history": [],
+    "category": "",
+    "tags": "",
+    "highlighted": false,
+    "lastEdited": 1768815148268,
+    "translations": {
+      "en": {
+        "title": " d New Article",
+        "slug": "new-article-1768815143352",
+        "author": "",
+        "content": "test",
+        "category": "",
+        "tags": "",
+        "metaDescription": ""
+      }
+    }
+  },
+  {
+    "id": "1768815148219",
+    "title": "New Article",
+    "content": "",
+    "author": "",
+    "date": "2026-01-19T09:32:28.219Z",
+    "year": 2026,
+    "month": 1,
+    "slug": "new-article-1768815148219",
+    "history": [],
+    "category": "",
+    "tags": "",
+    "highlighted": false,
+    "lastEdited": 1768815152873,
+    "translations": {
+      "en": {
+        "title": "New Article e",
+        "slug": "new-article-1768815148219",
+        "author": "",
+        "content": "test",
+        "category": "",
+        "tags": "",
+        "metaDescription": ""
+      }
+    }
+  },
+  {
+    "id": "1768815155347",
+    "title": "New Article",
+    "content": "",
+    "author": "",
+    "date": "2026-01-19T09:32:35.347Z",
+    "year": 2026,
+    "month": 1,
+    "slug": "new-article-1768815155347",
+    "history": [],
+    "category": "",
+    "tags": "",
+    "highlighted": false,
+    "lastEdited": 1768815160264,
+    "translations": {
+      "en": {
+        "title": "New Article teste",
+        "slug": "new-article-1768815155347",
+        "author": "",
+        "content": "test",
+        "category": "",
+        "tags": "",
+        "metaDescription": ""
+      }
+    }
+  },
+  {
+    "id": "1768815159706",
+    "title": "New Article",
+    "content": "",
+    "author": "",
+    "date": "2026-01-19T09:32:39.706Z",
+    "year": 2026,
+    "month": 1,
+    "slug": "new-article-1768815159706",
+    "history": [],
+    "category": "",
+    "tags": "",
+    "highlighted": false,
+    "lastEdited": 1768815164298,
+    "translations": {
+      "en": {
+        "title": "New Article dd",
+        "slug": "new-article-1768815159706",
+        "author": "",
+        "content": "teset",
+        "category": "",
+        "tags": "",
+        "metaDescription": ""
+      }
+    }
+  },
+  {
+    "id": "1768815164015",
+    "title": "New Article",
+    "content": "",
+    "author": "",
+    "date": "2026-01-19T09:32:44.015Z",
+    "year": 2026,
+    "month": 1,
+    "slug": "new-article-1768815164015",
+    "history": [],
+    "category": "",
+    "tags": "",
+    "highlighted": false,
+    "lastEdited": 1768815168569,
+    "translations": {
+      "en": {
+        "title": "New Article ddd",
+        "slug": "new-article-1768815164015",
+        "author": "",
+        "content": "test",
+        "category": "",
+        "tags": "",
+        "metaDescription": ""
+      }
+    }
+  },
+  {
+    "id": "1768815168275",
+    "title": "New Article",
+    "content": "",
+    "author": "",
+    "date": "2026-01-19T09:32:48.275Z",
+    "year": 2026,
+    "month": 1,
+    "slug": "new-article-1768815168275",
+    "history": [],
+    "category": "",
+    "tags": "",
+    "highlighted": false,
+    "lastEdited": 1768815172945,
+    "translations": {
+      "en": {
+        "title": "New Article abc",
+        "slug": "new-article-1768815168275",
+        "author": "",
+        "content": "test",
+        "category": "",
+        "tags": "",
+        "metaDescription": ""
+      }
+    }
+  },
+  {
+    "id": "1768815172832",
+    "title": "New Article",
+    "content": "",
+    "author": "",
+    "date": "2026-01-19T09:32:52.832Z",
+    "year": 2026,
+    "month": 1,
+    "slug": "new-article-1768815172832",
+    "history": [],
+    "category": "",
+    "tags": "",
+    "highlighted": false,
+    "lastEdited": 1768815179925,
+    "translations": {
+      "en": {
+        "title": "New Article efg",
+        "slug": "new-article-1768815172832",
+        "author": "",
+        "content": "paginated or not?",
+        "category": "",
+        "tags": "",
+        "metaDescription": ""
+      }
+    }
+  },
+  {
+    "id": "1768815193953",
+    "title": "New Article",
+    "content": "",
+    "author": "",
+    "date": "2026-01-19T09:33:13.953Z",
+    "year": 2026,
+    "month": 1,
+    "slug": "new-article-1768815193953",
+    "history": [],
+    "category": "",
+    "tags": "",
+    "highlighted": false,
+    "lastEdited": 1768815200867,
+    "translations": {
+      "en": {
+        "title": "New Article abcdef",
+        "slug": "new-article-1768815193953",
+        "author": "",
+        "content": "test",
+        "category": "",
+        "tags": "",
+        "metaDescription": ""
+      }
+    }
+  },
+  {
+    "id": "1768815200364",
+    "title": "New Article",
+    "content": "",
+    "author": "",
+    "date": "2026-01-19T09:33:20.364Z",
+    "year": 2026,
+    "month": 1,
+    "slug": "new-article-1768815200364",
+    "history": [],
+    "category": "",
+    "tags": "",
+    "highlighted": false,
+    "lastEdited": 1768815205283,
+    "translations": {
+      "en": {
+        "title": "New Article ijklm",
+        "slug": "new-article-1768815200364",
+        "author": "",
+        "content": "test",
+        "category": "",
+        "tags": "",
+        "metaDescription": ""
       }
     }
   }
