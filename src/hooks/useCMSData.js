@@ -402,8 +402,8 @@ const useCMSData = () => {
   // Helper functions
   const defaultPageRows = () => {
     return [
-      { component: 'Slide', fields: { 'Slide heading': '', 'Slide content': '' } },
-      { component: 'Reviews', fields: { reviews: [{ 'Review logo': '', 'Review content': '', 'Review author': '' }] } }
+      // { component: 'Slide', fields: { 'Slide heading': '', 'Slide content': '' } },
+      // { component: 'Reviews', fields: { reviews: [{ 'Review logo': '', 'Review content': '', 'Review author': '' }] } }
     ];
   };
 
