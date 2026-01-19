@@ -18,3 +18,16 @@ export const fuzzyMatch = (str, pattern) => {
 
   return patternIdx === pattern.length;
 };
+
+// Debounce utility function
+export const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+    timeoutId = setTimeout(() => {
+      func(...args);
+    }, delay);
+  };
+};

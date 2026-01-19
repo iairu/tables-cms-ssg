@@ -69,7 +69,6 @@ const PagesSection = ({ cmsData }) => {
       });
       updatePage(currentPage.id, {
         history,
-        lastPublished: Date.now()
       });
       setSaveSuccessModalOpen(true);
     }
@@ -540,7 +539,7 @@ const PagesSection = ({ cmsData }) => {
               <th>Title</th>
               <th>Slug</th>
               <th>In Menu?</th>
-              <th>Last Published</th>
+              <th>Last Edited</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -558,7 +557,7 @@ const PagesSection = ({ cmsData }) => {
                     style={{ cursor: page.slug === 'home' ? 'not-allowed' : 'pointer', opacity: page.slug === 'home' ? 0.6 : 1 }}
                   />
                 </td>
-                <td>{page.lastPublished ? new Date(page.lastPublished).toLocaleString() : 'Never'}</td>
+                <td>{page.lastEdited ? new Date(page.lastEdited).toLocaleString() : 'Never'}</td>
                 <td>
                   <button onClick={() => handleEditPage(page.id)}>Edit</button>
                   <button onClick={() => handleDeleteClick(page.id)}>Delete</button>

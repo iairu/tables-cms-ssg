@@ -506,6 +506,7 @@ const BlogSection = ({ cmsData }) => {
               <th>Date</th>
               <th>Slug</th>
               <th>Pinned?</th>
+              <th>Last Edited</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -528,6 +529,7 @@ const BlogSection = ({ cmsData }) => {
                       style={{ cursor: 'pointer' }}
                     />
                   </td>
+                  <td>{article.lastEdited ? new Date(article.lastEdited).toLocaleString() : 'Never'}</td>
                   <td>
                     <button onClick={() => handleEditArticle(article.id)}>Edit</button>
                     <button onClick={() => handleDeleteClick(article.id)}>Delete</button>

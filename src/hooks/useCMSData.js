@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { debounce } from '../components/cms/utils';
 
 const useCMSData = () => {
   // Build trigger state
@@ -414,7 +415,7 @@ const useCMSData = () => {
       slug: 'new-page-' + newId,
       rows: defaultPageRows(),
       history: [],
-      lastPublished: null,
+      lastEdited: null,
       includeInMenu: false,
       navigationDropdown: 'none', // none, header, footer
       themeVersion: 'auto', // auto, light, dark
@@ -438,11 +439,24 @@ const useCMSData = () => {
   };
 
   const updatePage = (id, updates) => {
-    const updatedPages = pages.map(p => 
+    const debouncedUpdateLastEdited = debounce((pageId) => {
+      const currentPages = JSON.parse(localStorage.getItem('pages') || '[]');
+      const updatedPages = currentPages.map(p =>
+        p.id === pageId ? { ...p, lastEdited: Date.now() } : p
+      );
+      savePages(updatedPages);
+    }, 2000);
+
+    const updatedPages = pages.map(p =>
       p.id === id ? { ...p, ...updates } : p
     );
     savePages(updatedPages);
+
+    if (!updates.hasOwnProperty('lastEdited')) {
+      debouncedUpdateLastEdited(id);
+    }
   };
+
 
   const addBlogArticle = () => {
     const newId = Date.now().toString();
@@ -459,7 +473,8 @@ const useCMSData = () => {
       history: [],
       category: '',
       tags: '',
-      highlighted: false
+      highlighted: false,
+      lastEdited: null
     };
     const updatedArticles = [...blogArticles, newArticle];
     saveBlogArticles(updatedArticles);
@@ -475,10 +490,22 @@ const useCMSData = () => {
   };
 
   const updateBlogArticle = (id, updates) => {
-    const updatedArticles = blogArticles.map(a => 
+    const debouncedUpdateBlogLastEdited = debounce((articleId) => {
+      const currentArticles = JSON.parse(localStorage.getItem('blogArticles') || '[]');
+      const updatedArticles = currentArticles.map(a =>
+        a.id === articleId ? { ...a, lastEdited: Date.now() } : a
+      );
+      saveBlogArticles(updatedArticles);
+    }, 2000);
+
+    const updatedArticles = blogArticles.map(a =>
       a.id === id ? { ...a, ...updates } : a
     );
     saveBlogArticles(updatedArticles);
+
+    if (!updates.hasOwnProperty('lastEdited')) {
+      debouncedUpdateBlogLastEdited(id);
+    }
   };
 
   return {
