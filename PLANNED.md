@@ -1,9 +1,30 @@
 
+localize in cms new page title to Slovak if given language is present in settings, same for Homepage
+
+---
+
+localize main-site "No content added yet. Please add components in the CMS." to slovak if given language is present in settings and therefore header dropdown
+
+---
+
+move main-site header into a separate Header.js component, footer into a separate Footer.js component
+
+---
+
+add site logo and site favicon upload to settings (will be saved as base64 just like images in page components),
+show the site favicon in main-site and logo in header
+
+---
+
 blog is improperly showing english pinned article in both english and slovak, and not showing slovak pinned article in either
 
 ---
 
 add sitemap to footer alongside accessibility A+ and A- buttons
+
+---
+
+make main-site theme mobile friendly
 
 ---
 
@@ -19,11 +40,19 @@ similarly pedigree cats will now have ids and actions will be on /cms/pedigree/[
 
 ---
 
+add asset upload and management extension (will switch upload to json for select from assets on all file upload input fields)
+
+---
+
+add slideshow page component with support for multiple slides, transitions, and autoplay
+
+---
+
 add extension called Biometric for a database of users with fingerprints imgs (left thumb, right thumb, palm), face mugshot (with grouping and better sort: front, back, left side, right side), user data and sensitive data (place of origin, date of birth, gender, height, weight, eye color, hair color, skin color, blood type, Rh factor, national ID, social security number, passport number, driver's license number, first name, last name, middle names, marriage status, children, spouse name, ...), this will be editable same way as the pedigree cats table with an expand button, show a warning within the picker that this is for demo only due to low or non-existent security
 
 ---
 
-add a visual or compact editor for pages and articles
+manual: improve page components editor by having components in two or multiple columns where relevant, make mobile friendly
 
 ---
 
@@ -45,6 +74,11 @@ add notes extension
 
 ---
 
-add asset upload and management extension (will switch upload to json for select from assets on all file upload input fields)
+one of the following:
+
+- e-commerce extension (external integration e.g. snipcart)
+- visual editor for pages
 
 ---
+
+public server for establishing rental businesses form (localStorage sync with "Currently edited by ...") collaboration over websocket across multiple networks, this server will be always pinged by any cms instance that has collaboration features enabled in settings, user will be informed and will have to provide GDPR consent that their IP, localization and a shared collaboration token (no auth for now, later additional token will be required) are stored on the server for the purpose of establishing a websocket connection between all clients in the given business
