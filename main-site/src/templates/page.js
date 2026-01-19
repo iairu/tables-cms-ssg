@@ -903,7 +903,7 @@ const PageTemplate = ({ pageContext, location }) => {
             textAlign: 'center',
             color: '#64748b'
           }}>
-            <p>No content added yet. Please add components in the CMS.</p>
+            <p>{t('noContent', currentLanguage)}</p>
           </div>
         )}
       </main>

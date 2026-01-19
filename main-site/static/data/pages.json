@@ -1,26 +1,11 @@
 [
   {
-    "id": "1768811711206",
+    "id": "1768817006065",
     "title": "Homepage",
     "slug": "home",
     "rows": [],
     "history": [],
-    "lastEdited": null,
-    "includeInMenu": true,
-    "navigationDropdown": "none",
-    "themeVersion": "auto",
-    "enforcedTheme": "",
-    "metaDescription": "",
-    "buttonLinkColor": "",
-    "sitemapPriority": 0.5
-  },
-  {
-    "id": "1768816855994",
-    "title": "New Page",
-    "slug": "new-page-1768816855994",
-    "rows": [],
-    "history": [],
-    "lastEdited": 1768816873999,
+    "lastEdited": 1768817006065,
     "includeInMenu": true,
     "navigationDropdown": "none",
     "themeVersion": "auto",
@@ -30,13 +15,13 @@
     "sitemapPriority": 0.5,
     "translations": {
       "sk": {
-        "title": "Nová stránka",
-        "slug": "new-page-1768816855994",
+        "title": "Domovská stránka",
+        "slug": "home",
         "rows": []
       },
       "en": {
-        "title": "New Page test či bude slovensky ok",
-        "slug": "new-page-1768816855994",
+        "title": "Homepage",
+        "slug": "home",
         "rows": []
       }
     }

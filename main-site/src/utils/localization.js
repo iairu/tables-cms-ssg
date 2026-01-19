@@ -28,6 +28,7 @@ export const translations = {
     loading: 'Loading...',
     notFound: 'Not found',
     builtWith: 'Built with Gatsby',
+    noContent: 'No content added yet. Please add components in the CMS.',
     
 
   },
@@ -59,6 +60,7 @@ export const translations = {
     loading: 'Načítava sa...',
     notFound: 'Nenájdené',
     builtWith: 'Vytvorené pomocou Gatsby',
+    noContent: 'Zatiaľ nebol pridaný žiadny obsah. Pridajte komponenty v CMS.',
     
 
   }

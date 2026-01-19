@@ -1,7 +1,4 @@
 
-localize in cms new page title to Slovak if given language is present in settings, same for Homepage
-
----
 
 localize main-site "No content added yet. Please add components in the CMS." to slovak if given language is present in settings and therefore header dropdown
 

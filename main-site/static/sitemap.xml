@@ -7,12 +7,6 @@
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://example.com/sk/new-page-1768816855994</loc>
-    <lastmod>2026-01-19</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
     <loc>https://example.com/sk/blog/2026/1/new-article-1768812912167</loc>
     <lastmod>2026-01-19</lastmod>
     <changefreq>monthly</changefreq>
@@ -104,12 +98,6 @@
   </url>
   <url>
     <loc>https://example.com/en</loc>
-    <lastmod>2026-01-19</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://example.com/en/new-page-1768816855994</loc>
     <lastmod>2026-01-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
