@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { navigate } from 'gatsby';
 import { t, formatDate } from '../utils/localization';
 import Breadcrumbs from '../components/Breadcrumbs';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 
 const BlogArticleTemplate = ({ pageContext, location }) => {
   const [article, setArticle] = useState(pageContext.articleData || null);
@@ -249,79 +251,16 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
       minHeight: '100vh',
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
     }}>
-      {/* Header */}
-      <header style={{
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        color: 'white',
-        padding: '2rem',
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-      }}>
-        <div style={{
-          maxWidth: '1200px',
-          margin: '0 auto',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}>
-          <h1 style={{ margin: 0, fontSize: '1.5rem' }}>
-            {settings?.siteTitle || 'TABLES'}
-          </h1>
-          <nav style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-            {menuPages.filter(menuPage => {
-              // Filter based on navigationDropdown setting
-              const navDropdown = menuPage.navigationDropdown || 'none';
-              return navDropdown === 'none' || navDropdown === 'header';
-            }).map(menuPage => {
-              const localizedSlug = getLocalizedPageSlug(menuPage, currentLanguage);
-              const localizedTitle = getLocalizedPageTitle(menuPage, currentLanguage);
-              const isHome = menuPage.slug === 'home' || localizedSlug === 'home';
-              const href = isHome ? `/${currentLanguage}` : `/${currentLanguage}/${localizedSlug}`;
-              
-              return (
-                <a 
-                  key={menuPage.id}
-                  href={href}
-                  style={{ color: 'white', textDecoration: 'none' }}
-                >
-                  {localizedTitle}
-                </a>
-              );
-            })}
-            {settings?.hasBlogArticles && <a href={`/${currentLanguage}/blog`} style={{ color: 'white', textDecoration: 'none' }}>{t('blog', currentLanguage)}</a>}
-            {showCatalogLink && <a href="/catalog" style={{ color: 'white', textDecoration: 'none' }}>Catalog</a>}
-            
-            {/* Social Media Links */}
-            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-              {settings.socialMedia && settings.socialMedia.map(social => (
-                <a key={social.platform} href={social.url} target="_blank" rel="noopener noreferrer" title={social.platform} style={{ color: 'white', textDecoration: 'none' }}>
-                  {social.platform}
-                </a>
-              ))}
-            </div>
-
-            {/* Language Switcher */}
-            <select
-              value={currentLanguage}
-              onChange={(e) => handleLanguageChange(e.target.value)}
-              style={{
-                background: 'rgba(255, 255, 255, 0.2)',
-                color: 'white',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-                borderRadius: '4px',
-                padding: '5px 10px',
-                cursor: 'pointer',
-                fontSize: '14px',
-              }}
-            >
-              {languages.map(language => (
-                <option key={language.code} value={language.code} style={{ color: '#333' }}>
-                  {language.name}
-                </option>
-              ))}
-            </select>
-          </nav>
-        </div>
-      </header>
+      <Header
+        settings={settings}
+        menuPages={menuPages}
+        currentLanguage={currentLanguage}
+        languages={languages}
+        handleLanguageChange={handleLanguageChange}
+        getLocalizedPageTitle={getLocalizedPageTitle}
+        getLocalizedPageSlug={getLocalizedPageSlug}
+        showCatalogLink={showCatalogLink}
+      />
 
       {/* Main Content */}
       <main style={{
@@ -449,65 +388,13 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer style={{
-        background: '#f8fafc',
-        padding: '2rem',
-        marginTop: '4rem',
-        borderTop: '1px solid #e2e8f0'
-      }}>
-        <div style={{
-          maxWidth: '1200px',
-          margin: '0 auto'
-        }}>
-          {/* Footer Navigation */}
-          {menuPages.filter(menuPage => {
-            const navDropdown = menuPage.navigationDropdown || 'none';
-            return navDropdown === 'footer';
-          }).length > 0 && (
-            <nav style={{
-              display: 'flex',
-              justifyContent: 'center',
-              gap: '2rem',
-              marginBottom: '2rem',
-              flexWrap: 'wrap'
-            }}>
-              {menuPages.filter(menuPage => {
-                const navDropdown = menuPage.navigationDropdown || 'none';
-                return navDropdown === 'footer';
-              }).map(menuPage => {
-                const localizedSlug = getLocalizedPageSlug(menuPage, currentLanguage);
-                const localizedTitle = getLocalizedPageTitle(menuPage, currentLanguage);
-                const isHome = menuPage.slug === 'home' || localizedSlug === 'home';
-                const href = isHome ? `/${currentLanguage}` : `/${currentLanguage}/${localizedSlug}`;
-                
-                return (
-                  <a 
-                    key={menuPage.id}
-                    href={href}
-                    style={{ 
-                      color: '#64748b', 
-                      textDecoration: 'none',
-                      fontSize: '0.875rem',
-                      transition: 'color 0.2s'
-                    }}
-                  >
-                    {localizedTitle}
-                  </a>
-                );
-              })}
-            </nav>
-          )}
-          
-          <div style={{
-            textAlign: 'center',
-            color: '#64748b',
-            fontSize: '0.875rem'
-          }}>
-            <p>© {new Date().getFullYear()} {settings?.siteTitle || 'TABLES'}. {t('builtWith', currentLanguage)}.</p>
-          </div>
-        </div>
-      </footer>
+      <Footer
+        settings={settings}
+        menuPages={menuPages}
+        currentLanguage={currentLanguage}
+        getLocalizedPageTitle={getLocalizedPageTitle}
+        getLocalizedPageSlug={getLocalizedPageSlug}
+      />
     </div>
   );
 };

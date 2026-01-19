@@ -1,10 +1,5 @@
 
 
-localize main-site "No content added yet. Please add components in the CMS." to slovak if given language is present in settings and therefore header dropdown
-
----
-
-move main-site header into a separate Header.js component, footer into a separate Footer.js component
 
 ---
 

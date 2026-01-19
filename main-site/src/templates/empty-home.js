@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 
 const EmptyHomeTemplate = ({ pageContext }) => {
   const [settings, setSettings] = useState(pageContext.settings || null);
@@ -56,38 +58,11 @@ const EmptyHomeTemplate = ({ pageContext }) => {
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
     }}>
-      {/* Header */}
-      <header style={{
-        background: 'rgba(255, 255, 255, 0.1)',
-        backdropFilter: 'blur(10px)',
-        color: 'white',
-        padding: '2rem',
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-      }}>
-        <div style={{
-          maxWidth: '1200px',
-          margin: '0 auto',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}>
-          <h1 style={{ margin: 0, fontSize: '1.5rem' }}>
-            {settings?.siteTitle || 'TABLES'}
-          </h1>
-          <nav>
-            {menuPages.map(menuPage => (
-              <a 
-                key={menuPage.id}
-                href={menuPage.slug === 'home' ? '/' : `/${menuPage.slug}`}
-                style={{ color: 'white', marginRight: '1.5rem', textDecoration: 'none' }}
-              >
-                {menuPage.title}
-              </a>
-            ))}
-            <a href="/blog" style={{ color: 'white', marginRight: '1.5rem', textDecoration: 'none' }}>Blog</a>
-          </nav>
-        </div>
-      </header>
+      <Header
+        simplified
+        settings={settings}
+        menuPages={menuPages}
+      />
 
       {/* Main Content */}
       <main style={{
@@ -151,29 +126,10 @@ const EmptyHomeTemplate = ({ pageContext }) => {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer style={{
-        position: 'fixed',
-        bottom: 0,
-        width: '100%',
-        background: 'rgba(255, 255, 255, 0.1)',
-        backdropFilter: 'blur(10px)',
-        padding: '1.5rem',
-        borderTop: '1px solid rgba(255, 255, 255, 0.2)'
-      }}>
-        <div style={{
-          maxWidth: '1200px',
-          margin: '0 auto',
-          textAlign: 'center',
-          color: 'white',
-          fontSize: '0.875rem',
-          opacity: 0.8
-        }}>
-          <p style={{ margin: 0 }}>
-            © {new Date().getFullYear()} {settings?.siteTitle || 'TABLES'}. Built with Gatsby.
-          </p>
-        </div>
-      </footer>
+      <Footer
+        simplified
+        settings={settings}
+      />
     </div>
   );
 };

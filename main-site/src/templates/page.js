@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { navigate } from 'gatsby';
 import { t } from '../utils/localization';
 import Breadcrumbs from '../components/Breadcrumbs';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 
 const PageTemplate = ({ pageContext, location }) => {
   const [page, setPage] = useState(pageContext.pageData || null);
@@ -280,694 +282,578 @@ const PageTemplate = ({ pageContext, location }) => {
         minHeight: '100vh',
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
       }}>
-        {/* Header */}
-        <header style={{
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        color: 'white',
-        padding: '2rem',
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-      }}>
-        <div style={{
+        <Header 
+          settings={settings}
+          menuPages={menuPages}
+          currentLanguage={currentLanguage}
+          languages={languages}
+          handleLanguageChange={handleLanguageChange}
+          getLocalizedPageTitle={getLocalizedPageTitle}
+          getLocalizedPageSlug={getLocalizedPageSlug}
+          showCatalogLink={showCatalogLink}
+        />
+
+        {/* Main Content */}
+        <main style={{
           maxWidth: '1200px',
           margin: '0 auto',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
+          padding: '3rem 2rem'
         }}>
-          <h1 style={{ margin: 0, fontSize: '1.5rem' }}>
-            {settings?.siteTitle || 'TABLES'}
-          </h1>
-          <nav style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-            {menuPages.filter(menuPage => {
-              // Filter based on navigationDropdown setting
-              const navDropdown = menuPage.navigationDropdown || 'none';
-              return navDropdown === 'none' || navDropdown === 'header';
-            }).map(menuPage => {
-              const localizedSlug = getLocalizedPageSlug(menuPage, currentLanguage);
-              const localizedTitle = getLocalizedPageTitle(menuPage, currentLanguage);
-              const isHome = menuPage.slug === 'home' || localizedSlug === 'home';
-              const href = isHome ? `/${currentLanguage}` : `/${currentLanguage}/${localizedSlug}`;
-              
-              return (
-                <a 
-                  key={menuPage.id}
-                  href={href}
-                  style={{ color: 'white', textDecoration: 'none' }}
-                >
-                  {localizedTitle}
-                </a>
-              );
-            })}
-            {settings?.hasBlogArticles && <a href={`/${currentLanguage}/blog`} style={{ color: 'white', textDecoration: 'none' }}>{t('blog', currentLanguage)}</a>}
-            {showCatalogLink && <a href="/catalog" style={{ color: 'white', textDecoration: 'none' }}>Catalog</a>}
-            
-            {/* Social Media Links */}
-            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-              {settings.socialMedia && settings.socialMedia.map(social => (
-                <a key={social.platform} href={social.url} target="_blank" rel="noopener noreferrer" title={social.platform} style={{ color: 'white', textDecoration: 'none' }}>
-                  {social.platform}
-                </a>
-              ))}
-            </div>
-
-            {/* Language Switcher */}
-            <select
-              value={currentLanguage}
-              onChange={(e) => handleLanguageChange(e.target.value)}
-              style={{
-                background: 'rgba(255, 255, 255, 0.2)',
-                color: 'white',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-                borderRadius: '4px',
-                padding: '5px 10px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: '500'
-              }}
-            >
-              {languages.map(lang => (
-                <option key={lang.code} value={lang.code} style={{ color: '#000' }}>
-                  {lang.name}
-                </option>
-              ))}
-            </select>
-          </nav>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main style={{
-        maxWidth: '1200px',
-        margin: '0 auto',
-        padding: '3rem 2rem'
-      }}>
-        {/* Breadcrumbs */}
-        {settings?.showBreadcrumbs && page.slug !== 'home' && (
-          <Breadcrumbs
-            items={[
-              { label: t('home', currentLanguage), href: `/${currentLanguage}` },
-              { label: page.title, href: null }
-            ]}
-            currentLanguage={currentLanguage}
-          />
-        )}
-        
-        <h1 style={{
-          fontSize: '2.5rem',
-          fontWeight: '700',
-          marginBottom: '2rem',
-          color: '#0f172a'
-        }}>
-          {page.title}
-        </h1>
-
-        {/* Render page components */}
-        {rows && rows.map((row, index) => {
-          const isDark = row.fields.darkTheme || row.fields.darkMode;
-          const bgColor = row.fields.backgroundColor || '#ffffff';
+          {/* Breadcrumbs */}
+          {settings?.showBreadcrumbs && page.slug !== 'home' && (
+            <Breadcrumbs
+              items={[
+                { label: t('home', currentLanguage), href: `/${currentLanguage}` },
+                { label: page.title, href: null }
+              ]}
+              currentLanguage={currentLanguage}
+            />
+          )}
           
-          return (
-            <div key={index} style={{
-              marginBottom: '0',
-              position: 'relative'
-            }}>
-              {/* TitleSlide Component */}
-              {row.component === 'TitleSlide' && (
-                <div style={{
-                  minHeight: `${row.fields.minimalHeight || 400}px`,
-                  background: bgColor,
-                  color: isDark ? '#ffffff' : '#0f172a',
-                  padding: '4rem 2rem',
-                  textAlign: row.fields.alignment || 'center',
-                  position: 'relative',
-                  overflow: row.fields.hideOverflow ? 'hidden' : 'visible',
-                  backgroundImage: row.fields.backgroundImage ? `url(${row.fields.backgroundImage})` : 'none',
-                  backgroundSize: row.fields.scaleImageToWholeBackground ? 'cover' : 'contain',
-                  backgroundPosition: 'center',
-                  backgroundRepeat: 'no-repeat'
-                }}>
-                  {row.fields.backgroundTexture && (
-                    <div style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      backgroundImage: `url(${row.fields.backgroundTexture})`,
-                      opacity: 0.3,
-                      pointerEvents: 'none'
-                    }} />
-                  )}
-                  <div style={{ position: 'relative', zIndex: 1, maxWidth: '1200px', margin: '0 auto' }}>
-                    <h1 style={{
-                      fontSize: row.fields.headingSize === 'big' ? '4rem' : '2.5rem',
-                      fontWeight: '700',
-                      marginBottom: '1.5rem'
-                    }}>
-                      {row.fields.heading}
-                    </h1>
-                    {row.fields.text && (
-                      <div style={{
-                        fontSize: '1.25rem',
-                        lineHeight: '1.75',
-                        marginBottom: '2rem',
-                        maxWidth: '800px',
-                        margin: row.fields.alignment === 'center' ? '0 auto 2rem' : '0 0 2rem'
-                      }} dangerouslySetInnerHTML={{ __html: row.fields.text }} />
-                    )}
-                    {row.fields.buttons && row.fields.buttons.length > 0 && (
-                      <div style={{ display: 'flex', gap: '1rem', justifyContent: row.fields.alignment || 'center', flexWrap: 'wrap' }}>
-                        {row.fields.buttons.map((button, btnIdx) => (
-                          <a
-                            key={btnIdx}
-                            href={button.link}
-                            target={button.openAsPopup ? '_blank' : '_self'}
-                            rel={button.openAsPopup ? 'noopener noreferrer' : ''}
-                            style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '0.5rem',
-                              padding: button.showAsButton ? '0.75rem 1.5rem' : '0.5rem',
-                              background: button.showAsButton ? '#667eea' : 'transparent',
-                              color: button.showAsButton ? 'white' : (isDark ? '#ffffff' : '#667eea'),
-                              textDecoration: button.showAsButton ? 'none' : 'underline',
-                              borderRadius: '0.5rem',
-                              fontWeight: '600',
-                              transition: 'all 0.2s'
-                            }}
-                          >
-                            {button.icon && <span>{button.icon}</span>}
-                            {button.title}
-                          </a>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
+          <h1 style={{
+            fontSize: '2.5rem',
+            fontWeight: '700',
+            marginBottom: '2rem',
+            color: '#0f172a'
+          }}>
+            {page.title}
+          </h1>
 
-              {/* Boxes Component */}
-              {row.component === 'Boxes' && (
-                <div style={{
-                  background: isDark ? '#1e293b' : '#f8fafc',
-                  padding: '4rem 2rem',
-                  backgroundImage: row.fields.backgroundImage ? `url(${row.fields.backgroundImage})` : 'none',
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center'
-                }}>
-                  <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-                    <div style={{
-                      display: 'grid',
-                      gap: '2rem',
-                      gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))'
-                    }}>
-                      {row.fields.boxes && row.fields.boxes.map((box, boxIdx) => (
-                        <div key={boxIdx} style={{
-                          background: 'white',
-                          padding: '2rem',
-                          borderRadius: '1rem',
-                          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                          position: 'relative',
-                          transform: `translate(${box.horizontalAdjustment || 0}px, ${box.verticalAdjustment || 0}px)`
-                        }}>
-                          {box.icon && (
-                            <img src={box.icon} alt={box.heading} style={{ width: '60px', height: '60px', marginBottom: '1rem' }} />
-                          )}
-                          <h3 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '0.5rem', color: '#0f172a' }}>
-                            {box.heading}
-                          </h3>
-                          {box.subheading && (
-                            <p style={{ fontSize: '1rem', color: '#64748b', marginBottom: '1rem' }}>{box.subheading}</p>
-                          )}
-                          {box.text && (
-                            <div style={{ fontSize: '1rem', lineHeight: '1.6', color: '#475569' }} dangerouslySetInnerHTML={{ __html: box.text }} />
-                          )}
-                          {box.lowerCornerText && (
-                            <p style={{ position: 'absolute', bottom: '1rem', right: '1rem', fontSize: '0.875rem', color: '#94a3b8' }}>
-                              {box.lowerCornerText}
-                            </p>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Infobar Component */}
-              {row.component === 'Infobar' && (
-                <div style={{
-                  background: isDark ? '#1e293b' : '#f8fafc',
-                  color: isDark ? '#ffffff' : '#0f172a',
-                  padding: '2rem',
-                  borderBottom: '1px solid #e2e8f0'
-                }}>
+          {/* Render page components */}
+          {rows && rows.map((row, index) => {
+            const isDark = row.fields.darkTheme || row.fields.darkMode;
+            const bgColor = row.fields.backgroundColor || '#ffffff';
+            
+            return (
+              <div key={index} style={{
+                marginBottom: '0',
+                position: 'relative'
+              }}>
+                {/* TitleSlide Component */}
+                {row.component === 'TitleSlide' && (
                   <div style={{
-                    maxWidth: '1200px',
-                    margin: '0 auto',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    flexWrap: 'wrap',
-                    gap: '1rem'
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                      {row.fields.logo ? (
-                        <img src={row.fields.logo} alt="Logo" style={{ height: '40px' }} />
-                      ) : row.fields.alternativeIcon ? (
-                        <span style={{ fontSize: '2rem' }}>{row.fields.alternativeIcon}</span>
-                      ) : null}
-                      <span style={{ fontSize: '1.125rem', fontWeight: '500' }}>{row.fields.text}</span>
-                    </div>
-                    {row.fields.buttons && row.fields.buttons.length > 0 && (
-                      <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                        {row.fields.buttons.map((button, btnIdx) => (
-                          <a
-                            key={btnIdx}
-                            href={button.link}
-                            target={button.openAsPopup ? '_blank' : '_self'}
-                            rel={button.openAsPopup ? 'noopener noreferrer' : ''}
-                            style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '0.5rem',
-                              padding: button.showAsButton ? '0.5rem 1rem' : '0.25rem',
-                              background: button.showAsButton ? '#667eea' : 'transparent',
-                              color: button.showAsButton ? 'white' : '#667eea',
-                              textDecoration: button.showAsButton ? 'none' : 'underline',
-                              borderRadius: '0.375rem',
-                              fontWeight: '500',
-                              fontSize: '0.875rem'
-                            }}
-                          >
-                            {button.icon && <span>{button.icon}</span>}
-                            {button.title}
-                          </a>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Flies Component */}
-              {row.component === 'Flies' && (
-                <div style={{
-                  position: 'relative',
-                  minHeight: '400px',
-                  overflow: row.fields.hideOverflow ? 'hidden' : 'visible'
-                }}>
-                  {row.fields.flies && row.fields.flies.map((fly, flyIdx) => (
-                    <img
-                      key={flyIdx}
-                      src={fly.backgroundImage}
-                      alt={`Fly ${flyIdx + 1}`}
-                      style={{
-                        position: 'absolute',
-                        [fly.stickToRightSide ? 'right' : 'left']: `${fly.marginFromEdge || 0}%`,
-                        top: `${fly.marginFromTop || 0}%`,
-                        transform: `rotate(${fly.rotation || 0}deg) scale(${fly.scalingFactor || 1})`,
-                        opacity: (fly.transparency || 100) / 100,
-                        mixBlendMode: row.fields.blendMode || 'normal',
-                        display: fly.showOnMobile ? 'block' : 'none',
-                        maxWidth: '200px',
-                        pointerEvents: 'none'
-                      }}
-                    />
-                  ))}
-                </div>
-              )}
-
-              {/* Slide Component (two-column) */}
-              {row.component === 'Slide' && (
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: row.fields.largerSlide ? '1fr' : '1fr 1fr',
-                  gap: '0',
-                  minHeight: '400px'
-                }}>
-                  {/* Left Side */}
-                  <div style={{
-                    background: row.fields.leftBackgroundColor || '#ffffff',
-                    color: row.fields.leftDarkTheme ? '#ffffff' : '#0f172a',
+                    minHeight: `${row.fields.minimalHeight || 400}px`,
+                    background: bgColor,
+                    color: isDark ? '#ffffff' : '#0f172a',
                     padding: '4rem 2rem',
-                    minHeight: `${row.fields.minimalLeftHeight || 300}px`,
-                    backgroundImage: row.fields.leftBackgroundImage ? `url(${row.fields.leftBackgroundImage})` : 'none',
-                    backgroundSize: row.fields.fitLeftBackground ? 'cover' : 'contain',
-                    backgroundPosition: 'center',
-                    backgroundRepeat: 'no-repeat',
-                    display: row.fields.hideLeftOnMobile ? 'none' : 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    order: row.fields.switchOrderOnMobile ? 2 : 1
-                  }}>
-                    {row.fields.leftHeading && (
-                      <h2 style={{ fontSize: '2rem', fontWeight: '700', marginBottom: '1rem' }}>
-                        {row.fields.leftHeading}
-                      </h2>
-                    )}
-                    {row.fields.leftText && (
-                      <p style={{ fontSize: '1.125rem', lineHeight: '1.75', marginBottom: '1.5rem', whiteSpace: 'pre-wrap' }}>
-                        {row.fields.leftText}
-                      </p>
-                    )}
-                    {row.fields.leftButtons && row.fields.leftButtons.length > 0 && (
-                      <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                        {row.fields.leftButtons.map((button, btnIdx) => (
-                          <a
-                            key={btnIdx}
-                            href={button.link}
-                            target={button.openAsPopup ? '_blank' : '_self'}
-                            style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '0.5rem',
-                              padding: button.showAsButton ? '0.75rem 1.5rem' : '0.5rem',
-                              background: button.showAsButton ? '#667eea' : 'transparent',
-                              color: button.showAsButton ? 'white' : '#667eea',
-                              textDecoration: button.showAsButton ? 'none' : 'underline',
-                              borderRadius: '0.5rem',
-                              fontWeight: '600'
-                            }}
-                          >
-                            {button.icon && <span>{button.icon}</span>}
-                            {button.title}
-                          </a>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Right Side */}
-                  <div style={{
-                    background: row.fields.rightBackgroundColor || '#ffffff',
-                    color: row.fields.rightDarkTheme ? '#ffffff' : '#0f172a',
-                    padding: '4rem 2rem',
-                    minHeight: `${row.fields.minimalRightHeight || 300}px`,
-                    backgroundImage: row.fields.rightBackgroundImage ? `url(${row.fields.rightBackgroundImage})` : 'none',
-                    backgroundSize: row.fields.fitRightBackground ? 'cover' : 'contain',
-                    backgroundPosition: 'center',
-                    backgroundRepeat: 'no-repeat',
-                    display: row.fields.hideRightOnMobile ? 'none' : 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    order: row.fields.switchOrderOnMobile ? 1 : 2
-                  }}>
-                    {row.fields.rightHeading && (
-                      <h2 style={{ fontSize: '2rem', fontWeight: '700', marginBottom: '1rem' }}>
-                        {row.fields.rightHeading}
-                      </h2>
-                    )}
-                    {row.fields.rightText && (
-                      <p style={{ fontSize: '1.125rem', lineHeight: '1.75', marginBottom: '1.5rem', whiteSpace: 'pre-wrap' }}>
-                        {row.fields.rightText}
-                      </p>
-                    )}
-                    {row.fields.rightButtons && row.fields.rightButtons.length > 0 && (
-                      <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                        {row.fields.rightButtons.map((button, btnIdx) => (
-                          <a
-                            key={btnIdx}
-                            href={button.link}
-                            target={button.openAsPopup ? '_blank' : '_self'}
-                            style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '0.5rem',
-                              padding: button.showAsButton ? '0.75rem 1.5rem' : '0.5rem',
-                              background: button.showAsButton ? '#667eea' : 'transparent',
-                              color: button.showAsButton ? 'white' : '#667eea',
-                              textDecoration: button.showAsButton ? 'none' : 'underline',
-                              borderRadius: '0.5rem',
-                              fontWeight: '600'
-                            }}
-                          >
-                            {button.icon && <span>{button.icon}</span>}
-                            {button.title}
-                          </a>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Video Component */}
-              {row.component === 'Video' && (
-                <div style={{
-                  padding: row.fields.specialTheme === 'autoplay-fullwidth' ? '0' : '2rem',
-                  background: '#000000',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center'
-                }}>
-                  <div style={{
-                    maxWidth: row.fields.specialTheme === 'autoplay-fullwidth' ? '100%' : '800px',
-                    width: '100%',
+                    textAlign: row.fields.alignment || 'center',
                     position: 'relative',
-                    paddingBottom: row.fields.specialTheme === 'iphone' ? '0' : '56.25%',
-                    height: row.fields.specialTheme === 'iphone' ? '600px' : '0',
-                    borderRadius: row.fields.specialTheme.includes('iphone') ? '30px' : '0',
-                    overflow: 'hidden',
-                    border: row.fields.specialTheme.includes('iphone') ? '8px solid #1e293b' : 'none'
+                    overflow: row.fields.hideOverflow ? 'hidden' : 'visible',
+                    backgroundImage: row.fields.backgroundImage ? `url(${row.fields.backgroundImage})` : 'none',
+                    backgroundSize: row.fields.scaleImageToWholeBackground ? 'cover' : 'contain',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat'
                   }}>
-                    <iframe
-                      src={`https://www.youtube.com/embed/${row.fields.youtubeUrl.split('v=')[1]?.split('&')[0] || row.fields.youtubeUrl}${row.fields.specialTheme.includes('autoplay') ? '?autoplay=1&mute=1' : ''}`}
-                      style={{
+                    {row.fields.backgroundTexture && (
+                      <div style={{
                         position: 'absolute',
                         top: 0,
                         left: 0,
-                        width: '100%',
-                        height: '100%',
-                        border: 'none'
-                      }}
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
+                        right: 0,
+                        bottom: 0,
+                        backgroundImage: `url(${row.fields.backgroundTexture})`,
+                        opacity: 0.3,
+                        pointerEvents: 'none'
+                      }} />
+                    )}
+                    <div style={{ position: 'relative', zIndex: 1, maxWidth: '1200px', margin: '0 auto' }}>
+                      <h1 style={{
+                        fontSize: row.fields.headingSize === 'big' ? '4rem' : '2.5rem',
+                        fontWeight: '700',
+                        marginBottom: '1.5rem'
+                      }}>
+                        {row.fields.heading}
+                      </h1>
+                      {row.fields.text && (
+                        <div style={{
+                          fontSize: '1.25rem',
+                          lineHeight: '1.75',
+                          marginBottom: '2rem',
+                          maxWidth: '800px',
+                          margin: row.fields.alignment === 'center' ? '0 auto 2rem' : '0 0 2rem'
+                        }} dangerouslySetInnerHTML={{ __html: row.fields.text }} />
+                      )}
+                      {row.fields.buttons && row.fields.buttons.length > 0 && (
+                        <div style={{ display: 'flex', gap: '1rem', justifyContent: row.fields.alignment || 'center', flexWrap: 'wrap' }}>
+                          {row.fields.buttons.map((button, btnIdx) => (
+                            <a
+                              key={btnIdx}
+                              href={button.link}
+                              target={button.openAsPopup ? '_blank' : '_self'}
+                              rel={button.openAsPopup ? 'noopener noreferrer' : ''}
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                padding: button.showAsButton ? '0.75rem 1.5rem' : '0.5rem',
+                                background: button.showAsButton ? '#667eea' : 'transparent',
+                                color: button.showAsButton ? 'white' : (isDark ? '#ffffff' : '#667eea'),
+                                textDecoration: button.showAsButton ? 'none' : 'underline',
+                                borderRadius: '0.5rem',
+                                fontWeight: '600',
+                                transition: 'all 0.2s'
+                              }}
+                            >
+                              {button.icon && <span>{button.icon}</span>}
+                              {button.title}
+                            </a>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* Ranking Component */}
-              {row.component === 'Ranking' && (
-                <div style={{
-                  background: isDark ? '#1e293b' : '#f8fafc',
-                  color: isDark ? '#ffffff' : '#0f172a',
-                  padding: '4rem 2rem',
-                  backgroundImage: row.fields.backgroundImage ? `url(${row.fields.backgroundImage})` : 'none',
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center'
-                }}>
-                  <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                      {row.fields.ranks && row.fields.ranks.map((rank, rankIdx) => (
-                        <div key={rankIdx} style={{
-                          background: isDark ? '#334155' : 'white',
-                          padding: '2rem',
-                          borderRadius: '1rem',
-                          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '1.5rem'
-                        }}>
-                          <div style={{
-                            fontSize: '3rem',
-                            fontWeight: '900',
-                            color: '#667eea',
-                            minWidth: '60px',
-                            textAlign: 'center'
+                {/* Boxes Component */}
+                {row.component === 'Boxes' && (
+                  <div style={{
+                    background: isDark ? '#1e293b' : '#f8fafc',
+                    padding: '4rem 2rem',
+                    backgroundImage: row.fields.backgroundImage ? `url(${row.fields.backgroundImage})` : 'none',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
+                  }}>
+                    <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+                      <div style={{
+                        display: 'grid',
+                        gap: '2rem',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))'
+                      }}>
+                        {row.fields.boxes && row.fields.boxes.map((box, boxIdx) => (
+                          <div key={boxIdx} style={{
+                            background: 'white',
+                            padding: '2rem',
+                            borderRadius: '1rem',
+                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                            position: 'relative',
+                            transform: `translate(${box.horizontalAdjustment || 0}px, ${box.verticalAdjustment || 0}px)`
                           }}>
-                            #{rankIdx + 1}
-                          </div>
-                          <div>
-                            <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '0.25rem' }}>
-                              {rank.heading}
+                            {box.icon && (
+                              <img src={box.icon} alt={box.heading} style={{ width: '60px', height: '60px', marginBottom: '1rem' }} />
+                            )}
+                            <h3 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '0.5rem', color: '#0f172a' }}>
+                              {box.heading}
                             </h3>
-                            {rank.subheading && (
-                              <p style={{ fontSize: '1rem', color: isDark ? '#94a3b8' : '#64748b' }}>
-                                {rank.subheading}
+                            {box.subheading && (
+                              <p style={{ fontSize: '1rem', color: '#64748b', marginBottom: '1rem' }}>{box.subheading}</p>
+                            )}
+                            {box.text && (
+                              <div style={{ fontSize: '1rem', lineHeight: '1.6', color: '#475569' }} dangerouslySetInnerHTML={{ __html: box.text }} />
+                            )}
+                            {box.lowerCornerText && (
+                              <p style={{ position: 'absolute', bottom: '1rem', right: '1rem', fontSize: '0.875rem', color: '#94a3b8' }}>
+                                {box.lowerCornerText}
                               </p>
                             )}
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* References Component */}
-              {row.component === 'References' && (
-                <div style={{
-                  background: isDark ? '#1e293b' : '#f8fafc',
-                  padding: '4rem 2rem'
-                }}>
-                  <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-                    <h2 style={{
-                      fontSize: '2rem',
-                      fontWeight: '700',
-                      marginBottom: '2rem',
-                      textAlign: 'center',
-                      color: isDark ? '#ffffff' : '#0f172a'
-                    }}>
-                      References
-                    </h2>
+                {/* Infobar Component */}
+                {row.component === 'Infobar' && (
+                  <div style={{
+                    background: isDark ? '#1e293b' : '#f8fafc',
+                    color: isDark ? '#ffffff' : '#0f172a',
+                    padding: '2rem',
+                    borderBottom: '1px solid #e2e8f0'
+                  }}>
                     <div style={{
-                      display: 'grid',
-                      gap: '2rem',
-                      gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+                      maxWidth: '1200px',
+                      margin: '0 auto',
+                      display: 'flex',
                       alignItems: 'center',
-                      justifyItems: 'center'
+                      justifyContent: 'space-between',
+                      flexWrap: 'wrap',
+                      gap: '1rem'
                     }}>
-                      {row.fields.images && row.fields.images.map((image, imgIdx) => (
-                        <img
-                          key={imgIdx}
-                          src={image.imageUrl}
-                          alt={`Reference ${imgIdx + 1}`}
-                          style={{
-                            maxWidth: '150px',
-                            maxHeight: '80px',
-                            objectFit: 'contain',
-                            filter: isDark ? 'brightness(0) invert(1)' : 'none',
-                            opacity: 0.7,
-                            transition: 'opacity 0.2s'
-                          }}
-                          onMouseOver={(e) => e.currentTarget.style.opacity = '1'}
-                          onMouseOut={(e) => e.currentTarget.style.opacity = '0.7'}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Reviews Component */}
-              {row.component === 'Reviews' && (
-                <div style={{
-                  background: isDark ? '#1e293b' : '#f8fafc',
-                  color: isDark ? '#ffffff' : '#0f172a',
-                  padding: '4rem 2rem'
-                }}>
-                  <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-                    <h2 style={{
-                      fontSize: '2rem',
-                      fontWeight: '700',
-                      marginBottom: '2rem',
-                      textAlign: 'center'
-                    }}>
-                      Reviews
-                    </h2>
-                    <div style={{
-                      display: 'grid',
-                      gap: '2rem',
-                      gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))'
-                    }}>
-                      {row.fields.reviews && row.fields.reviews.map((review, reviewIdx) => (
-                        <div key={reviewIdx} style={{
-                          background: isDark ? '#334155' : 'white',
-                          padding: '2rem',
-                          borderRadius: '1rem',
-                          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                        }}>
-                          <p style={{
-                            fontSize: '1.125rem',
-                            lineHeight: '1.75',
-                            marginBottom: '1.5rem',
-                            fontStyle: 'italic',
-                            color: isDark ? '#e2e8f0' : '#475569'
-                          }}>
-                            "{review.text}"
-                          </p>
-                          <p style={{
-                            fontSize: '0.875rem',
-                            fontWeight: '600',
-                            color: isDark ? '#94a3b8' : '#64748b'
-                          }}>
-                            — {review.author}
-                          </p>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        {row.fields.logo ? (
+                          <img src={row.fields.logo} alt="Logo" style={{ height: '40px' }} />
+                        ) : row.fields.alternativeIcon ? (
+                          <span style={{ fontSize: '2rem' }}>{row.fields.alternativeIcon}</span>
+                        ) : null}
+                        <span style={{ fontSize: '1.125rem', fontWeight: '500' }}>{row.fields.text}</span>
+                      </div>
+                      {row.fields.buttons && row.fields.buttons.length > 0 && (
+                        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                          {row.fields.buttons.map((button, btnIdx) => (
+                            <a
+                              key={btnIdx}
+                              href={button.link}
+                              target={button.openAsPopup ? '_blank' : '_self'}
+                              rel={button.openAsPopup ? 'noopener noreferrer' : ''}
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                padding: button.showAsButton ? '0.5rem 1rem' : '0.25rem',
+                                background: button.showAsButton ? '#667eea' : 'transparent',
+                                color: button.showAsButton ? 'white' : '#667eea',
+                                textDecoration: button.showAsButton ? 'none' : 'underline',
+                                borderRadius: '0.375rem',
+                                fontWeight: '500',
+                                fontSize: '0.875rem'
+                              }}
+                            >
+                              {button.icon && <span>{button.icon}</span>}
+                              {button.title}
+                            </a>
+                          ))}
                         </div>
-                      ))}
+                      )}
                     </div>
                   </div>
-                </div>
-              )}
-            </div>
-          );
-        })}
+                )}
 
-        {(!rows || rows.length === 0) && (
-          <div style={{
-            background: '#f8fafc',
-            padding: '3rem',
-            borderRadius: '1rem',
-            textAlign: 'center',
-            color: '#64748b'
-          }}>
-            <p>{t('noContent', currentLanguage)}</p>
-          </div>
-        )}
-      </main>
+                {/* Flies Component */}
+                {row.component === 'Flies' && (
+                  <div style={{
+                    position: 'relative',
+                    minHeight: '400px',
+                    overflow: row.fields.hideOverflow ? 'hidden' : 'visible'
+                  }}>
+                    {row.fields.flies && row.fields.flies.map((fly, flyIdx) => (
+                      <img
+                        key={flyIdx}
+                        src={fly.backgroundImage}
+                        alt={`Fly ${flyIdx + 1}`}
+                        style={{
+                          position: 'absolute',
+                          [fly.stickToRightSide ? 'right' : 'left']: `${fly.marginFromEdge || 0}%`,
+                          top: `${fly.marginFromTop || 0}%`,
+                          transform: `rotate(${fly.rotation || 0}deg) scale(${fly.scalingFactor || 1})`,
+                          opacity: (fly.transparency || 100) / 100,
+                          mixBlendMode: row.fields.blendMode || 'normal',
+                          display: fly.showOnMobile ? 'block' : 'none',
+                          maxWidth: '200px',
+                          pointerEvents: 'none'
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
 
-      {/* Footer */}
-      <footer style={{
-        background: '#f8fafc',
-        padding: '2rem',
-        marginTop: '4rem',
-        borderTop: '1px solid #e2e8f0'
-      }}>
-        <div style={{
-          maxWidth: '1200px',
-          margin: '0 auto'
-        }}>
-          {/* Footer Navigation */}
-          {menuPages.filter(menuPage => {
-            const navDropdown = menuPage.navigationDropdown || 'none';
-            return navDropdown === 'footer';
-          }).length > 0 && (
-            <nav style={{
-              display: 'flex',
-              justifyContent: 'center',
-              gap: '2rem',
-              marginBottom: '2rem',
-              flexWrap: 'wrap'
+                {/* Slide Component (two-column) */}
+                {row.component === 'Slide' && (
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: row.fields.largerSlide ? '1fr' : '1fr 1fr',
+                    gap: '0',
+                    minHeight: '400px'
+                  }}>
+                    {/* Left Side */}
+                    <div style={{
+                      background: row.fields.leftBackgroundColor || '#ffffff',
+                      color: row.fields.leftDarkTheme ? '#ffffff' : '#0f172a',
+                      padding: '4rem 2rem',
+                      minHeight: `${row.fields.minimalLeftHeight || 300}px`,
+                      backgroundImage: row.fields.leftBackgroundImage ? `url(${row.fields.leftBackgroundImage})` : 'none',
+                      backgroundSize: row.fields.fitLeftBackground ? 'cover' : 'contain',
+                      backgroundPosition: 'center',
+                      backgroundRepeat: 'no-repeat',
+                      display: row.fields.hideLeftOnMobile ? 'none' : 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      order: row.fields.switchOrderOnMobile ? 2 : 1
+                    }}>
+                      {row.fields.leftHeading && (
+                        <h2 style={{ fontSize: '2rem', fontWeight: '700', marginBottom: '1rem' }}>
+                          {row.fields.leftHeading}
+                        </h2>
+                      )}
+                      {row.fields.leftText && (
+                        <p style={{ fontSize: '1.125rem', lineHeight: '1.75', marginBottom: '1.5rem', whiteSpace: 'pre-wrap' }}>
+                          {row.fields.leftText}
+                        </p>
+                      )}
+                      {row.fields.leftButtons && row.fields.leftButtons.length > 0 && (
+                        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                          {row.fields.leftButtons.map((button, btnIdx) => (
+                            <a
+                              key={btnIdx}
+                              href={button.link}
+                              target={button.openAsPopup ? '_blank' : '_self'}
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                padding: button.showAsButton ? '0.75rem 1.5rem' : '0.5rem',
+                                background: button.showAsButton ? '#667eea' : 'transparent',
+                                color: button.showAsButton ? 'white' : '#667eea',
+                                textDecoration: button.showAsButton ? 'none' : 'underline',
+                                borderRadius: '0.5rem',
+                                fontWeight: '600'
+                              }}
+                            >
+                              {button.icon && <span>{button.icon}</span>}
+                              {button.title}
+                            </a>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Right Side */}
+                    <div style={{
+                      background: row.fields.rightBackgroundColor || '#ffffff',
+                      color: row.fields.rightDarkTheme ? '#ffffff' : '#0f172a',
+                      padding: '4rem 2rem',
+                      minHeight: `${row.fields.minimalRightHeight || 300}px`,
+                      backgroundImage: row.fields.rightBackgroundImage ? `url(${row.fields.rightBackgroundImage})` : 'none',
+                      backgroundSize: row.fields.fitRightBackground ? 'cover' : 'contain',
+                      backgroundPosition: 'center',
+                      backgroundRepeat: 'no-repeat',
+                      display: row.fields.hideRightOnMobile ? 'none' : 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      order: row.fields.switchOrderOnMobile ? 1 : 2
+                    }}>
+                      {row.fields.rightHeading && (
+                        <h2 style={{ fontSize: '2rem', fontWeight: '700', marginBottom: '1rem' }}>
+                          {row.fields.rightHeading}
+                        </h2>
+                      )}
+                      {row.fields.rightText && (
+                        <p style={{ fontSize: '1.125rem', lineHeight: '1.75', marginBottom: '1.5rem', whiteSpace: 'pre-wrap' }}>
+                          {row.fields.rightText}
+                        </p>
+                      )}
+                      {row.fields.rightButtons && row.fields.rightButtons.length > 0 && (
+                        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                          {row.fields.rightButtons.map((button, btnIdx) => (
+                            <a
+                              key={btnIdx}
+                              href={button.link}
+                              target={button.openAsPopup ? '_blank' : '_self'}
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                padding: button.showAsButton ? '0.75rem 1.5rem' : '0.5rem',
+                                background: button.showAsButton ? '#667eea' : 'transparent',
+                                color: button.showAsButton ? 'white' : '#667eea',
+                                textDecoration: button.showAsButton ? 'none' : 'underline',
+                                borderRadius: '0.5rem',
+                                fontWeight: '600'
+                              }}
+                            >
+                              {button.icon && <span>{button.icon}</span>}
+                              {button.title}
+                            </a>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Video Component */}
+                {row.component === 'Video' && (
+                  <div style={{
+                    padding: row.fields.specialTheme === 'autoplay-fullwidth' ? '0' : '2rem',
+                    background: '#000000',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                  }}>
+                    <div style={{
+                      maxWidth: row.fields.specialTheme === 'autoplay-fullwidth' ? '100%' : '800px',
+                      width: '100%',
+                      position: 'relative',
+                      paddingBottom: row.fields.specialTheme === 'iphone' ? '0' : '56.25%',
+                      height: row.fields.specialTheme === 'iphone' ? '600px' : '0',
+                      borderRadius: row.fields.specialTheme.includes('iphone') ? '30px' : '0',
+                      overflow: 'hidden',
+                      border: row.fields.specialTheme.includes('iphone') ? '8px solid #1e293b' : 'none'
+                    }}>
+                      <iframe
+                        src={`https://www.youtube.com/embed/${row.fields.youtubeUrl.split('v=')[1]?.split('&')[0] || row.fields.youtubeUrl}${row.fields.specialTheme.includes('autoplay') ? '?autoplay=1&mute=1' : ''}`}
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          width: '100%',
+                          height: '100%',
+                          border: 'none'
+                        }}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Ranking Component */}
+                {row.component === 'Ranking' && (
+                  <div style={{
+                    background: isDark ? '#1e293b' : '#f8fafc',
+                    color: isDark ? '#ffffff' : '#0f172a',
+                    padding: '4rem 2rem',
+                    backgroundImage: row.fields.backgroundImage ? `url(${row.fields.backgroundImage})` : 'none',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
+                  }}>
+                    <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                        {row.fields.ranks && row.fields.ranks.map((rank, rankIdx) => (
+                          <div key={rankIdx} style={{
+                            background: isDark ? '#334155' : 'white',
+                            padding: '2rem',
+                            borderRadius: '1rem',
+                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '1.5rem'
+                          }}>
+                            <div style={{
+                              fontSize: '3rem',
+                              fontWeight: '900',
+                              color: '#667eea',
+                              minWidth: '60px',
+                              textAlign: 'center'
+                            }}>
+                              #{rankIdx + 1}
+                            </div>
+                            <div>
+                              <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '0.25rem' }}>
+                                {rank.heading}
+                              </h3>
+                              {rank.subheading && (
+                                <p style={{ fontSize: '1rem', color: isDark ? '#94a3b8' : '#64748b' }}>
+                                  {rank.subheading}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* References Component */}
+                {row.component === 'References' && (
+                  <div style={{
+                    background: isDark ? '#1e293b' : '#f8fafc',
+                    padding: '4rem 2rem'
+                  }}>
+                    <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+                      <h2 style={{
+                        fontSize: '2rem',
+                        fontWeight: '700',
+                        marginBottom: '2rem',
+                        textAlign: 'center',
+                        color: isDark ? '#ffffff' : '#0f172a'
+                      }}>
+                        References
+                      </h2>
+                      <div style={{
+                        display: 'grid',
+                        gap: '2rem',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+                        alignItems: 'center',
+                        justifyItems: 'center'
+                      }}>
+                        {row.fields.images && row.fields.images.map((image, imgIdx) => (
+                          <img
+                            key={imgIdx}
+                            src={image.imageUrl}
+                            alt={`Reference ${imgIdx + 1}`}
+                            style={{
+                              maxWidth: '150px',
+                              maxHeight: '80px',
+                              objectFit: 'contain',
+                              filter: isDark ? 'brightness(0) invert(1)' : 'none',
+                              opacity: 0.7,
+                              transition: 'opacity 0.2s'
+                            }}
+                            onMouseOver={(e) => e.currentTarget.style.opacity = '1'}
+                            onMouseOut={(e) => e.currentTarget.style.opacity = '0.7'}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Reviews Component */}
+                {row.component === 'Reviews' && (
+                  <div style={{
+                    background: isDark ? '#1e293b' : '#f8fafc',
+                    color: isDark ? '#ffffff' : '#0f172a',
+                    padding: '4rem 2rem'
+                  }}>
+                    <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+                      <h2 style={{
+                        fontSize: '2rem',
+                        fontWeight: '700',
+                        marginBottom: '2rem',
+                        textAlign: 'center'
+                      }}>
+                        Reviews
+                      </h2>
+                      <div style={{
+                        display: 'grid',
+                        gap: '2rem',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))'
+                      }}>
+                        {row.fields.reviews && row.fields.reviews.map((review, reviewIdx) => (
+                          <div key={reviewIdx} style={{
+                            background: isDark ? '#334155' : 'white',
+                            padding: '2rem',
+                            borderRadius: '1rem',
+                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                          }}>
+                            <p style={{
+                              fontSize: '1.125rem',
+                              lineHeight: '1.75',
+                              marginBottom: '1.5rem',
+                              fontStyle: 'italic',
+                              color: isDark ? '#e2e8f0' : '#475569'
+                            }}>
+                              "{review.text}"
+                            </p>
+                            <p style={{
+                              fontSize: '0.875rem',
+                              fontWeight: '600',
+                              color: isDark ? '#94a3b8' : '#64748b'
+                            }}>
+                              — {review.author}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+
+          {(!rows || rows.length === 0) && (
+            <div style={{
+              background: '#f8fafc',
+              padding: '3rem',
+              borderRadius: '1rem',
+              textAlign: 'center',
+              color: '#64748b'
             }}>
-              {menuPages.filter(menuPage => {
-                const navDropdown = menuPage.navigationDropdown || 'none';
-                return navDropdown === 'footer';
-              }).map(menuPage => {
-                const localizedSlug = getLocalizedPageSlug(menuPage, currentLanguage);
-                const localizedTitle = getLocalizedPageTitle(menuPage, currentLanguage);
-                const isHome = menuPage.slug === 'home' || localizedSlug === 'home';
-                const href = isHome ? `/${currentLanguage}` : `/${currentLanguage}/${localizedSlug}`;
-                
-                return (
-                  <a 
-                    key={menuPage.id}
-                    href={href}
-                    style={{ 
-                      color: '#64748b', 
-                      textDecoration: 'none',
-                      fontSize: '0.875rem',
-                      transition: 'color 0.2s'
-                    }}
-                  >
-                    {localizedTitle}
-                  </a>
-                );
-              })}
-            </nav>
+              <p>{t('noContent', currentLanguage)}</p>
+            </div>
           )}
-          
-          <div style={{
-            textAlign: 'center',
-            color: '#64748b',
-            fontSize: '0.875rem'
-          }}>
-            <p>© {new Date().getFullYear()} {settings?.siteTitle || 'TABLES'}. {t('builtWith', currentLanguage)}.</p>
-          </div>
-        </div>
-      </footer>
-    </div>
+        </main>
+
+        <Footer
+          settings={settings}
+          menuPages={menuPages}
+          currentLanguage={currentLanguage}
+          getLocalizedPageTitle={getLocalizedPageTitle}
+          getLocalizedPageSlug={getLocalizedPageSlug}
+        />
+      </div>
     </>
   );
 };
