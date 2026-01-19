@@ -1,5 +1,7 @@
 
-refactor rental*section to be in a separate Rental*Section.js similar to BlogSection.js and others
+refactor Rental...Section to be in a separate Rental...Section.js similar to BlogSection.js and others
+
+remove default components from new page
 
 ---
 
