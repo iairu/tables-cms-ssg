@@ -224,7 +224,7 @@ const BlogSection = ({ cmsData }) => {
                           border: selectedHistoryIndex === actualIndex ? '2px solid #3b82f6' : '2px solid transparent'
                         }}
                       >
-                        <strong>{new Date(item.timestamp).toLocaleString()}</strong>
+                        <strong>{new Date(item.timestamp).toLocaleString('ja-JP')}</strong>
                         <div style={{ fontSize: '14px', color: '#64748b', marginTop: '4px' }}>
                           {item.title}
                         </div>
@@ -519,7 +519,7 @@ const BlogSection = ({ cmsData }) => {
                 <tr key={article.id}>
                   <td>{defaultContent.title}</td>
                   <td>{defaultContent.author}</td>
-                  <td>{new Date(article.date).toLocaleDateString()}</td>
+                  <td>{new Date(article.date).toLocaleDateString('ja-JP')}</td>
                   <td>{defaultContent.slug}</td>
                   <td>
                     <input
@@ -529,7 +529,7 @@ const BlogSection = ({ cmsData }) => {
                       style={{ cursor: 'pointer' }}
                     />
                   </td>
-                  <td>{article.lastEdited ? new Date(article.lastEdited).toLocaleString() : 'Never'}</td>
+                  <td>{article.lastEdited ? new Date(article.lastEdited).toLocaleString('ja-JP') : 'Never'}</td>
                   <td>
                     <button onClick={() => handleEditArticle(article.id)}>Edit</button>
                     <button onClick={() => handleDeleteClick(article.id)}>Delete</button>

@@ -211,7 +211,7 @@ const PagesSection = ({ cmsData }) => {
                             border: selectedHistoryIndex === actualIndex ? '2px solid #3b82f6' : '2px solid transparent'
                           }}
                         >
-                          <strong>{new Date(item.timestamp).toLocaleString()}</strong>
+                          <strong>{new Date(item.timestamp).toLocaleString('ja-JP')}</strong>
                         </div>
                       );
                     })}
@@ -557,7 +557,7 @@ const PagesSection = ({ cmsData }) => {
                     style={{ cursor: page.slug === 'home' ? 'not-allowed' : 'pointer', opacity: page.slug === 'home' ? 0.6 : 1 }}
                   />
                 </td>
-                <td>{page.lastEdited ? new Date(page.lastEdited).toLocaleString() : 'Never'}</td>
+                <td>{page.lastEdited ? new Date(page.lastEdited).toLocaleString('ja-JP') : 'Never'}</td>
                 <td>
                   <button onClick={() => handleEditPage(page.id)}>Edit</button>
                   <button onClick={() => handleDeleteClick(page.id)}>Delete</button>
