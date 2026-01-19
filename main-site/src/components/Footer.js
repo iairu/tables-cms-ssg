@@ -15,7 +15,6 @@ const Footer = ({
         position: 'fixed',
         bottom: 0,
         width: '100%',
-        background: 'rgba(255, 255, 255, 0.1)',
         backdropFilter: 'blur(10px)',
         padding: '1.5rem',
         borderTop: '1px solid rgba(255, 255, 255, 0.2)'
@@ -38,10 +37,8 @@ const Footer = ({
 
   return (
     <footer style={{
-      background: '#f8fafc',
-      padding: '2rem',
-      marginTop: '4rem',
-      borderTop: '1px solid #e2e8f0'
+      backdropFilter: 'blur(10px)',
+      padding: '1.5rem',
     }}>
       <div style={{
         maxWidth: '1200px',

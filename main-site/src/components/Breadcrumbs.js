@@ -54,11 +54,7 @@ const Breadcrumbs = ({ items = [], currentLanguage = 'en' }) => {
                 </span>
               )}
               {isLast ? (
-                <span 
-                  style={{ 
-                    color: '#0f172a',
-                    fontWeight: '500'
-                  }}
+                <span className='breadcrumb-current' 
                   aria-current="page"
                 >
                   {item.label}

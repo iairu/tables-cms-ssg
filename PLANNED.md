@@ -3,6 +3,12 @@ have shared Head.js just like Header.js but for <head>
 
 ---
 
+adjust main-site/src/templates based on strukshow-old-site-new-theme content (that is an old site but a newer theme we have to port over to our main-site), do not change file structure at all, just mostly update css in Header.js, Footer.js, mainly page.js, ...
+
+main-site/static/strukshow-old-site-new-theme/src/sections/Bar.svelte is Infobar, Bubbles.svelte is ignored, Flies.svelte is Flies, Floaters.svelte is Boxes, Ranking.svelte is Ranking, Ref.svelte is References, Slide.svelte is Slide, Titulka.svelte is TitleSlide, Video.svelte is Video
+
+---
+
 blog is improperly showing english pinned article in both english and slovak, and not showing slovak pinned article in either
 
 ---

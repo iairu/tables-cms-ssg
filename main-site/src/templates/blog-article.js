@@ -420,8 +420,12 @@ export const Head = ({ pageContext }) => {
     <>
       <title>{title} | {siteTitle}</title>
       <meta name="description" content={metaDescription} />
-      {pageContext.settings.siteFavicon && <link rel="icon" href={pageContext.settings.siteFavicon} />}
+      {pageContext.settings?.siteFavicon && <link rel="icon" href={pageContext.settings?.siteFavicon} />}
       <html lang={language} />
+      {/* FontAwesome CDN */}
+      <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     </>
   );
 };

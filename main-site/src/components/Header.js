@@ -15,11 +15,10 @@ const Header = ({
   if (simplified) {
     return (
       <header style={{
-        background: 'rgba(255, 255, 255, 0.1)',
+        // background set in .css file
         backdropFilter: 'blur(10px)',
         color: 'white',
-        padding: '2rem',
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+        padding: '1rem'
       }}>
         <div style={{
           maxWidth: '1200px',
@@ -53,12 +52,14 @@ const Header = ({
   }
 
   return (
-    <header style={{
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      color: 'white',
-      padding: '2rem',
-      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-    }}>
+    <header
+      style={{
+        // background set in .css file
+        backdropFilter: 'blur(10px)',
+        color: 'white',
+        padding: '1rem'
+      }}
+    >
       <div style={{
         maxWidth: '1200px',
         margin: '0 auto',
@@ -99,7 +100,7 @@ const Header = ({
           <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
             {settings.socialMedia && settings.socialMedia.map(social => (
               <a key={social.platform} href={social.url} target="_blank" rel="noopener noreferrer" title={social.platform} style={{ color: 'white', textDecoration: 'none' }}>
-                {social.platform}
+                <i className={`fab fa-${social.platform.toLowerCase()}`} aria-hidden="true"></i>
               </a>
             ))}
           </div>

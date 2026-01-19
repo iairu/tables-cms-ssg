@@ -278,9 +278,9 @@ const PageTemplate = ({ pageContext, location }) => {
         <meta name="description" content={metaDescription} />
       )}
       
-      <div style={{
+      <div className="page-container" style={{
         minHeight: '100vh',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}>
         <Header 
           settings={settings}
@@ -834,8 +834,7 @@ const PageTemplate = ({ pageContext, location }) => {
           })}
 
           {(!rows || rows.length === 0) && (
-            <div style={{
-              background: '#f8fafc',
+            <div className='no-content' style={{
               padding: '3rem',
               borderRadius: '1rem',
               textAlign: 'center',
@@ -865,19 +864,22 @@ export const Head = ({ pageContext }) => {
   const title = page?.title || pageContext.slug;
   const siteTitle = pageContext.settings?.siteTitle || 'TABLES';
   const language = pageContext.language || 'en';
-  
+
   // Get localized meta description
   const metaDescription = (page?.translations && page.translations[language]?.metaDescription) 
     || page?.metaDescription 
     || pageContext.settings?.defaultMetaDescription
     || title;
-  
+
   return (
     <>
       <title>{title} | {siteTitle}</title>
       <meta name="description" content={metaDescription} />
-      {pageContext.settings.siteFavicon && <link rel="icon" href={pageContext.settings.siteFavicon} />}
-      <html lang={language} />
+      {pageContext.settings?.siteFavicon && <link rel="icon" href={pageContext.settings?.siteFavicon} />}
+      {/* FontAwesome CDN */}
+      <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     </>
   );
 };

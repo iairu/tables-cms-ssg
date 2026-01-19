@@ -1,0 +1,226 @@
+
+html, body {
+	position: relative;
+	overflow-x: hidden;
+	padding: 0;
+	margin: 0;
+}
+body {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 300;
+    font-size: 20px;
+	color: black;
+	background: white;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+}
+
+@media (max-width: 550px) {
+    body {
+		font-size: 16px;
+	}
+}
+
+pre {
+	white-space: pre-wrap;
+}
+.dark {
+	color: white;
+	background: black;
+}
+.spinner {
+	width: 70px;
+}
+
+select {
+	color: #0083FF;
+}
+a {
+	color: #0070d9;
+	text-decoration: none;
+}
+a.disabled { 
+    cursor: default; 
+    filter: saturate(0);
+}
+a:hover {
+    text-decoration: underline;
+}
+a:hover.disabled { 
+    text-decoration: none; 
+}
+a svg { 
+    margin-right: 10px; 
+}
+
+b, strong {
+	font-weight: bold;
+}
+.button, button {
+	outline: none;
+	cursor: pointer;
+	padding: 10px 25px;
+	font-size: 20px;
+	background: #0070d9;
+	color: white;
+	border: none;
+	text-decoration: none;
+}
+.button:not(.disabled):hover, button:not(.disabled):hover {
+    background: #1a9aff; 
+    text-decoration: underline;
+}
+.button:not(.disabled):focus, button:not(.disabled):focus {
+    box-shadow: 0 0 0 2px inset rgba(255,255,255,0.2);
+}
+@media (max-width: 550px) {
+    .button, button {
+		font-size: 16px;
+	}
+} 
+.button-link {
+    color: #0070d9;
+    text-decoration: none;
+    background: transparent;
+}
+.button-link:hover, .button-link:focus {
+    color: #0083FF;
+    background: transparent;
+}
+.button-link:hover {
+    text-decoration: underline;
+}
+.message {
+	display: block;
+	flex-direction: row;
+	box-sizing: border-box;
+	flex-grow: 1;
+	padding: 15px;
+	margin: 15px;
+	max-width: calc(100% - 30px);
+	background: white;
+}
+.message.info {
+    border: 1px solid rgb(236, 174, 81); 
+    color: rgb(236, 174, 81);
+}
+.message.warn {
+    background: rgb(236, 174, 81);
+}
+.message.error {
+    background: rgb(236, 90, 90);
+}
+h1 {
+	font-family: "Archivo Black", sans-serif;
+	font-size: 4em;
+	line-height: 1em;
+	margin: 0;
+	margin-bottom: 15px;
+	text-transform: uppercase;
+	-webkit-text-stroke: 1.5px black;
+	-webkit-text-fill-color: transparent;
+}
+h1 b {
+    -webkit-text-stroke: 0px; 
+    -webkit-text-fill-color: black;
+}
+@media(max-width:1200px) {
+    h1 {
+		font-size: 2.5em;
+	}
+    h1.big {
+        font-size: 3em;
+    }
+}
+@media(max-width:700px) {
+    h1 {
+		text-align: center;
+		align-self: center;
+	}
+}
+@media(max-width:600px) {
+    h1.big {
+        font-size: 2.5em;
+    }
+}
+@media(max-width:400px) {
+    h1 {
+		font-size: 2em;
+	}
+    h1.big {
+        font-size: 2em;
+    }
+}
+
+.dark h1 {
+	-webkit-text-stroke-color: white;
+}
+.dark h1 b {
+    -webkit-text-stroke: 0px; 
+    -webkit-text-fill-color: white;
+}
+
+section.fullscreen {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: fixed; 
+	z-index: 250;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	overflow: hidden;
+	width: 100vw;
+	height: 100vh;
+}
+section.fullscreen > * {
+    flex-grow:0;
+}
+ul {
+	border: 1px solid rgba(0,0,0,0.5);
+	list-style-type: none;
+	padding: 5px;
+}
+ul li:not(:last-of-type) {
+    border-bottom: 1px solid rgba(0,0,0,0.5);
+}
+ul li {
+    padding: 10px 15px;
+}
+
+body.preview * {
+	animation: none !important;
+}
+body.theme-goldshow {
+	background: black;
+	color: white;
+}
+body.theme-goldshow h1 {
+    font-family: 'Leyton Bold', sans-serif;
+    color: goldenrod;
+    -webkit-text-stroke-color: black;
+    -webkit-text-fill-color: transparent;
+    background: url("/img/theme/goldshow/font_tx.jpg");
+    background-size: 50%;
+    background-repeat: repeat;
+    -webkit-background-clip: text;
+    text-rendering: geometricPrecision;
+    -webkit-text-stroke-width: 0.5px;
+}
+body.theme-goldshow h1 b {
+    -webkit-text-stroke: 0.5px;
+}
+body.theme-goldshow h1.big {
+    font-size: 7em;
+}
+@media (max-width: 600px) {
+    body.theme-goldshow h1.big {
+        font-size: 5em;
+    }
+}
+.dark ul, .dark ul li {
+	border-color: rgba(255,255,255,0.5);
+}

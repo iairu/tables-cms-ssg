@@ -143,7 +143,11 @@ export const Head = ({ pageContext }) => {
     <>
       <title>{siteTitle}</title>
       <meta name="description" content="Welcome to your new site. Add content through the CMS to get started." />
-      {pageContext.settings.siteFavicon && <link rel="icon" href={pageContext.settings.siteFavicon} />}
+      {pageContext.settings?.siteFavicon && <link rel="icon" href={pageContext.settings?.siteFavicon} />}
+      {/* FontAwesome CDN */}
+      <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     </>
   );
 };
