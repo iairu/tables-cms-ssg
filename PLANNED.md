@@ -3,6 +3,10 @@ attendance is missing confirm delete modal like one present in inventory, same f
 
 ---
 
+apply extracted css added to default.css by editing original files mentioned in default.css to include given classNames instead of the css directly
+
+---
+
 whenever i edit a slug within blog or page it causes redirect because the slug is changing live, fix by utilizing id of the page instead of a slug, same for blog posts
 
 ---
