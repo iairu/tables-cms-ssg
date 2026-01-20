@@ -12,20 +12,74 @@ const CMSPagesEditPage = () => {
   const location = useLocation();
 
   useEffect(() => {
-    if (cmsData.isDataLoaded) {
+    if (!cmsData.isDataLoaded) {
+      // Wait for data to load before running matching logic
+      return;
+    }
+    // Complex logging for debugging
+    console.group("[CMSPagesEditPage] Edit endpoint debug");
+    console.log("Location search:", location.search);
+    console.log("cmsData.isDataLoaded:", cmsData.isDataLoaded);
+    console.log("cmsData.pages:", cmsData.pages);
+
+    // Log each page object and its keys for debugging
+    if (Array.isArray(cmsData.pages)) {
+      cmsData.pages.forEach((p, idx) => {
+        console.log(`[Page ${idx}]`, p);
+        console.log(`[Page ${idx} keys]`, Object.keys(p));
+      });
+    }
+
+    try {
       const params = new URLSearchParams(location.search);
       const slug = params.get('slug');
+      console.log("Extracted slug:", slug);
+
+      let page = undefined;
+      if (slug && Array.isArray(cmsData.pages)) {
+        const normalizedSlug = decodeURIComponent((slug || '').trim().toLowerCase());
+
+        // Try matching by direct slug
+        page = cmsData.pages.find(p =>
+          decodeURIComponent((p.slug || '').trim().toLowerCase()) === normalizedSlug
+        );
+
+        // If not found, try alternate keys or nested structures
+        if (!page) {
+          page = cmsData.pages.find(p =>
+            p.page?.slug && decodeURIComponent((p.page.slug || '').trim().toLowerCase()) === normalizedSlug
+          );
+        }
+        if (!page) {
+          page = cmsData.pages.find(p =>
+            p.fields?.slug && decodeURIComponent((p.fields.slug || '').trim().toLowerCase()) === normalizedSlug
+          );
+        }
+        if (!page) {
+          page = cmsData.pages.find(p =>
+            p.id && decodeURIComponent((p.id || '').trim().toLowerCase()) === normalizedSlug
+          );
+        }
+      }
+
+      console.log("Matched page:", page);
+
       if (slug) {
-        const page = cmsData.pages.find(p => p.slug === slug);
         if (page) {
+          console.log("Saving current page ID:", page.id);
           cmsData.saveCurrentPageId(page.id);
         } else {
-            navigate('/cms/pages');
+          console.warn("No page found for slug:", slug, "Redirecting to /cms/pages");
+          navigate('/cms/pages');
         }
       } else {
+        console.warn("No slug found in query params. Redirecting to /cms/pages");
         navigate('/cms/pages');
       }
+    } catch (err) {
+      console.error("Error in edit endpoint useEffect:", err);
     }
+    console.groupEnd();
   }, [cmsData.isDataLoaded, location.search, cmsData.pages, cmsData.saveCurrentPageId, cmsData]);
 
   const handleManualBuild = (localOnly = false) => {

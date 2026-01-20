@@ -129,7 +129,11 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
         rows: page.rows || []
       };
     }
-    return page.translations[lang];
+    // Always use top-level slug, never translation slug
+    return {
+      ...page.translations[lang],
+      slug: page.slug || ''
+    };
   };
 
   const saveLocalizedContent = (lang, updates) => {
@@ -326,19 +330,17 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
           </div>
           <div style={{ }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
-              <strong>Slug ({currentLanguage}):</strong>
+              <strong>Slug:</strong>
               <input
                 type="text"
-                value={currentLangContent?.slug || ''}
+                value={currentPage.slug || ''}
                 disabled={currentPage.slug === 'home'}
-                onChange={(e) => {
+                onChange={e => {
                   const newSlug = e.target.value;
-                  const updates = { slug: newSlug };
-                  // Auto-enable includeInMenu if slug is set to 'home'
+                  updatePage(currentPage.id, { slug: newSlug });
                   if (newSlug === 'home') {
-                    updates.includeInMenu = true;
+                    updatePage(currentPage.id, { includeInMenu: true });
                   }
-                  saveLocalizedContent(currentLanguage, updates);
                 }}
                 style={{
                   width: '100%',

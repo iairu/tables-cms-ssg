@@ -122,18 +122,17 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
 
   // Get current language content
   const getLocalizedContent = (article, lang) => {
-    if (!article.translations || !article.translations[lang]) {
-      return {
-        title: article.title || '',
-        slug: article.slug || '',
-        author: article.author || '',
-        content: article.content || '',
-        category: article.category || '',
-        tags: article.tags || '',
-        metaDescription: article.metaDescription || ''
-      };
-    }
-    return article.translations[lang];
+    // Always use top-level slug, never translation slug
+    const translation = article.translations && article.translations[lang] ? article.translations[lang] : {};
+    return {
+      title: translation.title || article.title || '',
+      slug: article.slug || '',
+      author: translation.author || article.author || '',
+      content: translation.content || article.content || '',
+      category: translation.category || article.category || '',
+      tags: translation.tags || article.tags || '',
+      metaDescription: translation.metaDescription || article.metaDescription || ''
+    };
   };
 
   const saveLocalizedContent = (lang, updates) => {
@@ -382,16 +381,15 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
-              <strong>Slug ({currentLanguage}):</strong>
+              <strong>Slug:</strong>
               <input
                 type="text"
-                value={currentLangContent?.slug || ''}
-                onChange={(e) => saveLocalizedContent(currentLanguage, { slug: e.target.value })}
+                value={currentArticle.slug || ''}
+                onChange={e => updateBlogArticle(currentArticle.id, { slug: e.target.value })}
                 style={{
                   width: '100%',
                   padding: '10px',
                   marginTop: '5px',
-                  
                   border: '1px solid #cbd5e1'
                 }}
               />

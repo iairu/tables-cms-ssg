@@ -3,6 +3,10 @@ attendance is missing confirm delete modal like one present in inventory, same f
 
 ---
 
+whenever i edit a slug within blog or page it causes redirect because the slug is changing live, fix by utilizing id of the page instead of a slug, same for blog posts
+
+---
+
 create a new Header that is meant to be above both SideMenu and main, move "Visit Domain", "Build and Deploy" and "Build Locally Only" buttons into it to the right side, but a SearchBar (like the one in vscode) into middle (for now it will display placeholder search results with fuzzy search) and add logo to the left side of the new Header
 
 ---

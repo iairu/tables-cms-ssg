@@ -13,7 +13,6 @@ const pathFromSection = {
   settings: 'settings',
   extensions: 'extensions'
 };
-// import './Header.css';
 const Header = ({
   onVisitDomain,
   onBuildAndDeploy,

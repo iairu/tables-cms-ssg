@@ -12,20 +12,31 @@ const CMSBlogEditPage = () => {
   const location = useLocation();
 
   useEffect(() => {
+    console.group('[CMSBlogEditPage] Edit Endpoint Debug');
+    console.log('isDataLoaded:', cmsData.isDataLoaded);
+    console.log('location.search:', location.search);
+    console.log('cmsData.blogArticles:', cmsData.blogArticles);
+    console.log('cmsData:', cmsData);
     if (cmsData.isDataLoaded) {
       const params = new URLSearchParams(location.search);
       const slug = params.get('slug');
+      console.log('Extracted slug:', slug);
       if (slug) {
         const article = cmsData.blogArticles.find(a => a.slug === slug);
+        console.log('Matched article:', article);
         if (article) {
+          console.log('Saving current blog article ID:', article.id);
           cmsData.saveCurrentBlogArticleId(article.id);
         } else {
-            navigate('/cms/blog');
+          console.warn('No article found for slug:', slug, 'Redirecting to /cms/blog');
+          navigate('/cms/blog');
         }
       } else {
+        console.warn('No slug provided in query params. Redirecting to /cms/blog');
         navigate('/cms/blog');
       }
     }
+    console.groupEnd();
   }, [cmsData.isDataLoaded, location.search, cmsData.blogArticles, cmsData.saveCurrentBlogArticleId, cmsData]);
 
   const handleManualBuild = (localOnly = false) => {
