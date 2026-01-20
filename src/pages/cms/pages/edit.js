@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useLocation } from '@reach/router';
+import Header from '../../../components/Header';
 import SideMenu from '../../../components/SideMenu';
 import useCMSData from '../../../hooks/useCMSData';
 import { PagesSection } from '../../../components/cms/sections';
@@ -35,17 +36,27 @@ const CMSPagesEditPage = () => {
 
   return (
     <div className="cms-container">
-      <SideMenu
-        currentSection="pages"
+      <Header
+        onVisitDomain={() => window.open(cmsData.settings.domain, '_blank')}
+        onBuildAndDeploy={() => handleManualBuild(false)}
+        onBuildLocally={() => handleManualBuild(true)}
         isBuilding={cmsData.isBuilding}
-        lastSaved={cmsData.lastSaved}
-        onBuildClick={handleManualBuild}
         canBuild={cmsData.canBuild}
-        buildCooldownSeconds={cmsData.buildCooldownSeconds}
         domain={cmsData.settings.domain}
         vercelApiKey={cmsData.settings.vercelApiKey}
+        buildCooldownSeconds={cmsData.buildCooldownSeconds}
       />
       <main>
+        <SideMenu
+          currentSection="pages"
+          isBuilding={cmsData.isBuilding}
+          lastSaved={cmsData.lastSaved}
+          onBuildClick={handleManualBuild}
+          canBuild={cmsData.canBuild}
+          buildCooldownSeconds={cmsData.buildCooldownSeconds}
+          domain={cmsData.settings.domain}
+          vercelApiKey={cmsData.settings.vercelApiKey}
+        />
         <PagesSection cmsData={cmsData} edit={true} />
       </main>
     </div>

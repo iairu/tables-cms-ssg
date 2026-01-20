@@ -116,7 +116,7 @@ export const RentalCustomersSection = ({ cmsData }) => {
                   width: '100%',
                   padding: '10px',
                   marginTop: '5px',
-                  borderRadius: '4px',
+                  
                   border: '1px solid #cbd5e1'
                 }}
               />
@@ -134,7 +134,7 @@ export const RentalCustomersSection = ({ cmsData }) => {
                   width: '100%',
                   padding: '10px',
                   marginTop: '5px',
-                  borderRadius: '4px',
+                  
                   border: '1px solid #cbd5e1'
                 }}
               />
@@ -151,7 +151,7 @@ export const RentalCustomersSection = ({ cmsData }) => {
                   width: '100%',
                   padding: '10px',
                   marginTop: '5px',
-                  borderRadius: '4px',
+                  
                   border: '1px solid #cbd5e1'
                 }}
               />
@@ -168,7 +168,7 @@ export const RentalCustomersSection = ({ cmsData }) => {
                   width: '100%',
                   padding: '10px',
                   marginTop: '5px',
-                  borderRadius: '4px',
+                  
                   border: '1px solid #cbd5e1'
                 }}
               >
@@ -192,7 +192,7 @@ export const RentalCustomersSection = ({ cmsData }) => {
                   width: '100%',
                   padding: '10px',
                   marginTop: '5px',
-                  borderRadius: '4px',
+                  
                   border: '1px solid #cbd5e1'
                 }}
               />
@@ -209,7 +209,7 @@ export const RentalCustomersSection = ({ cmsData }) => {
                   width: '100%',
                   padding: '10px',
                   marginTop: '5px',
-                  borderRadius: '4px',
+                  
                   border: '1px solid #cbd5e1'
                 }}
               />
@@ -226,7 +226,7 @@ export const RentalCustomersSection = ({ cmsData }) => {
                   width: '100%',
                   padding: '10px',
                   marginTop: '5px',
-                  borderRadius: '4px',
+                  
                   border: '1px solid #cbd5e1'
                 }}
               />
@@ -243,7 +243,7 @@ export const RentalCustomersSection = ({ cmsData }) => {
                   width: '100%',
                   padding: '10px',
                   marginTop: '5px',
-                  borderRadius: '4px',
+                  
                   border: '1px solid #cbd5e1'
                 }}
               />
@@ -260,7 +260,7 @@ export const RentalCustomersSection = ({ cmsData }) => {
                   width: '100%',
                   padding: '10px',
                   marginTop: '5px',
-                  borderRadius: '4px',
+                  
                   border: '1px solid #cbd5e1'
                 }}
               />
@@ -277,7 +277,7 @@ export const RentalCustomersSection = ({ cmsData }) => {
                   width: '100%',
                   padding: '10px',
                   marginTop: '5px',
-                  borderRadius: '4px',
+                  
                   border: '1px solid #cbd5e1'
                 }}
               />
@@ -294,7 +294,7 @@ export const RentalCustomersSection = ({ cmsData }) => {
                   width: '100%',
                   padding: '10px',
                   marginTop: '5px',
-                  borderRadius: '4px',
+                  
                   border: '1px solid #cbd5e1'
                 }}
               />
@@ -310,7 +310,7 @@ export const RentalCustomersSection = ({ cmsData }) => {
                   width: '100%',
                   padding: '10px',
                   marginTop: '5px',
-                  borderRadius: '4px',
+                  
                   border: '1px solid #cbd5e1'
                 }}
               >
@@ -332,7 +332,7 @@ export const RentalCustomersSection = ({ cmsData }) => {
                   width: '100%',
                   padding: '10px',
                   marginTop: '5px',
-                  borderRadius: '4px',
+                  
                   border: '1px solid #cbd5e1'
                 }}
               >
@@ -355,7 +355,7 @@ export const RentalCustomersSection = ({ cmsData }) => {
                   width: '100%',
                   padding: '10px',
                   marginTop: '5px',
-                  borderRadius: '4px',
+                  
                   border: '1px solid #cbd5e1'
                 }}
               />
@@ -372,7 +372,7 @@ export const RentalCustomersSection = ({ cmsData }) => {
                   width: '100%',
                   padding: '10px',
                   marginTop: '5px',
-                  borderRadius: '4px',
+                  
                   border: '1px solid #cbd5e1'
                 }}
               />
@@ -389,7 +389,7 @@ export const RentalCustomersSection = ({ cmsData }) => {
                   width: '100%',
                   padding: '10px',
                   marginTop: '5px',
-                  borderRadius: '4px',
+                  
                   border: '1px solid #cbd5e1'
                 }}
               />
@@ -406,7 +406,7 @@ export const RentalCustomersSection = ({ cmsData }) => {
                   width: '100%',
                   padding: '10px',
                   marginTop: '5px',
-                  borderRadius: '4px',
+                  
                   border: '1px solid #cbd5e1'
                 }}
               />
@@ -423,7 +423,7 @@ export const RentalCustomersSection = ({ cmsData }) => {
                   width: '100%',
                   padding: '10px',
                   marginTop: '5px',
-                  borderRadius: '4px',
+                  
                   border: '1px solid #cbd5e1'
                 }}
               />
@@ -440,7 +440,7 @@ export const RentalCustomersSection = ({ cmsData }) => {
                   width: '100%',
                   padding: '10px',
                   marginTop: '5px',
-                  borderRadius: '4px',
+                  
                   border: '1px solid #cbd5e1'
                 }}
               />
@@ -457,7 +457,7 @@ export const RentalCustomersSection = ({ cmsData }) => {
                   width: '100%',
                   padding: '10px',
                   marginTop: '5px',
-                  borderRadius: '4px',
+                  
                   border: '1px solid #cbd5e1'
                 }}
               />
@@ -474,7 +474,7 @@ export const RentalCustomersSection = ({ cmsData }) => {
                   width: '100%',
                   padding: '10px',
                   marginTop: '5px',
-                  borderRadius: '4px',
+                  
                   border: '1px solid #cbd5e1'
                 }}
               />
@@ -491,7 +491,7 @@ export const RentalCustomersSection = ({ cmsData }) => {
                   width: '100%',
                   padding: '10px',
                   marginTop: '5px',
-                  borderRadius: '4px',
+                  
                   border: '1px solid #cbd5e1'
                 }}
               />
@@ -508,7 +508,7 @@ export const RentalCustomersSection = ({ cmsData }) => {
                   width: '100%',
                   padding: '10px',
                   marginTop: '5px',
-                  borderRadius: '4px',
+                  
                   border: '1px solid #cbd5e1'
                 }}
               />
@@ -525,7 +525,7 @@ export const RentalCustomersSection = ({ cmsData }) => {
                   width: '100%',
                   padding: '10px',
                   marginTop: '5px',
-                  borderRadius: '4px',
+                  
                   border: '1px solid #cbd5e1'
                 }}
               />
@@ -548,7 +548,7 @@ export const RentalCustomersSection = ({ cmsData }) => {
             onChange={(e) => setSearchQuery(e.target.value)}
             style={{
               padding: '8px 12px',
-              borderRadius: '4px',
+              
               border: '1px solid #cbd5e1',
               marginRight: '10px',
               width: '200px'
@@ -695,7 +695,7 @@ export const RentalCustomersSection = ({ cmsData }) => {
           <div style={{
             backgroundColor: 'white',
             padding: '30px',
-            borderRadius: '8px',
+            
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
             maxWidth: '400px',
             width: '90%'
@@ -707,14 +707,14 @@ export const RentalCustomersSection = ({ cmsData }) => {
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
               <button onClick={handleCancelDelete} style={{
                 padding: '8px 16px',
-                borderRadius: '4px',
+                
                 border: '1px solid #cbd5e1',
                 backgroundColor: 'white',
                 cursor: 'pointer'
               }}>Cancel</button>
               <button onClick={handleConfirmDelete} style={{
                 padding: '8px 16px',
-                borderRadius: '4px',
+                
                 border: 'none',
                 backgroundColor: '#ef4444',
                 color: 'white',

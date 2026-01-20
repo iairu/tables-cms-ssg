@@ -112,7 +112,6 @@ const Header = ({
               background: 'rgba(255, 255, 255, 0.2)',
               color: 'white',
               border: '1px solid rgba(255, 255, 255, 0.3)',
-              borderRadius: '4px',
               padding: '5px 10px',
               cursor: 'pointer',
               fontSize: '14px',

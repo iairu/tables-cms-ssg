@@ -4,6 +4,7 @@ import SideMenu from '../../../components/SideMenu';
 import useCMSData from '../../../hooks/useCMSData';
 import { BlogSection } from '../../../components/cms/sections';
 import '../../../styles/cms.css';
+import Header from '../../../components/Header';
 import { navigate } from 'gatsby';
 
 const CMSBlogEditPage = () => {
@@ -35,17 +36,27 @@ const CMSBlogEditPage = () => {
 
   return (
     <div className="cms-container">
-      <SideMenu
-        currentSection="blog"
+      <Header
+        onVisitDomain={() => window.open(cmsData.settings.domain, '_blank')}
+        onBuildAndDeploy={() => handleManualBuild(false)}
+        onBuildLocally={() => handleManualBuild(true)}
         isBuilding={cmsData.isBuilding}
-        lastSaved={cmsData.lastSaved}
-        onBuildClick={handleManualBuild}
         canBuild={cmsData.canBuild}
-        buildCooldownSeconds={cmsData.buildCooldownSeconds}
         domain={cmsData.settings.domain}
         vercelApiKey={cmsData.settings.vercelApiKey}
+        buildCooldownSeconds={cmsData.buildCooldownSeconds}
       />
       <main>
+        <SideMenu
+          currentSection="blog"
+          isBuilding={cmsData.isBuilding}
+          lastSaved={cmsData.lastSaved}
+          onBuildClick={handleManualBuild}
+          canBuild={cmsData.canBuild}
+          buildCooldownSeconds={cmsData.buildCooldownSeconds}
+          domain={cmsData.settings.domain}
+          vercelApiKey={cmsData.settings.vercelApiKey}
+        />
         <BlogSection cmsData={cmsData} edit={true} />
       </main>
     </div>

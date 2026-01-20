@@ -82,7 +82,6 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
           padding: '6px 12px', 
           background: '#3b82f6', 
           color: 'white', 
-          borderRadius: '6px', 
           fontSize: '14px',
           fontWeight: '600'
         }}>
@@ -95,7 +94,6 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
         marginBottom: '15px',
         padding: '10px',
         background: '#f1f5f9',
-        borderRadius: '6px',
         border: '1px solid #e2e8f0'
       }}>
         ℹ️ All component content below is specific to the <strong>{currentLanguage.toUpperCase()}</strong> language. 
@@ -104,7 +102,6 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
       {rows.map((row, rowIndex) => (
         <div className="single-component-editor" key={rowIndex} style={{
           border: '1px solid #e2e8f0',
-          borderRadius: '8px',
           padding: '20px',
           marginBottom: '15px',
           background: '#f8fafc'
@@ -135,7 +132,6 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
                 background: '#ef4444',
                 color: 'white',
                 border: 'none',
-                borderRadius: '4px',
                 cursor: 'pointer'
               }}
             >
@@ -152,7 +148,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
                   type="text"
                   value={row.fields.heading || ''}
                   onChange={(e) => handleFieldChange(rowIndex, 'heading', e.target.value)}
-                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                  style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
                 />
               </div>
               
@@ -161,7 +157,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
                 <select
                   value={row.fields.alignment || 'center'}
                   onChange={(e) => handleFieldChange(rowIndex, 'alignment', e.target.value)}
-                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                  style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
                 >
                   <option value="left">Left</option>
                   <option value="center">Center</option>
@@ -174,7 +170,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
                 <select
                   value={row.fields.headingSize || 'normal'}
                   onChange={(e) => handleFieldChange(rowIndex, 'headingSize', e.target.value)}
-                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                  style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
                 >
                   <option value="normal">Normal</option>
                   <option value="big">Big</option>
@@ -214,7 +210,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
                   type="color"
                   value={row.fields.backgroundColor || '#ffffff'}
                   onChange={(e) => handleFieldChange(rowIndex, 'backgroundColor', e.target.value)}
-                  style={{ width: '100px', height: '40px', padding: '2px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                  style={{ width: '100px', height: '40px', padding: '2px', border: '1px solid #cbd5e1' }}
                 />
               </div>
               
@@ -224,7 +220,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
                   type="number"
                   value={row.fields.minimalHeight || 400}
                   onChange={(e) => handleFieldChange(rowIndex, 'minimalHeight', parseInt(e.target.value) || 0)}
-                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                  style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
                 />
               </div>
               
@@ -268,7 +264,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
                   max="100"
                   value={row.fields.videoTransparency || 100}
                   onChange={(e) => handleFieldChange(rowIndex, 'videoTransparency', parseInt(e.target.value) || 0)}
-                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                  style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
                 />
               </div>
               
@@ -278,7 +274,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
                   type="text"
                   value={row.fields.videoLink || ''}
                   onChange={(e) => handleFieldChange(rowIndex, 'videoLink', e.target.value)}
-                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                  style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
                   placeholder="YouTube or video URL"
                 />
               </div>
@@ -291,13 +287,13 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'block', marginBottom: '5px' }}><strong>Boxes ({currentLanguage}):</strong></label>
                 {row.fields.boxes && row.fields.boxes.map((box, boxIndex) => (
-                  <div key={boxIndex} style={{ background: 'white', padding: '15px', borderRadius: '6px', marginBottom: '10px', border: '1px solid #e2e8f0' }}>
+                  <div key={boxIndex} style={{ background: 'white', padding: '15px', marginBottom: '10px', border: '1px solid #e2e8f0' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
                       <strong>Box {boxIndex + 1}</strong>
                       <button
                         type="button"
                         onClick={() => handleArrayItemRemove(rowIndex, 'boxes', boxIndex)}
-                        style={{ padding: '3px 10px', background: '#f87171', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}
+                        style={{ padding: '3px 10px', background: '#f87171', color: 'white', border: 'none', cursor: 'pointer', fontSize: '12px' }}
                       >
                         Remove
                       </button>
@@ -309,7 +305,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
                         type="text"
                         value={box.heading || ''}
                         onChange={(e) => handleArrayItemChange(rowIndex, 'boxes', boxIndex, 'heading', e.target.value)}
-                        style={{ width: '100%', padding: '6px', borderRadius: '3px', border: '1px solid #cbd5e1' }}
+                        style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1' }}
                       />
                     </div>
                     
@@ -319,7 +315,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
                         type="text"
                         value={box.subheading || ''}
                         onChange={(e) => handleArrayItemChange(rowIndex, 'boxes', boxIndex, 'subheading', e.target.value)}
-                        style={{ width: '100%', padding: '6px', borderRadius: '3px', border: '1px solid #cbd5e1' }}
+                        style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1' }}
                       />
                     </div>
                     
@@ -338,7 +334,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
                         type="text"
                         value={box.lowerCornerText || ''}
                         onChange={(e) => handleArrayItemChange(rowIndex, 'boxes', boxIndex, 'lowerCornerText', e.target.value)}
-                        style={{ width: '100%', padding: '6px', borderRadius: '3px', border: '1px solid #cbd5e1' }}
+                        style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1' }}
                       />
                     </div>
                     
@@ -347,7 +343,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
                       <button
                         type="button"
                         onClick={() => handleImageUpload(rowIndex, 'boxes', boxIndex, 'icon')}
-                        style={{ padding: '6px 12px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}
+                        style={{ padding: '6px 12px', background: '#3b82f6', color: 'white', border: 'none', cursor: 'pointer', fontSize: '12px' }}
                       >
                         Upload Icon
                       </button>
@@ -357,7 +353,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
                           <button
                             type="button"
                             onClick={() => handleArrayItemChange(rowIndex, 'boxes', boxIndex, 'icon', '')}
-                            style={{ display: 'block', marginTop: '3px', padding: '3px 8px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '2px', cursor: 'pointer', fontSize: '11px' }}
+                            style={{ display: 'block', marginTop: '3px', padding: '3px 8px', background: '#ef4444', color: 'white', border: 'none',  cursor: 'pointer', fontSize: '11px' }}
                           >
                             Remove
                           </button>
@@ -371,7 +367,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
                         type="number"
                         value={box.horizontalAdjustment || 0}
                         onChange={(e) => handleArrayItemChange(rowIndex, 'boxes', boxIndex, 'horizontalAdjustment', parseInt(e.target.value) || 0)}
-                        style={{ width: '100%', padding: '6px', borderRadius: '3px', border: '1px solid #cbd5e1' }}
+                        style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }}
                       />
                     </div>
                     
@@ -381,7 +377,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
                         type="number"
                         value={box.verticalAdjustment || 0}
                         onChange={(e) => handleArrayItemChange(rowIndex, 'boxes', boxIndex, 'verticalAdjustment', parseInt(e.target.value) || 0)}
-                        style={{ width: '100%', padding: '6px', borderRadius: '3px', border: '1px solid #cbd5e1' }}
+                        style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }}
                       />
                     </div>
                   </div>
@@ -389,7 +385,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
                 <button
                   type="button"
                   onClick={() => handleArrayItemAdd(rowIndex, 'boxes', { heading: '', subheading: '', text: '', lowerCornerText: '', icon: '', horizontalAdjustment: 0, verticalAdjustment: 0 })}
-                  style={{ padding: '8px 16px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                  style={{ padding: '8px 16px', background: '#3b82f6', color: 'white', border: 'none',  cursor: 'pointer' }}
                 >
                   + Add Box
                 </button>
@@ -431,7 +427,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
                   type="text"
                   value={row.fields.alternativeIcon || ''}
                   onChange={(e) => handleFieldChange(rowIndex, 'alternativeIcon', e.target.value)}
-                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1', marginBottom: '5px' }}
+                  style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1', marginBottom: '5px' }}
                   placeholder="e.g., 🏠"
                 />
                 {renderEmojiPicker(rowIndex, 'alternativeIcon', row.fields.alternativeIcon, (value) => handleFieldChange(rowIndex, 'alternativeIcon', value))}
@@ -443,7 +439,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
                   type="text"
                   value={row.fields.text || ''}
                   onChange={(e) => handleFieldChange(rowIndex, 'text', e.target.value)}
-                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                  style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1' }}
                 />
               </div>
               
@@ -477,13 +473,13 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'block', marginBottom: '5px' }}><strong>Flies ({currentLanguage}):</strong></label>
                 {row.fields.flies && row.fields.flies.map((fly, flyIndex) => (
-                  <div key={flyIndex} style={{ background: 'white', padding: '15px', borderRadius: '6px', marginBottom: '10px', border: '1px solid #e2e8f0' }}>
+                  <div key={flyIndex} style={{ background: 'white', padding: '15px',  marginBottom: '10px', border: '1px solid #e2e8f0' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
                       <strong>Fly {flyIndex + 1}</strong>
                       <button
                         type="button"
                         onClick={() => handleArrayItemRemove(rowIndex, 'flies', flyIndex)}
-                        style={{ padding: '3px 10px', background: '#f87171', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}
+                        style={{ padding: '3px 10px', background: '#f87171', color: 'white', border: 'none',  cursor: 'pointer', fontSize: '12px' }}
                       >
                         Remove
                       </button>
@@ -494,7 +490,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
                       <button
                         type="button"
                         onClick={() => handleImageUpload(rowIndex, 'flies', flyIndex, 'backgroundImage')}
-                        style={{ padding: '6px 12px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}
+                        style={{ padding: '6px 12px', background: '#3b82f6', color: 'white', border: 'none',  cursor: 'pointer', fontSize: '12px' }}
                       >
                         Upload Image
                       </button>
@@ -504,7 +500,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
                           <button
                             type="button"
                             onClick={() => handleArrayItemChange(rowIndex, 'flies', flyIndex, 'backgroundImage', '')}
-                            style={{ display: 'block', marginTop: '3px', padding: '3px 8px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '2px', cursor: 'pointer', fontSize: '11px' }}
+                            style={{ display: 'block', marginTop: '3px', padding: '3px 8px', background: '#ef4444', color: 'white', border: 'none',  cursor: 'pointer', fontSize: '11px' }}
                           >
                             Remove
                           </button>
@@ -518,7 +514,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
                         type="number"
                         value={fly.marginFromEdge || 0}
                         onChange={(e) => handleArrayItemChange(rowIndex, 'flies', flyIndex, 'marginFromEdge', parseInt(e.target.value) || 0)}
-                        style={{ width: '100%', padding: '6px', borderRadius: '3px', border: '1px solid #cbd5e1' }}
+                        style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }}
                       />
                     </div>
                     
@@ -528,7 +524,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
                         type="number"
                         value={fly.marginFromTop || 0}
                         onChange={(e) => handleArrayItemChange(rowIndex, 'flies', flyIndex, 'marginFromTop', parseInt(e.target.value) || 0)}
-                        style={{ width: '100%', padding: '6px', borderRadius: '3px', border: '1px solid #cbd5e1' }}
+                        style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }}
                       />
                     </div>
                     
@@ -538,7 +534,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
                         type="number"
                         value={fly.rotation || 0}
                         onChange={(e) => handleArrayItemChange(rowIndex, 'flies', flyIndex, 'rotation', parseInt(e.target.value) || 0)}
-                        style={{ width: '100%', padding: '6px', borderRadius: '3px', border: '1px solid #cbd5e1' }}
+                        style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }}
                       />
                     </div>
                     
@@ -549,7 +545,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
                         step="0.1"
                         value={fly.scalingFactor || 1}
                         onChange={(e) => handleArrayItemChange(rowIndex, 'flies', flyIndex, 'scalingFactor', parseFloat(e.target.value) || 1)}
-                        style={{ width: '100%', padding: '6px', borderRadius: '3px', border: '1px solid #cbd5e1' }}
+                        style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }}
                       />
                     </div>
                     
@@ -561,7 +557,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
                         max="100"
                         value={fly.transparency || 100}
                         onChange={(e) => handleArrayItemChange(rowIndex, 'flies', flyIndex, 'transparency', parseInt(e.target.value) || 100)}
-                        style={{ width: '100%', padding: '6px', borderRadius: '3px', border: '1px solid #cbd5e1' }}
+                        style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }}
                       />
                     </div>
                     
@@ -591,7 +587,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
                 <button
                   type="button"
                   onClick={() => handleArrayItemAdd(rowIndex, 'flies', { backgroundImage: '', marginFromEdge: 0, marginFromTop: 0, rotation: 0, scalingFactor: 1, transparency: 100, showOnMobile: false, stickToRightSide: false })}
-                  style={{ padding: '8px 16px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                  style={{ padding: '8px 16px', background: '#3b82f6', color: 'white', border: 'none',  cursor: 'pointer' }}
                 >
                   + Add Fly
                 </button>
@@ -602,7 +598,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
                 <select
                   value={row.fields.blendMode || 'normal'}
                   onChange={(e) => handleFieldChange(rowIndex, 'blendMode', e.target.value)}
-                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                  style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1' }}
                 >
                   {CSS_BLEND_MODES.map(mode => (
                     <option key={mode} value={mode}>{mode}</option>
@@ -630,11 +626,11 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
               <h4 style={{ marginTop: 0, marginBottom: '15px' }}>Left Side</h4>
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'block', marginBottom: '5px' }}><strong>Left Heading ({currentLanguage}):</strong></label>
-                <input type="text" value={row.fields.leftHeading || ''} onChange={(e) => handleFieldChange(rowIndex, 'leftHeading', e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }} />
+                <input type="text" value={row.fields.leftHeading || ''} onChange={(e) => handleFieldChange(rowIndex, 'leftHeading', e.target.value)} style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1' }} />
               </div>
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'block', marginBottom: '5px' }}><strong>Left Text ({currentLanguage}):</strong></label>
-                <textarea value={row.fields.leftText || ''} onChange={(e) => handleFieldChange(rowIndex, 'leftText', e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1', minHeight: '80px' }} />
+                <textarea value={row.fields.leftText || ''} onChange={(e) => handleFieldChange(rowIndex, 'leftText', e.target.value)} style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1', minHeight: '80px' }} />
               </div>
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'block', marginBottom: '5px' }}><strong>Left Buttons ({currentLanguage}):</strong></label>
@@ -665,7 +661,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
               </div>
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'block', marginBottom: '5px' }}><strong>Minimal Left Height (px) ({currentLanguage}):</strong></label>
-                <input type="number" value={row.fields.minimalLeftHeight || 300} onChange={(e) => handleFieldChange(rowIndex, 'minimalLeftHeight', parseInt(e.target.value) || 0)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }} />
+                <input type="number" value={row.fields.minimalLeftHeight || 300} onChange={(e) => handleFieldChange(rowIndex, 'minimalLeftHeight', parseInt(e.target.value) || 0)} style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1' }} />
               </div>
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
@@ -678,11 +674,11 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
               <h4 style={{ marginTop: '20px', marginBottom: '15px' }}>Right Side ({currentLanguage})</h4>
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'block', marginBottom: '5px' }}><strong>Right Heading ({currentLanguage}):</strong></label>
-                <input type="text" value={row.fields.rightHeading || ''} onChange={(e) => handleFieldChange(rowIndex, 'rightHeading', e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }} />
+                <input type="text" value={row.fields.rightHeading || ''} onChange={(e) => handleFieldChange(rowIndex, 'rightHeading', e.target.value)} style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1' }} />
               </div>
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'block', marginBottom: '5px' }}><strong>Right Text ({currentLanguage}):</strong></label>
-                <textarea value={row.fields.rightText || ''} onChange={(e) => handleFieldChange(rowIndex, 'rightText', e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1', minHeight: '80px' }} />
+                <textarea value={row.fields.rightText || ''} onChange={(e) => handleFieldChange(rowIndex, 'rightText', e.target.value)} style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1', minHeight: '80px' }} />
               </div>
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'block', marginBottom: '5px' }}><strong>Right Buttons ({currentLanguage}):</strong></label>
@@ -713,7 +709,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
               </div>
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'block', marginBottom: '5px' }}><strong>Minimal Right Height (px) ({currentLanguage}):</strong></label>
-                <input type="number" value={row.fields.minimalRightHeight || 300} onChange={(e) => handleFieldChange(rowIndex, 'minimalRightHeight', parseInt(e.target.value) || 0)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }} />
+                <input type="number" value={row.fields.minimalRightHeight || 300} onChange={(e) => handleFieldChange(rowIndex, 'minimalRightHeight', parseInt(e.target.value) || 0)} style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1' }} />
               </div>
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
@@ -744,11 +740,11 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
             <div>
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'block', marginBottom: '5px' }}><strong>YouTube Video URL ({currentLanguage}):</strong></label>
-                <input type="text" value={row.fields.youtubeUrl || ''} onChange={(e) => handleFieldChange(rowIndex, 'youtubeUrl', e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }} placeholder="https://www.youtube.com/watch?v=..." />
+                <input type="text" value={row.fields.youtubeUrl || ''} onChange={(e) => handleFieldChange(rowIndex, 'youtubeUrl', e.target.value)} style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1' }} placeholder="https://www.youtube.com/watch?v=..." />
               </div>
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'block', marginBottom: '5px' }}><strong>Special Theme ({currentLanguage}):</strong></label>
-                <select value={row.fields.specialTheme || 'default'} onChange={(e) => handleFieldChange(rowIndex, 'specialTheme', e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }}>
+                <select value={row.fields.specialTheme || 'default'} onChange={(e) => handleFieldChange(rowIndex, 'specialTheme', e.target.value)} style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1' }}>
                   <option value="default">Default</option>
                   <option value="iphone">iPhone</option>
                   <option value="iphone-autoplay">iPhone + Autoplay</option>
@@ -765,22 +761,22 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'block', marginBottom: '5px' }}><strong>Ranks ({currentLanguage}):</strong></label>
                 {row.fields.ranks && row.fields.ranks.map((rank, rankIndex) => (
-                  <div key={rankIndex} style={{ background: 'white', padding: '15px', borderRadius: '6px', marginBottom: '10px', border: '1px solid #e2e8f0' }}>
+                  <div key={rankIndex} style={{ background: 'white', padding: '15px',  marginBottom: '10px', border: '1px solid #e2e8f0' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
                       <strong>Rank {rankIndex + 1}</strong>
-                      <button type="button" onClick={() => handleArrayItemRemove(rowIndex, 'ranks', rankIndex)} style={{ padding: '3px 10px', background: '#f87171', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}>Remove</button>
+                      <button type="button" onClick={() => handleArrayItemRemove(rowIndex, 'ranks', rankIndex)} style={{ padding: '3px 10px', background: '#f87171', color: 'white', border: 'none',  cursor: 'pointer', fontSize: '12px' }}>Remove</button>
                     </div>
                     <div style={{ marginBottom: '8px' }}>
                       <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Heading ({currentLanguage}):</label>
-                      <input type="text" value={rank.heading || ''} onChange={(e) => handleArrayItemChange(rowIndex, 'ranks', rankIndex, 'heading', e.target.value)} style={{ width: '100%', padding: '6px', borderRadius: '3px', border: '1px solid #cbd5e1' }} />
+                      <input type="text" value={rank.heading || ''} onChange={(e) => handleArrayItemChange(rowIndex, 'ranks', rankIndex, 'heading', e.target.value)} style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }} />
                     </div>
                     <div>
                       <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Subheading ({currentLanguage}):</label>
-                      <input type="text" value={rank.subheading || ''} onChange={(e) => handleArrayItemChange(rowIndex, 'ranks', rankIndex, 'subheading', e.target.value)} style={{ width: '100%', padding: '6px', borderRadius: '3px', border: '1px solid #cbd5e1' }} />
+                      <input type="text" value={rank.subheading || ''} onChange={(e) => handleArrayItemChange(rowIndex, 'ranks', rankIndex, 'subheading', e.target.value)} style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }} />
                     </div>
                   </div>
                 ))}
-                <button type="button" onClick={() => handleArrayItemAdd(rowIndex, 'ranks', { heading: '', subheading: '' })} style={{ padding: '8px 16px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>+ Add Rank</button>
+                <button type="button" onClick={() => handleArrayItemAdd(rowIndex, 'ranks', { heading: '', subheading: '' })} style={{ padding: '8px 16px', background: '#3b82f6', color: 'white', border: 'none',  cursor: 'pointer' }}>+ Add Rank</button>
               </div>
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
@@ -798,21 +794,21 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'block', marginBottom: '5px' }}><strong>Reference Images ({currentLanguage}):</strong></label>
                 {row.fields.images && row.fields.images.map((image, imgIndex) => (
-                  <div key={imgIndex} style={{ background: 'white', padding: '15px', borderRadius: '6px', marginBottom: '10px', border: '1px solid #e2e8f0' }}>
+                  <div key={imgIndex} style={{ background: 'white', padding: '15px',  marginBottom: '10px', border: '1px solid #e2e8f0' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
                       <strong>Image {imgIndex + 1}</strong>
-                      <button type="button" onClick={() => handleArrayItemRemove(rowIndex, 'images', imgIndex)} style={{ padding: '3px 10px', background: '#f87171', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}>Remove</button>
+                      <button type="button" onClick={() => handleArrayItemRemove(rowIndex, 'images', imgIndex)} style={{ padding: '3px 10px', background: '#f87171', color: 'white', border: 'none',  cursor: 'pointer', fontSize: '12px' }}>Remove</button>
                     </div>
-                    <button type="button" onClick={() => handleImageUpload(rowIndex, 'images', imgIndex, 'imageUrl')} style={{ padding: '6px 12px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}>Upload Image</button>
+                    <button type="button" onClick={() => handleImageUpload(rowIndex, 'images', imgIndex, 'imageUrl')} style={{ padding: '6px 12px', background: '#3b82f6', color: 'white', border: 'none',  cursor: 'pointer', fontSize: '12px' }}>Upload Image</button>
                     {image.imageUrl && (
                       <div style={{ marginTop: '5px' }}>
                         <img src={image.imageUrl} alt="Reference" style={{ maxWidth: '150px', maxHeight: '150px', borderRadius: '4px' }} />
-                        <button type="button" onClick={() => handleArrayItemChange(rowIndex, 'images', imgIndex, 'imageUrl', '')} style={{ display: 'block', marginTop: '3px', padding: '3px 8px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '2px', cursor: 'pointer', fontSize: '11px' }}>Remove</button>
+                        <button type="button" onClick={() => handleArrayItemChange(rowIndex, 'images', imgIndex, 'imageUrl', '')} style={{ display: 'block', marginTop: '3px', padding: '3px 8px', background: '#ef4444', color: 'white', border: 'none',  cursor: 'pointer', fontSize: '11px' }}>Remove</button>
                       </div>
                     )}
                   </div>
                 ))}
-                <button type="button" onClick={() => handleArrayItemAdd(rowIndex, 'images', { imageUrl: '' })} style={{ padding: '8px 16px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>+ Add Image</button>
+                <button type="button" onClick={() => handleArrayItemAdd(rowIndex, 'images', { imageUrl: '' })} style={{ padding: '8px 16px', background: '#3b82f6', color: 'white', border: 'none',  cursor: 'pointer' }}>+ Add Image</button>
               </div>
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
@@ -829,22 +825,22 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'block', marginBottom: '5px' }}><strong>Reviews ({currentLanguage}):</strong></label>
                 {row.fields.reviews && row.fields.reviews.map((review, reviewIndex) => (
-                  <div key={reviewIndex} style={{ background: 'white', padding: '15px', borderRadius: '6px', marginBottom: '10px', border: '1px solid #e2e8f0' }}>
+                  <div key={reviewIndex} style={{ background: 'white', padding: '15px',  marginBottom: '10px', border: '1px solid #e2e8f0' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
                       <strong>Review {reviewIndex + 1}</strong>
-                      <button type="button" onClick={() => handleArrayItemRemove(rowIndex, 'reviews', reviewIndex)} style={{ padding: '3px 10px', background: '#f87171', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}>Remove</button>
+                      <button type="button" onClick={() => handleArrayItemRemove(rowIndex, 'reviews', reviewIndex)} style={{ padding: '3px 10px', background: '#f87171', color: 'white', border: 'none',  cursor: 'pointer', fontSize: '12px' }}>Remove</button>
                     </div>
                     <div style={{ marginBottom: '8px' }}>
                       <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Review Text ({currentLanguage}):</label>
-                      <textarea value={review.text || ''} onChange={(e) => handleArrayItemChange(rowIndex, 'reviews', reviewIndex, 'text', e.target.value)} style={{ width: '100%', padding: '6px', borderRadius: '3px', border: '1px solid #cbd5e1', minHeight: '80px' }} />
+                      <textarea value={review.text || ''} onChange={(e) => handleArrayItemChange(rowIndex, 'reviews', reviewIndex, 'text', e.target.value)} style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1', minHeight: '80px' }} />
                     </div>
                     <div>
                       <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Author ({currentLanguage}):</label>
-                      <input type="text" value={review.author || ''} onChange={(e) => handleArrayItemChange(rowIndex, 'reviews', reviewIndex, 'author', e.target.value)} style={{ width: '100%', padding: '6px', borderRadius: '3px', border: '1px solid #cbd5e1' }} />
+                      <input type="text" value={review.author || ''} onChange={(e) => handleArrayItemChange(rowIndex, 'reviews', reviewIndex, 'author', e.target.value)} style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }} />
                     </div>
                   </div>
                 ))}
-                <button type="button" onClick={() => handleArrayItemAdd(rowIndex, 'reviews', { text: '', author: '' })} style={{ padding: '8px 16px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>+ Add Review</button>
+                <button type="button" onClick={() => handleArrayItemAdd(rowIndex, 'reviews', { text: '', author: '' })} style={{ padding: '8px 16px', background: '#3b82f6', color: 'white', border: 'none',  cursor: 'pointer' }}>+ Add Review</button>
               </div>
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
@@ -863,7 +859,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
           background: '#10b981',
           color: 'white',
           border: 'none',
-          borderRadius: '6px',
+          
           cursor: 'pointer',
           fontWeight: '600'
         }}

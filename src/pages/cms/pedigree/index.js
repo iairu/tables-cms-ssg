@@ -1,4 +1,5 @@
 import React from 'react';
+import Header from '../../../components/Header';
 import SideMenu from '../../../components/SideMenu';
 import useCMSData from '../../../hooks/useCMSData';
 import { CatsSection } from '../../../components/cms/sections';
@@ -15,17 +16,27 @@ const CMSPedigreePage = () => {
 
   return (
     <div className="cms-container">
-      <SideMenu
-        currentSection="cats"
+      <Header
+        onVisitDomain={() => window.open(cmsData.settings.domain, '_blank')}
+        onBuildAndDeploy={() => handleManualBuild(false)}
+        onBuildLocally={() => handleManualBuild(true)}
         isBuilding={cmsData.isBuilding}
-        lastSaved={cmsData.lastSaved}
-        onBuildClick={handleManualBuild}
         canBuild={cmsData.canBuild}
-        buildCooldownSeconds={cmsData.buildCooldownSeconds}
         domain={cmsData.settings.domain}
         vercelApiKey={cmsData.settings.vercelApiKey}
+        buildCooldownSeconds={cmsData.buildCooldownSeconds}
       />
       <main>
+        <SideMenu
+          currentSection="cats"
+          isBuilding={cmsData.isBuilding}
+          lastSaved={cmsData.lastSaved}
+          onBuildClick={handleManualBuild}
+          canBuild={cmsData.canBuild}
+          buildCooldownSeconds={cmsData.buildCooldownSeconds}
+          domain={cmsData.settings.domain}
+          vercelApiKey={cmsData.settings.vercelApiKey}
+        />
         <CatsSection cmsData={cmsData} />
       </main>
     </div>

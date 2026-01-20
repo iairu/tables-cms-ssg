@@ -86,7 +86,6 @@ const CatalogPage = () => {
           {inventory.map(item => (
             <div key={item.sku} style={{
               border: '1px solid #e2e8f0',
-              borderRadius: '8px',
               padding: '1.5rem',
               boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
             }}>

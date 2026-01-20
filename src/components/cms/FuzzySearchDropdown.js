@@ -63,7 +63,7 @@ const FuzzySearchDropdown = ({ options, value, onChange, placeholder }) => {
         style={{
           width: '100%',
           padding: '10px',
-          borderRadius: '4px',
+          
           border: '1px solid #cbd5e1'
         }}
       />
@@ -79,7 +79,7 @@ const FuzzySearchDropdown = ({ options, value, onChange, placeholder }) => {
             overflowY: 'auto',
             backgroundColor: 'white',
             border: '1px solid #e2e8f0',
-            borderRadius: '4px',
+            
             listStyle: 'none',
             padding: 0,
             margin: 0,

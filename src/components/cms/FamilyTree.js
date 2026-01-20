@@ -17,7 +17,7 @@ const FamilyTree = ({ cat, allCats, onClose }) => {
           <div style={{
             padding: '10px',
             border: '1px solid #ccc',
-            borderRadius: '4px',
+            
             backgroundColor: '#f9f9f9',
             boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
           }}>
@@ -58,7 +58,7 @@ const FamilyTree = ({ cat, allCats, onClose }) => {
       <div style={{
         backgroundColor: 'white',
         padding: '30px',
-        borderRadius: '8px',
+        
         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
         maxWidth: '90%',
         width: '1200px',
@@ -69,7 +69,7 @@ const FamilyTree = ({ cat, allCats, onClose }) => {
           <h2 style={{ marginTop: 0 }}>Family Tree for {cat.fullName}</h2>
           <button onClick={onClose} style={{
             padding: '8px 16px',
-            borderRadius: '4px',
+            
             border: '1px solid #ccc',
             backgroundColor: 'white',
             cursor: 'pointer'

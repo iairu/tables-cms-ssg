@@ -13,7 +13,7 @@ export const renderEmojiPicker = (rowIndex, fieldName, value, handleChange, item
           style={{
             padding: '5px 10px',
             border: '1px solid #cbd5e1',
-            borderRadius: '4px',
+            
             background: value === emoji ? '#3b82f6' : 'white',
             cursor: 'pointer',
             fontSize: '18px'
@@ -36,15 +36,15 @@ export const renderRichTextEditor = (editorId, value, onChange) => {
   };
 
   return (
-    <div style={{ border: '1px solid #cbd5e1', borderRadius: '4px', overflow: 'hidden' }}>
+    <div style={{ border: '1px solid #cbd5e1',  overflow: 'hidden' }}>
       <div style={{ background: '#f8fafc', padding: '8px', borderBottom: '1px solid #cbd5e1', display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
-        <button type="button" onClick={() => execCommand('bold')} style={{ padding: '5px 10px', border: '1px solid #cbd5e1', borderRadius: '3px', background: 'white', cursor: 'pointer', fontWeight: 'bold' }}>B</button>
-        <button type="button" onClick={() => execCommand('italic')} style={{ padding: '5px 10px', border: '1px solid #cbd5e1', borderRadius: '3px', background: 'white', cursor: 'pointer', fontStyle: 'italic' }}>I</button>
-        <button type="button" onClick={() => execCommand('strikeThrough')} style={{ padding: '5px 10px', border: '1px solid #cbd5e1', borderRadius: '3px', background: 'white', cursor: 'pointer', textDecoration: 'line-through' }}>S</button>
-        <button type="button" onClick={() => { const url = window.prompt('Enter URL:'); if (url) execCommand('createLink', url); }} style={{ padding: '5px 10px', border: '1px solid #cbd5e1', borderRadius: '3px', background: 'white', cursor: 'pointer' }}>🔗</button>
-        <button type="button" onClick={() => execCommand('formatBlock', 'blockquote')} style={{ padding: '5px 10px', border: '1px solid #cbd5e1', borderRadius: '3px', background: 'white', cursor: 'pointer' }}>❝❞</button>
-        <button type="button" onClick={() => execCommand('insertUnorderedList')} style={{ padding: '5px 10px', border: '1px solid #cbd5e1', borderRadius: '3px', background: 'white', cursor: 'pointer' }}>• List</button>
-        <button type="button" onClick={() => execCommand('insertOrderedList')} style={{ padding: '5px 10px', border: '1px solid #cbd5e1', borderRadius: '3px', background: 'white', cursor: 'pointer' }}>1. List</button>
+        <button type="button" onClick={() => execCommand('bold')} style={{ padding: '5px 10px', border: '1px solid #cbd5e1',  background: 'white', cursor: 'pointer', fontWeight: 'bold' }}>B</button>
+        <button type="button" onClick={() => execCommand('italic')} style={{ padding: '5px 10px', border: '1px solid #cbd5e1',  background: 'white', cursor: 'pointer', fontStyle: 'italic' }}>I</button>
+        <button type="button" onClick={() => execCommand('strikeThrough')} style={{ padding: '5px 10px', border: '1px solid #cbd5e1',  background: 'white', cursor: 'pointer', textDecoration: 'line-through' }}>S</button>
+        <button type="button" onClick={() => { const url = window.prompt('Enter URL:'); if (url) execCommand('createLink', url); }} style={{ padding: '5px 10px', border: '1px solid #cbd5e1',  background: 'white', cursor: 'pointer' }}>🔗</button>
+        <button type="button" onClick={() => execCommand('formatBlock', 'blockquote')} style={{ padding: '5px 10px', border: '1px solid #cbd5e1',  background: 'white', cursor: 'pointer' }}>❝❞</button>
+        <button type="button" onClick={() => execCommand('insertUnorderedList')} style={{ padding: '5px 10px', border: '1px solid #cbd5e1',  background: 'white', cursor: 'pointer' }}>• List</button>
+        <button type="button" onClick={() => execCommand('insertOrderedList')} style={{ padding: '5px 10px', border: '1px solid #cbd5e1',  background: 'white', cursor: 'pointer' }}>1. List</button>
       </div>
       <div
         id={editorId}
@@ -70,17 +70,17 @@ export const renderImageUpload = (label, value, onUpload, onRemove) => {
       <button
         type="button"
         onClick={onUpload}
-        style={{ padding: '8px 16px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', marginBottom: '5px' }}
+        style={{ padding: '8px 16px', background: '#3b82f6', color: 'white', border: 'none',  cursor: 'pointer', marginBottom: '5px' }}
       >
         Upload Image
       </button>
       {value && (
         <div style={{ marginTop: '5px' }}>
-          <img src={value} alt="Preview" style={{ maxWidth: '200px', maxHeight: '150px', borderRadius: '4px', display: 'block' }} />
+          <img src={value} alt="Preview" style={{ maxWidth: '200px', maxHeight: '150px',  display: 'block' }} />
           <button
             type="button"
             onClick={onRemove}
-            style={{ marginTop: '5px', padding: '5px 10px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}
+            style={{ marginTop: '5px', padding: '5px 10px', background: '#ef4444', color: 'white', border: 'none',  cursor: 'pointer', fontSize: '12px' }}
           >
             Remove
           </button>
@@ -94,13 +94,13 @@ export const renderButtonList = (buttons, onAdd, onRemove, onChange, renderEmoji
   return (
     <div style={{ marginTop: '10px' }}>
       {buttons && buttons.map((button, btnIndex) => (
-        <div key={btnIndex} style={{ background: 'white', padding: '15px', borderRadius: '6px', marginBottom: '10px', border: '1px solid #e2e8f0' }}>
+        <div key={btnIndex} style={{ background: 'white', padding: '15px',  marginBottom: '10px', border: '1px solid #e2e8f0' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
             <strong>Button {btnIndex + 1}</strong>
             <button
               type="button"
               onClick={() => onRemove(btnIndex)}
-              style={{ padding: '3px 10px', background: '#f87171', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}
+              style={{ padding: '3px 10px', background: '#f87171', color: 'white', border: 'none',  cursor: 'pointer', fontSize: '12px' }}
             >
               Remove
             </button>
@@ -112,7 +112,7 @@ export const renderButtonList = (buttons, onAdd, onRemove, onChange, renderEmoji
               type="text"
               value={button.icon || ''}
               onChange={(e) => onChange(btnIndex, 'icon', e.target.value)}
-              style={{ width: '100%', padding: '6px', borderRadius: '3px', border: '1px solid #cbd5e1', marginBottom: '5px' }}
+              style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1', marginBottom: '5px' }}
               placeholder="e.g., 🚀"
             />
             {renderEmojiPickerFn(button.icon, (emoji) => onChange(btnIndex, 'icon', emoji))}
@@ -124,7 +124,7 @@ export const renderButtonList = (buttons, onAdd, onRemove, onChange, renderEmoji
               type="text"
               value={button.title || ''}
               onChange={(e) => onChange(btnIndex, 'title', e.target.value)}
-              style={{ width: '100%', padding: '6px', borderRadius: '3px', border: '1px solid #cbd5e1' }}
+              style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }}
             />
           </div>
           
@@ -134,7 +134,7 @@ export const renderButtonList = (buttons, onAdd, onRemove, onChange, renderEmoji
               type="text"
               value={button.link || ''}
               onChange={(e) => onChange(btnIndex, 'link', e.target.value)}
-              style={{ width: '100%', padding: '6px', borderRadius: '3px', border: '1px solid #cbd5e1' }}
+              style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }}
             />
           </div>
           
@@ -164,7 +164,7 @@ export const renderButtonList = (buttons, onAdd, onRemove, onChange, renderEmoji
       <button
         type="button"
         onClick={onAdd}
-        style={{ padding: '8px 16px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+        style={{ padding: '8px 16px', background: '#3b82f6', color: 'white', border: 'none',  cursor: 'pointer' }}
       >
         + Add Button
       </button>

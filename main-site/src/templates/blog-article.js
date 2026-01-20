@@ -329,7 +329,7 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
                     background: '#e0e7ff',
                     color: '#3730a3',
                     padding: '0.25rem 0.75rem',
-                    borderRadius: '9999px',
+                    
                     fontSize: '0.875rem',
                     fontWeight: '600'
                   }}>
@@ -343,7 +343,7 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
                       background: '#f1f5f9',
                       color: '#475569',
                       padding: '0.25rem 0.75rem',
-                      borderRadius: '9999px',
+                      
                       fontSize: '0.875rem'
                     }}
                   >
@@ -379,7 +379,6 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
               background: '#667eea',
               color: 'white',
               textDecoration: 'none',
-              borderRadius: '0.5rem',
               fontWeight: '600',
               transition: 'background 0.2s'
             }}

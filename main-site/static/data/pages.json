@@ -324,5 +324,86 @@
         "metaDescription": "Are you looking for a magician for your event? Magician Struk from Talent Show. A unique magic show for your event. Modern tricks for everyone! Corporate parties, balls, weddings ..."
       }
     }
+  },
+  {
+    "id": "1768905862125",
+    "title": "New Page",
+    "slug": "new-page-1768905862125",
+    "rows": [],
+    "history": [],
+    "lastEdited": 1768905862125,
+    "includeInMenu": false,
+    "navigationDropdown": "none",
+    "themeVersion": "auto",
+    "enforcedTheme": "",
+    "metaDescription": "",
+    "buttonLinkColor": "",
+    "sitemapPriority": 0.5,
+    "translations": {
+      "sk": {
+        "title": "Nová stránka",
+        "slug": "new-page-1768905862125",
+        "rows": []
+      },
+      "en": {
+        "title": "New Page",
+        "slug": "new-page-1768905862125",
+        "rows": []
+      }
+    }
+  },
+  {
+    "id": "1768906559692",
+    "title": "New Page",
+    "slug": "new-page-1768906559692",
+    "rows": [],
+    "history": [],
+    "lastEdited": 1768906559692,
+    "includeInMenu": false,
+    "navigationDropdown": "none",
+    "themeVersion": "auto",
+    "enforcedTheme": "",
+    "metaDescription": "",
+    "buttonLinkColor": "",
+    "sitemapPriority": 0.5,
+    "translations": {
+      "sk": {
+        "title": "Nová stránka",
+        "slug": "new-page-1768906559692",
+        "rows": []
+      },
+      "en": {
+        "title": "New Page",
+        "slug": "new-page-1768906559692",
+        "rows": []
+      }
+    }
+  },
+  {
+    "id": "1768920759295",
+    "title": "New Page",
+    "slug": "new-page-1768920759295",
+    "rows": [],
+    "history": [],
+    "lastEdited": 1768920759298,
+    "includeInMenu": false,
+    "navigationDropdown": "none",
+    "themeVersion": "auto",
+    "enforcedTheme": "",
+    "metaDescription": "",
+    "buttonLinkColor": "",
+    "sitemapPriority": 0.5,
+    "translations": {
+      "sk": {
+        "title": "Nová stránka",
+        "slug": "new-page-1768920759295",
+        "rows": []
+      },
+      "en": {
+        "title": "New Page",
+        "slug": "new-page-1768920759295",
+        "rows": []
+      }
+    }
   }
 ]

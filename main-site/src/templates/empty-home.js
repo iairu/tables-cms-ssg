@@ -76,7 +76,6 @@ const EmptyHomeTemplate = ({ pageContext }) => {
           background: 'rgba(255, 255, 255, 0.15)',
           backdropFilter: 'blur(10px)',
           padding: '4rem 3rem',
-          borderRadius: '1rem',
           boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
         }}>
           <div style={{
@@ -104,7 +103,6 @@ const EmptyHomeTemplate = ({ pageContext }) => {
           <div style={{
             background: 'rgba(255, 255, 255, 0.2)',
             padding: '1.5rem',
-            borderRadius: '0.5rem',
             marginTop: '2rem'
           }}>
             <p style={{
@@ -116,7 +114,6 @@ const EmptyHomeTemplate = ({ pageContext }) => {
               1. Access the CMS at <code style={{ 
                 background: 'rgba(0, 0, 0, 0.2)', 
                 padding: '2px 8px', 
-                borderRadius: '4px',
                 fontFamily: 'monospace'
               }}>/cms</code><br />
               2. Create a page with slug "home" to replace this page<br />

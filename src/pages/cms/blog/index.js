@@ -1,4 +1,5 @@
 import React from 'react';
+import Header from '../../../components/Header';
 import SideMenu from '../../../components/SideMenu';
 import useCMSData from '../../../hooks/useCMSData';
 import { BlogSection } from '../../../components/cms/sections';
@@ -15,17 +16,27 @@ const CMSBlogPage = () => {
 
   return (
     <div className="cms-container">
-      <SideMenu
-        currentSection="blog"
+      <Header
+        onVisitDomain={() => window.open(cmsData.settings.domain, '_blank')}
+        onBuildAndDeploy={() => handleManualBuild(false)}
+        onBuildLocally={() => handleManualBuild(true)}
         isBuilding={cmsData.isBuilding}
-        lastSaved={cmsData.lastSaved}
-        onBuildClick={handleManualBuild}
         canBuild={cmsData.canBuild}
-        buildCooldownSeconds={cmsData.buildCooldownSeconds}
         domain={cmsData.settings.domain}
         vercelApiKey={cmsData.settings.vercelApiKey}
+        buildCooldownSeconds={cmsData.buildCooldownSeconds}
       />
       <main>
+        <SideMenu
+          currentSection="blog"
+          isBuilding={cmsData.isBuilding}
+          lastSaved={cmsData.lastSaved}
+          onBuildClick={handleManualBuild}
+          canBuild={cmsData.canBuild}
+          buildCooldownSeconds={cmsData.buildCooldownSeconds}
+          domain={cmsData.settings.domain}
+          vercelApiKey={cmsData.settings.vercelApiKey}
+        />
         <BlogSection cmsData={cmsData} />
       </main>
     </div>

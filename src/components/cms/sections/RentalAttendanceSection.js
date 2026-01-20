@@ -74,7 +74,7 @@ export const RentalAttendanceSection = ({ cmsData }) => {
                     type="time"
                     value={row.timeIn}
                     readOnly
-                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '4px', backgroundColor: '#f4f4f5' }}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1',  backgroundColor: '#f4f4f5' }}
                   />
                 </td>
                 <td>

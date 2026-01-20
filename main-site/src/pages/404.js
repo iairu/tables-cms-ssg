@@ -24,7 +24,6 @@ const NotFoundPage = () => {
           background: '#667eea',
           color: 'white',
           textDecoration: 'none',
-          borderRadius: '6px',
           fontSize: '16px',
           fontWeight: '600'
         }}

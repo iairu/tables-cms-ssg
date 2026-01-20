@@ -41,7 +41,7 @@ const ExtensionsSection = ({ cmsData }) => {
               key={key}
               style={{
                 border: '1px solid #e2e8f0',
-                borderRadius: '8px',
+                
                 padding: '20px',
                 background: extensions[key] ? '#f0fdf4' : 'white',
                 transition: 'all 0.2s'
@@ -69,7 +69,7 @@ const ExtensionsSection = ({ cmsData }) => {
                 </div>
                 <span style={{
                   padding: '4px 12px',
-                  borderRadius: '12px',
+                  
                   fontSize: '12px',
                   fontWeight: '600',
                   background: extensions[key] ? '#10b981' : '#cbd5e1',

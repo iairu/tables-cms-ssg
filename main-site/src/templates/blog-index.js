@@ -229,7 +229,6 @@ const BlogIndexTemplate = ({ pageContext }) => {
           display: 'block',
           background: article.highlighted ? '#fefce8' : 'white',
           padding: '1.5rem',
-          borderRadius: '0.5rem',
           textDecoration: 'none',
           boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
           transition: 'all 0.2s',
@@ -255,7 +254,6 @@ const BlogIndexTemplate = ({ pageContext }) => {
             background: '#fbbf24',
             color: '#78350f',
             padding: '0.25rem 0.5rem',
-            borderRadius: '0.25rem',
             fontSize: '0.75rem',
             fontWeight: '600',
             display: 'flex',
@@ -305,7 +303,7 @@ const BlogIndexTemplate = ({ pageContext }) => {
                 background: '#e0e7ff',
                 color: '#3730a3',
                 padding: '0.25rem 0.5rem',
-                borderRadius: '9999px',
+                
                 fontSize: '0.75rem',
                 fontWeight: '600'
               }}>
@@ -319,7 +317,7 @@ const BlogIndexTemplate = ({ pageContext }) => {
                   background: '#f1f5f9',
                   color: '#475569',
                   padding: '0.25rem 0.5rem',
-                  borderRadius: '9999px',
+                  
                   fontSize: '0.75rem'
                 }}
               >
@@ -392,7 +390,6 @@ const BlogIndexTemplate = ({ pageContext }) => {
           <div style={{
             background: '#f8fafc',
             padding: '3rem',
-            borderRadius: '1rem',
             textAlign: 'center',
             color: '#64748b'
           }}>
@@ -412,7 +409,6 @@ const BlogIndexTemplate = ({ pageContext }) => {
               disabled={currentPage === 1}
               style={{
                 padding: '0.5rem 1rem',
-                borderRadius: '0.375rem',
                 border: '1px solid #cbd5e1',
                 background: currentPage === 1 ? '#f8fafc' : 'white',
                 cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
@@ -429,7 +425,6 @@ const BlogIndexTemplate = ({ pageContext }) => {
               disabled={currentPage === totalPages}
               style={{
                 padding: '0.5rem 1rem',
-                borderRadius: '0.375rem',
                 border: '1px solid #cbd5e1',
                 background: currentPage === totalPages ? '#f8fafc' : 'white',
                 cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',

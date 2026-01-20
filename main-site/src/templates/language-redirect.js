@@ -56,7 +56,7 @@ const LanguageRedirect = ({ pageContext }) => {
           height: '40px',
           border: '4px solid rgba(255, 255, 255, 0.3)',
           borderTopColor: 'white',
-          borderRadius: '50%',
+          
           animation: 'spin 1s linear infinite',
           margin: '0 auto 20px'
         }} />

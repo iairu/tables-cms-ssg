@@ -390,7 +390,6 @@ const PageTemplate = ({ pageContext, location }) => {
                                 background: button.showAsButton ? '#667eea' : 'transparent',
                                 color: button.showAsButton ? 'white' : (isDark ? '#ffffff' : '#667eea'),
                                 textDecoration: button.showAsButton ? 'none' : 'underline',
-                                borderRadius: '0.5rem',
                                 fontWeight: '600',
                                 transition: 'all 0.2s'
                               }}
@@ -424,7 +423,6 @@ const PageTemplate = ({ pageContext, location }) => {
                           <div key={boxIdx} style={{
                             background: 'white',
                             padding: '2rem',
-                            borderRadius: '1rem',
                             boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                             position: 'relative',
                             transform: `translate(${box.horizontalAdjustment || 0}px, ${box.verticalAdjustment || 0}px)`
@@ -494,7 +492,6 @@ const PageTemplate = ({ pageContext, location }) => {
                                 background: button.showAsButton ? '#667eea' : 'transparent',
                                 color: button.showAsButton ? 'white' : '#667eea',
                                 textDecoration: button.showAsButton ? 'none' : 'underline',
-                                borderRadius: '0.375rem',
                                 fontWeight: '500',
                                 fontSize: '0.875rem'
                               }}
@@ -585,7 +582,6 @@ const PageTemplate = ({ pageContext, location }) => {
                                 background: button.showAsButton ? '#667eea' : 'transparent',
                                 color: button.showAsButton ? 'white' : '#667eea',
                                 textDecoration: button.showAsButton ? 'none' : 'underline',
-                                borderRadius: '0.5rem',
                                 fontWeight: '600'
                               }}
                             >
@@ -637,7 +633,6 @@ const PageTemplate = ({ pageContext, location }) => {
                                 background: button.showAsButton ? '#667eea' : 'transparent',
                                 color: button.showAsButton ? 'white' : '#667eea',
                                 textDecoration: button.showAsButton ? 'none' : 'underline',
-                                borderRadius: '0.5rem',
                                 fontWeight: '600'
                               }}
                             >
@@ -703,7 +698,6 @@ const PageTemplate = ({ pageContext, location }) => {
                           <div key={rankIdx} style={{
                             background: isDark ? '#334155' : 'white',
                             padding: '2rem',
-                            borderRadius: '1rem',
                             boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                             display: 'flex',
                             alignItems: 'center',
@@ -805,7 +799,6 @@ const PageTemplate = ({ pageContext, location }) => {
                           <div key={reviewIdx} style={{
                             background: isDark ? '#334155' : 'white',
                             padding: '2rem',
-                            borderRadius: '1rem',
                             boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                           }}>
                             <p style={{
@@ -837,7 +830,6 @@ const PageTemplate = ({ pageContext, location }) => {
           {(!rows || rows.length === 0) && (
             <div className='no-content' style={{
               padding: '3rem',
-              borderRadius: '1rem',
               textAlign: 'center',
               color: '#64748b'
             }}>

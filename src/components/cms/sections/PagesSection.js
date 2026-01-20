@@ -191,7 +191,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
             <div style={{
               backgroundColor: 'white',
               padding: '30px',
-              borderRadius: '8px',
+              
               boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
               maxWidth: '600px',
               width: '90%',
@@ -213,7 +213,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                           style={{
                             padding: '10px',
                             marginBottom: '8px',
-                            borderRadius: '4px',
+                            
                             cursor: 'pointer',
                             backgroundColor: selectedHistoryIndex === actualIndex ? '#e0e7ff' : '#f1f5f9',
                             border: selectedHistoryIndex === actualIndex ? '2px solid #3b82f6' : '2px solid transparent'
@@ -228,7 +228,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                     <div style={{
                       padding: '15px',
                       backgroundColor: '#f9fafb',
-                      borderRadius: '4px',
+                      
                       marginBottom: '15px',
                       maxHeight: '200px',
                       overflow: 'auto'
@@ -245,7 +245,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                   {selectedHistoryIndex !== null && (
                     <button onClick={handleDeleteHistoryEntry} style={{
                       padding: '8px 16px',
-                      borderRadius: '4px',
+                      
                       border: 'none',
                       backgroundColor: '#ef4444',
                       color: 'white',
@@ -257,7 +257,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                   {selectedHistoryIndex !== null && (
                     <button onClick={handleRollback} style={{
                       padding: '8px 16px',
-                      borderRadius: '4px',
+                      
                       border: 'none',
                       backgroundColor: '#3b82f6',
                       color: 'white',
@@ -266,7 +266,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                   )}
                   <button onClick={handleCloseHistory} style={{
                     padding: '8px 16px',
-                    borderRadius: '4px',
+                    
                     border: '1px solid #cbd5e1',
                     backgroundColor: 'white',
                     cursor: 'pointer'
@@ -286,7 +286,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
               onChange={(e) => setCurrentLanguage(e.target.value)}
               style={{
                 padding: '8px 12px',
-                borderRadius: '4px',
+                
                 border: '1px solid #cbd5e1',
                 marginRight: '10px',
                 background: 'white',
@@ -318,7 +318,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                   width: '100%',
                   padding: '10px',
                   marginTop: '5px',
-                  borderRadius: '4px',
+                  
                   border: '1px solid #cbd5e1'
                 }}
               />
@@ -344,7 +344,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                   width: '100%',
                   padding: '10px',
                   marginTop: '5px',
-                  borderRadius: '4px',
+                  
                   border: '1px solid #cbd5e1',
                   background: currentPage.slug === 'home' ? '#f3f4f6' : 'white',
                   cursor: currentPage.slug === 'home' ? 'not-allowed' : 'auto'
@@ -382,7 +382,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                       width: '100%',
                       padding: '10px',
                       marginTop: '5px',
-                      borderRadius: '4px',
+                      
                       border: '1px solid #cbd5e1'
                     }}
                   >
@@ -407,7 +407,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                       style={{
                         width: '60px',
                         height: '40px',
-                        borderRadius: '4px',
+                        
                         border: '1px solid #cbd5e1',
                         cursor: 'pointer'
                       }}
@@ -420,7 +420,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                       style={{
                         flex: 1,
                         padding: '10px',
-                        borderRadius: '4px',
+                        
                         border: '1px solid #cbd5e1'
                       }}
                     />
@@ -438,7 +438,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                       width: '100%',
                       padding: '10px',
                       marginTop: '5px',
-                      borderRadius: '4px',
+                      
                       border: '1px solid #cbd5e1'
                     }}
                   >
@@ -474,7 +474,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                       width: '100%',
                       padding: '10px',
                       marginTop: '5px',
-                      borderRadius: '4px',
+                      
                       border: '1px solid #cbd5e1',
                       fontFamily: 'inherit',
                       resize: 'vertical'
@@ -498,7 +498,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                       width: '100%',
                       padding: '10px',
                       marginTop: '5px',
-                      borderRadius: '4px',
+                      
                       border: '1px solid #cbd5e1'
                     }}
                   />
@@ -531,7 +531,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
             onChange={(e) => setSearchQuery(e.target.value)}
             style={{
               padding: '8px 12px',
-              borderRadius: '4px',
+              
               border: '1px solid #cbd5e1',
               marginRight: '10px',
               width: '200px'
@@ -592,7 +592,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
           <div style={{
             backgroundColor: 'white',
             padding: '30px',
-            borderRadius: '8px',
+            
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
             maxWidth: '400px',
             width: '90%'
@@ -604,14 +604,14 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
               <button onClick={handleCancelDelete} style={{
                 padding: '8px 16px',
-                borderRadius: '4px',
+                
                 border: '1px solid #cbd5e1',
                 backgroundColor: 'white',
                 cursor: 'pointer'
               }}>Cancel</button>
               <button onClick={handleConfirmDelete} style={{
                 padding: '8px 16px',
-                borderRadius: '4px',
+                
                 border: 'none',
                 backgroundColor: '#ef4444',
                 color: 'white',

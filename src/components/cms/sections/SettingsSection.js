@@ -164,7 +164,7 @@ const SettingsSection = ({ cmsData }) => {
           padding: '15px 20px',
           background: '#fef3c7',
           border: '1px solid #f59e0b',
-          borderRadius: '8px',
+          
           color: '#92400e',
           display: 'flex',
           alignItems: 'center',
@@ -179,7 +179,7 @@ const SettingsSection = ({ cmsData }) => {
         </div>
       )}
       <div style={{ padding: '20px' }}>
-        <div style={{ marginBottom: '30px', padding: '20px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+        <div style={{ marginBottom: '30px', padding: '20px', background: '#f8fafc',  border: '1px solid #e2e8f0' }}>
           <h2 style={{ marginTop: '0', marginBottom: '15px', fontSize: '18px', fontWeight: 'bold' }}>Data Management</h2>
           <p style={{ fontSize: '14px', color: '#64748b', marginBottom: '15px' }}>
             Export your CMS data to a JSON file for backup, or import data from a previous export.
@@ -192,7 +192,7 @@ const SettingsSection = ({ cmsData }) => {
                 background: '#3b82f6',
                 color: 'white',
                 border: 'none',
-                borderRadius: '6px',
+                
                 cursor: 'pointer',
                 fontWeight: '500',
                 fontSize: '14px'
@@ -205,7 +205,7 @@ const SettingsSection = ({ cmsData }) => {
               background: '#10b981',
               color: 'white',
               border: 'none',
-              borderRadius: '6px',
+              
               cursor: 'pointer',
               fontWeight: '500',
               fontSize: '14px',
@@ -237,7 +237,7 @@ const SettingsSection = ({ cmsData }) => {
                 width: '100%',
                 padding: '10px',
                 marginTop: '5px',
-                borderRadius: '4px',
+                
                 border: '1px solid #cbd5e1'
               }}
             />
@@ -257,7 +257,7 @@ const SettingsSection = ({ cmsData }) => {
                 width: '100%',
                 padding: '10px',
                 marginTop: '5px',
-                borderRadius: '4px',
+                
                 border: '1px solid #cbd5e1'
               }}
             />
@@ -273,7 +273,7 @@ const SettingsSection = ({ cmsData }) => {
                   background: '#ef4444',
                   color: 'white',
                   border: 'none',
-                  borderRadius: '4px',
+                  
                   cursor: 'pointer'
                 }}
               >
@@ -293,7 +293,7 @@ const SettingsSection = ({ cmsData }) => {
                 width: '100%',
                 padding: '10px',
                 marginTop: '5px',
-                borderRadius: '4px',
+                
                 border: '1px solid #cbd5e1'
               }}
             />
@@ -309,7 +309,7 @@ const SettingsSection = ({ cmsData }) => {
                   background: '#ef4444',
                   color: 'white',
                   border: 'none',
-                  borderRadius: '4px',
+                  
                   cursor: 'pointer'
                 }}
               >
@@ -330,7 +330,7 @@ const SettingsSection = ({ cmsData }) => {
                 width: '100%',
                 padding: '10px',
                 marginTop: '5px',
-                borderRadius: '4px',
+                
                 border: '1px solid #cbd5e1',
                 fontFamily: 'inherit'
               }}
@@ -340,7 +340,7 @@ const SettingsSection = ({ cmsData }) => {
             This will be used as the default meta description for pages that don't have a specific one.
           </p>
         </div>
-        <div style={{ marginBottom: '30px', padding: '20px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+        <div style={{ marginBottom: '30px', padding: '20px', background: '#f8fafc',  border: '1px solid #e2e8f0' }}>
           <h2 style={{ marginTop: '0', marginBottom: '15px', fontSize: '18px', fontWeight: 'bold' }}>Languages</h2>
           <p style={{ fontSize: '14px', color: '#64748b', marginBottom: '15px' }}>
             Manage available languages for your content. The default language will be used for editing new content.
@@ -356,7 +356,7 @@ const SettingsSection = ({ cmsData }) => {
                   width: '100%',
                   padding: '10px',
                   marginTop: '5px',
-                  borderRadius: '4px',
+                  
                   border: '1px solid #cbd5e1'
                 }}
               >
@@ -380,7 +380,7 @@ const SettingsSection = ({ cmsData }) => {
                   justifyContent: 'space-between',
                   padding: '10px 15px',
                   background: 'white',
-                  borderRadius: '6px',
+                  
                   border: '1px solid #e2e8f0'
                 }}>
                   <div>
@@ -392,7 +392,7 @@ const SettingsSection = ({ cmsData }) => {
                         padding: '2px 8px',
                         background: '#10b981',
                         color: 'white',
-                        borderRadius: '4px',
+                        
                         fontSize: '12px',
                         fontWeight: '600'
                       }}>DEFAULT</span>
@@ -406,7 +406,7 @@ const SettingsSection = ({ cmsData }) => {
                         background: '#ef4444',
                         color: 'white',
                         border: 'none',
-                        borderRadius: '4px',
+                        
                         cursor: 'pointer',
                         fontSize: '12px'
                       }}
@@ -426,7 +426,7 @@ const SettingsSection = ({ cmsData }) => {
               background: '#3b82f6',
               color: 'white',
               border: 'none',
-              borderRadius: '6px',
+              
               cursor: 'pointer',
               fontWeight: '500',
               fontSize: '14px'
@@ -435,7 +435,7 @@ const SettingsSection = ({ cmsData }) => {
             + Add Language
           </button>
         </div>
-        <div style={{ marginBottom: '30px', padding: '20px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+        <div style={{ marginBottom: '30px', padding: '20px', background: '#f8fafc',  border: '1px solid #e2e8f0' }}>
           <h2 style={{ marginTop: '0', marginBottom: '15px', fontSize: '18px', fontWeight: 'bold' }}>Social Media Links</h2>
           <p style={{ fontSize: '14px', color: '#64748b', marginBottom: '15px' }}>
             Add links to your social media profiles. These will be displayed in the site footer or other designated areas.
@@ -449,7 +449,7 @@ const SettingsSection = ({ cmsData }) => {
                   style={{
                     width: '150px',
                     padding: '10px',
-                    borderRadius: '4px',
+                    
                     border: '1px solid #cbd5e1'
                   }}
                 >
@@ -472,7 +472,7 @@ const SettingsSection = ({ cmsData }) => {
                   style={{
                     flex: '1',
                     padding: '10px',
-                    borderRadius: '4px',
+                    
                     border: '1px solid #cbd5e1'
                   }}
                 />
@@ -483,7 +483,7 @@ const SettingsSection = ({ cmsData }) => {
                     background: '#ef4444',
                     color: 'white',
                     border: 'none',
-                    borderRadius: '4px',
+                    
                     cursor: 'pointer',
                     fontSize: '12px'
                   }}
@@ -501,7 +501,7 @@ const SettingsSection = ({ cmsData }) => {
               background: '#3b82f6',
               color: 'white',
               border: 'none',
-              borderRadius: '6px',
+              
               cursor: 'pointer',
               fontWeight: '500',
               fontSize: '14px'
@@ -520,7 +520,7 @@ const SettingsSection = ({ cmsData }) => {
                 width: '100%',
                 padding: '10px',
                 marginTop: '5px',
-                borderRadius: '4px',
+                
                 border: '1px solid #cbd5e1'
               }}
             >
@@ -542,7 +542,7 @@ const SettingsSection = ({ cmsData }) => {
                 width: '100%',
                 padding: '10px',
                 marginTop: '5px',
-                borderRadius: '4px',
+                
                 border: '1px solid #cbd5e1'
               }}
             />
@@ -563,7 +563,7 @@ const SettingsSection = ({ cmsData }) => {
                 width: '100%',
                 padding: '10px',
                 marginTop: '5px',
-                borderRadius: '4px',
+                
                 border: '1px solid #cbd5e1'
               }}
             />

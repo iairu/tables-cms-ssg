@@ -57,13 +57,13 @@ export const RentalCalendarSection = ({ cmsData }) => {
       </header>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', border: '1px solid #ccc' }}>
         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-          <div key={day} style={{ padding: '10px', fontWeight: 'bold', textAlign: 'center', border: '1px solid #ccc', background: '#f0f0f0' }}>{day}</div>
+          <div key={day} style={{ padding: '10px', fontWeight: 'bold', textAlign: 'center', borderRight: '1px solid #ccc', background: '#f0f0f0' }}>{day}</div>
         ))}
         {calendarDays.map(day => {
           const dateString = day.toISOString().slice(0, 10);
           const reservations = reservationsByDate[dateString] || [];
           return (
-            <div key={day.toString()} style={{ padding: '10px', border: '1px solid #ccc', minHeight: '100px', background: day.getMonth() === currentDate.getMonth() ? 'white' : '#f9f9f9' }}>
+            <div key={day.toString()} style={{ padding: '10px', borderRight: '1px solid #ccc', borderBottom: '1px solid #ccc', minHeight: '100px', background: day.getMonth() === currentDate.getMonth() ? 'white' : '#f9f9f9' }}>
               <div>{day.getDate()}</div>
               <div>
                 {reservations.map(res => {
@@ -87,7 +87,7 @@ export const RentalCalendarSection = ({ cmsData }) => {
                         fontSize: '12px',
                         background: bgColor,
                         padding: '2px',
-                        borderRadius: '2px',
+                        
                         marginTop: '2px'
                       }}
                     >
