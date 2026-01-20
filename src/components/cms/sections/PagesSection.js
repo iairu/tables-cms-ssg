@@ -560,7 +560,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                 </td>
                 <td>{page.lastEdited ? new Date(page.lastEdited).toLocaleString('ja-JP') : 'Never'}</td>
                 <td>
-                  <button onClick={() => handleEditPage(page.id)}>Edit</button>
+                  <button onClick={() => navigate(`/cms/pages/edit?slug=${getLocalizedContent(page, settings?.defaultLang || 'en').slug}`)}>Edit</button>
                   <button onClick={() => handleDeleteClick(page.id)}>Delete</button>
                 </td>
               </tr>
