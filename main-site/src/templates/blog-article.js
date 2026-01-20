@@ -4,6 +4,7 @@ import { t, formatDate } from '../utils/localization';
 import Breadcrumbs from '../components/Breadcrumbs';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import Head from '../components/Head';
 
 const BlogArticleTemplate = ({ pageContext, location }) => {
   const [article, setArticle] = useState(pageContext.articleData || null);
@@ -416,16 +417,8 @@ export const Head = ({ pageContext }) => {
     || article?.content?.substring(0, 160)
     || title;
 
-  return (
-    <>
-      <title>{title} | {siteTitle}</title>
-      <meta name="description" content={metaDescription} />
-      {pageContext.settings?.siteFavicon && <link rel="icon" href={pageContext.settings?.siteFavicon} />}
-      <html lang={language} />
-      {/* FontAwesome CDN */}
-      <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    </>
-  );
+  const fullTitle = `${title} | ${siteTitle}`;
+  const favicon = pageContext.settings?.siteFavicon;
+
+  return <Head fullTitle={fullTitle} description={metaDescription} favicon={favicon} lang={language} />;
 };

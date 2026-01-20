@@ -4,6 +4,7 @@ import { t } from '../utils/localization';
 import Breadcrumbs from '../components/Breadcrumbs';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import Head from '../components/Head';
 
 const PageTemplate = ({ pageContext, location }) => {
   const [page, setPage] = useState(pageContext.pageData || null);
@@ -866,20 +867,12 @@ export const Head = ({ pageContext }) => {
   const language = pageContext.language || 'en';
 
   // Get localized meta description
-  const metaDescription = (page?.translations && page.translations[language]?.metaDescription) 
-    || page?.metaDescription 
-    || pageContext.settings?.defaultMetaDescription
-    || title;
+  const metaDescription = page.translations && page.translations[language]?.metaDescription 
+    ? page.translations[language].metaDescription 
+    : page.metaDescription || '';
 
-  return (
-    <>
-      <title>{title} | {siteTitle}</title>
-      <meta name="description" content={metaDescription} />
-      {pageContext.settings?.siteFavicon && <link rel="icon" href={pageContext.settings?.siteFavicon} />}
-      {/* FontAwesome CDN */}
-      <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    </>
-  );
+  const fullTitle = `${title} | ${siteTitle}`;
+  const favicon = pageContext.settings?.siteFavicon;
+
+  return <Head fullTitle={fullTitle} description={metaDescription} favicon={favicon} />;
 };

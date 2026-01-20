@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import Head from '../components/Head';
 
 const EmptyHomeTemplate = ({ pageContext }) => {
   const [settings, setSettings] = useState(pageContext.settings || null);
@@ -137,16 +138,9 @@ export default EmptyHomeTemplate;
 
 export const Head = ({ pageContext }) => {
   const siteTitle = pageContext.settings?.siteTitle || 'TABLES';
-  
-  return (
-    <>
-      <title>{siteTitle}</title>
-      <meta name="description" content="Welcome to your new site. Add content through the CMS to get started." />
-      {pageContext.settings?.siteFavicon && <link rel="icon" href={pageContext.settings?.siteFavicon} />}
-      {/* FontAwesome CDN */}
-      <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    </>
-  );
+  const fullTitle = siteTitle;
+  const description = "Welcome to your new site. Add content through the CMS to get started.";
+  const favicon = pageContext.settings?.siteFavicon;
+
+  return <Head fullTitle={fullTitle} description={description} favicon={favicon} />;
 };

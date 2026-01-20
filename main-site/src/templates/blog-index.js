@@ -4,6 +4,7 @@ import { t, formatDate, getMonthName } from '../utils/localization';
 import Breadcrumbs from '../components/Breadcrumbs';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import Head from '../components/Head';
 
 const BlogIndexTemplate = ({ pageContext }) => {
   const { lang = 'en' } = pageContext;
@@ -456,16 +457,9 @@ export default BlogIndexTemplate;
 
 export const Head = ({ pageContext }) => {
   const siteTitle = pageContext.settings?.siteTitle || 'TABLES';
-  
-  return (
-    <>
-      <title>Blog | {siteTitle}</title>
-      <meta name="description" content="Blog articles and updates" />
-      {pageContext.settings?.siteFavicon && <link rel="icon" href={pageContext.settings?.siteFavicon} />}
-      {/* FontAwesome CDN */}
-      <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    </>
-  );
+  const fullTitle = `Blog | ${siteTitle}`;
+  const description = "Blog articles and updates";
+  const favicon = pageContext.settings?.siteFavicon;
+
+  return <Head fullTitle={fullTitle} description={description} favicon={favicon} />;
 };

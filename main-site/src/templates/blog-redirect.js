@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { navigate } from 'gatsby';
+import Head from '../components/Head';
 
 const BlogRedirect = ({ pageContext }) => {
   useEffect(() => {
@@ -72,4 +73,4 @@ const BlogRedirect = ({ pageContext }) => {
 
 export default BlogRedirect;
 
-export const Head = () => <title>Redirecting...</title>;
+export const Head = () => <Head fullTitle="Redirecting..." />;
