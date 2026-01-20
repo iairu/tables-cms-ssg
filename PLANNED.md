@@ -1,4 +1,7 @@
 
+attendance is missing confirm delete modal like one present in inventory, same for reservations
+
+---
 
 adjust main-site/src/templates based on strukshow-old-site-new-theme content (that is an old site but a newer theme we have to port over to our main-site), do not change file structure at all, just mostly update css in Header.js, Footer.js, mainly page.js, ...
 

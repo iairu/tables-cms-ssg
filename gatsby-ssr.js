@@ -5,9 +5,15 @@
 
 import React from 'react';
 
+import { LoadingProvider } from './src/context/LoadingContext';
+
 // Wrap page element to ensure consistent rendering between SSR and client
 export const wrapPageElement = ({ element }) => {
-  return element;
+  return (
+    <LoadingProvider>
+      {element}
+    </LoadingProvider>
+  );
 };
 
 // Add custom HTML attributes

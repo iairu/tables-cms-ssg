@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
-import { navigate } from 'gatsby';
+import React, { useState, useEffect } from 'react';
+import { useLoading } from '../../../context/LoadingContext';
+import { createNavigation } from '../../../utils/navigation';
 import { fuzzyMatch } from '../utils';
 
 const BlogSection = ({ cmsData, edit: editModeProp }) => {
   const { blogArticles, currentBlogArticleId, saveCurrentBlogArticleId, addBlogArticle, deleteBlogArticle, updateBlogArticle, isBuilding, settings } = cmsData;
+  const { showLoading, hideLoading } = useLoading();
+  const navigate = createNavigation(showLoading, hideLoading);
   const [editMode, setEditMode] = useState(editModeProp || false);
   const [isSaving, setIsSaving] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -13,6 +16,10 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
   const [saveSuccessModalOpen, setSaveSuccessModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentLanguage, setCurrentLanguage] = useState(settings?.defaultLang || 'en');
+
+  useEffect(() => {
+    hideLoading();
+  }, []);
 
   const handleAddArticle = () => {
     const newId = addBlogArticle();

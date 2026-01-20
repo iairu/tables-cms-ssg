@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { navigate } from 'gatsby';
+import { useLoading } from '../../../context/LoadingContext';
+import { createNavigation } from '../../../utils/navigation';
 import ComponentEditor from '../ComponentEditor';
 import { fuzzyMatch } from '../utils';
 
 const PagesSection = ({ cmsData, edit: editModeProp }) => {
   const { pages, currentPageId, saveCurrentPageId, addPage, deletePage, updatePage, settings } = cmsData;
+  const { showLoading, hideLoading } = useLoading();
+  const navigate = createNavigation(showLoading, hideLoading);
   const [editMode, setEditMode] = useState(editModeProp || false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [pageToDelete, setPageToDelete] = useState(null);
@@ -13,6 +16,10 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
   const [saveSuccessModalOpen, setSaveSuccessModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentLanguage, setCurrentLanguage] = useState(settings?.defaultLang || 'en');
+
+  useEffect(() => {
+    hideLoading();
+  }, []);
 
   useEffect(() => {
     // Ensure that a page with slug 'home' always exists, but only after data is loaded

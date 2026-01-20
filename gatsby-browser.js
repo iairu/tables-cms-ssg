@@ -5,6 +5,10 @@
 
 import './src/styles/cms.css';
 
+import React from 'react';
+import { LoadingProvider } from './src/context/LoadingContext';
+import LoadingBar from './src/components/LoadingBar';
+
 // Prevent flash of unstyled content
 export const onClientEntry = () => {
   // IntersectionObserver polyfill for older browsers
@@ -15,7 +19,14 @@ export const onClientEntry = () => {
 
 // Wrap page element to handle client-side only components
 export const wrapPageElement = ({ element }) => {
-  return element;
+  return (
+    <LoadingProvider>
+      <>
+        <LoadingBar />
+        {element}
+      </>
+    </LoadingProvider>
+  );
 };
 
 // Handle service worker updates
