@@ -4,7 +4,7 @@ import { t, formatDate, getMonthName } from '../utils/localization';
 import Breadcrumbs from '../components/Breadcrumbs';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import Head from '../components/Head';
+import HeadComponent from '../components/HeadComponent';
 
 const BlogIndexTemplate = ({ pageContext }) => {
   const { lang = 'en' } = pageContext;
@@ -456,5 +456,5 @@ export const Head = ({ pageContext }) => {
   const description = "Blog articles and updates";
   const favicon = pageContext.settings?.siteFavicon;
 
-  return <Head fullTitle={fullTitle} description={description} favicon={favicon} />;
+  return <HeadComponent fullTitle={fullTitle} description={description} favicon={favicon} />;
 };

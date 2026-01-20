@@ -10,12 +10,5 @@ module.exports = {
     siteUrl: `https://example.com`,
   },
   plugins: [
-    {
-      resolve: `gatsby-source-filesystem`,
-      options: {
-        name: `data`,
-        path: `${__dirname}/src/data`,
-      },
-    },
   ],
 }

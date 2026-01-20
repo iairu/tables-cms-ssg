@@ -4,7 +4,7 @@ import { t, formatDate } from '../utils/localization';
 import Breadcrumbs from '../components/Breadcrumbs';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import Head from '../components/Head';
+import HeadComponent from '../components/HeadComponent';
 
 const BlogArticleTemplate = ({ pageContext, location }) => {
   const [article, setArticle] = useState(pageContext.articleData || null);
@@ -419,5 +419,5 @@ export const Head = ({ pageContext }) => {
   const fullTitle = `${title} | ${siteTitle}`;
   const favicon = pageContext.settings?.siteFavicon;
 
-  return <Head fullTitle={fullTitle} description={metaDescription} favicon={favicon} lang={language} />;
+  return <HeadComponent fullTitle={fullTitle} description={metaDescription} favicon={favicon} lang={language} />;
 };

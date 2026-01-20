@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { navigate } from 'gatsby';
-import Head from '../components/Head';
+import HeadComponent from '../components/HeadComponent';
 
 const BlogRedirect = ({ pageContext }) => {
   useEffect(() => {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import Head from '../components/Head';
+import HeadComponent from '../components/HeadComponent';
 
 const EmptyHomeTemplate = ({ pageContext }) => {
   const [settings, setSettings] = useState(pageContext.settings || null);
@@ -139,5 +139,5 @@ export const Head = ({ pageContext }) => {
   const description = "Welcome to your new site. Add content through the CMS to get started.";
   const favicon = pageContext.settings?.siteFavicon;
 
-  return <Head fullTitle={fullTitle} description={description} favicon={favicon} />;
+  return <HeadComponent fullTitle={fullTitle} description={description} favicon={favicon} />;
 };

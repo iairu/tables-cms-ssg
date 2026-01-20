@@ -4,7 +4,7 @@ import { t } from '../utils/localization';
 import Breadcrumbs from '../components/Breadcrumbs';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import Head from '../components/Head';
+import HeadComponent from '../components/HeadComponent';
 
 const PageTemplate = ({ pageContext, location }) => {
   const [page, setPage] = useState(pageContext.pageData || null);
@@ -866,5 +866,5 @@ export const Head = ({ pageContext }) => {
   const fullTitle = `${title} | ${siteTitle}`;
   const favicon = pageContext.settings?.siteFavicon;
 
-  return <Head fullTitle={fullTitle} description={metaDescription} favicon={favicon} />;
+  return <HeadComponent fullTitle={fullTitle} description={metaDescription} favicon={favicon} />;
 };
