@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Head = ({ fullTitle, description, favicon, lang }) => {
+const HeadComponent = ({ fullTitle, description, favicon, lang }) => {
   return (
     <>
       <title>{fullTitle}</title>
@@ -15,4 +15,4 @@ const Head = ({ fullTitle, description, favicon, lang }) => {
   );
 };
 
-export default Head;
+export default HeadComponent;
