@@ -3,6 +3,10 @@ attendance is missing confirm delete modal like one present in inventory, same f
 
 ---
 
+create a new Header that is meant to be above both SideMenu and main, move "Visit Domain", "Build and Deploy" and "Build Locally Only" buttons into it to the right side, but a SearchBar (like the one in vscode) into middle (for now it will display placeholder search results with fuzzy search) and add logo to the left side of the new Header
+
+---
+
 adjust main-site/src/templates based on strukshow-old-site-new-theme content (that is an old site but a newer theme we have to port over to our main-site), do not change file structure at all, just mostly update css in Header.js, Footer.js, mainly page.js, ...
 
 main-site/static/strukshow-old-site-new-theme/src/sections/Bar.svelte is Infobar, Bubbles.svelte is ignored, Flies.svelte is Flies, Floaters.svelte is Boxes, Ranking.svelte is Ranking, Ref.svelte is References, Slide.svelte is Slide, Titulka.svelte is TitleSlide, Video.svelte is Video
