@@ -18,7 +18,7 @@ export const config = {
 // Utility to find npm binary path
 function findNpmBinary(callback) {
   // Try 'which npm' first
-  exec('which npm', (err, stdout, stderr) => {
+  exec('which npm', (err, stdout) => {
     let npmPath = stdout && stdout.trim();
     if (!err && npmPath && fs.existsSync(npmPath)) {
       callback(npmPath);
@@ -186,8 +186,13 @@ const exportDataAndBuild = async (data, localOnly = false, vercelApiToken = null
       console.log('[Build API] Local only mode - skipping Gatsby build (gatsby develop will pick up changes)');
       return runMainSiteBuild(projectRoot, localOnly);
     } else {
-      console.log('[Build API] Production mode - running Gatsby build and deploying to Vercel');
-      return runMainSiteBuildAndDeploy(projectRoot, vercelApiToken);
+      if (vercelApiToken && vercelApiToken.trim() !== '') {
+        console.log('[Build API] Production mode - deploying to Vercel (no local build)');
+        return runMainSiteDeployOnly(projectRoot, vercelApiToken);
+      } else {
+        console.log('[Build API] Production mode - running Gatsby build only (no Vercel deployment)');
+        return runMainSiteBuild(projectRoot, false);
+      }
     }
   } catch (error) {
     console.error('[Build API] Error exporting data:', error);
@@ -195,158 +200,158 @@ const exportDataAndBuild = async (data, localOnly = false, vercelApiToken = null
   }
 };
 
-const runMainSiteBuild = (projectRoot, localOnly = false) => {
+// Disabled as we do not do full builds right now, only partial build updates (json copying) to existing structure
+// const runMainSiteBuild = (projectRoot, localOnly = false) => {
+//   return new Promise((resolve, reject) => {
+//     const mainSiteDir = path.join(projectRoot, 'main-site');
+//     const publicDir = path.join(mainSiteDir, 'public');
+
+//     console.log('[Build API] Starting main site Gatsby build...');
+//     console.log('[Build API] Main site directory:', mainSiteDir);
+//     console.log('[Build API] NODE_ENV:', process.env.NODE_ENV);
+
+//     // Skip build in local mode - gatsby develop will pick up the changes automatically
+//     // Only when localOnly=true (development), we skip the build
+//     // When localOnly=false (production), we run the full Gatsby build
+//     if (localOnly) {
+//       console.log('[Build API] Local mode detected - skipping Gatsby build');
+//       console.log('[Build API] The gatsby develop server will automatically pick up data changes');
+//       resolve();
+//       return;
+//     }
+
+//     // Check if main-site exists
+//     if (!fs.existsSync(mainSiteDir)) {
+//       console.error('[Build API] main-site directory not found');
+//       reject(new Error('main-site directory not found'));
+//       return;
+//     }
+
+//     // Check if node_modules exists in main-site
+//     const mainSiteNodeModules = path.join(mainSiteDir, 'node_modules');
+//     if (!fs.existsSync(mainSiteNodeModules)) {
+//       console.log('[Build API] Installing main-site dependencies first...');
+
+//       // Find npm binary and install dependencies first
+//       findNpmBinary((npmPath) => {
+//         // Add node bin directory to PATH
+//         const nodeBinDir = path.dirname(npmPath);
+//         const envWithPath = {
+//           ...process.env,
+//           PATH: `${nodeBinDir}:${process.env.PATH}`
+//         };
+
+//         exec(`"${npmPath}" install`, {
+//           cwd: mainSiteDir,
+//           env: envWithPath
+//         }, (installError) => {
+//           if (installError) {
+//             console.error('[Build API] npm install failed:', installError);
+//             reject(installError);
+//             return;
+//           }
+
+//           console.log('[Build API] Dependencies installed, starting build...');
+//           executeBuild(npmPath);
+//         });
+//       });
+//     } else {
+//       // Find npm binary for build step
+//       findNpmBinary((npmPath) => {
+//         executeBuild(npmPath);
+//       });
+//     }
+
+//     function executeBuild(npmPath) {
+//       // Add node bin directory to PATH
+//       const nodeBinDir = path.dirname(npmPath);
+//       const envWithPath = {
+//         ...process.env,
+//         PATH: `${nodeBinDir}:${process.env.PATH}`,
+//         NODE_ENV: 'production'
+//       };
+
+//       // Execute gatsby build in main-site directory
+//       const buildProcess = exec(
+//         `"${npmPath}" run build`,
+//         {
+//           cwd: mainSiteDir,
+//           env: envWithPath,
+//           maxBuffer: 10 * 1024 * 1024 // 10MB buffer
+//         },
+//         (error) => {
+//           if (error) {
+//             console.error('[Build API] Main site build error:', error);
+//             reject(error);
+//             return;
+//           }
+
+//           console.log('[Build API] Main site build completed');
+
+//           // Check if public directory was created
+//           if (fs.existsSync(publicDir)) {
+//             console.log('[Build API] Main site public directory exists');
+
+//             // Copy built site to root public directory for serving
+//             const rootPublicDir = path.join(projectRoot, 'public');
+//             if (!fs.existsSync(rootPublicDir)) {
+//               fs.mkdirSync(rootPublicDir, { recursive: true });
+//             }
+
+//             // Copy contents
+//             try {
+//               copyDir(publicDir, rootPublicDir);
+//               console.log('[Build API] Built site copied to root public directory');
+//               resolve();
+//             } catch (copyError) {
+//               console.error('[Build API] Error copying built site:', copyError);
+//               reject(copyError);
+//             }
+//           } else {
+//             console.error('[Build API] Main site public directory not found');
+//             reject(new Error('Public directory not created'));
+//           }
+//         }
+//       );
+
+//       // Log build output in real-time
+//       buildProcess.stdout.on('data', (data) => {
+//         const output = data.toString().trim();
+//         if (output) console.log('[Main Site Build]', output);
+//       });
+
+//       buildProcess.stderr.on('data', (data) => {
+//         const output = data.toString().trim();
+//         if (output) console.error('[Main Site Build Error]', output);
+//       });
+//     }
+//   });
+// };
+
+// // Utility function to recursively copy directory
+// function copyDir(src, dest) {
+//   if (!fs.existsSync(dest)) {
+//     fs.mkdirSync(dest, { recursive: true });
+//   }
+
+//   const entries = fs.readdirSync(src, { withFileTypes: true });
+
+//   for (const entry of entries) {
+//     const srcPath = path.join(src, entry.name);
+//     const destPath = path.join(dest, entry.name);
+
+//     if (entry.isDirectory()) {
+//       copyDir(srcPath, destPath);
+//     } else {
+//       fs.copyFileSync(srcPath, destPath);
+//     }
+//   }
+// }
+const runMainSiteDeployOnly = (projectRoot, vercelApiToken) => {
   return new Promise((resolve, reject) => {
     const mainSiteDir = path.join(projectRoot, 'main-site');
-    const publicDir = path.join(mainSiteDir, 'public');
 
-    console.log('[Build API] Starting main site Gatsby build...');
-    console.log('[Build API] Main site directory:', mainSiteDir);
-    console.log('[Build API] NODE_ENV:', process.env.NODE_ENV);
-
-    // Skip build in local mode - gatsby develop will pick up the changes automatically
-    // Only when localOnly=true (development), we skip the build
-    // When localOnly=false (production), we run the full Gatsby build
-    if (localOnly) {
-      console.log('[Build API] Local mode detected - skipping Gatsby build');
-      console.log('[Build API] The gatsby develop server will automatically pick up data changes');
-      resolve();
-      return;
-    }
-
-    // Check if main-site exists
-    if (!fs.existsSync(mainSiteDir)) {
-      console.error('[Build API] main-site directory not found');
-      reject(new Error('main-site directory not found'));
-      return;
-    }
-
-    // Check if node_modules exists in main-site
-    const mainSiteNodeModules = path.join(mainSiteDir, 'node_modules');
-    if (!fs.existsSync(mainSiteNodeModules)) {
-      console.log('[Build API] Installing main-site dependencies first...');
-
-      // Find npm binary and install dependencies first
-      findNpmBinary((npmPath) => {
-        // Add node bin directory to PATH
-        const nodeBinDir = path.dirname(npmPath);
-        const envWithPath = {
-          ...process.env,
-          PATH: `${nodeBinDir}:${process.env.PATH}`
-        };
-
-        exec(`"${npmPath}" install`, {
-          cwd: mainSiteDir,
-          env: envWithPath
-        }, (installError) => {
-          if (installError) {
-            console.error('[Build API] npm install failed:', installError);
-            reject(installError);
-            return;
-          }
-
-          console.log('[Build API] Dependencies installed, starting build...');
-          executeBuild(npmPath);
-        });
-      });
-    } else {
-      // Find npm binary for build step
-      findNpmBinary((npmPath) => {
-        executeBuild(npmPath);
-      });
-    }
-
-    function executeBuild(npmPath) {
-      // Add node bin directory to PATH
-      const nodeBinDir = path.dirname(npmPath);
-      const envWithPath = {
-        ...process.env,
-        PATH: `${nodeBinDir}:${process.env.PATH}`,
-        NODE_ENV: 'production'
-      };
-
-      // Execute gatsby build in main-site directory
-      const buildProcess = exec(
-        `"${npmPath}" run build`,
-        {
-          cwd: mainSiteDir,
-          env: envWithPath,
-          maxBuffer: 10 * 1024 * 1024 // 10MB buffer
-        },
-        (error) => {
-          if (error) {
-            console.error('[Build API] Main site build error:', error);
-            reject(error);
-            return;
-          }
-
-          console.log('[Build API] Main site build completed');
-
-          // Check if public directory was created
-          if (fs.existsSync(publicDir)) {
-            console.log('[Build API] Main site public directory exists');
-
-            // Copy built site to root public directory for serving
-            const rootPublicDir = path.join(projectRoot, 'public');
-            if (!fs.existsSync(rootPublicDir)) {
-              fs.mkdirSync(rootPublicDir, { recursive: true });
-            }
-
-            // Copy contents
-            try {
-              copyDir(publicDir, rootPublicDir);
-              console.log('[Build API] Built site copied to root public directory');
-              resolve();
-            } catch (copyError) {
-              console.error('[Build API] Error copying built site:', copyError);
-              reject(copyError);
-            }
-          } else {
-            console.error('[Build API] Main site public directory not found');
-            reject(new Error('Public directory not created'));
-          }
-        }
-      );
-
-      // Log build output in real-time
-      buildProcess.stdout.on('data', (data) => {
-        const output = data.toString().trim();
-        if (output) console.log('[Main Site Build]', output);
-      });
-
-      buildProcess.stderr.on('data', (data) => {
-        const output = data.toString().trim();
-        if (output) console.error('[Main Site Build Error]', output);
-      });
-    }
-  });
-};
-
-// Utility function to recursively copy directory
-function copyDir(src, dest) {
-  if (!fs.existsSync(dest)) {
-    fs.mkdirSync(dest, { recursive: true });
-  }
-
-  const entries = fs.readdirSync(src, { withFileTypes: true });
-
-  for (const entry of entries) {
-    const srcPath = path.join(src, entry.name);
-    const destPath = path.join(dest, entry.name);
-
-    if (entry.isDirectory()) {
-      copyDir(srcPath, destPath);
-    } else {
-      fs.copyFileSync(srcPath, destPath);
-    }
-  }
-}
-
-const runMainSiteBuildAndDeploy = (projectRoot, vercelApiToken) => {
-  return new Promise((resolve, reject) => {
-    const mainSiteDir = path.join(projectRoot, 'main-site');
-
-    console.log('[Build API] Starting build and Vercel deployment...');
+    console.log('[Build API] Starting Vercel deployment (no local build) ...');
     console.log('[Build API] Main site directory:', mainSiteDir);
     console.log('[Build API] NODE_ENV:', process.env.NODE_ENV);
 
@@ -364,19 +369,32 @@ const runMainSiteBuildAndDeploy = (projectRoot, vercelApiToken) => {
       return;
     }
 
-    // First, run the local build (with localOnly=false to ensure build runs), then deploy to Vercel
-    console.log('[Build API] Step 1: Running local Gatsby build for production...');
-    runMainSiteBuild(projectRoot, false) // Pass false to ensure build runs
+    // Remove .cache and public directories before deploying
+    const cacheDir = path.join(mainSiteDir, '.cache');
+    const publicDir = path.join(mainSiteDir, 'public');
+    try {
+      if (fs.existsSync(cacheDir)) {
+        fs.rmSync(cacheDir, { recursive: true, force: true });
+        console.log('[Build API] Removed main-site/.cache directory');
+      }
+      if (fs.existsSync(publicDir)) {
+        fs.rmSync(publicDir, { recursive: true, force: true });
+        console.log('[Build API] Removed main-site/public directory');
+      }
+    } catch (cleanupError) {
+      console.error('[Build API] Error removing .cache or public directories:', cleanupError);
+      // Not rejecting here, just logging, as cleanup failure shouldn't block deploy
+    }
+
+    // Only deploy to Vercel, do not run local build
+    console.log('[Build API] Deploying to Vercel...');
+    deployToVercel(mainSiteDir, vercelApiToken)
       .then(() => {
-        console.log('[Build API] Step 2: Deploying to Vercel...');
-        return deployToVercel(mainSiteDir, vercelApiToken);
-      })
-      .then(() => {
-        console.log('[Build API] Build and deployment completed successfully');
+        console.log('[Build API] Deployment completed successfully');
         resolve();
       })
       .catch((error) => {
-        console.error('[Build API] Build or deployment failed:', error);
+        console.error('[Build API] Deployment failed:', error);
         reject(error);
       });
   });
