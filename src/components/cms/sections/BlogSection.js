@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
+import { navigate } from 'gatsby';
 import { fuzzyMatch } from '../utils';
 
-const BlogSection = ({ cmsData }) => {
+const BlogSection = ({ cmsData, edit: editModeProp }) => {
   const { blogArticles, currentBlogArticleId, saveCurrentBlogArticleId, addBlogArticle, deleteBlogArticle, updateBlogArticle, isBuilding, settings } = cmsData;
-  const [editMode, setEditMode] = useState(false);
+  const [editMode, setEditMode] = useState(editModeProp || false);
   const [isSaving, setIsSaving] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [articleToDelete, setArticleToDelete] = useState(null);
@@ -29,6 +30,7 @@ const BlogSection = ({ cmsData }) => {
   const handleBackToList = () => {
     setEditMode(false);
     saveCurrentBlogArticleId(null);
+    navigate('/cms/blog');
   };
 
   const handleUpdateArticle = (id, updates) => {

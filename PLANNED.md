@@ -26,15 +26,13 @@ add support for page groups: page group will contain multiple pages and on main-
 
 ---
 
-update sidemenu and routing so that Pages will be on /cms/pages, Blog on /cms/blog and so on for Pedigree on /cms/pedigree, Inventory on /cms/inventory, Attendance on /cms/attendance, Customers on /cms/customers, Employees on /cms/employees, Reservations on /cms/reservations, Calendar on /cms/calendar, Settings on /cms/settings and Extensions on /cms/extensions: current state: /cms/pages, /cms/blog, /cms/settings and /cms/extensions are already working correctly, but /cms/pedigree, /cms/inventory, /cms/attendance, /cms/customers, /cms/employees, /cms/reservations, /cms/calendar are not
+update routing so that Pages will be on /cms/pages, Blog on /cms/blog and so on for Pedigree on /cms/pedigree, Inventory on /cms/inventory, Attendance on /cms/attendance, Customers on /cms/customers, Employees on /cms/employees, Reservations on /cms/reservations, Calendar on /cms/calendar, Settings on /cms/settings and Extensions on /cms/extensions, current state: all navigation resolves to /cms/pages
 
-update routing for actions so that page with slug will be on /cms/pages/[slug]/[action] (e.g., /cms/pages/about/edit), blog post with slug will be on /cms/blog/[yyyy/mm/slug]/[action] (e.g., /cms/blog/[2026/01/demo-slug]/edit)
+update routing for actions so that page with slug will be on /cms/pages/edit?slug=[slug] (e.g., /cms/pages/about/edit), blog post with slug will be on /cms/blog/edit?route=[yyyy/mm/slug] (e.g., /cms/blog/edit?route=2026/01/demo-slug)
 
-similarly pedigree cats will now have ids and actions will be on /cms/pedigree/[id]/[action] (e.g., /cms/pedigree/1/edit), same for inventory on /cms/inventory/[id]/[action] (e.g., /cms/inventory/1/edit), and reservations on /cms/reservations/[id]/[action] (e.g., /cms/reservations/1/edit), and employees on /cms/employees/[id]/[action] (e.g., /cms/employees/1/edit), and customers on /cms/customers/[id]/[action] (e.g., /cms/customers/1/edit), and attendance on /cms/attendance/[id]/[action] (e.g., /cms/attendance/1/edit)
+similarly pedigree cats will now have ids and actions will be on /cms/pedigree/edit?id=[id] (e.g., /cms/pedigree/edit?id=1), same for inventory on /cms/inventory/edit?id=[id] (e.g., /cms/inventory/edit?id=1), employees on /cms/employees/edit?id=[id] (e.g., /cms/employees/edit?id=1), and customers on /cms/customers/edit?id=[id] (e.g., /cms/customers/edit?id=1), and attendance on /cms/attendance/edit?id=[id] (e.g., /cms/attendance/edit?id=1)
 
-
-
-clicking any button within SideMenu will navigate back
+clicking any button within SideMenu will always navigate even if already on the given section, same for clicking any Edit button (e.g. within /cms/pages table)
 
 ---
 

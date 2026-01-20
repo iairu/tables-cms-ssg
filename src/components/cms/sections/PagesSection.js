@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { navigate } from 'gatsby';
 import ComponentEditor from '../ComponentEditor';
 import { fuzzyMatch } from '../utils';
 
-const PagesSection = ({ cmsData }) => {
+const PagesSection = ({ cmsData, edit: editModeProp }) => {
   const { pages, currentPageId, saveCurrentPageId, addPage, deletePage, updatePage, settings } = cmsData;
-  const [editMode, setEditMode] = useState(false);
+  const [editMode, setEditMode] = useState(editModeProp || false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [pageToDelete, setPageToDelete] = useState(null);
   const [historyModalOpen, setHistoryModalOpen] = useState(false);
@@ -39,6 +40,7 @@ const PagesSection = ({ cmsData }) => {
   const handleBackToList = () => {
     setEditMode(false);
     saveCurrentPageId(null);
+    navigate('/cms/pages');
   };
 
   const handleDeleteClick = (id) => {
