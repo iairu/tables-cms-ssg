@@ -19,15 +19,29 @@ import {
   RentalCalendarSection
 } from '../components/cms/sections';
 
-const CMSPage = () => {
-  const [currentSection, setCurrentSection] = useState('pages');
+const sectionFromPath = {
+  pages: 'pages',
+  blog: 'blog',
+  pedigree: 'cats',
+  inventory: 'rental-inventory',
+  attendance: 'rental-attendance',
+  customers: 'rental-customers',
+  employees: 'rental-employees',
+  reservations: 'rental-reservations',
+  calendar: 'rental-calendar',
+  settings: 'settings',
+  extensions: 'extensions'
+};
+
+const CMSPage = ({ pageContext }) => {
+  const [currentSection, setCurrentSection] = useState(pageContext.section === 'default' ? null : sectionFromPath[pageContext.section] || pageContext.section);
   const [disableFurtherNavigation, setDisableFurtherNavigation] = useState(false);
   const [hasRunInitialNavigation, setHasRunInitialNavigation] = useState(false);
   const cmsData = useCMSData();
 
   // Navigation logic on mount - only runs once when data is loaded
   useEffect(() => {
-    if (typeof window === 'undefined' || hasRunInitialNavigation || !cmsData.isDataLoaded) {
+    if (typeof window === 'undefined' || hasRunInitialNavigation || !cmsData.isDataLoaded || currentSection !== null) {
       return;
     }
 
@@ -73,10 +87,6 @@ const CMSPage = () => {
     return null;
   }
 
-  const handleSectionChange = (sectionId) => {
-    setCurrentSection(sectionId);
-  };
-
   const handleManualBuild = (localOnly = false) => {
     if (cmsData.manualTriggerBuild) {
       cmsData.manualTriggerBuild(localOnly);
@@ -87,7 +97,6 @@ const CMSPage = () => {
     <div className="cms-container">
       <SideMenu
         currentSection={currentSection}
-        onSectionChange={handleSectionChange}
         isBuilding={cmsData.isBuilding}
         lastSaved={cmsData.lastSaved}
         onBuildClick={handleManualBuild}

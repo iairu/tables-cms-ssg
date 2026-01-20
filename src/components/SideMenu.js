@@ -1,7 +1,21 @@
 import React, { useState } from 'react';
 import { Link } from 'gatsby';
 
-const SideMenu = ({ currentSection, onSectionChange, isBuilding, lastSaved, onBuildClick, canBuild, buildCooldownSeconds, domain, vercelApiKey }) => {
+const pathFromSection = {
+  pages: 'pages',
+  blog: 'blog',
+  cats: 'pedigree',
+  'rental-inventory': 'inventory',
+  'rental-attendance': 'attendance',
+  'rental-customers': 'customers',
+  'rental-employees': 'employees',
+  'rental-reservations': 'reservations',
+  'rental-calendar': 'calendar',
+  settings: 'settings',
+  extensions: 'extensions'
+};
+
+const SideMenu = ({ currentSection, isBuilding, lastSaved, onBuildClick, canBuild, buildCooldownSeconds, domain, vercelApiKey }) => {
   const [isRentalSubMenuOpen, setIsRentalSubMenuOpen] = useState(false);
   let extensions = {};
   try {
@@ -9,11 +23,6 @@ const SideMenu = ({ currentSection, onSectionChange, isBuilding, lastSaved, onBu
   } catch (e) {
     extensions = {};
   }
-
-  const handleClick = (e, sectionId) => {
-    e.preventDefault();
-    onSectionChange(sectionId);
-  };
 
   const handleBuildClick = (e, localOnly = false) => {
     e.preventDefault();
@@ -151,52 +160,49 @@ const SideMenu = ({ currentSection, onSectionChange, isBuilding, lastSaved, onBu
           return (
             <>
               {extensions['pages-extension-enabled'] && (
-                <a 
-                  href="#pages" 
-                  onClick={(e) => handleClick(e, 'pages')}
+                <Link
+                  to={`/cms/${pathFromSection.pages}`}
                   className={currentSection === 'pages' ? 'active' : ''}
                 >
                   Pages
-                </a>
+                </Link>
               )}
               {extensions['blog-extension-enabled'] && (
-                <a 
-                  href="#blog" 
-                  onClick={(e) => handleClick(e, 'blog')}
+                <Link
+                  to={`/cms/${pathFromSection.blog}`}
                   className={currentSection === 'blog' ? 'active' : ''}
                 >
                   Blog
-                </a>
+                </Link>
               )}
               {extensions['pedigree-extension-enabled'] && (
-                <a 
-                  href="#cats" 
-                  onClick={(e) => handleClick(e, 'cats')}
+                <Link
+                  to={`/cms/${pathFromSection.cats}`}
                   className={currentSection === 'cats' ? 'active' : ''}
                 >
                   Pedigree
-                </a>
+                </Link>
               )}
               {extensions['rental-extension-enabled'] && (
                 <div>
-                      <a href="#rental-inventory" onClick={(e) => handleClick(e, 'rental-inventory')} className={currentSection === 'rental-inventory' ? 'active' : ''}>
+                      <Link to={`/cms/${pathFromSection['rental-inventory']}`} className={currentSection === 'rental-inventory' ? 'active' : ''}>
                         Inventory
-                      </a>
-                      <a href="#rental-attendance" onClick={(e) => handleClick(e, 'rental-attendance')} className={currentSection === 'rental-attendance' ? 'active' : ''}>
+                      </Link>
+                      <Link to={`/cms/${pathFromSection['rental-attendance']}`} className={currentSection === 'rental-attendance' ? 'active' : ''}>
                         Attendance
-                      </a>
-                      <a href="#rental-customers" onClick={(e) => handleClick(e, 'rental-customers')} className={currentSection === 'rental-customers' ? 'active' : ''}>
+                      </Link>
+                      <Link to={`/cms/${pathFromSection['rental-customers']}`} className={currentSection === 'rental-customers' ? 'active' : ''}>
                         Customers
-                      </a>
-                      <a href="#rental-employees" onClick={(e) => handleClick(e, 'rental-employees')} className={currentSection === 'rental-employees' ? 'active' : ''}>
+                      </Link>
+                      <Link to={`/cms/${pathFromSection['rental-employees']}`} className={currentSection === 'rental-employees' ? 'active' : ''}>
                         Employees
-                      </a>
-                      <a href="#rental-reservations" onClick={(e) => handleClick(e, 'rental-reservations')} className={currentSection === 'rental-reservations' ? 'active' : ''}>
+                      </Link>
+                      <Link to={`/cms/${pathFromSection['rental-reservations']}`} className={currentSection === 'rental-reservations' ? 'active' : ''}>
                         Reservations
-                      </a>
-                      <a href="#rental-calendar" onClick={(e) => handleClick(e, 'rental-calendar')} className={currentSection === 'rental-calendar' ? 'active' : ''}>
+                      </Link>
+                      <Link to={`/cms/${pathFromSection['rental-calendar']}`} className={currentSection === 'rental-calendar' ? 'active' : ''}>
                         Calendar
-                      </a>
+                      </Link>
                     </div>
               )}
             </>
@@ -212,13 +218,12 @@ const SideMenu = ({ currentSection, onSectionChange, isBuilding, lastSaved, onBu
       </div>
       <div>
         <h3>Configuration</h3>
-        <a 
-          href="#settings" 
-          onClick={(e) => handleClick(e, 'settings')}
+        <Link
+          to={`/cms/${pathFromSection.settings}`}
           className={currentSection === 'settings' ? 'active' : ''}
         >
           Settings
-        </a>
+        </Link>
         {/* <a 
           href="#acl" 
           onClick={(e) => handleClick(e, 'acl')}
@@ -226,13 +231,12 @@ const SideMenu = ({ currentSection, onSectionChange, isBuilding, lastSaved, onBu
         >
           ACL
         </a>*/}
-        <a 
-          href="#extensions" 
-          onClick={(e) => handleClick(e, 'extensions')}
+        <Link
+          to={`/cms/${pathFromSection.extensions}`}
           className={currentSection === 'extensions' ? 'active' : ''}
         >
           Extensions
-        </a>
+        </Link>
       </div>
       <style>{`
         @keyframes spin {

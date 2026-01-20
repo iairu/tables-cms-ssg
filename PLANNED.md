@@ -26,7 +26,7 @@ add support for page groups: page group will contain multiple pages and on main-
 
 ---
 
-update sidemenu and routing so that Pages will be on /cms/pages, Blog on /cms/blog and so on for Pedigree on /cms/pedigree, Inventory on /cms/inventory, Attendance on /cms/attendance, Customers on /cms/customers, Employees on /cms/employees, Reservations on /cms/reservations, Calendar on /cms/calendar, Settings on /cms/settings and Extensions on /cms/extensions
+update sidemenu and routing so that Pages will be on /cms/pages, Blog on /cms/blog and so on for Pedigree on /cms/pedigree, Inventory on /cms/inventory, Attendance on /cms/attendance, Customers on /cms/customers, Employees on /cms/employees, Reservations on /cms/reservations, Calendar on /cms/calendar, Settings on /cms/settings and Extensions on /cms/extensions: current state: /cms/pages, /cms/blog, /cms/settings and /cms/extensions are already working correctly, but /cms/pedigree, /cms/inventory, /cms/attendance, /cms/customers, /cms/employees, /cms/reservations, /cms/calendar are not
 
 update routing for actions so that page with slug will be on /cms/pages/[slug]/[action] (e.g., /cms/pages/about/edit), blog post with slug will be on /cms/blog/[yyyy/mm/slug]/[action] (e.g., /cms/blog/[2026/01/demo-slug]/edit)
 
