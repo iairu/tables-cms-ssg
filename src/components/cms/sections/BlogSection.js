@@ -559,7 +559,7 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
                   </td>
                   <td>{article.lastEdited ? new Date(article.lastEdited).toLocaleString('ja-JP') : 'Never'}</td>
                   <td>
-                    <button onClick={() => navigate(`/cms/blog/edit?slug=${getLocalizedContent(article, settings?.defaultLang || 'en').slug}`)}>Edit</button>
+                    <button onClick={() => navigate(`/cms/blog/edit?id=${article.id}`)}>Edit</button>
                     <button onClick={() => handleDeleteClick(article.id)}>Delete</button>
                   </td>
                 </tr>

@@ -19,20 +19,20 @@ const CMSBlogEditPage = () => {
     console.log('cmsData:', cmsData);
     if (cmsData.isDataLoaded) {
       const params = new URLSearchParams(location.search);
-      const slug = params.get('slug');
-      console.log('Extracted slug:', slug);
-      if (slug) {
-        const article = cmsData.blogArticles.find(a => a.slug === slug);
+      const id = params.get('id');
+      console.log('Extracted id:', id);
+      if (id) {
+        const article = cmsData.blogArticles.find(a => String(a.id) === String(id));
         console.log('Matched article:', article);
         if (article) {
           console.log('Saving current blog article ID:', article.id);
           cmsData.saveCurrentBlogArticleId(article.id);
         } else {
-          console.warn('No article found for slug:', slug, 'Redirecting to /cms/blog');
+          console.warn('No article found for id:', id, 'Redirecting to /cms/blog');
           navigate('/cms/blog');
         }
       } else {
-        console.warn('No slug provided in query params. Redirecting to /cms/blog');
+        console.warn('No id provided in query params. Redirecting to /cms/blog');
         navigate('/cms/blog');
       }
     }

@@ -32,48 +32,28 @@ const CMSPagesEditPage = () => {
 
     try {
       const params = new URLSearchParams(location.search);
-      const slug = params.get('slug');
-      console.log("Extracted slug:", slug);
+      const id = params.get('id');
+      console.log("Extracted id:", id);
 
       let page = undefined;
-      if (slug && Array.isArray(cmsData.pages)) {
-        const normalizedSlug = decodeURIComponent((slug || '').trim().toLowerCase());
+      if (id && Array.isArray(cmsData.pages)) {
+        page = cmsData.pages.find(p => String(p.id) === String(id));
 
-        // Try matching by direct slug
-        page = cmsData.pages.find(p =>
-          decodeURIComponent((p.slug || '').trim().toLowerCase()) === normalizedSlug
-        );
-
-        // If not found, try alternate keys or nested structures
-        if (!page) {
-          page = cmsData.pages.find(p =>
-            p.page?.slug && decodeURIComponent((p.page.slug || '').trim().toLowerCase()) === normalizedSlug
-          );
-        }
-        if (!page) {
-          page = cmsData.pages.find(p =>
-            p.fields?.slug && decodeURIComponent((p.fields.slug || '').trim().toLowerCase()) === normalizedSlug
-          );
-        }
-        if (!page) {
-          page = cmsData.pages.find(p =>
-            p.id && decodeURIComponent((p.id || '').trim().toLowerCase()) === normalizedSlug
-          );
-        }
+        // Lookup by id only (already done above)
       }
 
       console.log("Matched page:", page);
 
-      if (slug) {
+      if (id) {
         if (page) {
           console.log("Saving current page ID:", page.id);
           cmsData.saveCurrentPageId(page.id);
         } else {
-          console.warn("No page found for slug:", slug, "Redirecting to /cms/pages");
+          console.warn("No page found for id:", id, "Redirecting to /cms/pages");
           navigate('/cms/pages');
         }
       } else {
-        console.warn("No slug found in query params. Redirecting to /cms/pages");
+        console.warn("No id found in query params. Redirecting to /cms/pages");
         navigate('/cms/pages');
       }
     } catch (err) {
