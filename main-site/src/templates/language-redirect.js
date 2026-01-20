@@ -73,4 +73,4 @@ const LanguageRedirect = ({ pageContext }) => {
 
 export default LanguageRedirect;
 
-export const Head = () => <Head fullTitle="Redirecting..." />;
+export const Head = () => <HeadComponent fullTitle="Redirecting..." />;

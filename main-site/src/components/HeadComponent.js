@@ -1,18 +1,16 @@
 import React from 'react';
+import { Helmet } from 'react-helmet';
 
-const HeadComponent = ({ fullTitle, description, favicon, lang }) => {
-  return (
-    <>
-      <title>{fullTitle}</title>
-      {description !== undefined && <meta name="description" content={description} />}
-      {favicon && <link rel="icon" href={favicon} />}
-      {lang && <html lang={lang} />}
-      <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-      />
-    </>
-  );
-};
+const HeadComponent = ({ fullTitle, description, favicon, lang }) => (
+  <Helmet htmlAttributes={lang ? { lang } : {}}>
+    <title>{fullTitle}</title>
+    {description !== undefined && <meta name="description" content={description} />}
+    {favicon && <link rel="icon" href={favicon} />}
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+  </Helmet>
+);
 
 export default HeadComponent;

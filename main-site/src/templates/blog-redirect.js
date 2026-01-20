@@ -72,4 +72,4 @@ const BlogRedirect = ({ pageContext }) => {
 
 export default BlogRedirect;
 
-export const Head = () => <Head fullTitle="Redirecting..." />;
+export const Head = () => <HeadComponent fullTitle="Redirecting..." />;
