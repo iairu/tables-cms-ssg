@@ -347,7 +347,7 @@ const BlogIndexTemplate = ({ pageContext }) => {
   };
 
   return (
-    <div style={{
+    <div className="page-container" style={{
       minHeight: '100vh',
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
     }}>

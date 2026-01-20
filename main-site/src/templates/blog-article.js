@@ -220,7 +220,7 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
 
   if (loading) {
     return (
-      <div style={{
+      <div className="loading-container" style={{
         minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',
@@ -234,7 +234,7 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
 
   if (!article) {
     return (
-      <div style={{
+      <div className="not-found-container" style={{
         minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',

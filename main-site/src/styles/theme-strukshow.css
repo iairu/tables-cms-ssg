@@ -17,7 +17,7 @@ footer {
     background: rgba(0, 0, 0, 0.06);
     border: 1px solid #00000012;
 }
-.page-container {
+.page-container, .loading-container, .not-found-container {
     background: rgba(255, 255, 255, 0.06);
     color: #000000;
 }
@@ -39,7 +39,7 @@ body.theme-dark-ver .no-content {
     background: rgba(255, 255, 255, 0.06);
     border: 1px solid #ffffff12;
 }
-body.theme-dark-ver .page-container {
+body.theme-dark-ver .page-container, .loading-container, .not-found-container {
     background: rgba(0, 0, 0, 0.95);
     color: #ffffff;
 }
@@ -61,7 +61,7 @@ body.theme-dark-ver .page-container {
         background: rgba(255, 255, 255, 0.06);
         border: 1px solid #ffffff12;
     }
-    .page-container {
+    .page-container, .loading-container, .not-found-container {
         background: rgba(0, 0, 0, 0.95);
         color: #ffffff;
     }

@@ -40,7 +40,7 @@ const EmptyHomeTemplate = ({ pageContext }) => {
 
   if (loading) {
     return (
-      <div style={{
+      <div className="loading-container" style={{
         minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',
@@ -53,10 +53,9 @@ const EmptyHomeTemplate = ({ pageContext }) => {
   }
 
   return (
-    <div style={{
+    <div className="page-container" style={{
       minHeight: '100vh',
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
     }}>
       <Header
         simplified
