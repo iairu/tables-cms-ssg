@@ -36,7 +36,11 @@ const Header = ({
   const handleBuildClick = (e, localOnly = false) => {
     e.preventDefault();
     if (onBuildAndDeploy && !isBuilding && canBuild) {
-      onBuildAndDeploy(localOnly);
+      if (localOnly) {
+        onBuildLocally();
+      } else {
+        onBuildAndDeploy(localOnly);
+      }
     }
   };
 
