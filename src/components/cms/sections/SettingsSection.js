@@ -158,7 +158,7 @@ const SettingsSection = ({ cmsData }) => {
       <header>
         <h1>Settings</h1>
       </header>
-      {(!settings.siteTitle || settings.siteTitle === '' || !settings.vercelApiKey || settings.vercelApiKey === '') && (
+      {(!settings.siteTitle || settings.siteTitle === '' || !settings.vercelApiKey || settings.vercelApiKey === '' || !settings.vercelProjectName || settings.vercelProjectName === '') && (
         <div style={{
           margin: '20px',
           padding: '15px 20px',
@@ -175,6 +175,7 @@ const SettingsSection = ({ cmsData }) => {
             <strong>Action Required:</strong>
             {(!settings.siteTitle || settings.siteTitle === '') && ' Please fill out the Site Title.'}
             {(!settings.vercelApiKey || settings.vercelApiKey === '') && ' Please add your Vercel Deploy API Key.'}
+            {(!settings.vercelProjectName || settings.vercelProjectName === '') && ' Please add your Vercel Project Name.'}
           </div>
         </div>
       )}
@@ -588,6 +589,28 @@ const SettingsSection = ({ cmsData }) => {
           </label>
           <p style={{ fontSize: '14px', color: '#64748b', marginTop: '5px' }}>
             Get your deploy token from <a href="https://vercel.com/account/tokens">https://vercel.com/account/tokens</a>
+          </p>
+        </div>
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', marginBottom: '10px' }}>
+            <strong>Vercel Project Name:</strong>
+            <input
+              type="text"
+              value={settings.vercelProjectName || ''}
+              onChange={(e) => handleChange('vercelProjectName', e.target.value)}
+              placeholder="my-project-name"
+              pattern="[a-z-]+"
+              style={{
+                width: '100%',
+                padding: '10px',
+                marginTop: '5px',
+                
+                border: '1px solid #cbd5e1'
+              }}
+            />
+          </label>
+          <p style={{ fontSize: '14px', color: '#64748b', marginTop: '5px' }}>
+            Your Vercel project name (only lowercase letters a-z and dashes allowed)
           </p>
         </div>
         <div style={{ marginBottom: '20px' }}>

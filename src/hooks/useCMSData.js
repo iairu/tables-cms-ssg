@@ -93,8 +93,9 @@ const useCMSData = () => {
       extensions: JSON.parse(localStorage.getItem('extensions') || '{}')
     };
     
-    // Get Vercel API token from settings
+    // Get Vercel API token and project name from settings
     const vercelApiToken = cmsData.settings.vercelApiKey || '';
+    const vercelProjectName = cmsData.settings.vercelProjectName || '';
     
     // Trigger Gatsby build with data
     fetch('/api/build', {
@@ -105,7 +106,8 @@ const useCMSData = () => {
         trigger: 'cms-save',
         data: cmsData,
         localOnly: localOnly,
-        vercelApiToken: vercelApiToken
+        vercelApiToken: vercelApiToken,
+        vercelProjectName: vercelProjectName
       })
     })
     .then(res => {

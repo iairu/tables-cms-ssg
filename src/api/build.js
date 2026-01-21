@@ -60,7 +60,7 @@ export default async function handler(req, res) {
 
   // Handle POST request - trigger build
   if (req.method === 'POST') {
-    const { timestamp, trigger, data, localOnly, vercelApiToken } = req.body;
+    const { timestamp, trigger, data, localOnly, vercelApiToken, vercelProjectName } = req.body;
 
     console.log(`[Build API] Build request received at ${timestamp} (trigger: ${trigger}, localOnly: ${localOnly})`);
 
@@ -87,7 +87,7 @@ export default async function handler(req, res) {
     });
 
     // Export localStorage data and run the build asynchronously
-    exportDataAndBuild(data || {}, localOnly, vercelApiToken)
+    exportDataAndBuild(data || {}, localOnly, vercelApiToken, vercelProjectName)
       .then(() => {
         console.log('[Build API] Build completed successfully');
         const completionTime = new Date().toISOString();
@@ -125,7 +125,7 @@ function copyDir(src, dest) {
   }
 }
 
-const exportDataAndBuild = async (data, localOnly = false, vercelApiToken = null) => {
+const exportDataAndBuild = async (data, localOnly = false, vercelApiToken = null, vercelProjectName = null) => {
   const projectRoot = path.resolve(__dirname, '..', '..');
   const mainSiteStaticDir = path.join(projectRoot, 'main-site', 'static', 'data');
   const uploadsSrcDir = path.join(projectRoot, 'static', 'uploads');
@@ -253,7 +253,7 @@ const exportDataAndBuild = async (data, localOnly = false, vercelApiToken = null
     } else {
       if (vercelApiToken && vercelApiToken.trim() !== '') {
         console.log('[Build API] Production mode - deploying to Vercel (no local build)');
-        return runMainSiteDeployOnly(projectRoot, vercelApiToken);
+        return runMainSiteDeployOnly(projectRoot, vercelApiToken, vercelProjectName);
       } else {
         console.log('[Build API] Production mode - running Gatsby build only (no Vercel deployment)');
         return runMainSiteBuild(projectRoot, false);
@@ -411,7 +411,7 @@ const runMainSiteBuild = (projectRoot, localOnly = false) => {
 //     }
 //   }
 // }
-const runMainSiteDeployOnly = (projectRoot, vercelApiToken) => {
+const runMainSiteDeployOnly = (projectRoot, vercelApiToken, vercelProjectName) => {
   return new Promise((resolve, reject) => {
     const mainSiteDir = path.join(projectRoot, 'main-site');
 
@@ -452,7 +452,7 @@ const runMainSiteDeployOnly = (projectRoot, vercelApiToken) => {
 
     // Only deploy to Vercel, do not run local build
     console.log('[Build API] Deploying to Vercel...');
-    deployToVercel(mainSiteDir, vercelApiToken)
+    deployToVercel(mainSiteDir, vercelApiToken, vercelProjectName)
       .then(() => {
         console.log('[Build API] Deployment completed successfully');
         resolve();
@@ -464,7 +464,7 @@ const runMainSiteDeployOnly = (projectRoot, vercelApiToken) => {
   });
 };
 
-const deployToVercel = (mainSiteDir, vercelApiToken) => {
+const deployToVercel = (mainSiteDir, vercelApiToken, vercelProjectName) => {
   return new Promise((resolve, reject) => {
     // Check if node_modules exists in main-site
     const mainSiteNodeModules = path.join(mainSiteDir, 'node_modules');
@@ -525,8 +525,12 @@ const deployToVercel = (mainSiteDir, vercelApiToken) => {
 
         // Deploy to Vercel with production flag
         console.log('[Build API] Deploying to Vercel...');
+        console.log('[Build API] Project name:', vercelProjectName || 'auto-detect');
+        
+        // Use --name flag to specify the project name if provided
+        const vercelProjectFlag = vercelProjectName && vercelProjectName.trim() !== '' ? ` --name="${vercelProjectName}"` : '';
         const deployProcess = exec(
-          `${vercelCommand} --prod --token="${vercelApiToken}" --yes`,
+          `${vercelCommand} --prod --token="${vercelApiToken}" --yes${vercelProjectFlag}`,
           {
             cwd: mainSiteDir,
             env: envWithPath,
