@@ -3,6 +3,8 @@ import { fuzzyMatch } from '../utils';
 // RentalAttendanceSection
 export const RentalAttendanceSection = ({ cmsData }) => {
   const { attendanceRows, saveAttendanceRows, employeeRows } = cmsData;
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
 
   const handleAddRow = () => {
     const newRow = {
@@ -24,6 +26,24 @@ export const RentalAttendanceSection = ({ cmsData }) => {
   const handleRemoveRow = (index) => {
     const newRows = attendanceRows.filter((_, i) => i !== index);
     saveAttendanceRows(newRows);
+  };
+
+  const handleDeleteClick = (index) => {
+    setItemToDelete(index);
+    setDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (itemToDelete !== null) {
+      handleRemoveRow(itemToDelete);
+      setDeleteModalOpen(false);
+      setItemToDelete(null);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteModalOpen(false);
+    setItemToDelete(null);
   };
 
   return (
@@ -98,13 +118,59 @@ export const RentalAttendanceSection = ({ cmsData }) => {
                   />
                 </td>
                 <td>
-                  <button onClick={() => handleRemoveRow(index)}>Delete</button>
+                  <button onClick={() => handleDeleteClick(index)}>Delete</button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      {deleteModalOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            padding: '30px',
+            
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+            maxWidth: '400px',
+            width: '90%'
+          }}>
+            <h2 style={{ marginTop: 0, marginBottom: '15px', fontSize: '1.25rem' }}>Confirm Delete</h2>
+            <p style={{ marginBottom: '25px', color: '#64748b' }}>
+              Are you sure you want to delete this item? This action cannot be undone.
+            </p>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <button onClick={handleCancelDelete} style={{
+                padding: '8px 16px',
+                
+                border: '1px solid #cbd5e1',
+                backgroundColor: 'white',
+                cursor: 'pointer'
+              }}>Cancel</button>
+              <button onClick={handleConfirmDelete} style={{
+                padding: '8px 16px',
+                
+                border: 'none',
+                backgroundColor: '#ef4444',
+                color: 'white',
+                cursor: 'pointer'
+              }}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 };
