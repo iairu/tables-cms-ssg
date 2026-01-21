@@ -101,7 +101,7 @@ export function RenderImageUpload({ label, value, onUpload, onRemove, onSelect }
       </div>
       {value && !uploading && (
         <div style={{ marginTop: '5px' }}>
-          <img src={value} alt="Preview" style={{ maxWidth: '200px', maxHeight: '150px', display: 'block' }} />
+          <img src={value} alt="Upload Done (Verify in Assets)" style={{ maxWidth: '200px', maxHeight: '150px', display: 'block' }} />
           <button
             type="button"
             onClick={onRemove}
