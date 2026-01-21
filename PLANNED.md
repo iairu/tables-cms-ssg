@@ -4,7 +4,7 @@ main-site/static/strukshow-old-site-new-theme/src/sections/Bar.svelte is Infobar
 
 ---
 
-add vercel project name (only a-z and dashes allowed) as required next to vercel api key
+add vercel project name (only a-z and dashes allowed) as required next to vercel api key in settings, this will then be used during deploy to vercel in src/api/build.js to ensure correct project name
 
 ---
 

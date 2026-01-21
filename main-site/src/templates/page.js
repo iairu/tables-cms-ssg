@@ -8,6 +8,7 @@ import HeadComponent from '../components/HeadComponent';
 import Loading from '../components/common/Loading';
 import NotFound from '../components/common/NotFound';
 import PageComponent from '../components/page';
+import GDPRConsent from '../components/common/GDPRConsent';
 
 const PageTemplate = ({ pageContext, location }) => {
   const [page, setPage] = useState(pageContext.pageData || null);
@@ -262,6 +263,13 @@ const PageTemplate = ({ pageContext, location }) => {
         <meta name="description" content={metaDescription} />
       )}
       
+      {/* GDPR Consent Modal */}
+      <GDPRConsent
+        scripts={settings?.gdprScripts || []}
+        providers={settings?.gdprProviders || ''}
+        currentLanguage={currentLanguage}
+      />
+      
       <div className="page-container">
         <Header 
           settings={settings}
@@ -329,9 +337,9 @@ export const Head = ({ pageContext }) => {
   const language = pageContext.language || 'en';
 
   // Get localized meta description
-  const metaDescription = page.translations && page.translations[language]?.metaDescription 
+  const metaDescription = page?.translations && page.translations[language]?.metaDescription 
     ? page.translations[language].metaDescription 
-    : page.metaDescription || '';
+    : page?.metaDescription || '';
 
   const fullTitle = `${title} | ${siteTitle}`;
   const favicon = pageContext.settings?.siteFavicon;

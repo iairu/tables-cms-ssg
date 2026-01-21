@@ -1,115 +1,268 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 const Slide = ({ row }) => {
+  const sectionRef = useRef(null);
+  const [isOffscreen, setIsOffscreen] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (sectionRef.current) {
+        const rect = sectionRef.current.getBoundingClientRect();
+        const offscreen = rect.bottom < 0 || rect.top > window.innerHeight;
+        setIsOffscreen(offscreen);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleScroll);
+    handleScroll();
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, []);
+
+  const leftDark = row.fields.leftDarkTheme;
+  const rightDark = row.fields.rightDarkTheme;
+  const big = row.fields.largerSlide;
+  const reorderM = row.fields.switchOrderOnMobile;
+
+  const styles = {
+    section: {
+      display: 'flex',
+      flexFlow: 'row',
+      position: 'relative',
+      boxSizing: 'border-box',
+      justifyContent: 'space-around',
+      overflow: 'hidden',
+      width: '100%',
+    },
+    left: {
+      boxSizing: 'border-box',
+      display: row.fields.hideLeftOnMobile ? 'none' : 'flex',
+      position: 'relative',
+      flexFlow: 'column',
+      justifyContent: 'center',
+      minHeight: row.fields.minimalLeftHeight ? `${row.fields.minimalLeftHeight}vh` : (big ? '70vh' : '30vh'),
+      width: '50%',
+      paddingLeft: '15%',
+      paddingRight: '4em',
+      paddingTop: '2em',
+      paddingBottom: '2em',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
+      backgroundSize: row.fields.fitLeftBackground ? 'contain' : 'cover',
+      backgroundColor: row.fields.leftBackgroundColor || '#f4f4f4',
+      backgroundImage: row.fields.leftBackgroundImage ? `url(${row.fields.leftBackgroundImage})` : 'none',
+      color: leftDark ? 'white' : 'black',
+      zIndex: 10,
+      overflow: 'hidden',
+      clipPath: 'polygon(0 0, 100% 0, calc(100% - 50px) 100%, 0 100%)',
+    },
+    right: {
+      boxSizing: 'border-box',
+      display: row.fields.hideRightOnMobile ? 'none' : 'flex',
+      position: 'relative',
+      flexFlow: 'column',
+      justifyContent: 'center',
+      minHeight: row.fields.minimalRightHeight ? `${row.fields.minimalRightHeight}vh` : (big ? '70vh' : '30vh'),
+      width: '50%',
+      paddingRight: '15%',
+      paddingLeft: '4em',
+      paddingTop: '2em',
+      paddingBottom: '2em',
+      backgroundColor: 'transparent',
+      overflow: 'visible',
+      zIndex: 9,
+      color: rightDark ? 'white' : 'black',
+    },
+    under: {
+      position: 'absolute',
+      right: 0,
+      top: 0,
+      bottom: 0,
+      backgroundColor: row.fields.rightBackgroundColor || 'white',
+      backgroundImage: row.fields.rightBackgroundImage ? `url(${row.fields.rightBackgroundImage})` : 'none',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
+      backgroundSize: row.fields.fitRightBackground ? 'contain' : 'cover',
+      left: '-50px',
+      width: 'calc(100% + 50px)',
+      zIndex: -1,
+      boxSizing: 'border-box',
+    },
+    heading: {
+      fontSize: '3em',
+      margin: '0 0 0.5em 0',
+      animation: isOffscreen ? 'fadeout 0.75s forwards' : 'slideinup 0.75s',
+    },
+    text: {
+      fontSize: '1.125rem',
+      lineHeight: '1.75',
+      margin: '0 0 1.5em 0',
+      animation: isOffscreen ? 'fadeout 0.75s forwards' : 'slideinup 0.75s',
+    },
+    nav: {
+      display: 'flex',
+      gap: '1rem',
+      flexWrap: 'wrap',
+      animation: isOffscreen ? 'fadeout 0.75s forwards' : 'slideinup 0.75s',
+    },
+    button: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '0.5rem',
+      padding: '0.75rem 1.5rem',
+      backgroundColor: '#667eea',
+      color: 'white',
+      textDecoration: 'none',
+      fontWeight: '600',
+      border: 'none',
+      cursor: 'pointer',
+    },
+    link: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '0.5rem',
+      padding: '0.5rem',
+      color: '#667eea',
+      textDecoration: 'underline',
+      fontWeight: '600',
+    },
+  };
+
   return (
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: row.fields.largerSlide ? '1fr' : '1fr 1fr',
-      gap: '0',
-      minHeight: '400px'
-    }}>
-      {/* Left Side */}
-      <div style={{
-        background: row.fields.leftBackgroundColor || '#ffffff',
-        color: row.fields.leftDarkTheme ? '#ffffff' : '#0f172a',
-        padding: '4rem 2rem',
-        minHeight: `${row.fields.minimalLeftHeight || 300}px`,
-        backgroundImage: row.fields.leftBackgroundImage ? `url(${row.fields.leftBackgroundImage})` : 'none',
-        backgroundSize: row.fields.fitLeftBackground ? 'cover' : 'contain',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        display: row.fields.hideLeftOnMobile ? 'none' : 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        order: row.fields.switchOrderOnMobile ? 2 : 1
-      }}>
+    <section 
+      ref={sectionRef}
+      style={styles.section}
+      className={`slide${reorderM ? ' reorder_m' : ''}`}
+    >
+      <div style={styles.left} className={`left${leftDark ? ' dark' : ''}`}>
         {row.fields.leftHeading && (
-          <h2 style={{ fontSize: '2rem', fontWeight: '700', marginBottom: '1rem' }}>
-            {row.fields.leftHeading}
-          </h2>
+          <h1 style={styles.heading} dangerouslySetInnerHTML={{ __html: row.fields.leftHeading }} />
         )}
         {row.fields.leftText && (
-          <p style={{ fontSize: '1.125rem', lineHeight: '1.75', marginBottom: '1.5rem', whiteSpace: 'pre-wrap' }}>
-            {row.fields.leftText}
-          </p>
+          <p style={styles.text} dangerouslySetInnerHTML={{ __html: row.fields.leftText }} />
         )}
         {row.fields.leftButtons && row.fields.leftButtons.length > 0 && (
-          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+          <nav style={styles.nav}>
             {row.fields.leftButtons.map((button, btnIdx) => (
               <a
                 key={btnIdx}
                 href={button.link}
                 target={button.openAsPopup ? '_blank' : '_self'}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  padding: button.showAsButton ? '0.75rem 1.5rem' : '0.5rem',
-                  background: button.showAsButton ? '#667eea' : 'transparent',
-                  color: button.showAsButton ? 'white' : '#667eea',
-                  textDecoration: button.showAsButton ? 'none' : 'underline',
-                  fontWeight: '600'
-                }}
+                rel={button.openAsPopup ? 'noopener noreferrer' : ''}
+                style={button.showAsButton ? styles.button : styles.link}
               >
                 {button.icon && <span>{button.icon}</span>}
                 {button.title}
               </a>
             ))}
-          </div>
+          </nav>
         )}
       </div>
 
-      {/* Right Side */}
-      <div style={{
-        background: row.fields.rightBackgroundColor || '#ffffff',
-        color: row.fields.rightDarkTheme ? '#ffffff' : '#0f172a',
-        padding: '4rem 2rem',
-        minHeight: `${row.fields.minimalRightHeight || 300}px`,
-        backgroundImage: row.fields.rightBackgroundImage ? `url(${row.fields.rightBackgroundImage})` : 'none',
-        backgroundSize: row.fields.fitRightBackground ? 'cover' : 'contain',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        display: row.fields.hideRightOnMobile ? 'none' : 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        order: row.fields.switchOrderOnMobile ? 1 : 2
-      }}>
+      <div style={styles.right} className={`right${rightDark ? ' dark' : ''}`}>
         {row.fields.rightHeading && (
-          <h2 style={{ fontSize: '2rem', fontWeight: '700', marginBottom: '1rem' }}>
-            {row.fields.rightHeading}
-          </h2>
+          <h1 style={styles.heading} dangerouslySetInnerHTML={{ __html: row.fields.rightHeading }} />
         )}
         {row.fields.rightText && (
-          <p style={{ fontSize: '1.125rem', lineHeight: '1.75', marginBottom: '1.5rem', whiteSpace: 'pre-wrap' }}>
-            {row.fields.rightText}
-          </p>
+          <p style={styles.text} dangerouslySetInnerHTML={{ __html: row.fields.rightText }} />
         )}
         {row.fields.rightButtons && row.fields.rightButtons.length > 0 && (
-          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+          <nav style={styles.nav}>
             {row.fields.rightButtons.map((button, btnIdx) => (
               <a
                 key={btnIdx}
                 href={button.link}
                 target={button.openAsPopup ? '_blank' : '_self'}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  padding: button.showAsButton ? '0.75rem 1.5rem' : '0.5rem',
-                  background: button.showAsButton ? '#667eea' : 'transparent',
-                  color: button.showAsButton ? 'white' : '#667eea',
-                  textDecoration: button.showAsButton ? 'none' : 'underline',
-                  fontWeight: '600'
-                }}
+                rel={button.openAsPopup ? 'noopener noreferrer' : ''}
+                style={button.showAsButton ? styles.button : styles.link}
               >
                 {button.icon && <span>{button.icon}</span>}
                 {button.title}
               </a>
             ))}
-          </div>
+          </nav>
         )}
+
+        <div style={styles.under} className={`under${rightDark ? ' dark' : ''}`}></div>
       </div>
-    </div>
+
+      <style>{`
+        @keyframes slideinup {
+          from {
+            transform: translateY(30px);
+            opacity: 0;
+          }
+          to {
+            transform: translateY(0);
+            opacity: 1;
+          }
+        }
+        
+        @keyframes fadeout {
+          from {
+            opacity: 1;
+          }
+          to {
+            opacity: 0;
+          }
+        }
+
+        section.slide .left.dark {
+          background-color: black;
+          color: white;
+        }
+
+        section.slide .under.dark {
+          background-color: black;
+          color: white;
+        }
+
+        @media (max-width: 1500px) {
+          section.slide .left,
+          section.slide .right {
+            width: 100%;
+            padding: 2em;
+          }
+        }
+
+        @media (max-width: 1200px) {
+          section.slide {
+            flex-flow: column;
+          }
+
+          section.slide.reorder_m .right {
+            order: -1;
+          }
+
+          section.slide .hide_m {
+            display: none;
+          }
+
+          section.slide .left,
+          section.slide .right {
+            clip-path: none;
+          }
+
+          section.slide .left {
+            padding: 2em;
+          }
+
+          section.slide .right .under {
+            padding: 2em;
+            width: 100%;
+            left: 0;
+          }
+
+          section.slide h1 {
+            font-size: 2em;
+          }
+        }
+      `}</style>
+    </section>
   );
 };
 

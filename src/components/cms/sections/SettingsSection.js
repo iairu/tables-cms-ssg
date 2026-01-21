@@ -284,6 +284,45 @@ const SettingsSection = ({ cmsData }) => {
         </div>
         <div style={{ marginBottom: '20px' }}>
           <label style={{ display: 'block', marginBottom: '10px' }}>
+            <strong>Site Logo White:</strong>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleFileChange('siteLogoWhite', e.target.files[0])}
+              style={{
+                width: '100%',
+                padding: '10px',
+                marginTop: '5px',
+                
+                border: '1px solid #cbd5e1'
+              }}
+            />
+          </label>
+          {settings.siteLogoWhite && (
+            <div style={{ marginTop: '10px', padding: '10px', background: '#1e293b', borderRadius: '4px' }}>
+              <img src={settings.siteLogoWhite} alt="Site Logo White Preview" style={{ maxWidth: '200px', maxHeight: '100px', border: '1px solid #e2e8f0', borderRadius: '4px' }} />
+              <button
+                onClick={() => handleChange('siteLogoWhite', '')}
+                style={{
+                  marginLeft: '10px',
+                  padding: '5px 10px',
+                  background: '#ef4444',
+                  color: 'white',
+                  border: 'none',
+                  
+                  cursor: 'pointer'
+                }}
+              >
+                Remove
+              </button>
+            </div>
+          )}
+          <p style={{ fontSize: '14px', color: '#64748b', marginTop: '5px' }}>
+            White variant of the logo for use on dark backgrounds
+          </p>
+        </div>
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', marginBottom: '10px' }}>
             <strong>Site Favicon:</strong>
             <input
               type="file"

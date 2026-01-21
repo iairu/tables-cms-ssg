@@ -241,7 +241,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
               </div>
               
               <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Minimal Height (px) ({currentLanguage}):</strong></label>
+                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Minimal Height (vh) ({currentLanguage}):</strong></label>
                 <input
                   type="number"
                   value={row.fields.minimalHeight || 400}
@@ -666,7 +666,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                 </label>
               </div>
               <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Minimal Left Height (px) ({currentLanguage}):</strong></label>
+                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Minimal Left Height (vh) ({currentLanguage}):</strong></label>
                 <input type="number" value={row.fields.minimalLeftHeight || 300} onChange={(e) => handleFieldChange(rowIndex, 'minimalLeftHeight', parseInt(e.target.value) || 0)} style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1' }} />
               </div>
               <div style={{ marginBottom: '10px' }}>
@@ -714,7 +714,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                 </label>
               </div>
               <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Minimal Right Height (px) ({currentLanguage}):</strong></label>
+                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Minimal Right Height (vh) ({currentLanguage}):</strong></label>
                 <input type="number" value={row.fields.minimalRightHeight || 300} onChange={(e) => handleFieldChange(rowIndex, 'minimalRightHeight', parseInt(e.target.value) || 0)} style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1' }} />
               </div>
               <div style={{ marginBottom: '10px' }}>

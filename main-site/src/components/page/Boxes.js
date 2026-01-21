@@ -1,52 +1,171 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 const Boxes = ({ row }) => {
   const isDark = row.fields.darkTheme || row.fields.darkMode;
+  const sectionRef = useRef(null);
+  const [isOffscreen, setIsOffscreen] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (sectionRef.current) {
+        const rect = sectionRef.current.getBoundingClientRect();
+        const offscreen = rect.bottom < 0 || rect.top > window.innerHeight;
+        setIsOffscreen(offscreen);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleScroll);
+    handleScroll();
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, []);
+
+  const handleBoxStyle = (box) => {
+    if (box.horizontalAdjustment || box.verticalAdjustment) {
+      return {
+        transform: `translate(${box.horizontalAdjustment || 0}px, ${box.verticalAdjustment || 0}px)`,
+      };
+    }
+    return {};
+  };
+
+  const styles = {
+    section: {
+      display: 'flex',
+      flexFlow: 'row',
+      justifyContent: 'center',
+      boxSizing: 'border-box',
+      width: '100%',
+      zIndex: 9,
+      backgroundColor: isDark ? 'black' : 'white',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundImage: row.fields.backgroundImage ? `url(${row.fields.backgroundImage})` : 'none',
+    },
+    wrapper: {
+      display: 'flex',
+      flexFlow: 'row wrap',
+      justifyContent: 'space-evenly',
+      margin: '50px',
+      width: '100%',
+      maxWidth: '1200px',
+    },
+    box: {
+      animation: isOffscreen ? 'slideoutright 0.75s ease-in-out forwards' : 'slideinright 0.75s ease-in-out',
+      display: 'flex',
+      flexFlow: 'column',
+      border: `1px solid ${isDark ? 'rgb(66, 66, 66)' : 'lightgray'}`,
+      padding: '15px',
+      margin: '5px',
+      width: '100%',
+      maxWidth: '300px',
+      color: isDark ? 'white' : 'black',
+      backgroundColor: isDark ? 'black' : 'white',
+    },
+    heading: {
+      margin: 0,
+      textTransform: 'uppercase',
+      fontSize: '1.5rem',
+      fontWeight: '600',
+    },
+    subheading: {
+      margin: 0,
+      color: 'gray',
+      fontSize: '1rem',
+    },
+    icon: {
+      width: '100%',
+      maxWidth: '100%',
+      maxHeight: '100%',
+      margin: '10px 0 0',
+      padding: '30px',
+      boxSizing: 'border-box',
+    },
+    text: {
+      flexGrow: 1,
+      fontSize: '1rem',
+      lineHeight: '1.6',
+    },
+    corner: {
+      display: 'block',
+      width: '100%',
+      textAlign: 'right',
+      fontSize: '0.875rem',
+      color: '#94a3b8',
+    },
+  };
 
   return (
-    <div style={{
-      background: isDark ? '#1e293b' : '#f8fafc',
-      padding: '4rem 2rem',
-      backgroundImage: row.fields.backgroundImage ? `url(${row.fields.backgroundImage})` : 'none',
-      backgroundSize: 'cover',
-      backgroundPosition: 'center'
-    }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-        <div style={{
-          display: 'grid',
-          gap: '2rem',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))'
-        }}>
-          {row.fields.boxes && row.fields.boxes.map((box, boxIdx) => (
-            <div key={boxIdx} style={{
-              background: 'white',
-              padding: '2rem',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-              position: 'relative',
-              transform: `translate(${box.horizontalAdjustment || 0}px, ${box.verticalAdjustment || 0}px)`
-            }}>
+    <section ref={sectionRef} style={styles.section} className={`floaters ${isDark ? 'dark' : ''}`}>
+      {row.fields.boxes && row.fields.boxes.length > 0 && (
+        <div style={styles.wrapper}>
+          {row.fields.boxes.map((box, boxIdx) => (
+            <div 
+              key={boxIdx} 
+              className="box"
+              style={{
+                ...styles.box,
+                ...handleBoxStyle(box),
+              }}
+            >
+              {box.heading && <h2 style={styles.heading}>{box.heading}</h2>}
+              {box.subheading && <h3 style={styles.subheading}>{box.subheading}</h3>}
               {box.icon && (
-                <img src={box.icon} alt={box.heading} style={{ width: '60px', height: '60px', marginBottom: '1rem' }} />
-              )}
-              <h3 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '0.5rem', color: '#0f172a' }}>
-                {box.heading}
-              </h3>
-              {box.subheading && (
-                <p style={{ fontSize: '1rem', color: '#64748b', marginBottom: '1rem' }}>{box.subheading}</p>
+                <img 
+                  src={box.icon} 
+                  alt={box.heading || 'Icon'} 
+                  style={styles.icon} 
+                />
               )}
               {box.text && (
-                <div style={{ fontSize: '1rem', lineHeight: '1.6', color: '#475569' }} dangerouslySetInnerHTML={{ __html: box.text }} />
+                <p style={styles.text} dangerouslySetInnerHTML={{ __html: box.text }} />
               )}
               {box.lowerCornerText && (
-                <p style={{ position: 'absolute', bottom: '1rem', right: '1rem', fontSize: '0.875rem', color: '#94a3b8' }}>
-                  {box.lowerCornerText}
-                </p>
+                <span style={styles.corner}>{box.lowerCornerText}</span>
               )}
             </div>
           ))}
         </div>
-      </div>
-    </div>
+      )}
+      
+      <style>{`
+        @keyframes slideinright {
+          from {
+            transform: translateX(50px);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+        
+        @keyframes slideoutright {
+          from {
+            transform: translateX(0);
+            opacity: 1;
+          }
+          to {
+            transform: translateX(50px);
+            opacity: 0;
+          }
+        }
+        
+        @media (max-width: 900px) {
+          .box {
+            transform: none !important;
+          }
+        }
+        
+        body.theme-goldshow .floaters.dark h2 {
+          color: rgb(228, 185, 79);
+        }
+      `}</style>
+    </section>
   );
 };
 

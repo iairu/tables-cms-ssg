@@ -1,52 +1,139 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 const Ranking = ({ row }) => {
   const isDark = row.fields.darkTheme || row.fields.darkMode;
+  const sectionRef = useRef(null);
+  const [isOffscreen, setIsOffscreen] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (sectionRef.current) {
+        const rect = sectionRef.current.getBoundingClientRect();
+        const offscreen = rect.bottom < 0 || rect.top > window.innerHeight;
+        setIsOffscreen(offscreen);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleScroll);
+    handleScroll();
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, []);
+
+  const styles = {
+    section: {
+      display: 'flex',
+      flexFlow: 'row',
+      width: '100%',
+      padding: '2em',
+      boxSizing: 'border-box',
+      color: isDark ? 'white' : 'black',
+      backgroundColor: isDark ? 'black' : 'lightgray',
+      backgroundPosition: 'center',
+      backgroundSize: 'cover',
+      backgroundImage: row.fields.backgroundImage ? `url(${row.fields.backgroundImage})` : 'none',
+    },
+    content: {
+      display: 'flex',
+      flexFlow: 'row wrap',
+      width: '100%',
+      justifyContent: 'space-around',
+      border: 'none',
+      animation: isOffscreen ? 'fadeout 0.75s forwards' : 'scalein 0.75s',
+    },
+    li: {
+      border: 'none',
+      padding: '1em',
+      display: 'flex',
+      flexFlow: 'column',
+      textTransform: 'uppercase',
+      alignItems: 'center',
+      listStyle: 'none',
+    },
+    count: {
+      fontSize: '3em',
+      fontWeight: '900',
+      margin: 0,
+      WebkitTextStroke: `2px ${isDark ? 'white' : 'black'}`,
+      WebkitTextFillColor: 'transparent',
+    },
+    name: {
+      fontSize: '1rem',
+      fontWeight: '600',
+    },
+  };
 
   return (
-    <div style={{
-      background: isDark ? '#1e293b' : '#f8fafc',
-      color: isDark ? '#ffffff' : '#0f172a',
-      padding: '4rem 2rem',
-      backgroundImage: row.fields.backgroundImage ? `url(${row.fields.backgroundImage})` : 'none',
-      backgroundSize: 'cover',
-      backgroundPosition: 'center'
-    }}>
-      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          {row.fields.ranks && row.fields.ranks.map((rank, rankIdx) => (
-            <div key={rankIdx} style={{
-              background: isDark ? '#334155' : 'white',
-              padding: '2rem',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1.5rem'
-            }}>
-              <div style={{
-                fontSize: '3rem',
-                fontWeight: '900',
-                color: '#667eea',
-                minWidth: '60px',
-                textAlign: 'center'
-              }}>
-                #{rankIdx + 1}
-              </div>
-              <div>
-                <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '0.25rem' }}>
-                  {rank.heading}
-                </h3>
-                {rank.subheading && (
-                  <p style={{ fontSize: '1rem', color: isDark ? '#94a3b8' : '#64748b' }}>
-                    {rank.subheading}
-                  </p>
-                )}
-              </div>
-            </div>
+    <section ref={sectionRef} style={styles.section} className={`ranking ${isDark ? 'dark' : ''}`}>
+      {row.fields.ranks && row.fields.ranks.length > 0 && (
+        <ul style={styles.content} className="content">
+          {row.fields.ranks.map((rank, rankIdx) => (
+            <li key={rankIdx} style={styles.li}>
+              <h1 
+                className="count"
+                style={styles.count}
+                dangerouslySetInnerHTML={{ __html: rank.heading || '' }}
+              />
+              <span className="name" style={styles.name}>{rank.subheading || ''}</span>
+            </li>
           ))}
-        </div>
-      </div>
-    </div>
+        </ul>
+      )}
+      
+      <style>{`
+        @keyframes scalein {
+          from {
+            transform: scale(0.8);
+            opacity: 0;
+          }
+          to {
+            transform: scale(1);
+            opacity: 1;
+          }
+        }
+        
+        @keyframes fadeout {
+          from {
+            opacity: 1;
+          }
+          to {
+            opacity: 0;
+          }
+        }
+        
+        @media (max-width: 500px) {
+          .ranking .content .count {
+            font-size: 2.5em;
+          }
+        }
+        
+        body.theme-goldshow .ranking .content .count {
+          font-size: 4em;
+        }
+        
+        body.theme-goldshow .ranking .content .count b {
+          -webkit-text-fill-color: white;
+        }
+        
+        body.theme-goldshow .ranking.dark h1 {
+          -webkit-text-stroke-color: white;
+        }
+        
+        body.theme-goldshow .ranking.dark h1 b {
+          -webkit-text-fill-color: white;
+        }
+        
+        @media (max-width: 500px) {
+          body.theme-goldshow .ranking .content .count {
+            font-size: 3.5em;
+          }
+        }
+      `}</style>
+    </section>
   );
 };
 
