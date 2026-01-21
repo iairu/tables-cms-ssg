@@ -1,3 +1,20 @@
+create a robust user asset upload system with target static/uploads:
+
+instead of saving images as base64 save them into a new static/uploads folder
+Uncaught DOMException: The quota has been exceeded.
+    savePages webpack-internal:///./src/hooks/useCMSData.js:394
+    updatePage webpack-internal:///./src/hooks/useCMSData.js:538
+    saveLocalizedContent webpack-internal:///./src/components/cms/sections/PagesSection.js:199
+    onChange webpack-internal:///./src/components/cms/sections/PagesSection.js:1072
+    handleArrayItemChange webpack-internal:///./src/components/cms/ComponentEditor.js:60
+    onload webpack-internal:///./src/components/cms/ComponentEditor.js:79
+    onchange webpack-internal:///./src/components/cms/ComponentEditor.js:76
+    handleImageUpload webpack-internal:///./src/components/cms/ComponentEditor.js:72
+    onClick webpack-internal:///./src/components/cms/ComponentEditor.js:3151
+
+afterwards add into configuration part of SideMenu a new button called Uploads which will show an UserAssetManager with ability to browse, replace and delete any uploaded assets
+
+---
 
 attendance is missing confirm delete modal like one present in inventory, same for reservations
 

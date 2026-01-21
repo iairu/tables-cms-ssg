@@ -1,7 +1,9 @@
 
-<img src="static/assets/tables-logo.svg" alt="Tables CMS Logo" width="400" />
+<img src="static/assets/tables-feature-highlight-banner.png" alt="Tables CMS Feature Highlight and Logo" />
 
-# TABLES CMS Architecture
+# TABLES CMS
+
+Gatsby + React CMS with Static Site Generation (SSG) on Deployment.
 
 ## Overview
 
@@ -597,4 +599,3 @@ Example sitemap entry:
 * Webhook support
 * CI/CD integration
 * Cloud hosting options
-
