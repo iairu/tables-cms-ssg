@@ -32,18 +32,22 @@ export default function handler(req, res) {
       return res.status(400).send('Missing file data or file name.');
     }
 
-    // Strip the data URI prefix (e.g., "data:image/png;base64,")
-    const base64Data = fileData.replace(/^data:image\/\w+;base64,/, "");
+    // Prepend timestamp to file name
+    const timestamp = Date.now();
+    const newFileName = `${timestamp}_${fileName}`;
+
+    // Strip the data URI prefix (e.g., "data:image/png;base64," or "data:image/svg+xml;base64,")
+    const base64Data = fileData.replace(/^data:image\/[\w\+\-\.]+;base64,/, "");
     const buffer = Buffer.from(base64Data, 'base64');
 
-    const filePath = path.join(uploadDir, fileName);
+    const filePath = path.join(uploadDir, newFileName);
 
     fs.writeFile(filePath, buffer, (err) => {
       if (err) {
         console.error('Error saving file:', err);
         return res.status(500).send('Error saving file.');
       }
-      res.json({ url: `/uploads/${fileName}` });
+      res.json({ url: `/uploads/${newFileName}` });
     });
 
   } catch (error) {
