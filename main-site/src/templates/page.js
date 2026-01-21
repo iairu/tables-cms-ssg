@@ -47,18 +47,18 @@ const PageTemplate = ({ pageContext, location }) => {
     if (typeof document !== 'undefined' && page) {
       // Remove any existing theme version classes
       document.body.classList.remove('theme-auto-ver', 'theme-light-ver', 'theme-dark-ver');
-      
+
       // Apply theme version class
       const themeVersion = page.themeVersion || 'auto';
       document.body.classList.add(`theme-${themeVersion}-ver`);
-      
+
       // Apply button/link color as CSS variable if set
       if (page.buttonLinkColor) {
         document.documentElement.style.setProperty('--page-button-color', page.buttonLinkColor);
       } else {
         document.documentElement.style.removeProperty('--page-button-color');
       }
-      
+
       // Cleanup on unmount
       return () => {
         document.body.classList.remove('theme-auto-ver', 'theme-light-ver', 'theme-dark-ver');
@@ -75,7 +75,7 @@ const PageTemplate = ({ pageContext, location }) => {
       setSettings(pageContext.settings);
       setMenuPages(pageContext.menuPages || []);
       setLanguages(pageContext.languages || [{ code: 'en', name: 'English' }]);
-      
+
       // Read currentLanguage from localStorage
       if (typeof window !== 'undefined') {
         const savedLang = localStorage.getItem('currentlang');
@@ -86,7 +86,7 @@ const PageTemplate = ({ pageContext, location }) => {
           const browserLang = navigator.language.split('-')[0];
           const supportedLanguages = ['sk', 'en'];
           const availableCodes = (pageContext.languages || []).map(l => l.code);
-          
+
           if (supportedLanguages.includes(browserLang) && availableCodes.includes(browserLang)) {
             setCurrentLanguage(browserLang);
             localStorage.setItem('currentlang', browserLang);
@@ -98,25 +98,25 @@ const PageTemplate = ({ pageContext, location }) => {
       } else {
         setCurrentLanguage(pageContext.language || 'en');
       }
-      
+
       setLoading(false);
       return;
     }
 
     // Otherwise fetch at runtime (development hot reload)
     console.log('[Page] Fetching data at runtime from /data/*.json (development mode)');
-    
+
     // Extract language and slug from URL
     let lang = pageContext.language;
     let slug = pageContext.slug;
-    
+
     if (!lang && location && location.pathname) {
       const pathParts = location.pathname.split('/').filter(Boolean);
       lang = pathParts[0] || 'en'; // First part is language
       slug = pathParts[1] || 'home'; // Second part is slug (or 'home' if at /{lang})
       console.log('[Page] Extracted from URL - lang:', lang, 'slug:', slug);
     }
-    
+
     // Read currentLanguage from localStorage or initialize it
     if (typeof window !== 'undefined') {
       const savedLang = localStorage.getItem('currentlang');
@@ -126,9 +126,9 @@ const PageTemplate = ({ pageContext, location }) => {
         // Initialize with browser default if supported
         const browserLang = navigator.language.split('-')[0];
         const supportedLanguages = ['sk', 'en'];
-        
+
         setCurrentLanguage(lang);
-        
+
         // Will update with browser default after fetching languages
         fetch('/data/settings.json')
           .then(res => res.json())
@@ -154,7 +154,7 @@ const PageTemplate = ({ pageContext, location }) => {
         console.log('[Page] Loaded settings:', settingsData.siteTitle);
         setSettings(settingsData);
         setLanguages(settingsData.languages || [{ code: 'en', name: 'English' }]);
-        
+
         // Fetch pages data
         return fetch('/data/pages.json');
       })
@@ -165,7 +165,7 @@ const PageTemplate = ({ pageContext, location }) => {
       .then(pagesData => {
         // Find page by ID or slug
         let foundPage = null;
-        
+
         if (pageContext.pageId) {
           foundPage = pagesData.find(p => p.id === pageContext.pageId);
         } else {
@@ -176,13 +176,13 @@ const PageTemplate = ({ pageContext, location }) => {
             return false;
           });
         }
-        
+
         if (foundPage) {
           // Get localized content
           const localizedContent = foundPage.translations && foundPage.translations[lang]
             ? foundPage.translations[lang]
             : { title: foundPage.title, slug: foundPage.slug, rows: foundPage.rows };
-          
+
           setPage({
             ...foundPage,
             title: localizedContent.title,
@@ -193,11 +193,11 @@ const PageTemplate = ({ pageContext, location }) => {
           console.log('[Page] Page not found');
           setPage(null);
         }
-        
+
         // Set menu pages
         const menu = pagesData.filter(p => p.includeInMenu || p.slug === 'home');
         setMenuPages(menu);
-        
+
         setLoading(false);
       })
       .catch(error => {
@@ -215,26 +215,26 @@ const PageTemplate = ({ pageContext, location }) => {
   }
 
   const rows = page.rows || [];
-  
+
   // Handle language change
   const handleLanguageChange = (newLang) => {
     // Save preference to localStorage
     if (typeof window !== 'undefined') {
       localStorage.setItem('currentlang', newLang);
     }
-    
+
     // Get localized slug for current page
     let targetSlug = page.slug;
     if (page.translations && page.translations[newLang]) {
-      targetSlug = page.translations[newLang].slug;
+      targetSlug = page.slug;
     }
-    
+
     // Navigate to the new language version
     const isHome = page.slug === 'home' || targetSlug === 'home';
     const newPath = isHome ? `/${newLang}` : `/${newLang}/${targetSlug}`;
     navigate(newPath);
   };
-  
+
   // Get localized menu page title
   const getLocalizedPageTitle = (menuPage, lang) => {
     if (menuPage.translations && menuPage.translations[lang]) {
@@ -242,9 +242,9 @@ const PageTemplate = ({ pageContext, location }) => {
     }
     return menuPage.title;
   };
-  
+
   // Get localized menu page slug
-  const getPageSlug = (menuPage, lang) => {
+  const getLocalizedPageSlug = (menuPage, lang) => {
     if (menuPage.translations && menuPage.translations[lang]) {
       return menuPage.slug;
     }
@@ -252,8 +252,8 @@ const PageTemplate = ({ pageContext, location }) => {
   };
 
   // Get localized meta description
-  const metaDescription = page.translations && page.translations[currentLanguage]?.metaDescription 
-    ? page.translations[currentLanguage].metaDescription 
+  const metaDescription = page.translations && page.translations[currentLanguage]?.metaDescription
+    ? page.translations[currentLanguage].metaDescription
     : page.metaDescription || '';
 
   return (
@@ -262,7 +262,7 @@ const PageTemplate = ({ pageContext, location }) => {
       {typeof document !== 'undefined' && metaDescription && (
         <meta name="description" content={metaDescription} />
       )}
-      
+
       {/* GDPR Consent Modal - Only render on client side */}
       {typeof window !== 'undefined' && (
         <GDPRConsent
@@ -271,16 +271,16 @@ const PageTemplate = ({ pageContext, location }) => {
           currentLanguage={currentLanguage}
         />
       )}
-      
+
       <div className="page-container">
-        <Header 
+        <Header
           settings={settings}
           menuPages={menuPages}
           currentLanguage={currentLanguage}
           languages={languages}
           handleLanguageChange={handleLanguageChange}
           getLocalizedPageTitle={getLocalizedPageTitle}
-          getPageSlug={getPageSlug}
+          getLocalizedPageSlug={getLocalizedPageSlug}
           showCatalogLink={showCatalogLink}
         />
 
@@ -296,7 +296,7 @@ const PageTemplate = ({ pageContext, location }) => {
               currentLanguage={currentLanguage}
             />
           )}
-          
+
           <h1 className="blog-index-title">
             {page.title}
           </h1>
@@ -323,7 +323,7 @@ const PageTemplate = ({ pageContext, location }) => {
           menuPages={menuPages}
           currentLanguage={currentLanguage}
           getLocalizedPageTitle={getLocalizedPageTitle}
-          getPageSlug={getPageSlug}
+          getLocalizedPageSlug={getLocalizedPageSlug}
         />
       </div>
     </>
@@ -339,8 +339,8 @@ export const Head = ({ pageContext }) => {
   const language = pageContext.language || 'en';
 
   // Get localized meta description
-  const metaDescription = page?.translations && page.translations[language]?.metaDescription 
-    ? page.translations[language].metaDescription 
+  const metaDescription = page?.translations && page.translations[language]?.metaDescription
+    ? page.translations[language].metaDescription
     : page?.metaDescription || '';
 
   const fullTitle = `${title} | ${siteTitle}`;

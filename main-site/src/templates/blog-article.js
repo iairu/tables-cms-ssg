@@ -48,7 +48,7 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
       setSettings(pageContext.settings);
       setMenuPages(pageContext.menuPages || []);
       setLanguages(pageContext.languages || [{ code: 'en', name: 'English' }]);
-      
+
       // Read currentLanguage from localStorage or initialize it
       if (typeof window !== 'undefined') {
         const savedLang = localStorage.getItem('currentlang');
@@ -59,7 +59,7 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
           const browserLang = navigator.language.split('-')[0];
           const supportedLanguages = ['sk', 'en'];
           const availableCodes = (pageContext.languages || []).map(l => l.code);
-          
+
           if (supportedLanguages.includes(browserLang) && availableCodes.includes(browserLang)) {
             setCurrentLanguage(browserLang);
             localStorage.setItem('currentlang', browserLang);
@@ -71,7 +71,7 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
       } else {
         setCurrentLanguage(pageContext.language || 'en');
       }
-      
+
       setLoading(false);
       return;
     }
@@ -95,7 +95,7 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
         // Initialize with browser default if supported (will be validated after fetching settings)
         const browserLang = navigator.language.split('-')[0];
         const supportedLanguages = ['sk', 'en'];
-        
+
         // Fetch settings first to validate
         fetch('/data/settings.json')
           .then(res => res.json())
@@ -135,7 +135,7 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
         });
         console.log('[Blog Article] Found article:', foundArticle ? foundArticle.title : 'NOT FOUND');
         setArticle(foundArticle);
-        
+
         // Fetch pages data for menu
         return fetch('/data/pages.json');
       })
@@ -147,7 +147,7 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
         // Set menu pages (pages with includeInMenu or slug === 'home')
         const menu = pagesData.filter(p => p.includeInMenu || p.slug === 'home');
         setMenuPages(menu);
-        
+
         // Fetch settings data
         return fetch('/data/settings.json');
       })
@@ -189,13 +189,13 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('currentlang', newLang);
     }
-    
+
     // Get localized slug for current article
     let targetSlug = article.slug;
     if (article.translations && article.translations[newLang]) {
-      targetSlug = article.translations[newLang].slug;
+      targetSlug = article.slug;
     }
-    
+
     // Navigate to the new language version
     const date = new Date(article.date);
     const year = date.getFullYear();
@@ -212,7 +212,7 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
   };
 
   // Get localized menu page slug
-  const getPageSlug = (menuPage, lang) => {
+  const getLocalizedPageSlug = (menuPage, lang) => {
     if (menuPage.translations && menuPage.translations[lang]) {
       return menuPage.slug;
     }
@@ -238,7 +238,7 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
         languages={languages}
         handleLanguageChange={handleLanguageChange}
         getLocalizedPageTitle={getLocalizedPageTitle}
-        getPageSlug={getPageSlug}
+        getLocalizedPageSlug={getLocalizedPageSlug}
         showCatalogLink={showCatalogLink}
       />
 
@@ -255,14 +255,14 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
             currentLanguage={currentLanguage}
           />
         )}
-        
+
         {/* Article Header */}
         <article>
           <header className="blog-article-header">
             <h1>
               {articleContent.title || article.title}
             </h1>
-            
+
             <div className="blog-article-meta">
               {(articleContent.author || article.author) && (
                 <span>{t('by', currentLanguage)} {articleContent.author || article.author}</span>
@@ -273,7 +273,7 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
                 </span>
               )}
             </div>
-            
+
             {((articleContent.category || article.category) || (articleContent.tags || article.tags)) && (
               <div className="blog-article-categories-tags">
                 {(articleContent.category || article.category) && (
@@ -282,7 +282,7 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
                   </span>
                 )}
                 {(articleContent.tags || article.tags) && (articleContent.tags || article.tags).split(',').map((tag, idx) => (
-                  <span 
+                  <span
                     key={idx}
                     className="blog-article-tag"
                   >
@@ -301,7 +301,7 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
 
         {/* Back to Blog Link */}
         <div className="blog-article-backlink">
-          <a 
+          <a
             href={`/${currentLanguage}/blog`}
             className="button"
           >
@@ -315,7 +315,7 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
         menuPages={menuPages}
         currentLanguage={currentLanguage}
         getLocalizedPageTitle={getLocalizedPageTitle}
-        getPageSlug={getPageSlug}
+        getLocalizedPageSlug={getLocalizedPageSlug}
       />
     </div>
   );

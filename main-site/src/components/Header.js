@@ -8,7 +8,7 @@ const Header = ({
   languages,
   handleLanguageChange,
   getLocalizedPageTitle,
-  getpageSlug,
+  getLocalizedPageSlug,
   showCatalogLink,
   simplified = false,
 }) => {
@@ -158,10 +158,10 @@ const Header = ({
           <div style={styles.content}>
             <a style={styles.logo} href="/">
               {(isDark && settings?.siteLogoWhite) || settings?.siteLogo ? (
-                <img 
-                  src={isDark && settings?.siteLogoWhite ? settings.siteLogoWhite : settings.siteLogo} 
-                  alt={settings.siteTitle} 
-                  style={styles.logoImg} 
+                <img
+                  src={isDark && settings?.siteLogoWhite ? settings.siteLogoWhite : settings.siteLogo}
+                  alt={settings.siteTitle}
+                  style={styles.logoImg}
                 />
               ) : (
                 <span style={{fontSize: '1.5rem', fontWeight: '300'}}>
@@ -178,7 +178,7 @@ const Header = ({
 
   return (
     <>
-      <header 
+      <header
         ref={headerRef}
         style={{...styles.header, ...(isSafari ? styles.headerSafari : {})}}
         className={`header ${scheme}${isSafari ? ' safari' : ''}`}
@@ -186,7 +186,7 @@ const Header = ({
         <div style={styles.content}>
           {/* Mobile Navigation Toggle */}
           {menuPages.length > 0 && (
-            <button 
+            <button
               style={styles.mobileNavToggle}
               className="mobileNavToggle"
               onClick={toggleNav}
@@ -199,10 +199,10 @@ const Header = ({
           {/* Logo */}
           <a style={styles.logo} href={`/${currentLanguage}`}>
             {(isDark && settings?.siteLogoWhite) || settings?.siteLogo ? (
-              <img 
-                src={isDark && settings?.siteLogoWhite ? settings.siteLogoWhite : settings.siteLogo} 
-                alt={settings.siteTitle} 
-                style={styles.logoImg} 
+              <img
+                src={isDark && settings?.siteLogoWhite ? settings.siteLogoWhite : settings.siteLogo}
+                alt={settings.siteTitle}
+                style={styles.logoImg}
               />
             ) : (
               <span style={{fontSize: '1.5rem', fontWeight: '300'}}>
@@ -214,7 +214,7 @@ const Header = ({
 
           {/* Navigation */}
           {menuPages.length > 0 && (
-            <div 
+            <div
               className={`nav-wrapper${mobileNavOpen ? ' open' : ''}`}
               style={{
                 ...styles.navWrapper,
@@ -226,13 +226,13 @@ const Header = ({
                   return navDropdown === 'none' || navDropdown === 'header';
                 }).map(menuPage => {
                   const localizedTitle = getLocalizedPageTitle(menuPage, currentLanguage);
-                  const localizedSlug = getLocalizedPageSlug(menuPage, currentLanguage);
+                  const slug = getLocalizedPageSlug(menuPage);
                   const isHomePage = menuPage.slug === 'home';
-                  const href = isHomePage ? `/${currentLanguage}` : `/${currentLanguage}/${localizedSlug}`;
+                  const href = isHomePage ? `/${currentLanguage}` : `/${currentLanguage}/${slug}`;
                   const isActive = typeof window !== 'undefined' && window.location.pathname === href;
-                  
+
                   return (
-                    <a 
+                    <a
                       key={menuPage.id}
                       href={href}
                       style={{
@@ -246,7 +246,7 @@ const Header = ({
                   );
                 })}
                 {settings?.hasBlogArticles && (
-                  <a 
+                  <a
                     href={`/${currentLanguage}/blog`}
                     style={styles.navLink}
                   >
@@ -254,7 +254,7 @@ const Header = ({
                   </a>
                 )}
                 {showCatalogLink && (
-                  <a 
+                  <a
                     href="/catalog"
                     style={styles.navLink}
                   >
@@ -262,7 +262,7 @@ const Header = ({
                   </a>
                 )}
               </nav>
-              <div 
+              <div
                 className="bg-close hide_d"
                 onClick={toggleNav}
                 style={{
@@ -286,11 +286,11 @@ const Header = ({
               {settings?.socialMedia && settings.socialMedia.length > 0 && (
                 <nav style={styles.socialNav} className="social">
                   {settings.socialMedia.map(social => (
-                    <a 
-                      key={social.platform} 
-                      href={social.url} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
+                    <a
+                      key={social.platform}
+                      href={social.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       title={social.platform}
                       style={styles.socialLink}
                     >

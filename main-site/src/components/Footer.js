@@ -6,7 +6,7 @@ const Footer = ({
   menuPages,
   currentLanguage,
   getLocalizedPageTitle,
-  getPageSlug,
+  getLocalizedPageSlug,
   simplified = false,
 }) => {
   if (simplified) {
@@ -62,13 +62,13 @@ const Footer = ({
               const localizedTitle = getLocalizedPageTitle(menuPage, currentLanguage);
               const isHome = menuPage.slug === 'home';
               const href = isHome ? `/${currentLanguage}` : `/${currentLanguage}/${menuPage.slug}`;
-              
+
               return (
-                <a 
+                <a
                   key={menuPage.id}
                   href={href}
-                  style={{ 
-                    color: '#64748b', 
+                  style={{
+                    color: '#64748b',
                     textDecoration: 'none',
                     fontSize: '0.875rem',
                     transition: 'color 0.2s'
@@ -80,7 +80,7 @@ const Footer = ({
             })}
           </nav>
         )}
-        
+
         <div style={{
           textAlign: 'center',
           color: '#64748b',

@@ -530,7 +530,7 @@ const deployToVercel = (mainSiteDir, vercelApiToken, vercelProjectName) => {
         // Use --name flag to specify the project name if provided
         const vercelProjectFlag = vercelProjectName && vercelProjectName.trim() !== '' ? ` --name="${vercelProjectName}"` : '';
         const deployProcess = exec(
-          `${vercelCommand} --prod --token="${vercelApiToken}" --yes${vercelProjectFlag}`,
+          `${vercelCommand} --prod --token="${vercelApiToken}" ${vercelProjectFlag} --yes`,
           {
             cwd: mainSiteDir,
             env: envWithPath,

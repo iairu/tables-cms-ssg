@@ -40,7 +40,7 @@ const BlogIndexTemplate = ({ pageContext }) => {
       setSettings(pageContext.settings);
       setMenuPages(pageContext.menuPages || []);
       setLanguages(pageContext.languages || [{ code: 'en', name: 'English' }]);
-      
+
       // Read currentLanguage from localStorage or initialize it
       if (typeof window !== 'undefined') {
         const savedLang = localStorage.getItem('currentlang');
@@ -51,7 +51,7 @@ const BlogIndexTemplate = ({ pageContext }) => {
           const browserLang = navigator.language.split('-')[0];
           const supportedLanguages = ['sk', 'en'];
           const availableCodes = (pageContext.languages || []).map(l => l.code);
-          
+
           if (supportedLanguages.includes(browserLang) && availableCodes.includes(browserLang)) {
             setCurrentLanguage(browserLang);
             localStorage.setItem('currentlang', browserLang);
@@ -63,13 +63,13 @@ const BlogIndexTemplate = ({ pageContext }) => {
       } else {
         setCurrentLanguage(lang);
       }
-      
+
       setLoading(false);
       return;
     }
 
     // Otherwise fetch at runtime (development hot reload)
-    
+
     // Read currentLanguage from localStorage or initialize it
     if (typeof window !== 'undefined') {
       const savedLang = localStorage.getItem('currentlang');
@@ -79,7 +79,7 @@ const BlogIndexTemplate = ({ pageContext }) => {
         // Initialize with browser default if supported (will be validated after fetching settings)
         const browserLang = navigator.language.split('-')[0];
         const supportedLanguages = ['sk', 'en'];
-        
+
         // Fetch settings first to validate
         fetch('/data/settings.json')
           .then(res => res.json())
@@ -98,7 +98,7 @@ const BlogIndexTemplate = ({ pageContext }) => {
           });
       }
     }
-    
+
     fetch('/data/blog.json')
       .then(res => res.json())
       .then(blogData => {
@@ -110,7 +110,7 @@ const BlogIndexTemplate = ({ pageContext }) => {
           return new Date(b.date) - new Date(a.date);
         });
         setArticles(sortedArticles);
-        
+
         // Fetch pages data for menu
         return fetch('/data/pages.json');
       })
@@ -122,7 +122,7 @@ const BlogIndexTemplate = ({ pageContext }) => {
         // Set menu pages (pages with includeInMenu or slug === 'home')
         const menu = pagesData.filter(p => p.includeInMenu || p.slug === 'home');
         setMenuPages(menu);
-        
+
         // Fetch settings data
         return fetch('/data/settings.json');
       })
@@ -174,7 +174,7 @@ const BlogIndexTemplate = ({ pageContext }) => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('currentlang', newLang);
     }
-    
+
     // Navigate to the new language blog index
     navigate(`/${newLang}/blog`);
   };
@@ -188,7 +188,7 @@ const BlogIndexTemplate = ({ pageContext }) => {
   };
 
   // Get localized menu page slug
-  const getPageSlug = (menuPage, lang) => {
+  const getLocalizedPageSlug = (menuPage, lang) => {
     if (menuPage.translations && menuPage.translations[lang]) {
       return menuPage.slug;
     }
@@ -220,7 +220,7 @@ const BlogIndexTemplate = ({ pageContext }) => {
         languages={languages}
         handleLanguageChange={handleLanguageChange}
         getLocalizedPageTitle={getLocalizedPageTitle}
-        getPageSlug={getPageSlug}
+        getLocalizedPageSlug={getLocalizedPageSlug}
       />
 
       {/* Main Content */}
@@ -235,7 +235,7 @@ const BlogIndexTemplate = ({ pageContext }) => {
             currentLanguage={currentLanguage}
           />
         )}
-        
+
         <h1 className="blog-index-title">
           Blog
         </h1>
@@ -293,7 +293,7 @@ const BlogIndexTemplate = ({ pageContext }) => {
         menuPages={menuPages}
         currentLanguage={currentLanguage}
         getLocalizedPageTitle={getLocalizedPageTitle}
-        getPageSlug={getPageSlug}
+        getLocalizedPageSlug={getLocalizedPageSlug}
       />
     </div>
   );
