@@ -138,8 +138,8 @@ const Header = ({
     <header style={styles.header}>
       {/* Logo Section */}
       <div style={styles.logo}>
-        {/* <img src="/assets/tables-logo.svg" alt="Logo" style={styles.logoImage} />*/}
-        <b>TABLES</b>&nbsp;CMS Alpha
+        <img src="/assets/tables-logo.svg" alt="Logo" style={styles.logoImage} />
+        {/* <b>TABLES</b>&nbsp;CMS Alpha*/}
       </div>
 
       {/* Search Bar Section */}
