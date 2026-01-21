@@ -73,7 +73,7 @@ const EmptyHomeTemplate = ({ pageContext }) => {
           <div className="empty-home-getting-started">
             <p>
               <strong>Getting Started:</strong><br />
-              1. Access the CMS at <code>/cms</code>/cms</code><br />
+              1. Access the CMS at <code>/cms</code><br />
               2. Create a page with slug "home" to replace this page<br />
               3. Build your site to see the changes
             </p>

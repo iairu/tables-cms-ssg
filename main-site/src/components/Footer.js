@@ -59,10 +59,9 @@ const Footer = ({
               const navDropdown = menuPage.navigationDropdown || 'none';
               return navDropdown === 'footer';
             }).map(menuPage => {
-              const localizedSlug = getLocalizedPageSlug(menuPage, currentLanguage);
               const localizedTitle = getLocalizedPageTitle(menuPage, currentLanguage);
-              const isHome = menuPage.slug === 'home' || localizedSlug === 'home';
-              const href = isHome ? `/${currentLanguage}` : `/${currentLanguage}/${localizedSlug}`;
+              const isHome = menuPage.slug === 'home';
+              const href = isHome ? `/${currentLanguage}` : `/${currentLanguage}/${menuPage.slug}`;
               
               return (
                 <a 

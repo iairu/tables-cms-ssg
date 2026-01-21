@@ -79,10 +79,9 @@ const Header = ({
             const navDropdown = menuPage.navigationDropdown || 'none';
             return navDropdown === 'none' || navDropdown === 'header';
           }).map(menuPage => {
-            const localizedSlug = getLocalizedPageSlug(menuPage, currentLanguage);
             const localizedTitle = getLocalizedPageTitle(menuPage, currentLanguage);
-            const isHomePage = menuPage.slug === 'home' || localizedSlug === 'home';
-            const href = isHomePage ? `/${currentLanguage}` : `/${currentLanguage}/${localizedSlug}`;
+            const isHomePage = menuPage.slug === 'home';
+            const href = isHomePage ? `/${currentLanguage}` : `/${currentLanguage}/${menuPage.slug}`;
             
             return (
               <a 

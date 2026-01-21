@@ -82,15 +82,15 @@ exports.createPages = async ({ actions }) => {
         ? page.translations[lang.code] 
         : { title: page.title, slug: page.slug, rows: page.rows };
 
-      const isHome = page.slug === 'home' || localizedContent.slug === 'home';
+      const isHome = page.slug === 'home';
       const pagePath = isHome 
         ? `/${lang.code}`
-        : `/${lang.code}/${localizedContent.slug}`;
+        : `/${lang.code}/${page.slug}`;
       
       console.log(`[Gatsby Node] Creating page: ${pagePath}`);
       
       const context = {
-        slug: localizedContent.slug,
+        slug: page.slug,
         language: lang.code,
         pageId: page.id,
       };
@@ -139,11 +139,11 @@ exports.createPages = async ({ actions }) => {
         ? article.translations[lang.code]
         : { title: article.title, slug: article.slug, content: article.content, author: article.author };
 
-      const pagePath = `/${lang.code}/blog/${article.year}/${article.month}/${localizedContent.slug}`;
+      const pagePath = `/${lang.code}/blog/${article.year}/${article.month}/${article.slug}`;
       console.log(`[Gatsby Node] Creating blog page: ${pagePath}${hasTranslation ? ' (translated)' : ' (fallback)'}`);
       
       const context = {
-        slug: localizedContent.slug,
+        slug: article.slug,
         language: lang.code,
         articleId: article.id,
       };
@@ -255,14 +255,10 @@ exports.createPages = async ({ actions }) => {
     // Add pages to sitemap
     languages.forEach(lang => {
       pages.forEach(page => {
-        const localizedSlug = page.translations && page.translations[lang.code]
-          ? page.translations[lang.code].slug
-          : page.slug;
-        
-        const isHome = page.slug === 'home' || localizedSlug === 'home';
+        const isHome = page.slug === 'home';
         const url = isHome 
           ? `${baseUrl}/${lang.code}`
-          : `${baseUrl}/${lang.code}/${localizedSlug}`;
+          : `${baseUrl}/${lang.code}/${page.slug}`;
         
         const priority = page.sitemapPriority !== undefined ? page.sitemapPriority : 0.5;
         const lastMod = page.lastPublished ? new Date(page.lastPublished).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
@@ -277,11 +273,7 @@ exports.createPages = async ({ actions }) => {
       
       // Add blog pages
       blogArticles.forEach(article => {
-        const localizedSlug = article.translations && article.translations[lang.code]
-          ? article.translations[lang.code].slug
-          : article.slug;
-        
-        const url = `${baseUrl}/${lang.code}/blog/${article.year}/${article.month}/${localizedSlug}`;
+        const url = `${baseUrl}/${lang.code}/blog/${article.year}/${article.month}/${article.slug}`;
         const lastMod = article.date ? new Date(article.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
         
         sitemapEntries.push({

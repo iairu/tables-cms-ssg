@@ -1,22 +1,4 @@
-make sure that if an extension is disabled by user (e.g. Blog disabled on /cms/extensions), that it will not be visible after export to main-site (in this case no blog articles will be exported despite existing in localStorage and the Blog menu entry will not exist, then once user re-enables Blog the export will work like before with all visible and existing)
-
-implement the changes, storing of extensions status is already done in localStorage, next up do the filtering
-
----
-
-apply extracted css added to default.css by editing original files mentioned in default.css to include given classNames instead of the css directly (css was extracted but also left inline)
-
----
-
-whenever i edit a slug within blog or page it causes redirect because the slug is changing live, fix by utilizing id of the page instead of a slug, same for blog posts
-
----
-
-create a new Header that is meant to be above both SideMenu and main, move "Visit Domain", "Build and Deploy" and "Build Locally Only" buttons into it to the right side, but a SearchBar (like the one in vscode) into middle (for now it will display placeholder search results with fuzzy search) and add logo to the left side of the new Header
-
----
-
-adjust main-site/src/templates based on strukshow-old-site-new-theme content (that is an old site but a newer theme we have to port over to our main-site), do not change file structure at all, just mostly update css in Header.js, Footer.js, mainly page.js, ...
+adjust main-site/src/templates CSS based on strukshow-old-site-new-theme SCSS (that is an old site but a newer theme we have to port over to our main-site), do not change file structure at all, just mostly update CSS in main-site/src/components/page/* and main-site/src/templates/page.js
 
 main-site/static/strukshow-old-site-new-theme/src/sections/Bar.svelte is Infobar, Bubbles.svelte is ignored, Flies.svelte is Flies, Floaters.svelte is Boxes, Ranking.svelte is Ranking, Ref.svelte is References, Slide.svelte is Slide, Titulka.svelte is TitleSlide, Video.svelte is Video
 

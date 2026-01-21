@@ -158,37 +158,63 @@ const exportDataAndBuild = async (data, localOnly = false, vercelApiToken = null
       }
     }
 
+    // Get extensions status
+    const extensions = cmsData.extensions || {};
+    const isBlogEnabled = extensions['blog-extension-enabled'] !== false;
+    const areCatsEnabled = extensions['pedigree-extension-enabled'] !== false;
+
     // Export pages
     const pages = cmsData.pages || [];
+    const filteredPages = isBlogEnabled ? pages : pages.filter(p => p.slug !== 'blog');
     fs.writeFileSync(
       path.join(mainSiteStaticDir, 'pages.json'),
-      JSON.stringify(pages, null, 2),
+      JSON.stringify(filteredPages, null, 2),
       'utf8'
     );
-    console.log(`[Build API] Exported ${pages.length} pages`);
+    console.log(`[Build API] Exported ${filteredPages.length} pages (Blog enabled: ${isBlogEnabled})`);
 
     // Export blog articles
-    const blogArticles = cmsData.blogArticles || [];
-    fs.writeFileSync(
-      path.join(mainSiteStaticDir, 'blog.json'),
-      JSON.stringify(blogArticles, null, 2),
-      'utf8'
-    );
-    console.log(`[Build API] Exported ${blogArticles.length} blog articles`);
+    if (isBlogEnabled) {
+      const blogArticles = cmsData.blogArticles || [];
+      fs.writeFileSync(
+        path.join(mainSiteStaticDir, 'blog.json'),
+        JSON.stringify(blogArticles, null, 2),
+        'utf8'
+      );
+      console.log(`[Build API] Exported ${blogArticles.length} blog articles`);
+    } else {
+      // Create an empty blog.json if the blog is disabled
+      fs.writeFileSync(
+        path.join(mainSiteStaticDir, 'blog.json'),
+        JSON.stringify([], null, 2),
+        'utf8'
+      );
+      console.log('[Build API] Blog is disabled, exported empty blog.json');
+    }
 
     // Export cats data
-    const catRows = cmsData.catRows || [];
-    fs.writeFileSync(
-      path.join(mainSiteStaticDir, 'cats.json'),
-      JSON.stringify(catRows, null, 2),
-      'utf8'
-    );
-    console.log(`[Build API] Exported ${catRows.length} cat rows`);
+    if (areCatsEnabled) {
+      const catRows = cmsData.catRows || [];
+      fs.writeFileSync(
+        path.join(mainSiteStaticDir, 'cats.json'),
+        JSON.stringify(catRows, null, 2),
+        'utf8'
+      );
+      console.log(`[Build API] Exported ${catRows.length} cat rows`);
+    } else {
+      // Create an empty cats.json if cats are disabled
+      fs.writeFileSync(
+        path.join(mainSiteStaticDir, 'cats.json'),
+        JSON.stringify([], null, 2),
+        'utf8'
+      );
+      console.log('[Build API] Cats are disabled, exported empty cats.json');
+    }
 
     // Export settings (with vercelApiKey hidden)
     const settings = cmsData.settings || { siteTitle: 'TABLES', defaultLang: 'en', theme: 'light', showBreadcrumbs: false };
     const settingsForExport = { ...settings };
-    settingsForExport.hasBlogArticles = blogArticles.length > 0;
+    settingsForExport.hasBlogArticles = isBlogEnabled && (cmsData.blogArticles || []).length > 0;
     if (settingsForExport.vercelApiKey && settingsForExport.vercelApiKey.trim() !== '') {
       settingsForExport.vercelApiKey = '***HIDDEN***';
     }
