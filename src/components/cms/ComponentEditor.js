@@ -52,23 +52,37 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
     onChange(newRows);
   };
 
-  const handleImageUpload = (rowIndex, fieldName, itemIndex = null, itemFieldName = null) => {
+  const handleImageUpload = async (rowIndex, fieldName, itemIndex = null, itemFieldName = null) => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
-    input.onchange = (e) => {
+    input.onchange = async (e) => {
       const file = e.target.files[0];
       if (file) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const base64 = event.target.result;
-          if (itemIndex !== null && itemFieldName !== null) {
-            handleArrayItemChange(rowIndex, fieldName, itemIndex, itemFieldName, base64);
-          } else {
-            handleFieldChange(rowIndex, fieldName, base64);
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+          const response = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (!response.ok) {
+            throw new Error('Upload failed');
           }
-        };
-        reader.readAsDataURL(file);
+
+          const { url } = await response.json();
+
+          if (itemIndex !== null && itemFieldName !== null) {
+            handleArrayItemChange(rowIndex, fieldName, itemIndex, itemFieldName, url);
+          } else {
+            handleFieldChange(rowIndex, fieldName, url);
+          }
+        } catch (error) {
+          console.error('Error uploading image:', error);
+          // Optionally, show an error message to the user
+        }
       }
     };
     input.click();

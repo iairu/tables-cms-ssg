@@ -128,6 +128,12 @@ const SideMenu = ({ currentSection, isBuilding, lastSaved, onBuildClick, canBuil
         >
           Extensions
         </Link>
+        <Link
+          to="/cms/uploads"
+          className={currentSection === 'uploads' ? 'active' : ''}
+        >
+          Uploads
+        </Link>
       </div>
       <style>{`
         @keyframes spin {

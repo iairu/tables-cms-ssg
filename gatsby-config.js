@@ -7,12 +7,18 @@ module.exports = {
     description: `A Gatsby + React CMS project`,
     siteUrl: `https://www.yourdomain.tld`,
   },
-  plugins: [
+        plugins: [
     {
       resolve: `gatsby-source-filesystem`,
       options: {
         name: `cms`,
         path: `${__dirname}/static/cms`,
+      },
+    },
+    {
+      resolve: 'gatsby-plugin-express',
+      options: {
+        express: './src/api/index.js',
       },
     },
   ],

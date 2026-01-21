@@ -242,6 +242,9 @@ const useCMSData = () => {
   // Reservation state
   const [reservationRows, setReservationRows] = useState([]);
 
+  // Uploads state
+  const [uploads, setUploads] = useState([]);
+
   // Settings state
   const [settings, setSettings] = useState({
     siteTitle: '',
@@ -270,6 +273,86 @@ const useCMSData = () => {
     'pedigree-extension-enabled': false,
     'rental-extension-enabled': false
   });
+
+  // Upload functions
+  const fetchUploads = useCallback(async () => {
+    try {
+      const response = await fetch('/api/uploads');
+      const data = await response.json();
+      setUploads(data);
+    } catch (error) {
+      console.error('Error fetching assets:', error);
+    }
+  }, []);
+
+  const uploadFile = useCallback(async ({ fileData, fileName }) => {
+    try {
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileData, fileName }),
+      });
+
+      if (response.ok) {
+        fetchUploads(); // Refresh the list
+      } else {
+        console.error('Upload failed');
+      }
+    } catch (error) {
+      console.error('Error uploading file:', error);
+    }
+  }, [fetchUploads]);
+
+  const deleteFile = useCallback(async (filename) => {
+    try {
+      const response = await fetch('/api/delete-upload', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ filename }),
+      });
+
+      if (response.ok) {
+        fetchUploads(); // Refresh the list
+      } else {
+        console.error('Delete failed');
+      }
+    } catch (error) {
+      console.error('Error deleting file:', error);
+    }
+  }, [fetchUploads]);
+
+  const replaceFile = useCallback(async (oldFilename, { fileData, fileName }) => {
+    try {
+      // First, delete the old file
+      const deleteResponse = await fetch('/api/delete-upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filename: oldFilename }),
+      });
+
+      if (!deleteResponse.ok) {
+          console.error('Delete failed during replacement');
+          // Still attempting to upload the new file
+      }
+
+      // Now, upload the new file
+      const uploadResponse = await fetch('/api/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fileData, fileName }),
+      });
+
+      if (uploadResponse.ok) {
+          fetchUploads(); // Refresh the list
+      } else {
+          console.error('Upload failed during replacement');
+      }
+    } catch (error) {
+        console.error('Error replacing file:', error);
+    }
+  }, [fetchUploads]);
 
   // Load data from localStorage on mount
   useEffect(() => {
@@ -598,7 +681,14 @@ const useCMSData = () => {
     attendanceRows,
     saveAttendanceRows,
     reservationRows,
-    saveReservationRows
+    saveReservationRows,
+
+    // Uploads
+    uploads,
+    fetchUploads,
+    uploadFile,
+    deleteFile,
+    replaceFile
   };
 };
 
