@@ -230,10 +230,7 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-    }}>
+    <div className="blog-article-root">
       <Header
         settings={settings}
         menuPages={menuPages}
@@ -246,11 +243,7 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
       />
 
       {/* Main Content */}
-      <main style={{
-        maxWidth: '800px',
-        margin: '0 auto',
-        padding: '3rem 2rem'
-      }}>
+      <main className="blog-index-main-content">
         {/* Breadcrumbs */}
         {settings?.showBreadcrumbs && (
           <Breadcrumbs
@@ -265,29 +258,12 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
         
         {/* Article Header */}
         <article>
-          <header style={{
-            marginBottom: '2rem',
-            paddingBottom: '2rem',
-            borderBottom: '2px solid #e2e8f0'
-          }}>
-            <h1 style={{
-              fontSize: '2.5rem',
-              fontWeight: '700',
-              marginBottom: '1rem',
-              color: '#0f172a',
-              lineHeight: '1.2'
-            }}>
+          <header className="blog-article-header">
+            <h1>
               {articleContent.title || article.title}
             </h1>
             
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem',
-              color: '#64748b',
-              fontSize: '0.875rem',
-              marginTop: '0.5rem'
-            }}>
+            <div className="blog-article-meta">
               {(articleContent.author || article.author) && (
                 <span>{t('by', currentLanguage)} {articleContent.author || article.author}</span>
               )}
@@ -299,35 +275,16 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
             </div>
             
             {((articleContent.category || article.category) || (articleContent.tags || article.tags)) && (
-              <div style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: '0.5rem',
-                alignItems: 'center',
-                marginTop: '1rem'
-              }}>
+              <div className="blog-article-categories-tags">
                 {(articleContent.category || article.category) && (
-                  <span style={{
-                    background: '#e0e7ff',
-                    color: '#3730a3',
-                    padding: '0.25rem 0.75rem',
-                    
-                    fontSize: '0.875rem',
-                    fontWeight: '600'
-                  }}>
+                  <span className="blog-article-category">
                     {articleContent.category || article.category}
                   </span>
                 )}
                 {(articleContent.tags || article.tags) && (articleContent.tags || article.tags).split(',').map((tag, idx) => (
                   <span 
                     key={idx}
-                    style={{
-                      background: '#f1f5f9',
-                      color: '#475569',
-                      padding: '0.25rem 0.75rem',
-                      
-                      fontSize: '0.875rem'
-                    }}
+                    className="blog-article-tag"
                   >
                     {tag.trim()}
                   </span>
@@ -337,33 +294,16 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
           </header>
 
           {/* Article Content */}
-          <div style={{
-            fontSize: '1.125rem',
-            lineHeight: '1.75',
-            color: '#334155',
-            whiteSpace: 'pre-wrap'
-          }}>
+          <div className="blog-article-content">
             {articleContent.content || article.content}
           </div>
         </article>
 
         {/* Back to Blog Link */}
-        <div style={{
-          marginTop: '3rem',
-          paddingTop: '2rem',
-          borderTop: '1px solid #e2e8f0'
-        }}>
+        <div className="blog-article-backlink">
           <a 
             href={`/${currentLanguage}/blog`}
-            style={{
-              display: 'inline-block',
-              padding: '0.75rem 1.5rem',
-              background: '#667eea',
-              color: 'white',
-              textDecoration: 'none',
-              fontWeight: '600',
-              transition: 'background 0.2s'
-            }}
+            className="button"
           >
             {t('backToBlog', currentLanguage)}
           </a>

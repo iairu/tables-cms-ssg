@@ -1,0 +1,56 @@
+{
+  "redirects": [],
+  "pages": [
+    {
+      "path": "/404/"
+    },
+    {
+      "path": "/404.html"
+    },
+    {
+      "path": "/"
+    },
+    {
+      "path": "/cms/attendance/"
+    },
+    {
+      "path": "/cms/blog/edit/"
+    },
+    {
+      "path": "/cms/blog/"
+    },
+    {
+      "path": "/cms/calendar/"
+    },
+    {
+      "path": "/cms/customers/"
+    },
+    {
+      "path": "/cms/employees/"
+    },
+    {
+      "path": "/cms/inventory/"
+    },
+    {
+      "path": "/cms/extensions/"
+    },
+    {
+      "path": "/cms/pages/edit/"
+    },
+    {
+      "path": "/cms/pages/"
+    },
+    {
+      "path": "/cms/pedigree/"
+    },
+    {
+      "path": "/cms/reservations/"
+    },
+    {
+      "path": "/cms/settings/"
+    },
+    {
+      "path": "/cms/uploads/"
+    }
+  ]
+}

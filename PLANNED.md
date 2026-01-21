@@ -1,28 +1,10 @@
-now update CSS for AssetGrid to show smaller icons in row wrap
-
----
-
-fix AssetManagerModal not showing existing uploads properly (cmsData not getting to it i guess) by passing cmsData to it like in UserAssetManager.js
-
-afterwards within localStorage when the image gets uploaded save path to the image instead of base64 of the image
-
-then also within api/upload endpoint: fix PayloadTooLarge, allow base64 to be at most 2MB (rename Upload New Asset to "Upload Asset (up to 2MB)")
-
-and finally make sure replace button in assets won't change filename
-
----
-
-attendance is missing confirm delete modal like one present in inventory, same for reservations
-
----
-
 make sure that if an extension is disabled by user (e.g. Blog disabled on /cms/extensions), that it will not be visible after export to main-site (in this case no blog articles will be exported despite existing in localStorage and the Blog menu entry will not exist, then once user re-enables Blog the export will work like before with all visible and existing)
 
 implement the changes, storing of extensions status is already done in localStorage, next up do the filtering
 
 ---
 
-apply extracted css added to default.css by editing original files mentioned in default.css to include given classNames instead of the css directly
+apply extracted css added to default.css by editing original files mentioned in default.css to include given classNames instead of the css directly (css was extracted but also left inline)
 
 ---
 

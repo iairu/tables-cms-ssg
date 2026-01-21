@@ -212,10 +212,7 @@ const BlogIndexTemplate = ({ pageContext }) => {
   };
 
   return (
-    <div className="page-container" style={{
-      minHeight: '100vh',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-    }}>
+    <div className="page-container">
       <Header
         settings={settings}
         menuPages={menuPages}
@@ -227,11 +224,7 @@ const BlogIndexTemplate = ({ pageContext }) => {
       />
 
       {/* Main Content */}
-      <main style={{
-        maxWidth: '1200px',
-        margin: '0 auto',
-        padding: '3rem 2rem'
-      }}>
+      <main className="blog-index-main-content">
         {/* Breadcrumbs */}
         {settings?.showBreadcrumbs && (
           <Breadcrumbs
@@ -243,26 +236,16 @@ const BlogIndexTemplate = ({ pageContext }) => {
           />
         )}
         
-        <h1 style={{
-          fontSize: '2.5rem',
-          fontWeight: '700',
-          marginBottom: '2rem',
-          color: '#0f172a'
-        }}>
+        <h1 className="blog-index-title">
           Blog
         </h1>
 
         {pinnedArticles.length === 0 && currentRegularArticles.length === 0 ? (
-          <div style={{
-            background: '#f8fafc',
-            padding: '3rem',
-            textAlign: 'center',
-            color: '#64748b'
-          }}>
+          <div className="blog-index-empty">
             <p>{t('noBlogPosts', currentLanguage)}</p>
           </div>
         ) : (
-          <div style={{ display: 'grid', gap: '1.5rem' }}>
+          <div className="blog-index-articles-grid">
             {pinnedArticles.map(article => (
               <ArticleCard
                 key={article.id}
@@ -283,33 +266,21 @@ const BlogIndexTemplate = ({ pageContext }) => {
         )}
 
         {totalPages > 1 && (
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', marginTop: '3rem' }}>
+          <div className="blog-index-pagination">
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              style={{
-                padding: '0.5rem 1rem',
-                border: '1px solid #cbd5e1',
-                background: currentPage === 1 ? '#f8fafc' : 'white',
-                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                color: currentPage === 1 ? '#94a3b8' : '#334155'
-              }}
+              className="blog-index-pagination-btn"
             >
               {t('previous', currentLanguage)}
             </button>
-            <span style={{ color: '#475569', fontSize: '0.875rem' }}>
+            <span className="blog-index-pagination-info">
               {t('page', currentLanguage)} {currentPage} {t('of', currentLanguage)} {totalPages}
             </span>
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              style={{
-                padding: '0.5rem 1rem',
-                border: '1px solid #cbd5e1',
-                background: currentPage === totalPages ? '#f8fafc' : 'white',
-                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                color: currentPage === totalPages ? '#94a3b8' : '#334155'
-              }}
+              className="blog-index-pagination-btn"
             >
               {t('next', currentLanguage)}
             </button>

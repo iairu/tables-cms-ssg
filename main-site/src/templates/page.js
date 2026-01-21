@@ -262,10 +262,7 @@ const PageTemplate = ({ pageContext, location }) => {
         <meta name="description" content={metaDescription} />
       )}
       
-      <div className="page-container" style={{
-        minHeight: '100vh',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      }}>
+      <div className="page-container">
         <Header 
           settings={settings}
           menuPages={menuPages}
@@ -278,11 +275,7 @@ const PageTemplate = ({ pageContext, location }) => {
         />
 
         {/* Main Content */}
-        <main style={{
-          maxWidth: '1200px',
-          margin: '0 auto',
-          padding: '3rem 2rem'
-        }}>
+        <main className="page-main-content">
           {/* Breadcrumbs */}
           {settings?.showBreadcrumbs && page.slug !== 'home' && (
             <Breadcrumbs
@@ -294,12 +287,7 @@ const PageTemplate = ({ pageContext, location }) => {
             />
           )}
           
-          <h1 style={{
-            fontSize: '2.5rem',
-            fontWeight: '700',
-            marginBottom: '2rem',
-            color: '#0f172a'
-          }}>
+          <h1 className="blog-index-title">
             {page.title}
           </h1>
 
@@ -314,11 +302,7 @@ const PageTemplate = ({ pageContext, location }) => {
           ))}
 
           {(!rows || rows.length === 0) && (
-            <div className='no-content' style={{
-              padding: '3rem',
-              textAlign: 'center',
-              color: '#64748b'
-            }}>
+            <div className='no-content blog-index-empty'>
               <p>{t('noContent', currentLanguage)}</p>
             </div>
           )}

@@ -41,13 +41,7 @@ const EmptyHomeTemplate = ({ pageContext }) => {
 
   if (loading) {
     return (
-      <div className="loading-container" style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-      }}>
+      <div className="loading-container">
         <div>Loading...</div>
       </div>
     );
@@ -65,57 +59,21 @@ const EmptyHomeTemplate = ({ pageContext }) => {
       />
 
       {/* Main Content */}
-      <main style={{
-        maxWidth: '800px',
-        margin: '0 auto',
-        padding: '4rem 2rem',
-        textAlign: 'center',
-        color: 'white'
-      }}>
-        <div style={{
-          background: 'rgba(255, 255, 255, 0.15)',
-          backdropFilter: 'blur(10px)',
-          padding: '4rem 3rem',
-          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
-        }}>
-          <div style={{
-            fontSize: '4rem',
-            marginBottom: '1rem'
-          }}>
+      <main className="empty-home-main">
+        <div className="empty-home-content">
+          <div className="empty-home-icon">
             🏗️
           </div>
-          <h1 style={{
-            fontSize: '2.5rem',
-            fontWeight: '700',
-            marginBottom: '1rem',
-            lineHeight: '1.2'
-          }}>
+          <h1 className="empty-home-title">
             Welcome to {settings?.siteTitle || 'TABLES'}
           </h1>
-          <p style={{
-            fontSize: '1.25rem',
-            lineHeight: '1.75',
-            marginBottom: '2rem',
-            opacity: 0.9
-          }}>
+          <p className="empty-home-desc">
             Your site is ready! Add content through the CMS to get started.
           </p>
-          <div style={{
-            background: 'rgba(255, 255, 255, 0.2)',
-            padding: '1.5rem',
-            marginTop: '2rem'
-          }}>
-            <p style={{
-              fontSize: '0.875rem',
-              margin: 0,
-              lineHeight: '1.6'
-            }}>
+          <div className="empty-home-getting-started">
+            <p>
               <strong>Getting Started:</strong><br />
-              1. Access the CMS at <code style={{ 
-                background: 'rgba(0, 0, 0, 0.2)', 
-                padding: '2px 8px', 
-                fontFamily: 'monospace'
-              }}>/cms</code><br />
+              1. Access the CMS at <code>/cms</code>/cms</code><br />
               2. Create a page with slug "home" to replace this page<br />
               3. Build your site to see the changes
             </p>
