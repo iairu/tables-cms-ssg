@@ -20,7 +20,11 @@ const Video = ({ row }) => {
         border: row.fields.specialTheme.includes('iphone') ? '8px solid #1e293b' : 'none'
       }}>
         <iframe
-          src={`https://www.youtube.com/embed/${row.fields.youtubeUrl.split('v=')[1]?.split('&')[0] || row.fields.youtubeUrl}${row.fields.specialTheme.includes('autoplay') ? '?autoplay=1&mute=1' : ''}`}
+        src={`https://www.youtube.com/embed/${
+          row.fields.youtubeUrl.includes('youtu.be/')
+            ? row.fields.youtubeUrl.split('youtu.be/')[1].split('?')[0]
+            : row.fields.youtubeUrl.split('v=')[1]?.split('&')[0] || row.fields.youtubeUrl
+        }${row.fields.specialTheme.includes('autoplay') ? '?autoplay=1&mute=1' : ''}`}
           style={{
             position: 'absolute',
             top: 0,
