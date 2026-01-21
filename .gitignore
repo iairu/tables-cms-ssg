@@ -19,6 +19,8 @@ public/
 .build-trigger
 .build-state.json
 .build-lock
+static/uploads/*
+!static/uploads/placeholder
 
 # Build outputs
 dist/

@@ -33,3 +33,8 @@ dist/
 build/
 .vercel
 .env*.local
+static/data/*
+static/sitemap.xml
+!static/data/placeholder
+static/uploads/*
+!static/uploads/placeholder
