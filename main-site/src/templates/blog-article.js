@@ -5,6 +5,8 @@ import Breadcrumbs from '../components/Breadcrumbs';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import HeadComponent from '../components/HeadComponent';
+import Loading from '../components/common/Loading';
+import NotFound from '../components/common/NotFound';
 
 const BlogArticleTemplate = ({ pageContext, location }) => {
   const [article, setArticle] = useState(pageContext.articleData || null);
@@ -220,31 +222,11 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
   const articleContent = article ? getLocalizedContent(article, currentLanguage) : {};
 
   if (loading) {
-    return (
-      <div className="loading-container" style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-      }}>
-        <div>{t('loading', currentLanguage)}</div>
-      </div>
-    );
+    return <Loading language={currentLanguage} />;
   }
 
   if (!article) {
-    return (
-      <div className="not-found-container" style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-      }}>
-        <div>{t('notFound', currentLanguage)}</div>
-      </div>
-    );
+    return <NotFound language={currentLanguage} />;
   }
 
   return (
