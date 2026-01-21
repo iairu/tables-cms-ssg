@@ -6,6 +6,8 @@ const TitleSlide = ({ row }) => {
   const [isOffscreen, setIsOffscreen] = useState(false);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     const handleScroll = () => {
       if (sectionRef.current) {
         const rect = sectionRef.current.getBoundingClientRect();

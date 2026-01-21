@@ -21,7 +21,7 @@ const GDPRConsent = ({ scripts = [], providers = '', currentLanguage = 'en' }) =
 
   useEffect(() => {
     // Load scripts if consent is given
-    if (consent === 'true' && scripts.length > 0) {
+    if (typeof window !== 'undefined' && typeof document !== 'undefined' && consent === 'true' && scripts.length > 0) {
       scripts.forEach(script => {
         if (script && !document.querySelector(`script[src="${script}"]`)) {
           const scriptElement = document.createElement('script');

@@ -244,9 +244,9 @@ const PageTemplate = ({ pageContext, location }) => {
   };
   
   // Get localized menu page slug
-  const getLocalizedPageSlug = (menuPage, lang) => {
+  const getPageSlug = (menuPage, lang) => {
     if (menuPage.translations && menuPage.translations[lang]) {
-      return menuPage.translations[lang].slug;
+      return menuPage.slug;
     }
     return menuPage.slug;
   };
@@ -263,12 +263,14 @@ const PageTemplate = ({ pageContext, location }) => {
         <meta name="description" content={metaDescription} />
       )}
       
-      {/* GDPR Consent Modal */}
-      <GDPRConsent
-        scripts={settings?.gdprScripts || []}
-        providers={settings?.gdprProviders || ''}
-        currentLanguage={currentLanguage}
-      />
+      {/* GDPR Consent Modal - Only render on client side */}
+      {typeof window !== 'undefined' && (
+        <GDPRConsent
+          scripts={settings?.gdprScripts || []}
+          providers={settings?.gdprProviders || ''}
+          currentLanguage={currentLanguage}
+        />
+      )}
       
       <div className="page-container">
         <Header 
@@ -278,7 +280,7 @@ const PageTemplate = ({ pageContext, location }) => {
           languages={languages}
           handleLanguageChange={handleLanguageChange}
           getLocalizedPageTitle={getLocalizedPageTitle}
-          getLocalizedPageSlug={getLocalizedPageSlug}
+          getPageSlug={getPageSlug}
           showCatalogLink={showCatalogLink}
         />
 
@@ -321,7 +323,7 @@ const PageTemplate = ({ pageContext, location }) => {
           menuPages={menuPages}
           currentLanguage={currentLanguage}
           getLocalizedPageTitle={getLocalizedPageTitle}
-          getLocalizedPageSlug={getLocalizedPageSlug}
+          getPageSlug={getPageSlug}
         />
       </div>
     </>

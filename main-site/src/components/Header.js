@@ -8,7 +8,7 @@ const Header = ({
   languages,
   handleLanguageChange,
   getLocalizedPageTitle,
-  getLocalizedPageSlug,
+  getpageSlug,
   showCatalogLink,
   simplified = false,
 }) => {

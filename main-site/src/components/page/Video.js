@@ -6,6 +6,8 @@ const Video = ({ row }) => {
   const [isOffscreen, setIsOffscreen] = useState(false);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     const handleOffscreenVid = () => {
       if (videoRef.current && sectionRef.current) {
         const rect = sectionRef.current.getBoundingClientRect();
@@ -37,13 +39,19 @@ const Video = ({ row }) => {
   }, []);
 
   const recalculateVideoHeight = () => {
+    if (typeof window === 'undefined') return '675px'; // Default height (1200/16*9)
     const assumedVideoWidth = (window.innerWidth < 1200) ? window.innerWidth : 1200;
     return (assumedVideoWidth / 16 * 9) + 'px';
   };
 
-  const [videoHeight, setVideoHeight] = useState(recalculateVideoHeight());
+  const [videoHeight, setVideoHeight] = useState(() => {
+    if (typeof window === 'undefined') return '675px';
+    return recalculateVideoHeight();
+  });
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     const handleResize = () => {
       setVideoHeight(recalculateVideoHeight());
     };

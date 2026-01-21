@@ -10,6 +10,7 @@ const Reviews = ({ row }) => {
   const reviews = row.fields.reviews || [];
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
     if (reviews.length <= 1) return;
 
     const startSlideshow = () => {

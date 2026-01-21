@@ -6,6 +6,8 @@ const Flies = ({ row }) => {
   const [overlayHeight, setOverlayHeight] = useState(0);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     const findDiffElmBelow = (elm) => {
       if (elm && elm.parentElement) {
         const siblings = Array.prototype.slice.call(elm.parentElement.children);

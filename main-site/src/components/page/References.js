@@ -6,6 +6,8 @@ const References = ({ row }) => {
   const sectionRef = useRef(null);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     // Auto-scroll functionality similar to refsAutoScroll.js
     let refInterval;
     

@@ -1,13 +1,3 @@
-adjust main-site/src/templates CSS based on strukshow-old-site-new-theme SCSS (that is an old site but a newer theme we have to port over to our main-site), do not change file structure at all, just mostly update CSS in main-site/src/components/page/* and main-site/src/templates/page.js
-
-main-site/static/strukshow-old-site-new-theme/src/sections/Bar.svelte is Infobar, Bubbles.svelte is ignored, Flies.svelte is Flies, Floaters.svelte is Boxes, Ranking.svelte is Ranking, Ref.svelte is References, Slide.svelte is Slide, Titulka.svelte is TitleSlide, Video.svelte is Video
-
----
-
-add vercel project name (only a-z and dashes allowed) as required next to vercel api key in settings, this will then be used during deploy to vercel in src/api/build.js to ensure correct project name
-
----
-
 blog is improperly showing english pinned article in both english and slovak, and not showing slovak pinned article in either
 
 ---

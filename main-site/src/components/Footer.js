@@ -6,7 +6,7 @@ const Footer = ({
   menuPages,
   currentLanguage,
   getLocalizedPageTitle,
-  getLocalizedPageSlug,
+  getPageSlug,
   simplified = false,
 }) => {
   if (simplified) {

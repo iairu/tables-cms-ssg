@@ -212,9 +212,9 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
   };
 
   // Get localized menu page slug
-  const getLocalizedPageSlug = (menuPage, lang) => {
+  const getPageSlug = (menuPage, lang) => {
     if (menuPage.translations && menuPage.translations[lang]) {
-      return menuPage.translations[lang].slug || menuPage.slug;
+      return menuPage.slug;
     }
     return menuPage.slug;
   };
@@ -238,7 +238,7 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
         languages={languages}
         handleLanguageChange={handleLanguageChange}
         getLocalizedPageTitle={getLocalizedPageTitle}
-        getLocalizedPageSlug={getLocalizedPageSlug}
+        getPageSlug={getPageSlug}
         showCatalogLink={showCatalogLink}
       />
 
@@ -315,7 +315,7 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
         menuPages={menuPages}
         currentLanguage={currentLanguage}
         getLocalizedPageTitle={getLocalizedPageTitle}
-        getLocalizedPageSlug={getLocalizedPageSlug}
+        getPageSlug={getPageSlug}
       />
     </div>
   );
