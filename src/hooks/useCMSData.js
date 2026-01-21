@@ -294,12 +294,16 @@ const useCMSData = () => {
       });
 
       if (response.ok) {
-        fetchUploads(); // Refresh the list
+        const newAsset = await response.json();
+        fetchUploads(); // Refresh the list in the background
+        return newAsset.url; // Return the new URL
       } else {
         console.error('Upload failed');
+        return null;
       }
     } catch (error) {
       console.error('Error uploading file:', error);
+      return null;
     }
   }, [fetchUploads]);
 
@@ -325,23 +329,11 @@ const useCMSData = () => {
 
   const replaceFile = useCallback(async (oldFilename, { fileData, fileName }) => {
     try {
-      // First, delete the old file
-      const deleteResponse = await fetch('/api/delete-upload', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ filename: oldFilename }),
-      });
-
-      if (!deleteResponse.ok) {
-          console.error('Delete failed during replacement');
-          // Still attempting to upload the new file
-      }
-
       // Now, upload the new file
       const uploadResponse = await fetch('/api/upload', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ fileData, fileName }),
+          body: JSON.stringify({ fileData, fileName: oldFilename }),
       });
 
       if (uploadResponse.ok) {
@@ -400,6 +392,7 @@ const useCMSData = () => {
     if (loadedAcl) setAcl(JSON.parse(loadedAcl));
     if (loadedExtensions) setExtensions(JSON.parse(loadedExtensions));
     
+    fetchUploads();
     // Mark data as loaded
     setIsDataLoaded(true);
   }, []);

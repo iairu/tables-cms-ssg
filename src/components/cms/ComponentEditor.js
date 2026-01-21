@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   renderEmojiPicker, 
   renderRichTextEditor, 
@@ -7,8 +7,12 @@ import {
   CSS_BLEND_MODES,
   getDefaultFieldsForComponent 
 } from './componentHelpers';
+import AssetManagerModal from './AssetManagerModal';
 
-const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
+const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) => {
+  const [assetModalOpen, setAssetModalOpen] = useState(false);
+  const [assetModalTarget, setAssetModalTarget] = useState(null);
+
   const handleAddComponent = () => {
     const newRows = [...rows, { component: 'TitleSlide', fields: getDefaultFieldsForComponent('TitleSlide') }];
     onChange(newRows);
@@ -52,40 +56,48 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
     onChange(newRows);
   };
 
-  const handleImageUpload = async (rowIndex, fieldName, itemIndex = null, itemFieldName = null) => {
+  const handleImageUpload = (rowIndex, fieldName, itemIndex = null, itemFieldName = null) => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
-    input.onchange = async (e) => {
+    input.onchange = (e) => {
       const file = e.target.files[0];
-      if (file) {
-        const formData = new FormData();
-        formData.append('file', file);
+      if (!file || !cmsData?.uploadFile) return;
 
-        try {
-          const response = await fetch('/api/upload', {
-            method: 'POST',
-            body: formData,
-          });
-
-          if (!response.ok) {
-            throw new Error('Upload failed');
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+          const fileData = event.target.result;
+          const newUrl = await cmsData.uploadFile({ fileData, fileName: file.name });
+          
+          if (newUrl) {
+            if (itemIndex !== null && itemFieldName !== null) {
+              handleArrayItemChange(rowIndex, fieldName, itemIndex, itemFieldName, newUrl);
+            } else {
+              handleFieldChange(rowIndex, fieldName, newUrl);
+            }
           }
-
-          const { url } = await response.json();
-
-          if (itemIndex !== null && itemFieldName !== null) {
-            handleArrayItemChange(rowIndex, fieldName, itemIndex, itemFieldName, url);
-          } else {
-            handleFieldChange(rowIndex, fieldName, url);
-          }
-        } catch (error) {
-          console.error('Error uploading image:', error);
-          // Optionally, show an error message to the user
-        }
-      }
+      };
+      reader.readAsDataURL(file);
     };
     input.click();
+  };
+
+  const handleSelectImage = (rowIndex, fieldName, itemIndex = null, itemFieldName = null) => {
+    setAssetModalTarget({ rowIndex, fieldName, itemIndex, itemFieldName });
+    setAssetModalOpen(true);
+  };
+
+  const handleAssetSelected = (asset) => {
+    if (assetModalTarget) {
+      const { rowIndex, fieldName, itemIndex, itemFieldName } = assetModalTarget;
+      if (itemIndex !== null && itemFieldName !== null) {
+        handleArrayItemChange(rowIndex, fieldName, itemIndex, itemFieldName, asset.url);
+      } else {
+        handleFieldChange(rowIndex, fieldName, asset.url);
+      }
+    }
+    setAssetModalOpen(false);
+    setAssetModalTarget(null);
   };
 
   return (
@@ -242,14 +254,16 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
                 'Background Image',
                 row.fields.backgroundImage,
                 () => handleImageUpload(rowIndex, 'backgroundImage'),
-                () => handleFieldChange(rowIndex, 'backgroundImage', '')
+                () => handleFieldChange(rowIndex, 'backgroundImage', ''),
+                () => handleSelectImage(rowIndex, 'backgroundImage')
               )}
               
               {renderImageUpload(
                 'Mobile Background Image',
                 row.fields.mobileBackgroundImage,
                 () => handleImageUpload(rowIndex, 'mobileBackgroundImage'),
-                () => handleFieldChange(rowIndex, 'mobileBackgroundImage', '')
+                () => handleFieldChange(rowIndex, 'mobileBackgroundImage', ''),
+                () => handleSelectImage(rowIndex, 'mobileBackgroundImage')
               )}
               
               <div style={{ marginBottom: '10px' }}>
@@ -267,7 +281,8 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
                 'Background Texture',
                 row.fields.backgroundTexture,
                 () => handleImageUpload(rowIndex, 'backgroundTexture'),
-                () => handleFieldChange(rowIndex, 'backgroundTexture', '')
+                () => handleFieldChange(rowIndex, 'backgroundTexture', ''),
+                () => handleSelectImage(rowIndex, 'backgroundTexture')
               )}
               
               <div style={{ marginBottom: '10px' }}>
@@ -354,24 +369,12 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
                     
                     <div style={{ marginBottom: '8px' }}>
                       <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Icon ({currentLanguage}):</label>
-                      <button
-                        type="button"
-                        onClick={() => handleImageUpload(rowIndex, 'boxes', boxIndex, 'icon')}
-                        style={{ padding: '6px 12px', background: '#3b82f6', color: 'white', border: 'none', cursor: 'pointer', fontSize: '12px' }}
-                      >
-                        Upload Icon
-                      </button>
-                      {box.icon && (
-                        <div style={{ marginTop: '5px' }}>
-                          <img src={box.icon} alt="Icon" style={{ maxWidth: '100px', maxHeight: '100px', borderRadius: '4px' }} />
-                          <button
-                            type="button"
-                            onClick={() => handleArrayItemChange(rowIndex, 'boxes', boxIndex, 'icon', '')}
-                            style={{ display: 'block', marginTop: '3px', padding: '3px 8px', background: '#ef4444', color: 'white', border: 'none',  cursor: 'pointer', fontSize: '11px' }}
-                          >
-                            Remove
-                          </button>
-                        </div>
+                      {renderImageUpload(
+                        '',
+                        box.icon,
+                        () => handleImageUpload(rowIndex, 'boxes', boxIndex, 'icon'),
+                        () => handleArrayItemChange(rowIndex, 'boxes', boxIndex, 'icon', ''),
+                        () => handleSelectImage(rowIndex, 'boxes', boxIndex, 'icon')
                       )}
                     </div>
                     
@@ -420,7 +423,8 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
                 'Background Image',
                 row.fields.backgroundImage,
                 () => handleImageUpload(rowIndex, 'backgroundImage'),
-                () => handleFieldChange(rowIndex, 'backgroundImage', '')
+                () => handleFieldChange(rowIndex, 'backgroundImage', ''),
+                () => handleSelectImage(rowIndex, 'backgroundImage')
               )}
             </div>
           )}
@@ -432,7 +436,8 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
                 'Logo',
                 row.fields.logo,
                 () => handleImageUpload(rowIndex, 'logo'),
-                () => handleFieldChange(rowIndex, 'logo', '')
+                () => handleFieldChange(rowIndex, 'logo', ''),
+                () => handleSelectImage(rowIndex, 'logo')
               )}
               
               <div style={{ marginBottom: '10px' }}>
@@ -500,25 +505,12 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
                     </div>
                     
                     <div style={{ marginBottom: '8px' }}>
-                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Background Image ({currentLanguage}):</label>
-                      <button
-                        type="button"
-                        onClick={() => handleImageUpload(rowIndex, 'flies', flyIndex, 'backgroundImage')}
-                        style={{ padding: '6px 12px', background: '#3b82f6', color: 'white', border: 'none',  cursor: 'pointer', fontSize: '12px' }}
-                      >
-                        Upload Image
-                      </button>
-                      {fly.backgroundImage && (
-                        <div style={{ marginTop: '5px' }}>
-                          <img src={fly.backgroundImage} alt="Fly" style={{ maxWidth: '100px', maxHeight: '100px', borderRadius: '4px' }} />
-                          <button
-                            type="button"
-                            onClick={() => handleArrayItemChange(rowIndex, 'flies', flyIndex, 'backgroundImage', '')}
-                            style={{ display: 'block', marginTop: '3px', padding: '3px 8px', background: '#ef4444', color: 'white', border: 'none',  cursor: 'pointer', fontSize: '11px' }}
-                          >
-                            Remove
-                          </button>
-                        </div>
+                      {renderImageUpload(
+                        'Background Image',
+                        fly.backgroundImage,
+                        () => handleImageUpload(rowIndex, 'flies', flyIndex, 'backgroundImage'),
+                        () => handleArrayItemChange(rowIndex, 'flies', flyIndex, 'backgroundImage', ''),
+                        () => handleSelectImage(rowIndex, 'flies', flyIndex, 'backgroundImage')
                       )}
                     </div>
                     
@@ -666,7 +658,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
                   <span>Left Dark Theme ({currentLanguage})</span>
                 </label>
               </div>
-              {renderImageUpload('Left Background Image', row.fields.leftBackgroundImage, () => handleImageUpload(rowIndex, 'leftBackgroundImage'), () => handleFieldChange(rowIndex, 'leftBackgroundImage', ''))}
+              {renderImageUpload('Left Background Image', row.fields.leftBackgroundImage, () => handleImageUpload(rowIndex, 'leftBackgroundImage'), () => handleFieldChange(rowIndex, 'leftBackgroundImage', ''), () => handleSelectImage(rowIndex, 'leftBackgroundImage'))}
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                   <input type="checkbox" checked={row.fields.fitLeftBackground || false} onChange={(e) => handleFieldChange(rowIndex, 'fitLeftBackground', e.target.checked)} />
@@ -714,7 +706,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
                   <span>Right Dark Theme ({currentLanguage})</span>
                 </label>
               </div>
-              {renderImageUpload('Right Background Image', row.fields.rightBackgroundImage, () => handleImageUpload(rowIndex, 'rightBackgroundImage'), () => handleFieldChange(rowIndex, 'rightBackgroundImage', ''))}
+              {renderImageUpload('Right Background Image', row.fields.rightBackgroundImage, () => handleImageUpload(rowIndex, 'rightBackgroundImage'), () => handleFieldChange(rowIndex, 'rightBackgroundImage', ''), () => handleSelectImage(rowIndex, 'rightBackgroundImage'))}
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                   <input type="checkbox" checked={row.fields.fitRightBackground || false} onChange={(e) => handleFieldChange(rowIndex, 'fitRightBackground', e.target.checked)} />
@@ -798,7 +790,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
                   <span>Dark Mode ({currentLanguage})</span>
                 </label>
               </div>
-              {renderImageUpload('Background Image', row.fields.backgroundImage, () => handleImageUpload(rowIndex, 'backgroundImage'), () => handleFieldChange(rowIndex, 'backgroundImage', ''))}
+              {renderImageUpload('Background Image', row.fields.backgroundImage, () => handleImageUpload(rowIndex, 'backgroundImage'), () => handleFieldChange(rowIndex, 'backgroundImage', ''), () => handleSelectImage(rowIndex, 'backgroundImage'))}
             </div>
           )}
 
@@ -813,12 +805,12 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
                       <strong>Image {imgIndex + 1}</strong>
                       <button type="button" onClick={() => handleArrayItemRemove(rowIndex, 'images', imgIndex)} style={{ padding: '3px 10px', background: '#f87171', color: 'white', border: 'none',  cursor: 'pointer', fontSize: '12px' }}>Remove</button>
                     </div>
-                    <button type="button" onClick={() => handleImageUpload(rowIndex, 'images', imgIndex, 'imageUrl')} style={{ padding: '6px 12px', background: '#3b82f6', color: 'white', border: 'none',  cursor: 'pointer', fontSize: '12px' }}>Upload Image</button>
-                    {image.imageUrl && (
-                      <div style={{ marginTop: '5px' }}>
-                        <img src={image.imageUrl} alt="Reference" style={{ maxWidth: '150px', maxHeight: '150px', borderRadius: '4px' }} />
-                        <button type="button" onClick={() => handleArrayItemChange(rowIndex, 'images', imgIndex, 'imageUrl', '')} style={{ display: 'block', marginTop: '3px', padding: '3px 8px', background: '#ef4444', color: 'white', border: 'none',  cursor: 'pointer', fontSize: '11px' }}>Remove</button>
-                      </div>
+                    {renderImageUpload(
+                      '',
+                      image.imageUrl,
+                      () => handleImageUpload(rowIndex, 'images', imgIndex, 'imageUrl'),
+                      () => handleArrayItemChange(rowIndex, 'images', imgIndex, 'imageUrl', ''),
+                      () => handleSelectImage(rowIndex, 'images', imgIndex, 'imageUrl')
                     )}
                   </div>
                 ))}
@@ -880,6 +872,13 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en' }) => {
       >
         + Add Component
       </button>
+
+      <AssetManagerModal
+        isOpen={assetModalOpen}
+        onClose={() => setAssetModalOpen(false)}
+        assets={cmsData?.uploads || []}
+        onSelectAsset={handleAssetSelected}
+      />
     </div>
   );
 };

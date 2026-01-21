@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 export const renderEmojiPicker = (rowIndex, fieldName, value, handleChange, itemIndex = null, itemFieldName = null) => {
   const commonEmojis = ['😀', '😃', '😄', '😁', '😊', '🎉', '🎊', '🎈', '🎁', '🏆', '⭐', '✨', '🔥', '💡', '📌', '📍', '🏠', '🏢', '🏪', '🏬', '📧', '📞', '💬', '✅', '❌', '⚠️', '🔔', '🔍', '📝', '📄'];
-  
+
   return (
     <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', marginTop: '5px' }}>
       {commonEmojis.map(emoji => (
@@ -13,7 +13,7 @@ export const renderEmojiPicker = (rowIndex, fieldName, value, handleChange, item
           style={{
             padding: '5px 10px',
             border: '1px solid #cbd5e1',
-            
+
             background: value === emoji ? '#3b82f6' : 'white',
             cursor: 'pointer',
             fontSize: '18px'
@@ -63,24 +63,49 @@ export const renderRichTextEditor = (editorId, value, onChange) => {
   );
 };
 
-export const renderImageUpload = (label, value, onUpload, onRemove) => {
+// Modified renderImageUpload to wait for upload to complete before showing the image
+export function RenderImageUpload({ label, value, onUpload, onRemove, onSelect }) {
+  const [uploading, setUploading] = useState(false);
+
+  // Wrap onUpload to set uploading state
+  const handleUpload = async () => {
+    setUploading(true);
+    try {
+      // onUpload should be async and set value when done
+      await onUpload();
+    } finally {
+      setUploading(false);
+    }
+  };
+
   return (
     <div style={{ marginBottom: '10px' }}>
       <label style={{ display: 'block', marginBottom: '5px' }}><strong>{label}:</strong></label>
-      <button
-        type="button"
-        onClick={onUpload}
-        style={{ padding: '8px 16px', background: '#3b82f6', color: 'white', border: 'none',  cursor: 'pointer', marginBottom: '5px' }}
-      >
-        Upload Image
-      </button>
-      {value && (
+      <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '5px' }}>
+        <button
+          type="button"
+          onClick={handleUpload}
+          style={{ padding: '8px 16px', background: '#3b82f6', color: 'white', border: 'none', cursor: 'pointer' }}
+          disabled={uploading}
+        >
+          {uploading ? 'Uploading...' : 'Upload Image'}
+        </button>
+        <button
+          type="button"
+          onClick={onSelect}
+          style={{ padding: '8px 16px', background: '#4b5563', color: 'white', border: 'none', cursor: 'pointer' }}
+          disabled={uploading}
+        >
+          Select Asset
+        </button>
+      </div>
+      {value && !uploading && (
         <div style={{ marginTop: '5px' }}>
-          <img src={value} alt="Preview" style={{ maxWidth: '200px', maxHeight: '150px',  display: 'block' }} />
+          <img src={value} alt="Preview" style={{ maxWidth: '200px', maxHeight: '150px', display: 'block' }} />
           <button
             type="button"
             onClick={onRemove}
-            style={{ marginTop: '5px', padding: '5px 10px', background: '#ef4444', color: 'white', border: 'none',  cursor: 'pointer', fontSize: '12px' }}
+            style={{ marginTop: '5px', padding: '5px 10px', background: '#ef4444', color: 'white', border: 'none', cursor: 'pointer', fontSize: '12px' }}
           >
             Remove
           </button>
@@ -88,7 +113,18 @@ export const renderImageUpload = (label, value, onUpload, onRemove) => {
       )}
     </div>
   );
-};
+}
+
+// For backward compatibility, keep the old export as a wrapper
+export const renderImageUpload = (label, value, onUpload, onRemove, onSelect) => (
+  <RenderImageUpload
+    label={label}
+    value={value}
+    onUpload={onUpload}
+    onRemove={onRemove}
+    onSelect={onSelect}
+  />
+);
 
 export const renderButtonList = (buttons, onAdd, onRemove, onChange, renderEmojiPickerFn) => {
   return (
@@ -105,7 +141,7 @@ export const renderButtonList = (buttons, onAdd, onRemove, onChange, renderEmoji
               Remove
             </button>
           </div>
-          
+
           <div style={{ marginBottom: '8px' }}>
             <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Icon (Emoji):</label>
             <input
@@ -117,7 +153,7 @@ export const renderButtonList = (buttons, onAdd, onRemove, onChange, renderEmoji
             />
             {renderEmojiPickerFn(button.icon, (emoji) => onChange(btnIndex, 'icon', emoji))}
           </div>
-          
+
           <div style={{ marginBottom: '8px' }}>
             <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Title:</label>
             <input
@@ -127,7 +163,7 @@ export const renderButtonList = (buttons, onAdd, onRemove, onChange, renderEmoji
               style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }}
             />
           </div>
-          
+
           <div style={{ marginBottom: '8px' }}>
             <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Link:</label>
             <input
@@ -137,7 +173,7 @@ export const renderButtonList = (buttons, onAdd, onRemove, onChange, renderEmoji
               style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }}
             />
           </div>
-          
+
           <div style={{ marginBottom: '8px' }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
               <input
@@ -148,7 +184,7 @@ export const renderButtonList = (buttons, onAdd, onRemove, onChange, renderEmoji
               <span style={{ fontSize: '14px' }}>Open as popup</span>
             </label>
           </div>
-          
+
           <div>
             <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
               <input

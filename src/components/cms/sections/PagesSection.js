@@ -515,6 +515,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
             rows={currentLangContent?.rows || []}
             onChange={(newRows) => saveLocalizedContent(currentLanguage, { rows: newRows })}
             currentLanguage={currentLanguage}
+            cmsData={cmsData}
           />
         </div>
       </section>

@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
+import AssetGrid from './AssetGrid';
 
 const styles = {
   container: {
     padding: '20px',
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+    width: '100%',
   },
   header: {
     borderBottom: '1px solid #e2e8f0',
@@ -25,53 +27,6 @@ const styles = {
     fontWeight: 500,
     marginBottom: '20px',
   },
-  grid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-    gap: '20px',
-  },
-  card: {
-    border: '1px solid #e2e8f0',
-    borderRadius: '4px',
-    padding: '10px',
-    transition: 'box-shadow 0.2s',
-  },
-  cardHover: {
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-  },
-  image: {
-    width: '100%',
-    height: '150px',
-    objectFit: 'cover',
-    borderRadius: '4px',
-  },
-  filename: {
-    margin: '10px 0',
-    wordBreak: 'break-all',
-    fontSize: '12px',
-    color: '#4a5568',
-  },
-  buttonGroup: {
-    display: 'flex',
-    gap: '5px',
-  },
-  button: {
-    padding: '5px 10px',
-    border: 'none',
-    borderRadius: '4px',
-    color: 'white',
-    cursor: 'pointer',
-    fontSize: '10px',
-    flex: 1,
-    textTransform: 'uppercase',
-    fontWeight: 600,
-  },
-  replaceButton: {
-    background: '#3b82f6',
-  },
-  deleteButton: {
-    background: '#ef4444',
-  },
   loading: {
     textAlign: 'center',
     padding: '50px',
@@ -85,13 +40,39 @@ const styles = {
     color: '#718096',
     border: '2px dashed #e2e8f0',
     borderRadius: '4px',
+  },
+  searchInput: {
+    display: 'block',
+    width: '100%',
+    maxWidth: '350px',
+    marginBottom: '20px',
+    padding: '8px 12px',
+    fontSize: '15px',
+    border: '1px solid #cbd5e1',
+    borderRadius: '4px',
+    outline: 'none',
+    boxSizing: 'border-box',
   }
 };
+
+function fuzzyMatch(str, query) {
+  // Simple fuzzy match: all query chars must appear in order in str (case-insensitive)
+  str = str.toLowerCase();
+  query = query.toLowerCase();
+  let strIdx = 0, queryIdx = 0;
+  while (strIdx < str.length && queryIdx < query.length) {
+    if (str[strIdx] === query[queryIdx]) {
+      queryIdx++;
+    }
+    strIdx++;
+  }
+  return queryIdx === query.length;
+}
 
 const UserAssetManager = ({ assets, onPageLoad, onUpload, onDelete, onReplace }) => {
   const fileInputRef = useRef(null);
   const [loading, setLoading] = useState(true);
-  const [hoveredCard, setHoveredCard] = useState(null);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     const loadAssets = async () => {
@@ -114,7 +95,7 @@ const UserAssetManager = ({ assets, onPageLoad, onUpload, onDelete, onReplace })
         await onUpload({ fileData, fileName: file.name });
     };
     reader.readAsDataURL(file);
-    
+
     // Reset the file input so the same file can be selected again
     if(fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -146,10 +127,18 @@ const UserAssetManager = ({ assets, onPageLoad, onUpload, onDelete, onReplace })
     };
     input.click();
   };
-  
+
   const triggerUpload = () => {
     fileInputRef.current.click();
   }
+
+  // Fuzzy filter assets by filename (or name property)
+  const filteredAssets = search.trim()
+    ? assets.filter(asset => {
+        const name = asset.filename || asset.name || '';
+        return fuzzyMatch(name, search.trim());
+      })
+    : assets;
 
   if (loading) {
     return <div style={styles.loading}>Loading assets...</div>;
@@ -166,35 +155,29 @@ const UserAssetManager = ({ assets, onPageLoad, onUpload, onDelete, onReplace })
         accept="image/*"
       />
       <button onClick={triggerUpload} style={styles.uploadButton}>
-        Upload New Asset
+        Upload New Asset (max. 2MB)
       </button>
-      
-      {assets.length === 0 ? (
+      <input
+        type="text"
+        placeholder="Search assets..."
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+        style={styles.searchInput}
+        aria-label="Search assets"
+      />
+      {filteredAssets.length === 0 ? (
         <div style={styles.emptyState}>
-          <p>No assets found. Upload your first asset to get started!</p>
+          <p>
+            {assets.length === 0
+              ? 'No assets found. Upload your first asset to get started!'
+              : 'No assets match your search.'}
+          </p>
         </div>
       ) : (
-        <div style={styles.grid}>
-          {assets.map(asset => (
-            <div 
-              key={asset.name} 
-              style={hoveredCard === asset.name ? {...styles.card, ...styles.cardHover} : styles.card}
-              onMouseEnter={() => setHoveredCard(asset.name)}
-              onMouseLeave={() => setHoveredCard(null)}
-            >
-              <img src={asset.url} alt={asset.name} style={styles.image} />
-              <p style={styles.filename}>{asset.name}</p>
-              <div style={styles.buttonGroup}>
-                <button onClick={() => handleReplace(asset.name)} style={{...styles.button, ...styles.replaceButton}}>
-                  Replace
-                </button>
-                <button onClick={() => handleDelete(asset.name)} style={{...styles.button, ...styles.deleteButton}}>
-                  Delete
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
+        <AssetGrid
+          assets={filteredAssets}
+          onDelete={handleDelete}
+        />
       )}
     </div>
   );
