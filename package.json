@@ -17,8 +17,7 @@
   "license": "MIT",
   "dependencies": {
     "ansi-to-html": "^0.7.2",
-    "fs-extra": "^11.3.3",
-    "node-bin-setup": "^1.1.4"
+    "fs-extra": "^11.3.3"
   },
   "devDependencies": {
     "@types/node": "^25.0.8",
