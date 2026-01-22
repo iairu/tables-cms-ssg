@@ -70,7 +70,7 @@ const Infobar = ({ row }) => {
       textDecoration: 'none',
       fontWeight: '500',
       fontSize: '0.875rem',
-      border: 'none',
+      border: '1px solid',
       cursor: 'pointer',
       transition: 'all 0.2s',
     },

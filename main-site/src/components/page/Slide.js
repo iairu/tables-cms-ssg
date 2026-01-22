@@ -120,7 +120,7 @@ const Slide = ({ row }) => {
       color: 'white',
       textDecoration: 'none',
       fontWeight: '600',
-      border: 'none',
+      border: '1px solid',
       cursor: 'pointer',
     },
     link: {
@@ -277,6 +277,28 @@ const Slide = ({ row }) => {
         @media (max-width: 900px) {
           section.slide .hide-right-on-mobile {
             display: none;
+          }
+        }
+
+        @media (max-width: 700px) {
+          section.slide {
+            flex-flow: column;
+          }
+
+          section.slide .left {
+            width: 100%;
+            padding: 2em;
+            margin-bottom: 1em;
+          }
+
+          section.slide .right {
+            width: 100%;
+            padding: 2em;
+          }
+
+          section.slide .right .under {
+            width: 100%;
+            left: 0;
           }
         }
       `}</style>

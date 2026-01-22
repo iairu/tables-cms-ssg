@@ -25,6 +25,7 @@ const Header = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   let extensions = {};
   try {
@@ -61,8 +62,12 @@ const Header = ({
     setSearchResults(placeholderResults);
   };
 
-  // Inline styles
-  const styles = {
+   const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+
+   // Inline styles
+   const styles = {
     header: {
       display: 'flex',
       alignItems: 'center',
@@ -71,7 +76,8 @@ const Header = ({
       background: '#fff',
       borderBottom: '1px solid #eee',
       boxSizing: 'border-box',
-      margin: 0
+      margin: 0,
+      position: 'relative'
     },
     logo: {
       display: 'flex',
@@ -80,6 +86,17 @@ const Header = ({
     logoImage: {
       height: '40px',
       width: 'auto',
+    },
+    mobileNavToggle: {
+      display: 'none',
+      background: 'none',
+      border: 'none',
+      fontSize: '24px',
+      cursor: 'pointer',
+      padding: '8px',
+      color: '#333',
+      alignItems: 'center',
+      justifyContent: 'center',
     },
     searchBar: {
       position: 'relative',
@@ -140,8 +157,17 @@ const Header = ({
 
   return (
     <header style={styles.header}>
-      {/* Logo Section */}
-      <div style={styles.logo}>
+       {/* Mobile Navigation Toggle */}
+       <button
+         style={styles.mobileNavToggle}
+         onClick={toggleMobileMenu}
+         aria-label="Toggle Mobile Navigation"
+       >
+         <i className={mobileMenuOpen ? "fa fa-times" : "fa fa-bars"}></i>
+       </button>
+
+       {/* Logo Section */}
+       <div style={styles.logo}>
         <img src="/assets/tables-logo.svg" alt="Logo" style={styles.logoImage} />
         {/* <b>TABLES</b>&nbsp;CMS Alpha*/}
       </div>
@@ -167,8 +193,11 @@ const Header = ({
         )}
       </div>
 
-      {/* Buttons Section */}
-      <div style={styles.buttons}>
+       {/* Buttons Section */}
+       <div style={{
+         ...styles.buttons,
+         display: mobileMenuOpen ? 'none' : 'flex'
+       }}>
         
 
         {/* Build Buttons */}
@@ -258,7 +287,131 @@ const Header = ({
                 {/* <Icon icon="fa-solid fa-external-link-alt" />*/}
               </a>
           )}
-        </div>
+        {/* Mobile Menu Overlay */}
+       {mobileMenuOpen && (
+         <div
+           style={{
+             position: 'fixed',
+             top: '0',
+             left: '0',
+             right: '0',
+             bottom: '0',
+             background: 'rgba(0, 0, 0, 0.5)',
+             zIndex: '999',
+             display: 'flex',
+             flexDirection: 'column',
+             padding: '60px 20px 20px'
+           }}
+           onClick={toggleMobileMenu}
+         >
+           <div
+             style={{
+               background: 'white',
+               borderRadius: '8px',
+               padding: '20px',
+               maxWidth: '400px',
+               margin: '0 auto',
+               boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+             }}
+             onClick={(e) => e.stopPropagation()}
+           >
+             <h3 style={{ margin: '0 0 20px 0', color: '#333' }}>Menu</h3>
+             
+             {/* Mobile Build Buttons */}
+             {(extensions['pages-extension-enabled'] || extensions['blog-extension-enabled']) && (
+               <div style={{ marginBottom: '15px' }}>
+                 <button
+                   onClick={(e) => {
+                     handleBuildClick(e, true);
+                     toggleMobileMenu();
+                   }}
+                   disabled={isBuilding || !canBuild}
+                   style={{
+                     width: '100%',
+                     padding: '12px 20px',
+                     background: (isBuilding || !canBuild) ? '#e2e8f0' : '#007bff',
+                     color: (isBuilding || !canBuild) ? '#94a3b8' : 'white',
+                     border: 'none',
+                     fontSize: '16px',
+                     fontWeight: '600',
+                     cursor: (isBuilding || !canBuild) ? 'not-allowed' : 'pointer',
+                     marginBottom: '10px',
+                     borderRadius: '4px'
+                   }}
+                 >
+                   Local Build
+                 </button>
+                 {vercelApiKey && (
+                   <button
+                     onClick={(e) => {
+                       handleBuildClick(e, false);
+                       toggleMobileMenu();
+                     }}
+                     disabled={isBuilding || !canBuild}
+                     style={{
+                       width: '100%',
+                       padding: '12px 20px',
+                       background: (isBuilding || !canBuild) ? '#94a3b8' : '#28a745',
+                       color: 'white',
+                       border: 'none',
+                       fontSize: '16px',
+                       fontWeight: '600',
+                       cursor: (isBuilding || !canBuild) ? 'not-allowed' : 'pointer',
+                       borderRadius: '4px'
+                     }}
+                   >
+                     {isBuilding ? 'Building...' : (!canBuild ? `${formatTime(buildCooldownSeconds)}` : 'Deploy')}
+                   </button>
+                 )}
+               </div>
+             )}
+             
+             {/* Mobile Visit Link */}
+             {domain && (
+               <a
+                 href={domain}
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 style={{
+                   display: 'block',
+                   width: '100%',
+                   padding: '12px 20px',
+                   background: '#000',
+                   color: 'white',
+                   border: 'none',
+                   fontSize: '16px',
+                   fontWeight: '600',
+                   cursor: 'pointer',
+                   borderRadius: '4px',
+                   textDecoration: 'none',
+                   textAlign: 'center',
+                   marginBottom: '10px'
+                 }}
+               >
+                 Visit Site
+               </a>
+             )}
+             
+             <button
+               onClick={toggleMobileMenu}
+               style={{
+                 position: 'absolute',
+                 top: '15px',
+                 right: '15px',
+                 background: 'none',
+                 border: 'none',
+                 fontSize: '24px',
+                 cursor: 'pointer',
+                 color: '#666'
+               }}
+             >
+               ×
+             </button>
+           </div>
+         </div>
+       )}
+
+       </div>
     </header>
   );
 };

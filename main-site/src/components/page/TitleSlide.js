@@ -111,7 +111,7 @@ const TitleSlide = ({ row }) => {
       color: 'white',
       textDecoration: 'none',
       fontWeight: '600',
-      border: 'none',
+      border: '1px solid',
       cursor: 'pointer',
       transition: 'all 0.2s',
     },

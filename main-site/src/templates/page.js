@@ -282,6 +282,7 @@ const PageTemplate = ({ pageContext, location }) => {
           getLocalizedPageTitle={getLocalizedPageTitle}
           getLocalizedPageSlug={getLocalizedPageSlug}
           showCatalogLink={showCatalogLink}
+          themeVersion={page.themeVersion || 'auto'}
         />
 
         {/* Main Content */}

@@ -10,7 +10,7 @@ const Header = ({
   getLocalizedPageTitle,
   getLocalizedPageSlug,
   showCatalogLink,
-  currentPageThemeVersion,
+  themeVersion,
   simplified = false,
 }) => {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -66,15 +66,15 @@ const Header = ({
   };
 
   const isDark = (() => {
-    // Use currentPageThemeVersion from props instead of window/body classes
-    if (currentPageThemeVersion) {
-      if (currentPageThemeVersion.includes('dark')) {
+    // Use themeVersion from props
+    if (themeVersion) {
+      if (themeVersion === 'dark') {
         return true;
       }
-      if (currentPageThemeVersion.includes('light')) {
+      if (themeVersion === 'light') {
         return false;
       }
-      if (currentPageThemeVersion.includes('auto')) {
+      if (themeVersion === 'auto') {
         if (typeof window !== 'undefined') {
           return window.matchMedia('(prefers-color-scheme: dark)').matches;
         }
@@ -403,15 +403,125 @@ const Header = ({
           box-shadow: 0 0 0 2px inset ${isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'};
         }
 
+        /* Tablet styles (under 900px) */
+        @media (max-width: 900px) {
+          header .mobileNavToggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+
+          header nav.pages {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            padding: 0;
+            width: 100%;
+            background: ${isDark ? 'black' : 'white'};
+            border: ${isDark ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid rgba(0, 0, 0, 0.2)'};
+            border-top: none;
+            box-shadow: ${isDark ? '0 4px 6px rgba(0, 0, 0, 0.3)' : '0 4px 6px rgba(0, 0, 0, 0.1)'};
+            z-index: 998;
+            max-height: 80vh;
+            overflow-y: auto;
+          }
+
+          header nav.pages.active {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 1rem 0;
+          }
+
+          header nav.pages a {
+            width: 100%;
+            padding: 1rem 2rem;
+            text-align: left;
+            border-bottom: ${isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)'};
+            margin: 0;
+          }
+
+          header nav.pages a:last-child {
+            border-bottom: none;
+          }
+
+          header .nav-wrapper {
+            position: static;
+          }
+
+          header .nav-wrapper.open .bg-close {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 997;
+          }
+
+          header .right {
+            margin-left: auto;
+          }
+        }
+
+        /* Mobile styles (under 600px) */
+        @media (max-width: 600px) {
+          header .mobileNavToggle {
+            padding: 8px;
+            font-size: 18px;
+          }
+
+          header .content {
+            padding: 10px 15px;
+          }
+
+          header .logo {
+            width: 180px;
+            height: 35px;
+          }
+
+          header nav.pages.active {
+            padding: 0.5rem 0;
+          }
+
+          header nav.pages a {
+            padding: 0.75rem 1.5rem;
+            font-size: 14px;
+          }
+
+          header .right {
+            gap: 0.5rem;
+          }
+
+          header .langSelector {
+            font-size: 12px;
+            padding: 4px 8px;
+          }
+
+          header .socialNav {
+            gap: 0.25rem;
+          }
+
+          header .socialLink {
+            padding: 4px 8px;
+            font-size: 14px;
+          }
+        }
+
         @media (max-width: 550px) {
           header nav.social {
             display: none;
           }
-        }
 
-        @media (max-width: 600px) {
+          header .logo {
+            width: 150px;
+          }
+
           header .mobileNavToggle {
-            padding: 10px;
+            font-size: 16px;
+            padding: 6px;
           }
         }
 

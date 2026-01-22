@@ -220,7 +220,6 @@ const Video = ({ row }) => {
           position: relative;
           width: 100%;
           height: 55vh;
-          max-width: 1200px;
           background: transparent;
         }
 
@@ -258,7 +257,6 @@ const Video = ({ row }) => {
         }
 
         section.video.immersive_screen {
-          max-width: 1200px;
         }
 
         section.video.immersive_screen video,

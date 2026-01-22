@@ -5,6 +5,7 @@ const Reviews = ({ row }) => {
   const slidesRef = useRef(null);
   const [isPaused, setIsPaused] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [previousSlide, setPreviousSlide] = useState(-1);
   const intervalRef = useRef(null);
 
   const reviews = row.fields.reviews || [];
@@ -31,13 +32,14 @@ const Reviews = ({ row }) => {
   }, [reviews.length, isPaused]);
 
   const moveSlide = (direction) => {
-    if (direction === 'prev') {
-      setCurrentSlide((prev) => (prev - 1 + reviews.length) % reviews.length);
-    } else {
-      setCurrentSlide((prev) => (prev + 1) % reviews.length);
-    }
+    setPreviousSlide(currentSlide);
+    const nextSlide = direction === 'prev' 
+      ? (currentSlide - 1 + reviews.length) % reviews.length
+      : (currentSlide + 1) % reviews.length;
+    setCurrentSlide(nextSlide);
     setIsPaused(true);
     setTimeout(() => setIsPaused(false), 2500);
+    setTimeout(() => setPreviousSlide(-1), 1000); // Reset previous slide after animation
   };
 
   const handleMouseOver = () => {
@@ -80,9 +82,13 @@ const Reviews = ({ row }) => {
       width: '100%',
       maxWidth: '900px',
       minWidth: '200px',
+      height: '100%',
     },
     slide: {
-      position: 'relative',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
       border: isDark ? '1px solid rgb(66, 66, 66)' : '1px solid lightgray',
       padding: '25px 40px',
       minWidth: '200px',
@@ -92,6 +98,11 @@ const Reviews = ({ row }) => {
     },
     slideHidden: {
       display: 'none',
+    },
+    slideOut: {
+      display: 'block',
+      zIndex: 3,
+      animation: 'slideout 1s',
     },
     text: {
       fontSize: '1.125rem',
@@ -121,7 +132,7 @@ const Reviews = ({ row }) => {
     button: {
       position: 'absolute',
       background: isDark ? '#262626' : 'white',
-      border: isDark ? '1px solid rgb(66, 66, 66)' : '1px solid lightgray',
+      border: '2px solid',
       color: '#0083FF',
       margin: '20px',
       width: '50px',
@@ -169,9 +180,9 @@ const Reviews = ({ row }) => {
             key={index}
             style={{
               ...styles.slide,
-              ...(index !== currentSlide ? styles.slideHidden : {}),
+              ...(index === currentSlide ? { zIndex: 2 } : index === previousSlide ? styles.slideOut : styles.slideHidden),
             }}
-            className={index === currentSlide ? 'slide' : 'slide hidden'}
+            className={index === currentSlide ? 'slide animate-in' : index === previousSlide ? 'slide animate-out' : 'slide hidden'}
           >
             {review.text && (
               <p style={styles.text} dangerouslySetInnerHTML={{ __html: unescape(review.text) }} />
@@ -250,6 +261,7 @@ const Reviews = ({ row }) => {
         section.bubbles .animate-out {
           animation-name: slideout;
           animation-duration: 1s;
+          animation-fill-mode: forwards;
         }
 
         section.bubbles button.navigate:hover,
