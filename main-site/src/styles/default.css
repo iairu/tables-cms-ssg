@@ -46,7 +46,7 @@ a.disabled {
     filter: saturate(0);
 }
 a:hover {
-    text-decoration: underline;
+    text-decoration: none;
 }
 a:hover.disabled { 
     text-decoration: none; 
@@ -70,7 +70,7 @@ b, strong {
 }
 .button:not(.disabled):hover, button:not(.disabled):hover {
     background: #1a9aff; 
-    text-decoration: underline;
+    text-decoration: none;
 }
 .button:not(.disabled):focus, button:not(.disabled):focus {
     box-shadow: 0 0 0 2px inset rgba(255,255,255,0.2);
@@ -90,7 +90,7 @@ b, strong {
     background: transparent;
 }
 .button-link:hover {
-    text-decoration: underline;
+    text-decoration: none;
 }
 .message {
 	display: block;

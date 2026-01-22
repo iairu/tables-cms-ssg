@@ -121,7 +121,7 @@ const TitleSlide = ({ row }) => {
       gap: '0.5rem',
       padding: '0.5rem',
       color: isDark ? '#ffffff' : 'var(--page-button-color)',
-      textDecoration: 'underline',
+      textDecoration: 'none',
       fontWeight: '600',
     },
   };

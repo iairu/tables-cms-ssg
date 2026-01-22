@@ -335,7 +335,7 @@ const Header = ({
         }
 
         header a:hover {
-          text-decoration: underline;
+          text-decoration: none;
         }
 
         header .mobileNavToggle:hover,

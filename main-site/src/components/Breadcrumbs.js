@@ -69,7 +69,7 @@ const Breadcrumbs = ({ items = [], currentLanguage = 'en' }) => {
                   }}
                   onMouseOver={(e) => {
                     e.currentTarget.style.color = '#764ba2';
-                    e.currentTarget.style.textDecoration = 'underline';
+                    e.currentTarget.style.textDecoration = 'none';
                   }}
                   onMouseOut={(e) => {
                     e.currentTarget.style.color = 'var(--page-button-color)';

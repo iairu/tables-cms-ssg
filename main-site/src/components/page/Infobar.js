@@ -80,7 +80,7 @@ const Infobar = ({ row }) => {
       gap: '0.5rem',
       padding: '0.25rem',
       color: 'var(--page-button-color)',
-      textDecoration: 'underline',
+      textDecoration: 'none',
       fontWeight: '500',
       fontSize: '0.875rem',
     },

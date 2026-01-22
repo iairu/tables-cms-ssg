@@ -42,7 +42,7 @@ const Slide = ({ row }) => {
     },
     left: {
       boxSizing: 'border-box',
-      display: row.fields.hideLeftOnMobile ? 'none' : 'flex',
+      display: 'flex',
       position: 'relative',
       flexFlow: 'column',
       justifyContent: 'center',
@@ -64,7 +64,7 @@ const Slide = ({ row }) => {
     },
     right: {
       boxSizing: 'border-box',
-      display: row.fields.hideRightOnMobile ? 'none' : 'flex',
+      display: 'flex',
       position: 'relative',
       flexFlow: 'column',
       justifyContent: 'center',
@@ -129,7 +129,7 @@ const Slide = ({ row }) => {
       gap: '0.5rem',
       padding: '0.5rem',
       color: 'var(--page-button-color)',
-      textDecoration: 'underline',
+      textDecoration: 'none',
       fontWeight: '600',
     },
   };
@@ -140,7 +140,7 @@ const Slide = ({ row }) => {
       style={styles.section}
       className={`slide${reorderM ? ' reorder_m' : ''}`}
     >
-      <div style={styles.left} className={`left${leftDark ? ' dark' : ''}`}>
+      <div style={styles.left} className={`left${leftDark ? ' dark' : ''}${row.fields.hideLeftOnMobile ? ' hide-left-on-mobile' : ''}`}>
         {row.fields.leftHeading && (
           <h1 style={styles.heading} dangerouslySetInnerHTML={{ __html: row.fields.leftHeading }} />
         )}
@@ -165,7 +165,7 @@ const Slide = ({ row }) => {
         )}
       </div>
 
-      <div style={styles.right} className={`right${rightDark ? ' dark' : ''}`}>
+      <div style={styles.right} className={`right${rightDark ? ' dark' : ''}${row.fields.hideRightOnMobile ? ' hide-right-on-mobile' : ''}`}>
         {row.fields.rightHeading && (
           <h1 style={styles.heading} dangerouslySetInnerHTML={{ __html: row.fields.rightHeading }} />
         )}
@@ -261,6 +261,16 @@ const Slide = ({ row }) => {
 
           section.slide h1 {
             font-size: 2em;
+          }
+
+          section.slide .hide-left-on-mobile {
+            display: none;
+          }
+        }
+
+        @media (min-width: 901px) {
+          section.slide .hide-left-on-mobile {
+            display: flex;
           }
         }
       `}</style>
