@@ -177,7 +177,7 @@ const Reviews = ({ row }) => {
               <p style={styles.text} dangerouslySetInnerHTML={{ __html: unescape(review.text) }} />
             )}
             {review.author && (
-              <div style={styles.author}>~ {review.author}</div>
+              <div style={styles.author} dangerouslySetInnerHTML={{ __html: unescape('~ ' + (review.author || '')) }} />
             )}
             {review.stars && (
               <div style={styles.stars}>

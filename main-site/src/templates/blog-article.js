@@ -126,11 +126,11 @@ const BlogArticleTemplate = ({ pageContext, location }) => {
         const foundArticle = blogData.find(a => {
           if (a.slug === slug) return true;
           // Check if slug matches any translation
-          if (a.translations) {
-            for (const lang in a.translations) {
-              if (a.translations[lang].slug === slug) return true;
-            }
-          }
+          // if (a.translations) {
+          //   for (const lang in a.translations) {
+          //     if (a.translations[lang].slug === slug) return true;
+          //   }
+          // }
           return false;
         });
         console.log('[Blog Article] Found article:', foundArticle ? foundArticle.title : 'NOT FOUND');

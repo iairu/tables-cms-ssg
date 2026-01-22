@@ -431,25 +431,6 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
               </div>
 
               <div>
-                <label style={{ display: 'block', marginBottom: '10px' }}>
-                  <strong>Enforced Theme (override global):</strong>
-                  <select
-                    value={currentPage.enforcedTheme || ''}
-                    onChange={(e) => updatePage(currentPage.id, { enforcedTheme: e.target.value })}
-                    style={{
-                      width: '100%',
-                      padding: '10px',
-                      marginTop: '5px',
-                      
-                      border: '1px solid #cbd5e1'
-                    }}
-                  >
-                    <option value="">Use global theme setting</option>
-                    <option value="light">Light theme</option>
-                    <option value="dark">Dark theme</option>
-                    <option value="auto">Auto theme</option>
-                  </select>
-                </label>
                 <p style={{ fontSize: '14px', color: '#64748b', marginTop: '5px' }}>
                   Override the site-wide theme for this page only
                 </p>
@@ -558,7 +539,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
             {filteredPages.map(page => (
               <tr key={page.id} className={page.id === currentPageId ? 'active' : ''}>
                 <td>{getLocalizedContent(page, settings?.defaultLang || 'en').title}</td>
-                <td>{getLocalizedContent(page, settings?.defaultLang || 'en').slug}</td>
+                <td>{page.slug}</td>
                 <td>
                   <input
                     type="checkbox"

@@ -172,7 +172,7 @@ const PageTemplate = ({ pageContext, location }) => {
           // Search in default content or translations
           foundPage = pagesData.find(p => {
             if (p.slug === slug) return true;
-            if (p.translations && p.translations[lang] && p.translations[lang].slug === slug) return true;
+            // if (p.translations && p.translations[lang] && p.translations[lang].slug === slug) return true;
             return false;
           });
         }
@@ -186,7 +186,7 @@ const PageTemplate = ({ pageContext, location }) => {
           setPage({
             ...foundPage,
             title: localizedContent.title,
-            slug: localizedContent.slug,
+            slug: foundPage.slug,
             rows: localizedContent.rows
           });
         } else {
@@ -223,7 +223,7 @@ const PageTemplate = ({ pageContext, location }) => {
       localStorage.setItem('currentlang', newLang);
     }
 
-    // Get localized slug for current page
+    // Get slug for current page
     let targetSlug = page.slug;
     if (page.translations && page.translations[newLang]) {
       targetSlug = page.slug;

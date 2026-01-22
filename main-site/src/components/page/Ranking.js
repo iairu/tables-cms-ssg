@@ -80,7 +80,7 @@ const Ranking = ({ row }) => {
                 style={styles.count}
                 dangerouslySetInnerHTML={{ __html: unescape(rank.heading) || '' }}
               />
-              <span className="name" style={styles.name}>{rank.subheading || ''}</span>
+              <span className="name" style={styles.name} dangerouslySetInnerHTML={{ __html: unescape(rank.subheading || '') }} />
             </li>
           ))}
         </ul>

@@ -174,7 +174,7 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
     const date = new Date(article.date);
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
-    return `${protocol}//${host}${port}/${lang}/${year}/${month}/${langContent.slug}`;
+    return `${protocol}//${host}${port}/${lang}/${year}/${month}/${article.slug}`;
   };
 
   // Filter blog articles based on fuzzy search query

@@ -70,7 +70,7 @@ const SettingsSection = ({ cmsData }) => {
         blogArticles: JSON.parse(localStorage.getItem('blogArticles') || '[]'),
         catRows: JSON.parse(localStorage.getItem('catRows') || '[]'),
         componentRows: JSON.parse(localStorage.getItem('componentRows') || '[]'),
-        settings: JSON.parse(localStorage.getItem('settings') || '{"siteTitle":"TABLES","defaultLang":"en","theme":"light","vercelApiKey":"","showBreadcrumbs":false}'),
+        settings: JSON.parse(localStorage.getItem('settings') || '{"siteTitle":"TABLES","defaultLang":"en","vercelApiKey":"","showBreadcrumbs":false}'),
         acl: JSON.parse(localStorage.getItem('acl') || '{}'),
         extensions: JSON.parse(localStorage.getItem('extensions') || '{}'),
         currentPageId: JSON.parse(localStorage.getItem('currentPageId') || 'null'),
@@ -549,26 +549,6 @@ const SettingsSection = ({ cmsData }) => {
           >
             + Add Social Media Link
           </button>
-        </div>
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', marginBottom: '10px' }}>
-            <strong>Theme:</strong>
-            <select
-              value={settings.theme}
-              onChange={(e) => handleChange('theme', e.target.value)}
-              style={{
-                width: '100%',
-                padding: '10px',
-                marginTop: '5px',
-                
-                border: '1px solid #cbd5e1'
-              }}
-            >
-              <option value="light">Light</option>
-              <option value="dark">Dark</option>
-              <option value="auto">Auto</option>
-            </select>
-          </label>
         </div>
         <div style={{ marginBottom: '20px' }}>
           <label style={{ display: 'block', marginBottom: '10px' }}>

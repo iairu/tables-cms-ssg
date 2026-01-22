@@ -511,6 +511,27 @@ const deployToVercel = (mainSiteDir, vercelApiToken, vercelProjectName) => {
         VERCEL_TOKEN: vercelApiToken
       };
 
+      const vercelProjectJsonPath = path.join(mainSiteDir, '.vercel', 'project.json');
+      if (fs.existsSync(vercelProjectJsonPath) && vercelProjectName && vercelProjectName.trim() !== '') {
+        try {
+          console.log(`[Build API] Found ${vercelProjectJsonPath}, attempting to update project name...`);
+          const projectConfig = JSON.parse(fs.readFileSync(vercelProjectJsonPath, 'utf8'));
+          if (projectConfig.projectName !== vercelProjectName) {
+            const oldProjectName = projectConfig.projectName;
+            projectConfig.projectName = vercelProjectName;
+            fs.writeFileSync(vercelProjectJsonPath, JSON.stringify(projectConfig, null, 2), 'utf8');
+            console.log(`[Build API] Updated projectName in ${vercelProjectJsonPath} from "${oldProjectName}" to "${vercelProjectName}"`);
+          } else {
+            console.log(`[Build API] projectName in ${vercelProjectJsonPath} is already "${vercelProjectName}", no update needed.`);
+          }
+        } catch (error) {
+          console.error(`[Build API] Error updating ${vercelProjectJsonPath}:`, error);
+          // Don't reject, continue with deployment, Vercel CLI might still handle it
+        }
+      } else if (vercelProjectName && vercelProjectName.trim() !== '') {
+        console.log(`[Build API] ${vercelProjectJsonPath} not found, but a project name was provided. Vercel CLI will likely create it.`);
+      }
+
       // Check if Vercel CLI is installed
       exec('which vercel', { env: envWithPath }, (whichError, whichStdout) => {
         let vercelCommand = 'vercel';
@@ -526,8 +547,10 @@ const deployToVercel = (mainSiteDir, vercelApiToken, vercelProjectName) => {
         // Deploy to Vercel with production flag
         console.log('[Build API] Deploying to Vercel...');
         console.log('[Build API] Project name:', vercelProjectName || 'auto-detect');
-        
+
         // Use --name flag to specify the project name if provided
+        // This flag overrides the projectName in project.json, but updating the file
+        // makes sure subsequent deploys *without* a specific projectName will still use the last one.
         const vercelProjectFlag = vercelProjectName && vercelProjectName.trim() !== '' ? ` --name="${vercelProjectName}"` : '';
         const deployProcess = exec(
           `${vercelCommand} --prod --token="${vercelApiToken}" ${vercelProjectFlag} --yes`,

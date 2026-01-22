@@ -153,7 +153,7 @@ exports.createPages = async ({ actions }) => {
         context.articleData = {
           ...article,
           title: localizedContent.title,
-          slug: localizedContent.slug,
+          slug: article.slug,
           content: localizedContent.content,
           author: localizedContent.author,
         };

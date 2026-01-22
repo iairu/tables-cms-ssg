@@ -10,6 +10,7 @@ const Header = ({
   getLocalizedPageTitle,
   getLocalizedPageSlug,
   showCatalogLink,
+  currentPageThemeVersion,
   simplified = false,
 }) => {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -64,7 +65,26 @@ const Header = ({
     setMobileNavOpen(!mobileNavOpen);
   };
 
-  const isDark = settings?.headerDarkTheme || false;
+  const isDark = (() => {
+    // Use currentPageThemeVersion from props instead of window/body classes
+    if (currentPageThemeVersion) {
+      if (currentPageThemeVersion.includes('dark')) {
+        return true;
+      }
+      if (currentPageThemeVersion.includes('light')) {
+        return false;
+      }
+      if (currentPageThemeVersion.includes('auto')) {
+        if (typeof window !== 'undefined') {
+          return window.matchMedia('(prefers-color-scheme: dark)').matches;
+        }
+        return false;
+      }
+    }
+    // Fallback to settings if no theme version provided
+    return settings?.headerDarkTheme || false;
+  })();
+  
   const scheme = isDark ? 'dark' : 'light';
 
   const styles = {

@@ -154,7 +154,7 @@ const Video = ({ row }) => {
         <div style={styles.iframeWrapper}>
           <iframe
             className="ytvideo"
-            title="YouTube Video"
+            title={row.fields.videoTitle || "YouTube Video"}
             src={ytembedlink + (theme.includes('autoplay') ? '?autoplay=1&mute=1&loop=1' : '')}
             style={styles.iframe}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

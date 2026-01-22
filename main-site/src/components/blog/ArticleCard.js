@@ -7,7 +7,7 @@ const ArticleCard = ({ article, currentLanguage, getLocalizedContent }) => {
   return (
     <a
       key={article.id}
-      href={`/${currentLanguage}/blog/${article.year}/${article.month}/${localizedContent.slug}`}
+      href={`/${currentLanguage}/blog/${article.year}/${article.month}/${article.slug}`}
       style={{
         display: 'block',
         background: article.highlighted ? '#fefce8' : 'white',

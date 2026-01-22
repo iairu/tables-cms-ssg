@@ -114,8 +114,8 @@ const Boxes = ({ row }) => {
                 ...handleBoxStyle(box),
               }}
             >
-              {box.heading && <h2 style={styles.heading}>{box.heading}</h2>}
-              {box.subheading && <h3 style={styles.subheading}>{box.subheading}</h3>}
+              {box.heading && <h2 style={styles.heading} dangerouslySetInnerHTML={{ __html: unescape(box.heading) }} />}
+              {box.subheading && <h3 style={styles.subheading} dangerouslySetInnerHTML={{ __html: unescape(box.subheading) }} />}
               {box.icon && (
                 <img 
                   src={box.icon} 
@@ -127,7 +127,7 @@ const Boxes = ({ row }) => {
                 <p style={styles.text} dangerouslySetInnerHTML={{ __html: unescape(box.text) }} />
               )}
               {box.lowerCornerText && (
-                <span style={styles.corner}>{box.lowerCornerText}</span>
+                <span style={styles.corner} dangerouslySetInnerHTML={{ __html: unescape(box.lowerCornerText) }} />
               )}
             </div>
           ))}
