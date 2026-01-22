@@ -1,201 +1,10 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
-const { spawn } = require('child_process');
 const path = require('path');
-const fs = require('fs');
+const { spawn } = require('child_process');
+const os = require('os');
 const AnsiToHtml = require('ansi-to-html');
 
 const ansiToHtml = new AnsiToHtml();
-
-// ============================================================================
-// Path Resolution Functions
-// ============================================================================
-
-/**
- * Get the path to the bundled Node.js binary
- */
-function getBundledNodePath() {
-  const isDev = !app.isPackaged;
-  
-  if (isDev) {
-    return process.execPath;
-  }
-
-  // Consistent with your package.json extraResources: "to": "node-bin"
-  const nodeBinName = process.platform === 'win32' ? 'node.exe' : 'node';
-  const nodePath = path.join(
-    process.resourcesPath,
-    'electron-bin',
-    'npm_source',
-    'bin',
-    nodeBinName
-  );
-
-  if (!fs.existsSync(nodePath)) {
-    console.error('Bundled Node.js not found! Falling back to system Node.');
-    return process.execPath;
-  }
-
-  if (process.platform !== 'win32') {
-    try {
-      fs.chmodSync(nodePath, 0o755);
-    } catch (err) {
-      console.error('Failed to set Node binary permissions:', err);
-    }
-  }
-
-  return nodePath;
-}
-
-/**
- * Get the path to npm
- */
-function getBundledNpmPath() {
-  const isDev = !app.isPackaged;
-  
-  if (isDev) {
-    return process.platform === 'win32' ? 'npm.cmd' : 'npm';
-  }
-
-  const nodePath = getBundledNodePath();
-  const nodeDir = path.dirname(nodePath);
-  
-  // Fallback to the npm-cli.js inside the source directory we created
-  const npmCliPath = path.join(
-    nodeDir,
-    'npm_source',
-    'bin',
-    'npm_cli.js'
-  );
-  
-  if (fs.existsSync(npmCliPath)) {
-    npmPath = nodePath + " " + npmCliPath;
-  } else {
-    console.warn('Bundled npm-cli.js not found, falling back to system npm');
-    return npmName;
-  }
-
-  if (process.platform !== 'win32' && fs.existsSync(npmCliPath)) {
-    try { fs.chmodSync(npmCliPath, 0o755); } catch (err) {}
-  }
-
-  return npmPath;
-}
-
-/**
- * Get environment variables with proper PATH setup
- */
-function getNodeEnvironment() {
-  const nodePath = getBundledNodePath();
-  const nodeDir = path.dirname(nodePath);
-  
-  return {
-    ...process.env,
-    PATH: `${nodeDir}${path.delimiter}${process.env.PATH}`,
-    // Required for npm to find its internal modules when running via node npm-cli.js
-    NODE_PATH: path.join(nodeDir),
-    // Pass the resources path so Gatsby can find static assets in production
-    ELECTRON_RESOURCES_PATH: process.resourcesPath
-  };
-}
-
-// ============================================================================
-// Execution Functions
-// ============================================================================
-
-/**
- * Execute npm commands
- */
-function executeNpmCommand(command, args = [], options = {}) {
-  return new Promise((resolve, reject) => {
-    const npmPath = getBundledNpmPath();
-    const nodePath = getBundledNodePath();
-    
-    // Logic: If we are in production, prioritize main-site inside resourcesPath.
-    // Otherwise, use the provided cwd or default to app directory.
-    let workingDir = options.cwd || __dirname;
-
-    if (app.isPackaged) {
-      const resourcesMainSite = path.join(process.resourcesPath, 'main-site');
-      if (fs.existsSync(resourcesMainSite)) {
-        workingDir = resourcesMainSite;
-      }
-    }
-    
-    log('=================================');
-    log(`Executing npm: ${command}`);
-    log(`Working directory: ${workingDir}`);
-    log('=================================');
-
-    // Build arguments
-    const isJsFile = npmPath.endsWith('.js');
-    const spawnCmd = isJsFile ? nodePath : npmPath;
-    const spawnArgs = isJsFile ? [npmPath, command, ...args] : [command, ...args];
-
-    const childProcess = spawn(spawnCmd, spawnArgs, {
-      cwd: workingDir,
-      env: getNodeEnvironment(),
-      shell: process.platform === 'win32'
-    });
-
-    let stdout = '';
-    let stderr = '';
-
-    childProcess.stdout.on('data', (data) => {
-      stdout += data.toString();
-      log(`[npm stdout]: ${data.toString()}`);
-    });
-
-    childProcess.stderr.on('data', (data) => {
-      stderr += data.toString();
-      log(`[npm stderr]: ${data.toString()}`);
-    });
-
-    childProcess.on('close', (code) => {
-      if (code === 0) {
-        resolve({ stdout, stderr, code, childProcess });
-      } else {
-        reject(new Error(`npm command failed with code ${code}`));
-      }
-    });
-
-    childProcess.on('error', (err) => {
-      log(`Failed to execute npm: ${err}`);
-      reject(err);
-    });
-  });
-}
-
-/**
- * Execute a Node.js script directly
- */
-function executeNodeScript(scriptPath, args = [], options = {}) {
-  return new Promise((resolve, reject) => {
-    const nodePath = getBundledNodePath();
-    
-    const childProcess = spawn(nodePath, [scriptPath, ...args], {
-      cwd: options.cwd || process.cwd(),
-      env: getNodeEnvironment(),
-      shell: process.platform === 'win32'
-    });
-
-    let stdout = '';
-    let stderr = '';
-
-    childProcess.stdout.on('data', (data) => { stdout += data.toString(); });
-    childProcess.stderr.on('data', (data) => { stderr += data.toString(); });
-
-    childProcess.on('close', (code) => {
-      if (code === 0) resolve({ stdout, stderr, code });
-      else reject(new Error(`Script failed with code ${code}`));
-    });
-
-    childProcess.on('error', reject);
-  });
-}
-
-// ============================================================================
-// Window Management
-// ============================================================================
 
 let gatsbyProcess;
 let mainWindow;
@@ -215,6 +24,7 @@ const createLaunchWindow = () => {
     height: 400,
     frame: false,
     titleBarStyle: 'hidden',
+    title: 'Launch and Console Output',
     webPreferences: {
       preload: path.join(__dirname, 'electron-preload.js'),
       contextIsolation: true,
@@ -223,8 +33,20 @@ const createLaunchWindow = () => {
   });
 
   launchWindow.loadFile('electron-launch.html');
+  launchWindow.on('closed', () => {
+    // If launchWindow is closed and mainWindow has not yet been initialized (meaning it was not
+    // closed programmatically because mainWindow is opening), then it implies the user
+    // manually closed the launch window, and we should quit the app.
+    if (!mainWindow) {
+      app.quit();
+    }
+    launchWindow = null;
+  });
+
   return new Promise((resolve) => {
-    launchWindow.webContents.on('did-finish-load', () => resolve());
+    launchWindow.webContents.on('did-finish-load', () => {
+      resolve();
+    });
   });
 };
 
@@ -241,52 +63,149 @@ const createMainWindow = () => {
   });
   mainWindow.loadURL('http://localhost:8000/cms/settings');
   mainWindow.on('closed', () => {
-    if (gatsbyProcess) gatsbyProcess.kill();
+    if (gatsbyProcess) {
+      gatsbyProcess.kill();
+    }
     app.quit();
   });
 };
 
-// ============================================================================
-// Lifecycle and IPC
-// ============================================================================
+ipcMain.on('close-app', () => {
+  app.quit();
+});
 
-ipcMain.on('close-app', () => { app.quit(); });
+ipcMain.on('minimize-app', () => {
+  if (mainWindow) {
+    mainWindow.minimize();
+  }
+});
+
+ipcMain.on('maximize-app', () => {
+  if (mainWindow) {
+    if (mainWindow.isMaximized()) {
+      mainWindow.unmaximize();
+    } else {
+      mainWindow.maximize();
+    }
+  }
+});
+
+const runCommand = (command, args) => {
+  return new Promise((resolve, reject) => {
+    const childProcess = spawn(command, args, { shell: true });
+    let stdout = '';
+    let stderr = '';
+
+    childProcess.stdout.on('data', (data) => {
+      stdout += data.toString();
+      log(data.toString());
+    });
+
+    childProcess.stderr.on('data', (data) => {
+      stderr += data.toString();
+      log(data.toString());
+    });
+
+    childProcess.on('close', (code) => {
+      if (code === 0) {
+        resolve(stdout);
+      } else {
+        reject(new Error(stderr));
+      }
+    });
+  });
+};
+
+const ensureBrew = async () => {
+  log('Checking for Homebrew...');
+  try {
+    await runCommand('command', ['-v', 'brew']);
+    log('Homebrew is already installed.');
+    return true;
+  } catch (e) {
+    log('Homebrew not found. Attempting to install...');
+    try {
+      const installCommand = 'NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"';
+      await runCommand(installCommand, []);
+      log('Homebrew installed successfully.');
+      return true;
+    } catch (err) {
+      log(`Failed to install Homebrew: ${err}`);
+      return false;
+    }
+  }
+};
+
+const ensureNodeAndNpm = async () => {
+  log('Checking for Node.js and npm...');
+  try {
+    await runCommand('node', ['-v']);
+    await runCommand('npm', ['-v']);
+    log('Node.js and npm found.');
+    return true;
+  } catch (e) {
+    log('Node.js or npm not found. Attempting to install...');
+    const platform = os.platform();
+    try {
+      if (platform === 'darwin') {
+        if (!await ensureBrew()) {
+          throw new Error('Homebrew is required and could not be installed.');
+        }
+        log('Installing Node.js and npm for macOS using Homebrew...');
+        await runCommand('brew', ['install', 'node@22']);
+      } else if (platform === 'linux') {
+        log('Installing Node.js and npm for Linux...');
+        await runCommand('bash', ['-c', 'curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash - && sudo apt-get install -y nodejs']);
+      } else if (platform === 'win32') {
+        log('Installing Node.js and npm for Windows using PowerShell...');
+        await runCommand('powershell', ['-Command', 'Invoke-WebRequest -Uri https://nodejs.org/dist/v22.2.0/node-v22.2.0-x64.msi -OutFile node-setup.msi; Start-Process msiexec.exe -Wait -ArgumentList "/i node-setup.msi /quiet"; Remove-Item node-setup.msi']);
+      } else {
+        throw new Error('Unsupported OS for automatic Node.js installation.');
+      }
+      log('Node.js and npm installed successfully.');
+      return true;
+    } catch (err) {
+      log(`Failed to install Node.js and npm: ${err}`);
+      return false;
+    }
+  }
+};
 
 const ensureNpmInstall = async () => {
-  log('Checking environment...');
+  log('Running npm install...');
   try {
-    // This will now use resourcesPath/main-site if packaged
-    await executeNpmCommand('install');
-    log('Environment ready.');
+    await runCommand('npm', ['install']);
+    log('npm install completed successfully.');
     return true;
   } catch (err) {
-    log(`Setup note: ${err.message}`);
-    // We return true because in some packaged environments install is skipped
-    return true; 
+    log(`Error during npm install: ${err}`);
+    return false;
   }
 };
 
 const startGatsby = () => {
   log('Starting Gatsby development server...');
-  return new Promise((resolve, reject) => {
-    executeNpmCommand('run', ['develop'])
-      .then(result => {
-        gatsbyProcess = result.childProcess;
-        gatsbyProcess.stdout.on('data', (data) => {
-          if (data.toString().includes('You can now view')) {
-            log('Gatsby server ready.');
-            resolve();
-          }
-        });
-      })
-      .catch(reject);
+  gatsbyProcess = spawn('npm', ['run', 'develop'], { shell: true });
+
+  gatsbyProcess.stdout.on('data', (data) => log(data.toString()));
+  gatsbyProcess.stderr.on('data', (data) => log(data.toString()));
+
+  return new Promise((resolve) => {
+    gatsbyProcess.stdout.on('data', (data) => {
+      if (data.toString().includes('You can now view')) {
+        log('Gatsby development server is ready.');
+        resolve();
+      }
+    });
   });
 };
 
 app.whenReady().then(async () => {
-  createLaunchWindow();
-  if (await ensureNpmInstall()) {
-    startGatsby();
+  await createLaunchWindow();
+  log('Console window created.');
+
+  if (await ensureNodeAndNpm() && await ensureNpmInstall()) {
+    await startGatsby();
     createMainWindow();
     mainWindow.once('ready-to-show', () => {
       if (launchWindow && !launchWindow.isDestroyed()) {
@@ -294,13 +213,31 @@ app.whenReady().then(async () => {
       }
       mainWindow.show();
     });
+  } else {
+    log('Failed to set up the environment. Please check the logs.');
   }
 });
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit();
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
+
+app.on('activate', () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createMainWindow();
+  }
 });
 
 app.on('before-quit', () => {
-  if (gatsbyProcess) gatsbyProcess.kill();
+  if (gatsbyProcess) {
+    log('Terminating Gatsby process...');
+    const killed = gatsbyProcess.kill();
+    if (killed) {
+      log('Gatsby process terminated.');
+    } else {
+      log('Failed to terminate Gatsby process.');
+    }
+  }
 });
