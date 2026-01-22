@@ -10,6 +10,8 @@ let gatsbyProcess;
 let mainWindow;
 let launchWindow;
 
+const IS_PACKAGED = app.isPackaged;
+
 const log = (msg) => {
   console.log(msg);
   if (launchWindow && !launchWindow.isDestroyed()) {
@@ -93,10 +95,11 @@ ipcMain.on('maximize-app', () => {
 const startGatsby = () => {
   const platform = os.platform();
   const nodeExecutable = platform === 'win32' ? 'node.exe' : 'node';
-  const binPath = path.join(__dirname, 'electron-bin', 'npm_source', 'bin');
+  const resourcesPath = IS_PACKAGED ? process.resourcesPath : __dirname;
+  const binPath = path.join(resourcesPath, 'electron-bin', 'npm_source', 'bin');
   const nodePath = path.join(binPath, nodeExecutable);
   const npmCliPath = path.join(binPath, 'npm-cli.js');
-  const cmsSiteDir = path.join(__dirname);
+  const cmsSiteDir = resourcesPath;
 
   log('Starting Gatsby development server using bundled node and npm...');
 

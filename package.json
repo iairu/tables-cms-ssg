@@ -76,14 +76,14 @@
         "from": "electron-bin",
         "to": "electron-bin",
         "filter": [
-          "**/*"
+          "*"
         ]
       },
       {
         "from": "main-site",
         "to": "main-site",
         "filter": [
-          "**/*"
+          "*"
         ]
       },
       {
@@ -91,6 +91,23 @@
         "to": "static",
         "filter": [
           "*"
+        ]
+      },
+      {
+        "from": "src",
+        "to": "src",
+        "filter": [
+          "*"
+        ]
+      },
+      {
+        "from": ".",
+        "to": ".",
+        "filter": [
+          "package.json",
+          "gatsby-*.js",
+          "gatsby-*.json",
+          "tsconfig.json"
         ]
       }
     ],
