@@ -21,7 +21,7 @@ const ArticleCard = ({ article, currentLanguage, getLocalizedContent }) => {
       onMouseOver={(e) => {
         e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
         e.currentTarget.style.transform = 'translateY(-2px)';
-        e.currentTarget.style.borderColor = '#667eea';
+        e.currentTarget.style.borderColor = 'var(--page-button-color)';
       }}
       onMouseOut={(e) => {
         e.currentTarget.style.boxShadow = '0 1px 3px 0 rgba(0, 0, 0, 0.1)';

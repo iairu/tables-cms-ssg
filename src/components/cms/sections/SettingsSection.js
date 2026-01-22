@@ -190,7 +190,7 @@ const SettingsSection = ({ cmsData }) => {
               onClick={handleExportData}
               style={{
                 padding: '10px 20px',
-                background: '#0002ff',
+                background: 'var(--page-button-color)',
                 color: 'white',
                 border: 'none',
                 
@@ -463,7 +463,7 @@ const SettingsSection = ({ cmsData }) => {
             onClick={handleAddLanguage}
             style={{
               padding: '10px 20px',
-              background: '#0002ff',
+              background: 'var(--page-button-color)',
               color: 'white',
               border: 'none',
               
@@ -538,7 +538,7 @@ const SettingsSection = ({ cmsData }) => {
             style={{
               marginTop: '15px',
               padding: '10px 20px',
-              background: '#0002ff',
+              background: 'var(--page-button-color)',
               color: 'white',
               border: 'none',
               

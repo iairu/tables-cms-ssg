@@ -63,7 +63,7 @@ const Breadcrumbs = ({ items = [], currentLanguage = 'en' }) => {
                 <a 
                   href={item.href}
                   style={{
-                    color: '#667eea',
+                    color: 'var(--page-button-color)',
                     textDecoration: 'none',
                     transition: 'color 0.2s'
                   }}
@@ -72,7 +72,7 @@ const Breadcrumbs = ({ items = [], currentLanguage = 'en' }) => {
                     e.currentTarget.style.textDecoration = 'underline';
                   }}
                   onMouseOut={(e) => {
-                    e.currentTarget.style.color = '#667eea';
+                    e.currentTarget.style.color = 'var(--page-button-color)';
                     e.currentTarget.style.textDecoration = 'none';
                   }}
                 >

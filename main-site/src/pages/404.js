@@ -21,7 +21,7 @@ const NotFoundPage = () => {
         href="/"
         style={{
           padding: '12px 24px',
-          background: '#667eea',
+          background: 'var(--page-button-color)',
           color: 'white',
           textDecoration: 'none',
           fontSize: '16px',

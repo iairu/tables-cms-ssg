@@ -53,7 +53,7 @@ const CatalogPage = () => {
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
     }}>
       <header style={{
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        background: 'linear-gradient(135deg, var(--page-button-color) 0%, #764ba2 100%)',
         color: 'white',
         padding: '2rem',
         boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'

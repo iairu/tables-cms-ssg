@@ -17,7 +17,7 @@ const LoadingBar = () => {
         transform: isLoading ? 'scaleX(1)' : 'scaleX(0)',
         transformOrigin: 'left',
         opacity: isLoading ? 1 : 0,
-        backgroundColor: '#0002ff', // blue-500
+        backgroundColor: 'var(--page-button-color)', // blue-500
       }}
     />
   );
