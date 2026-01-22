@@ -6,29 +6,11 @@ on:
       - main
 
 jobs:
-  release:
+  create-github-release:
     runs-on: ubuntu-latest
-
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:
-    - name: Check out code
-      uses: actions/checkout@v2
-
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '18'
-
-    - name: Install dependencies
-      run: npm install
-
-    - name: Build Gatsby
-      run: npm run build
-
-    - name: Build Electron app
-      run: npm run dist -- -mwl
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
@@ -40,16 +22,62 @@ jobs:
         draft: false
         prerelease: false
 
+  build-windows:
+    needs: create-github-release
+    runs-on: ubuntu-latest # Can cross-compile Windows from Linux
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '22'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build Gatsby
+      run: npm run build
+
+    - name: Build Electron app (Windows)
+      run: npm run dist -- -w
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Upload Release Asset (Windows)
       id: upload-windows-asset
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./dist/TABLES CMS.exe
-        asset_name: جداول-cms-windows.exe
+        upload_url: ${{ needs.create-github-release.outputs.upload_url }}
+        asset_path: ./dist/
+        asset_name: tables-cms-windows.exe
         asset_content_type: application/octet-stream
+
+  build-macos:
+    needs: create-github-release
+    runs-on: macos-latest # Required for building macOS DMGs with dmg-license
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '22'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build Gatsby
+      run: npm run build
+
+    - name: Build Electron app (macOS)
+      run: npm run dist -- -m
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Upload Release Asset (macOS)
       id: upload-mac-asset
@@ -57,10 +85,33 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./dist/TABLES CMS.dmg
-        asset_name: جداول-cms-macos.dmg
+        upload_url: ${{ needs.create-github-release.outputs.upload_url }}
+        asset_path: ./dist/
+        asset_name: tables-cms-macos.dmg
         asset_content_type: application/octet-stream
+
+  build-linux:
+    needs: create-github-release
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '22'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build Gatsby
+      run: npm run build
+
+    - name: Build Electron app (Linux)
+      run: npm run dist -- -l
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Upload Release Asset (Linux)
       id: upload-linux-asset
@@ -68,7 +119,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./dist/TABLES CMS.AppImage
-        asset_name: جداول-cms-linux.AppImage
+        upload_url: ${{ needs.create-github-release.outputs.upload_url }}
+        asset_path: ./dist/
+        asset_name: tables-cms-linux.AppImage
         asset_content_type: application/octet-stream

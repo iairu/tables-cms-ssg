@@ -41,8 +41,7 @@
     "@types/react-dom": "^19.2.3",
     "typescript": "^5.9.3",
     "electron": "^40.0.0",
-    "electron-builder": "^24.13.3",
-    "dmg-license": "^1.0.0"
+    "electron-builder": "^24.13.3"
   },
   "overrides": {
     "react-server-dom-webpack": {
