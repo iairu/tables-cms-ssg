@@ -4,13 +4,13 @@
   "description": "Gatsby + React CMS for TABLES project",
   "main": "electron-main.js",
   "scripts": {
-    "start": "electron .",
+    "start": "npm run grabnodenpm && electron .",
     "develop": "GATSBY_LOGGER_LOG_LEVEL=error GATSBY_TELEMETRY_DISABLED=1 gatsby develop",
     "build": "gatsby build",
     "serve": "gatsby serve",
     "clean": "gatsby clean",
-    "postinstall": "node electron-setup/bundle-node-npm.js",
-    "dist": "npm run postinstall && electron-builder"
+    "grabnodenpm": "node electron-setup/bundle-node-npm.js",
+    "dist": "npm run grabnodenpm && electron-builder"
   },
   "keywords": [
     "gatsby",
