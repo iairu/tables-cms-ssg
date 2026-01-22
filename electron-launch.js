@@ -4,8 +4,8 @@ const statusText = document.getElementById('status-text');
 const closeBtn = document.getElementById('close-btn');
 
 const progressStages = [
-  { key: 'Checking for Node.js and npm...', progress: 10, status: 'Checking environment...' },
-  { key: 'Node.js and npm found.', progress: 20, status: 'Environment checked.' },
+  { key: 'Checking for Node.js and npm...', progress: 10, status: 'Checking and updating environment...' },
+  { key: 'Node.js and npm found.', progress: 20, status: 'Environment checked and updated.' },
   { key: 'Running npm install...', progress: 30, status: 'Installing dependencies...' },
   { key: 'npm install completed successfully.', progress: 50, status: 'Dependencies installed.' },
   { key: 'Starting Gatsby development server...', progress: 60, status: 'Starting server...' },

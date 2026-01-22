@@ -116,21 +116,24 @@ const runCommand = (command, args) => {
   });
 };
 
-const ensureBrew = async () => {
-  log('Checking for Homebrew...');
+const ensureNVM = async () => {
+  log('Checking for NVM...');
+  const nvmDir = path.join(os.homedir(), '.nvm');
+  const nvmScript = path.join(nvmDir, 'nvm.sh');
+
   try {
-    await runCommand('command', ['-v', 'brew']);
-    log('Homebrew is already installed.');
+    await runCommand('test', ['-s', nvmScript]);
+    log('NVM is already installed.');
     return true;
   } catch (e) {
-    log('Homebrew not found. Attempting to install...');
+    log('NVM not found. Attempting to install...');
     try {
-      const installCommand = 'NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"';
+      const installCommand = 'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash';
       await runCommand(installCommand, []);
-      log('Homebrew installed successfully.');
+      log('NVM installed successfully.');
       return true;
     } catch (err) {
-      log(`Failed to install Homebrew: ${err}`);
+      log(`Failed to install NVM: ${err}`);
       return false;
     }
   }
@@ -147,22 +150,77 @@ const ensureNodeAndNpm = async () => {
     log('Node.js or npm not found. Attempting to install...');
     const platform = os.platform();
     try {
-      if (platform === 'darwin') {
-        if (!await ensureBrew()) {
-          throw new Error('Homebrew is required and could not be installed.');
+      if (platform === 'darwin' || platform === 'linux') {
+        if (!(await ensureNVM())) {
+          throw new Error('NVM is required and could not be installed.');
         }
-        log('Installing Node.js and npm for macOS using Homebrew...');
-        await runCommand('brew', ['install', 'node@22']);
-      } else if (platform === 'linux') {
-        log('Installing Node.js and npm for Linux...');
-        await runCommand('bash', ['-c', 'curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash - && sudo apt-get install -y nodejs']);
+
+        log('Installing Node.js v22.18.0 using NVM...');
+        const nvmScript = path.join(os.homedir(), '.nvm', 'nvm.sh');
+        const nodeVersion = 'v22.18.0';
+        const installNodeCommand = `source ${nvmScript} && nvm install ${nodeVersion} && nvm alias default ${nodeVersion}`;
+        await runCommand('bash', ['-c', installNodeCommand]);
+
+        const nodeBinPath = path.join(os.homedir(), '.nvm', 'versions', 'node', nodeVersion, 'bin');
+        process.env.PATH = `${nodeBinPath}${path.delimiter}${process.env.PATH}`;
+
+        // Ensure the nodeBinPath is added to shell configuration files for future terminal sessions.
+        const fs = require('fs').promises; // Import fs.promises here
+
+        const shellConfigFiles = [
+            path.join(os.homedir(), '.bashrc'),
+            path.join(os.homedir(), '.zshrc'),
+        ];
+
+        // The PATH export line for shell configuration files (uses ':' delimiter for Unix-like shells)
+        const shellPathExportLine = `export PATH="${nodeBinPath}:$PATH"`;
+
+        log(`Attempting to add Node.js bin path to shell configuration files for persistent access.`);
+
+        for (const filePath of shellConfigFiles) {
+            try {
+                let fileContent = '';
+                try {
+                    fileContent = await fs.readFile(filePath, { encoding: 'utf8' });
+                } catch (readError) {
+                    if (readError.code === 'ENOENT') {
+                        log(`Shell configuration file not found: ${filePath}. It will be created.`);
+                        // Continue, fileContent remains empty, so the file will effectively be created by appendFile
+                    } else {
+                        log(`Error reading ${filePath}: ${readError.message}`);
+                        continue; // Skip to the next file
+                    }
+                }
+
+                // Check if the nodeBinPath or the exact export line already exists in the file
+                const pathAlreadyExists = fileContent.includes(nodeBinPath);
+                const lineAlreadyExists = fileContent.includes(shellPathExportLine);
+
+                if (!pathAlreadyExists && !lineAlreadyExists) {
+                    // Prepend a newline if the file content is not empty and doesn't end with one
+                    const lineToWrite = (fileContent.length > 0 && !fileContent.endsWith('\n') ? '\n' : '') + shellPathExportLine + '\n';
+                    await fs.appendFile(filePath, lineToWrite, { encoding: 'utf8' });
+                    log(`Successfully added "${nodeBinPath}" to ${filePath}`);
+                } else {
+                    log(`${filePath} already contains the Node.js bin path or similar PATH export. Skipping.`);
+                }
+            } catch (writeError) {
+                log(`Failed to update ${filePath}: ${writeError.message}`);
+            }
+        }
+        log(`Added ${nodeBinPath} to PATH.`);
       } else if (platform === 'win32') {
         log('Installing Node.js and npm for Windows using PowerShell...');
-        await runCommand('powershell', ['-Command', 'Invoke-WebRequest -Uri https://nodejs.org/dist/v22.2.0/node-v22.2.0-x64.msi -OutFile node-setup.msi; Start-Process msiexec.exe -Wait -ArgumentList "/i node-setup.msi /quiet"; Remove-Item node-setup.msi']);
+        await runCommand('powershell', [
+          '-Command',
+          'Invoke-WebRequest -Uri https://nodejs.org/dist/v22.2.0/node-v22.2.0-x64.msi -OutFile node-setup.msi; Start-Process msiexec.exe -Wait -ArgumentList "/i node-setup.msi /quiet"; Remove-Item node-setup.msi',
+        ]);
       } else {
         throw new Error('Unsupported OS for automatic Node.js installation.');
       }
       log('Node.js and npm installed successfully.');
+      await runCommand('node', ['-v']);
+      await runCommand('npm', ['-v']);
       return true;
     } catch (err) {
       log(`Failed to install Node.js and npm: ${err}`);
