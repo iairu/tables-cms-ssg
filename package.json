@@ -54,10 +54,18 @@
     "productName": "TABLES CMS",
     "icon": "static/assets/tables-icon.png",
     "files": [
-      "electron-main.js",
-      "electron-preload.js",
-      "*",
-      "package.json"
+      "main-site/src/**/*",
+      "main-site/static/**/*",
+      "main-site/.env.development",
+      "main-site/gatsby-*.js",
+      "main-site/package.json",
+      "src/**/*",
+      "static/**/*",
+      "electron-*.js",
+      "gatsby-*.js",
+      "gatsby-*.json",
+      "package.json",
+      "tsconfig.json"
     ],
     "directories": {
       "output": "dist"
