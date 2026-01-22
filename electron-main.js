@@ -156,9 +156,15 @@ const ensureNodeAndNpm = async () => {
         }
 
         log('Installing Node.js v22.18.0 using NVM...');
-        const nvmScript = path.join(os.homedir(), '.nvm', 'nvm.sh');
+        const nvmDir = path.join(os.homedir(), '.nvm');
+        const nvmScript = path.join(nvmDir, 'nvm.sh');
         const nodeVersion = 'v22.18.0';
-        const installNodeCommand = `source ${nvmScript} && nvm install ${nodeVersion} && nvm alias default ${nodeVersion}`;
+        // The previous `source` command failed because NVM_DIR might not be set in the shell context
+        // and the sourcing itself can be sensitive.
+        // To correctly source NVM in a non-interactive bash script (`bash -c`),
+        // it's best to explicitly set NVM_DIR and then use the POSIX-compliant `.` (dot) command
+        // to source the script, often with a check for its existence.
+        const installNodeCommand = `export NVM_DIR="${nvmDir}" && [ -s "$NVM_DIR/nvm.sh" ] && \\. "$NVM_DIR/nvm.sh" && nvm install ${nodeVersion} && nvm alias default ${nodeVersion}`;
         await runCommand('bash', ['-c', installNodeCommand]);
 
         const nodeBinPath = path.join(os.homedir(), '.nvm', 'versions', 'node', nodeVersion, 'bin');
