@@ -2,7 +2,7 @@ blog is improperly showing english pinned article in both english and slovak, an
 
 ---
 
-add sitemap to footer alongside accessibility A+ and A- buttons
+add sitemap to main-site footer alongside accessibility A+ and A- buttons
 
 ---
 

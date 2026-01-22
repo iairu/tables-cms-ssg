@@ -324,7 +324,7 @@ const TitleSlide = ({ row }) => {
         }
 
         section.titulka .content span {
-          margin-bottom: 15px;
+          margin-bottom: 0px;
         }
 
         @media (max-width: 1900px) {
