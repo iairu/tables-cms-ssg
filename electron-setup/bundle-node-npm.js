@@ -47,48 +47,28 @@ async function setupBinaries() {
   console.log(`Downloading npm v${NPM_VERSION}...`);
   execSync(`curl -L ${TARBALL_URL} | tar -xz -C ${NPM_SOURCE_DIR} --strip-components=1`);
 
-  // 5. Move npm binaries (npm, npx) to BIN_ROOT
-  // Define the destination inside npm_source
+  // 5. Move node binary to the npm bin directory
   const npmBinPath = path.join(NPM_SOURCE_DIR, 'bin');
-  
-  // Ensure the destination bin directory exists
   if (!fs.existsSync(npmBinPath)) {
     fs.mkdirSync(npmBinPath, { recursive: true });
   }
   
-  // Read the root electron-bin directory
-  if (fs.existsSync(BIN_ROOT)) {
-    const files = fs.readdirSync(BIN_ROOT);
-    
-    files.forEach(file => {
-      const oldPath = path.join(BIN_ROOT, file);
-      const newPath = path.join(npmBinPath, file);
-  
-      // Skip the npm_source directory itself to avoid recursive errors
-      if (file === 'npm_source') return;
-  
-      // Get file stats to check if it's a file (not a directory)
-      const stats = fs.statSync(oldPath);
-      
-      if (stats.isFile()) {
-        // Logic: Move if it's a binary, a windows command, or a javascript file
-        const isBinary = !file.includes('.') || file.endsWith('.exe') || file.endsWith('.cmd') || file.endsWith('.js');
-  
-        if (isBinary) {
-          console.log(`Moving ${file} to ${npmBinPath}...`);
-          fs.renameSync(oldPath, newPath);
-          
-          // Ensure execution permissions for Unix
-          if (process.platform !== 'win32') {
-            fs.chmodSync(newPath, '755');
-          }
-        }
-      }
-    });
-    console.log('All binaries and scripts consolidated into npm_source/bin');
+  const nodePathInBin = path.join(BIN_ROOT, nodeName);
+  const finalNodePath = path.join(npmBinPath, nodeName);
+
+  if (fs.existsSync(nodePathInBin)) {
+    console.log(`Moving ${nodeName} to ${npmBinPath}...`);
+    fs.renameSync(nodePathInBin, finalNodePath);
+    if (process.platform !== 'win32') {
+      fs.chmodSync(finalNodePath, '755');
+    }
+    console.log('Node binary moved.');
+  } else {
+    // This case might happen if the original move in step 3 failed.
+    console.log(`Node binary not found at ${nodePathInBin}, skipping move.`);
   }
   
-  console.log(`Setup complete. All binaries located in: ${BIN_ROOT}`);
+  console.log(`Setup complete. All binaries should now be in: ${npmBinPath}`);
 }
 
 setupBinaries().catch(console.error);

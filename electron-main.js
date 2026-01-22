@@ -90,113 +90,64 @@ ipcMain.on('maximize-app', () => {
   }
 });
 
-const runCommand = (command, args) => {
-  return new Promise((resolve, reject) => {
-    const childProcess = spawn(command, args, { shell: true });
-    let stdout = '';
-    let stderr = '';
-
-    childProcess.stdout.on('data', (data) => {
-      stdout += data.toString();
-      log(data.toString());
-    });
-
-    childProcess.stderr.on('data', (data) => {
-      stderr += data.toString();
-      log(data.toString());
-    });
-
-    childProcess.on('close', (code) => {
-      if (code === 0) {
-        resolve(stdout);
-      } else {
-        reject(new Error(stderr));
-      }
-    });
-  });
-};
-
-const ensureBrew = async () => {
-  log('Checking for Homebrew...');
-  try {
-    await runCommand('command', ['-v', 'brew']);
-    log('Homebrew is already installed.');
-    return true;
-  } catch (e) {
-    log('Homebrew not found. Attempting to install...');
-    try {
-      const installCommand = 'NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"';
-      await runCommand(installCommand, []);
-      log('Homebrew installed successfully.');
-      return true;
-    } catch (err) {
-      log(`Failed to install Homebrew: ${err}`);
-      return false;
-    }
-  }
-};
-
-const ensureNodeAndNpm = async () => {
-  log('Checking for Node.js and npm...');
-  try {
-    await runCommand('node', ['-v']);
-    await runCommand('npm', ['-v']);
-    log('Node.js and npm found.');
-    return true;
-  } catch (e) {
-    log('Node.js or npm not found. Attempting to install...');
-    const platform = os.platform();
-    try {
-      if (platform === 'darwin') {
-        if (!await ensureBrew()) {
-          throw new Error('Homebrew is required and could not be installed.');
-        }
-        log('Installing Node.js and npm for macOS using Homebrew...');
-        await runCommand('brew', ['install', 'node@22']);
-      } else if (platform === 'linux') {
-        log('Installing Node.js and npm for Linux...');
-        await runCommand('bash', ['-c', 'curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash - && sudo apt-get install -y nodejs']);
-      } else if (platform === 'win32') {
-        log('Installing Node.js and npm for Windows using PowerShell...');
-        await runCommand('powershell', ['-Command', 'Invoke-WebRequest -Uri https://nodejs.org/dist/v22.2.0/node-v22.2.0-x64.msi -OutFile node-setup.msi; Start-Process msiexec.exe -Wait -ArgumentList "/i node-setup.msi /quiet"; Remove-Item node-setup.msi']);
-      } else {
-        throw new Error('Unsupported OS for automatic Node.js installation.');
-      }
-      log('Node.js and npm installed successfully.');
-      return true;
-    } catch (err) {
-      log(`Failed to install Node.js and npm: ${err}`);
-      return false;
-    }
-  }
-};
-
-const ensureNpmInstall = async () => {
-  log('Running npm install...');
-  try {
-    await runCommand('npm', ['install']);
-    log('npm install completed successfully.');
-    return true;
-  } catch (err) {
-    log(`Error during npm install: ${err}`);
-    return false;
-  }
-};
-
 const startGatsby = () => {
-  log('Starting Gatsby development server...');
-  gatsbyProcess = spawn('npm', ['run', 'develop'], { shell: true });
+  const platform = os.platform();
+  const nodeExecutable = platform === 'win32' ? 'node.exe' : 'node';
+  const binPath = path.join(__dirname, 'electron-bin', 'npm_source', 'bin');
+  const nodePath = path.join(binPath, nodeExecutable);
+  const npmCliPath = path.join(binPath, 'npm-cli.js');
+  const cmsSiteDir = path.join(__dirname);
 
-  gatsbyProcess.stdout.on('data', (data) => log(data.toString()));
-  gatsbyProcess.stderr.on('data', (data) => log(data.toString()));
+  log('Starting Gatsby development server using bundled node and npm...');
 
-  return new Promise((resolve) => {
-    gatsbyProcess.stdout.on('data', (data) => {
-      if (data.toString().includes('You can now view')) {
-        log('Gatsby development server is ready.');
-        resolve();
-      }
+  const runNpmCommand = (args) => {
+    return new Promise((resolve, reject) => {
+      const childProcess = spawn(nodePath, [npmCliPath, ...args], { cwd: cmsSiteDir });
+
+      childProcess.stdout.on('data', (data) => log(data.toString()));
+      childProcess.stderr.on('data', (data) => log(data.toString()));
+
+      childProcess.on('close', (code) => {
+        if (code === 0) {
+          resolve();
+        } else {
+          reject(new Error(`Command "npm ${args.join(' ')}" failed with code ${code}`));
+        }
+      });
     });
+  };
+
+  return new Promise(async (resolve, reject) => {
+    try {
+      log('Running npm install in CMS site...');
+      await runNpmCommand(['install']);
+      log('npm install completed.');
+
+      log('Running gatsby develop in CMS site...');
+      gatsbyProcess = spawn(nodePath, [npmCliPath, 'run', 'develop'], { cwd: cmsSiteDir });
+
+      gatsbyProcess.stdout.on('data', (data) => log(data.toString()));
+      gatsbyProcess.stderr.on('data', (data) => log(data.toString()));
+
+      gatsbyProcess.stdout.on('data', (data) => {
+        if (data.toString().includes('You can now view')) {
+          log('Gatsby development server is ready.');
+          resolve();
+        }
+      });
+
+      gatsbyProcess.on('close', (code) => {
+        if (code !== 0) {
+          const errorMsg = `Gatsby process exited with code ${code}`;
+          log(errorMsg);
+          reject(new Error(errorMsg));
+        }
+      });
+
+    } catch (error) {
+      log(error.message);
+      reject(error);
+    }
   });
 };
 
@@ -204,7 +155,7 @@ app.whenReady().then(async () => {
   await createLaunchWindow();
   log('Console window created.');
 
-  if (await ensureNodeAndNpm() && await ensureNpmInstall()) {
+  try {
     await startGatsby();
     createMainWindow();
     mainWindow.once('ready-to-show', () => {
@@ -213,8 +164,10 @@ app.whenReady().then(async () => {
       }
       mainWindow.show();
     });
-  } else {
+  } catch (error) {
     log('Failed to set up the environment. Please check the logs.');
+    // Optionally, you could show an error message to the user in the launch window
+    // and/or prevent the app from quitting immediately to let them read the log.
   }
 });
 

@@ -22,8 +22,6 @@ export const config = {
 function findBinaries() {
   const isWin = process.platform === 'win32';
   const nodeName = isWin ? 'node.exe' : 'node';
-  const npmName = isWin ? 'npm.cmd' : 'npm';
-  const npxName = isWin ? 'npx.cmd' : 'npx';
 
   // Define search paths in order of priority
   const searchPaths = [
@@ -35,16 +33,18 @@ function findBinaries() {
   
   console.log("[Build API] Searching for binaries in paths:", searchPaths);
   for (const dir of searchPaths) {
-    const nodePath = path.join(dir, nodeName);
+    const binPath = path.join(dir, 'npm_source', 'bin');
+    const nodePath = path.join(binPath, nodeName);
+    const npmPath = path.join(binPath, 'npm-cli.js');
+    const npxPath = path.join(binPath, 'npx-cli.js');
     
-    // If we find the node binary, we assume this is our toolchain directory
-    if (fs.existsSync(nodePath)) {
+    // If we find the node binary and cli scripts, we assume this is our toolchain directory
+    if (fs.existsSync(nodePath) && fs.existsSync(npmPath) && fs.existsSync(npxPath)) {
       return {
         node: nodePath,
-        // Check for npm_source/bin/npm-cli.js (most reliable) else fallback to wrapper in bin
-        npm: path.join(dir, 'npm_source', 'bin', 'npm-cli.js'),
-        npx: path.join(dir, 'npm_source', 'bin', 'npx-cli.js'),
-        binDir: dir,
+        npm: npmPath,
+        npx: npxPath,
+        binDir: binPath, // The binDir should be what we add to PATH
         isBundled: true
       };
     }
