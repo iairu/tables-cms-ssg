@@ -8,7 +8,8 @@
     "develop": "gatsby develop",
     "build": "gatsby build",
     "serve": "gatsby serve",
-    "clean": "gatsby clean"
+    "clean": "gatsby clean",
+    "dist": "electron-builder"
   },
   "keywords": [
     "gatsby",
@@ -39,12 +40,35 @@
     "@types/react": "^19.2.8",
     "@types/react-dom": "^19.2.3",
     "typescript": "^5.9.3",
-    "electron": "^40.0.0"
+    "electron": "^40.0.0",
+    "electron-builder": "^24.13.3"
   },
   "overrides": {
     "react-server-dom-webpack": {
       "react": "^18.2.0",
       "react-dom": "^18.2.0"
+    }
+  },
+  "build": {
+    "appId": "com.tables.cms",
+    "productName": "TABLES CMS",
+    "files": [
+      "electron-main.js",
+      "electron-preload.js",
+      "public/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "mac": {
+      "target": "dmg"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage"
     }
   }
 }

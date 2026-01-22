@@ -1,0 +1,74 @@
+name: Electron Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '18'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build Gatsby
+      run: npm run build
+
+    - name: Build Electron app
+      run: npm run dist -- -mwl
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ github.run_number }}
+        release_name: Release v${{ github.run_number }}
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Asset (Windows)
+      id: upload-windows-asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist/TABLES CMS.exe
+        asset_name: جداول-cms-windows.exe
+        asset_content_type: application/octet-stream
+
+    - name: Upload Release Asset (macOS)
+      id: upload-mac-asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist/TABLES CMS.dmg
+        asset_name: جداول-cms-macos.dmg
+        asset_content_type: application/octet-stream
+
+    - name: Upload Release Asset (Linux)
+      id: upload-linux-asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist/TABLES CMS.AppImage
+        asset_name: جداول-cms-linux.AppImage
+        asset_content_type: application/octet-stream
