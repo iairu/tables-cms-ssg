@@ -9,6 +9,7 @@ const os = require('os');
 let gatsbyProcess;
 let mainWindow;
 let consoleWindow;
+let consoleWindowReady = false;
 
 function createConsoleWindow() {
   consoleWindow = new BrowserWindow({
@@ -16,19 +17,32 @@ function createConsoleWindow() {
     height: 400,
     title: 'Gatsby Console Output',
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false
+      preload: path.join(__dirname, 'electron-preload.js'),
+      contextIsolation: true
     }
   });
-  consoleWindow.loadURL('data:text/html,<pre id="output" style="background:#111;color:#eee;padding:1em;font-family:monospace;white-space:pre-wrap;">Launching Gatsby...</pre>');
+  consoleWindow.loadURL('data:text/html,' +
+    encodeURIComponent(`
+      <body style="margin:0;background:#111;color:#eee;">
+        <pre id="output" style="background:#111;color:#eee;padding:1em;font-family:monospace;white-space:pre-wrap;">Launching Gatsby...</pre>
+        <script>
+          window.addEventListener('DOMContentLoaded', () => {
+            window.electron && window.electron.onConsoleOutput && window.electron.onConsoleOutput((msg) => {
+              const pre = document.getElementById('output');
+              pre.textContent += '\n' + msg;
+              pre.scrollTop = pre.scrollHeight;
+            });
+            window.electron && window.electron.consoleReady && window.electron.consoleReady();
+          });
+        </script>
+      </body>
+    `)
+  );
 }
 
-function appendConsoleOutput(data) {
-  if (consoleWindow && !consoleWindow.isDestroyed()) {
-    const text = data.toString().replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    consoleWindow.webContents.executeJavaScript(
-      `const pre = document.getElementById('output'); pre.textContent += '\n' + ${JSON.stringify(text)}; pre.scrollTop = pre.scrollHeight;`
-    );
+function sendConsoleOutput(msg) {
+  if (consoleWindow && !consoleWindow.isDestroyed() && consoleWindowReady) {
+    consoleWindow.webContents.send('console-output', msg.toString().replace(/</g, '&lt;').replace(/>/g, '&gt;'));
   }
 }
 
@@ -60,40 +74,41 @@ async function ensureNodeAndNpm() {
   try {
     execSync('node -v', { stdio: 'ignore' });
     execSync('npm -v', { stdio: 'ignore' });
+    sendConsoleOutput('Node.js and npm found.');
     return true;
   } catch (e) {
     // Node or npm not found, try to install
     const platform = os.platform();
     if (platform === 'linux') {
-      // Install Node.js 22.x for Linux
       try {
-        appendConsoleOutput('Installing Node.js and npm for Linux...');
+        sendConsoleOutput('Installing Node.js and npm for Linux...');
         execSync('curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -', { stdio: 'inherit' });
         execSync('sudo apt-get install -y nodejs', { stdio: 'inherit' });
+        sendConsoleOutput('Node.js and npm installed for Linux.');
       } catch (err) {
-        appendConsoleOutput('Failed to install Node.js on Linux.');
+        sendConsoleOutput('Failed to install Node.js on Linux.');
         throw err;
       }
     } else if (platform === 'darwin') {
-      // Install Node.js 22.x for macOS
       try {
-        appendConsoleOutput('Installing Node.js and npm for macOS...');
+        sendConsoleOutput('Installing Node.js and npm for macOS...');
         execSync('brew install node@22', { stdio: 'inherit' });
+        sendConsoleOutput('Node.js and npm installed for macOS.');
       } catch (err) {
-        appendConsoleOutput('Failed to install Node.js on macOS.');
+        sendConsoleOutput('Failed to install Node.js on macOS.');
         throw err;
       }
     } else if (platform === 'win32') {
-      // Install Node.js 22.x for Windows
       try {
-        appendConsoleOutput('Installing Node.js and npm for Windows...');
-        execSync('powershell -Command "Invoke-WebRequest -Uri https://nodejs.org/dist/v22.2.0/node-v22.2.0-x64.msi -OutFile node-setup.msi; Start-Process msiexec.exe -Wait -ArgumentList "/i node-setup.msi /quiet"; Remove-Item node-setup.msi"', { stdio: 'inherit' });
+        sendConsoleOutput('Installing Node.js and npm for Windows...');
+        execSync('powershell -Command "Invoke-WebRequest -Uri https://nodejs.org/dist/v22.2.0/node-v22.2.0-x64.msi -OutFile node-setup.msi; Start-Process msiexec.exe -Wait -ArgumentList \"/i node-setup.msi /quiet\"; Remove-Item node-setup.msi"', { stdio: 'inherit' });
+        sendConsoleOutput('Node.js and npm installed for Windows.');
       } catch (err) {
-        appendConsoleOutput('Failed to install Node.js on Windows.');
+        sendConsoleOutput('Failed to install Node.js on Windows.');
         throw err;
       }
     } else {
-      appendConsoleOutput('Unsupported OS for automatic Node.js installation.');
+      sendConsoleOutput('Unsupported OS for automatic Node.js installation.');
       throw new Error('Unsupported OS');
     }
   }
@@ -101,29 +116,38 @@ async function ensureNodeAndNpm() {
 
 async function ensureNpmInstall() {
   try {
-    appendConsoleOutput('Running npm install...');
+    sendConsoleOutput('Running npm install...');
     execSync('npm install', { stdio: 'inherit' });
-    appendConsoleOutput('npm install completed.');
+    sendConsoleOutput('npm install completed.');
   } catch (err) {
-    appendConsoleOutput('npm install failed.');
+    sendConsoleOutput('npm install failed.');
     throw err;
   }
 }
 
 app.whenReady().then(async () => {
   createConsoleWindow();
+  ipcMain.on('console-ready', () => {
+    consoleWindowReady = true;
+  });
+  // Wait for the console window to be ready
+  while (!consoleWindowReady) {
+    await new Promise(r => setTimeout(r, 50));
+  }
   try {
+    sendConsoleOutput('Starting environment setup...');
     await ensureNodeAndNpm();
     await ensureNpmInstall();
+    sendConsoleOutput('Environment setup complete. Starting Gatsby...');
   } catch (err) {
-    appendConsoleOutput('Setup failed. Please check the logs.');
+    sendConsoleOutput('Setup failed. Please check the logs.');
     return;
   }
   gatsbyProcess = spawn('npm', ['run', 'develop'], { shell: true });
-  gatsbyProcess.stdout.on('data', (data) => appendConsoleOutput(data));
-  gatsbyProcess.stderr.on('data', (data) => appendConsoleOutput(data));
+  gatsbyProcess.stdout.on('data', (data) => sendConsoleOutput(data));
+  gatsbyProcess.stderr.on('data', (data) => sendConsoleOutput(data));
   gatsbyProcess.on('close', (code) => {
-    appendConsoleOutput(`\nGatsby process exited with code ${code}`);
+    sendConsoleOutput(`\nGatsby process exited with code ${code}`);
   });
   await waitForGatsbyReady();
   if (consoleWindow && !consoleWindow.isDestroyed()) {
