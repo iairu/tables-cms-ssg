@@ -1,12 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-
-const uploadDir = path.join(process.cwd(), 'static', 'uploads');
-
-// Ensure upload directory exists
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
+import { getUploadDir } from '../utils/pathResolver';
 
 export const config = {
   bodyParser: {
@@ -25,6 +19,8 @@ export default function handler(req, res) {
     return res.status(405).send('Method Not Allowed');
   }
 
+  const uploadDir = getUploadDir();
+
   try {
     const { fileData, fileName } = req.body;
 
@@ -32,11 +28,9 @@ export default function handler(req, res) {
       return res.status(400).send('Missing file data or file name.');
     }
 
-    // Prepend timestamp to file name
     const timestamp = Date.now();
     const newFileName = `${timestamp}_${fileName}`;
 
-    // Strip the data URI prefix (e.g., "data:image/png;base64," or "data:image/svg+xml;base64,")
     const base64Data = fileData.replace(/^data:image\/[\w\+\-\.]+;base64,/, "");
     const buffer = Buffer.from(base64Data, 'base64');
 

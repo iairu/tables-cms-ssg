@@ -1,17 +1,11 @@
 import fs from 'fs';
 import path from 'path';
-
-const uploadDir = path.join(process.cwd(), 'static', 'uploads');
-
-// Ensure upload directory exists
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
+import { getUploadDir } from '../utils/pathResolver';
 
 export const config = {
   bodyParser: {
     json: {
-      limit: '50mb' // Increase limit for multiple files
+      limit: '50mb'
     }
   }
 };
@@ -20,6 +14,8 @@ export default function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).send('Method Not Allowed');
   }
+
+  const uploadDir = getUploadDir();
 
   try {
     const { uploads } = req.body;
@@ -36,7 +32,6 @@ export default function handler(req, res) {
           throw new Error(`Invalid file data or name for ${fileName}`);
         }
 
-        // Strip the data URI prefix
         const base64Data = fileData.replace(/^data:[^;]+;base64,/, "");
         const buffer = Buffer.from(base64Data, 'base64');
         const filePath = path.join(uploadDir, fileName);

@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { getUploadDir } from '../utils/pathResolver';
 
 export default function handler(req, res) {
   if (req.method !== 'POST') {
@@ -8,7 +9,7 @@ export default function handler(req, res) {
   }
 
   const { filename } = req.body;
-  const uploadDir = path.join(process.cwd(), 'static', 'uploads');
+  const uploadDir = getUploadDir();
 
   if (!filename) {
     return res.status(400).send('Filename not provided.');

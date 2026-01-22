@@ -5,11 +5,12 @@
   "main": "electron-main.js",
   "scripts": {
     "start": "electron .",
-    "develop": "gatsby develop",
+    "develop": "GATSBY_LOGGER_LOG_LEVEL=error GATSBY_TELEMETRY_DISABLED=1 gatsby develop",
     "build": "gatsby build",
     "serve": "gatsby serve",
     "clean": "gatsby clean",
-    "dist": "electron-builder"
+    "postinstall": "node electron-setup/bundle-node-npm.js",
+    "dist": "npm run postinstall && electron-builder"
   },
   "keywords": [
     "gatsby",
@@ -22,6 +23,7 @@
     "ansi-to-html": "^0.7.2",
     "express": "^4.18.2",
     "formidable": "^3.5.4",
+    "fs-extra": "^11.3.3",
     "gatsby": "^5.12.0",
     "gatsby-plugin-express": "^1.1.6",
     "gatsby-source-filesystem": "^5.12.0",
@@ -29,9 +31,9 @@
     "mkdirp": "^3.0.1",
     "moment": "^2.30.0",
     "multer": "^2.0.2",
+    "node-bin-setup": "^1.1.4",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "fs-extra": "^11.3.3"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.23.0",
@@ -39,9 +41,9 @@
     "@types/node": "^25.0.8",
     "@types/react": "^19.2.8",
     "@types/react-dom": "^19.2.3",
-    "typescript": "^5.9.3",
     "electron": "^40.0.0",
-    "electron-builder": "^24.13.3"
+    "electron-builder": "^24.13.3",
+    "typescript": "^5.9.3"
   },
   "overrides": {
     "react-server-dom-webpack": {
@@ -59,6 +61,7 @@
       "main-site/.env.development",
       "main-site/gatsby-*.js",
       "main-site/package.json",
+      "electron-bin",
       "src",
       "static",
       "electron-*.html",
@@ -67,6 +70,29 @@
       "gatsby-*.json",
       "package.json",
       "tsconfig.json"
+    ],
+    "extraResources": [
+      {
+        "from": "electron-bin",
+        "to": "node-bin",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "main-site",
+        "to": "main-site",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "static",
+        "to": "static",
+        "filter": [
+          "*"
+        ]
+      }
     ],
     "directories": {
       "output": "dist"

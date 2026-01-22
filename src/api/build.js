@@ -15,24 +15,49 @@ export const config = {
   }
 };
 
-// Utility to find npm binary path
-function findNpmBinary(callback) {
-  // Try 'which npm' first
-  exec('which npm', (err, stdout) => {
-    let npmPath = stdout && stdout.trim();
-    if (!err && npmPath && fs.existsSync(npmPath)) {
-      callback(npmPath);
-    } else {
-      // Fallback: try common nvm path
-      const nvmNpmPath = '/Users/iairu/.nvm/versions/node/v22.18.0/bin/npm';
-      if (fs.existsSync(nvmNpmPath)) {
-        callback(nvmNpmPath);
-      } else {
-        // Fallback to just 'npm' (hope it's in PATH)
-        callback('npm');
-      }
+/**
+ * Finds the bundled or system node, npm, and npx binaries.
+ * Priority: 1. electron-bin (Local), 2. node-bin (Resources), 3. System Default
+ */
+function findBinaries() {
+  const isWin = process.platform === 'win32';
+  const nodeName = isWin ? 'node.exe' : 'node';
+  const npmName = isWin ? 'npm.cmd' : 'npm';
+  const npxName = isWin ? 'npx.cmd' : 'npx';
+
+  // Define search paths in order of priority
+  const searchPaths = [
+    path.join(__dirname, '../../electron-bin'), // 1. Development folder
+    ...(typeof process.resourcesPath === 'string' 
+      ? [path.join(process.resourcesPath, 'node-bin')] 
+      : []) // 2. Production resources (only if string)
+  ];
+  
+  console.log("[Build API] Searching for binaries in paths:", searchPaths);
+  for (const dir of searchPaths) {
+    const nodePath = path.join(dir, nodeName);
+    
+    // If we find the node binary, we assume this is our toolchain directory
+    if (fs.existsSync(nodePath)) {
+      return {
+        node: nodePath,
+        // Check for npm_source/bin/npm-cli.js (most reliable) else fallback to wrapper in bin
+        npm: path.join(dir, 'npm_source', 'bin', 'npm-cli.js'),
+        npx: path.join(dir, 'npm_source', 'bin', 'npx-cli.js'),
+        binDir: dir,
+        isBundled: true
+      };
     }
-  });
+  }
+
+  // 3. Fallback to system defaults
+  return {
+    node: 'node',
+    npm: 'npm',
+    npx: 'npx',
+    binDir: null,
+    isBundled: false
+  };
 }
 
 let isBuildInProgress = false;
@@ -126,13 +151,35 @@ function copyDir(src, dest) {
 }
 
 const exportDataAndBuild = async (data, localOnly = false, vercelApiToken = null, vercelProjectName = null) => {
-  const projectRoot = path.resolve(__dirname, '..', '..');
-  const mainSiteStaticDir = path.join(projectRoot, 'main-site', 'static', 'data');
-  const uploadsSrcDir = path.join(projectRoot, 'static', 'uploads');
-  const uploadsDestDir = path.join(projectRoot, 'main-site', 'static', 'uploads');
+  let projectRoot = path.resolve(__dirname, '..', '..');
+  
+  // Define candidate paths
+  let mainSiteStaticDir = path.join(projectRoot, 'main-site', 'static', 'data');
+  let uploadsSrcDir = path.join(projectRoot, 'static', 'uploads');
+  let uploadsDestDir = path.join(projectRoot, 'main-site', 'static', 'uploads');
+
+  // Helper to check if a directory (or its parent if it doesn't exist) is writable
+  const isWritable = (p) => {
+    try {
+      const dirToCheck = fs.existsSync(p) ? p : path.dirname(p);
+      fs.accessSync(dirToCheck, fs.constants.W_OK);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  // If any path is not writable, switch the root to process.resourcesPath
+  if (!isWritable(mainSiteStaticDir) || !isWritable(uploadsSrcDir) || !isWritable(uploadsDestDir)) {
+    console.log('[Build API] Write permissions restricted in project root. Utilizing process.resourcesPath...');
+    projectRoot = process.resourcesPath;
+    mainSiteStaticDir = path.join(projectRoot, 'main-site', 'static', 'data');
+    uploadsSrcDir = path.join(projectRoot, 'static', 'uploads');
+    uploadsDestDir = path.join(projectRoot, 'main-site', 'static', 'uploads');
+  }
 
   console.log('[Build API] Exporting CMS data to main site...');
-  console.log('[Build API] Data directory:', mainSiteStaticDir);
+  console.log('[Build API] Target Data directory:', mainSiteStaticDir);
   console.log('[Build API] Local only mode:', localOnly);
 
   // Ensure main-site static data directory exists
@@ -147,7 +194,6 @@ const exportDataAndBuild = async (data, localOnly = false, vercelApiToken = null
 
   try {
     // Read data from localStorage (passed from client)
-    // If no data passed, try to read from a persistent storage file
     let cmsData = data;
 
     if (Object.keys(cmsData).length === 0) {
@@ -183,7 +229,6 @@ const exportDataAndBuild = async (data, localOnly = false, vercelApiToken = null
       );
       console.log(`[Build API] Exported ${blogArticles.length} blog articles`);
     } else {
-      // Create an empty blog.json if the blog is disabled
       fs.writeFileSync(
         path.join(mainSiteStaticDir, 'blog.json'),
         JSON.stringify([], null, 2),
@@ -202,7 +247,6 @@ const exportDataAndBuild = async (data, localOnly = false, vercelApiToken = null
       );
       console.log(`[Build API] Exported ${catRows.length} cat rows`);
     } else {
-      // Create an empty cats.json if cats are disabled
       fs.writeFileSync(
         path.join(mainSiteStaticDir, 'cats.json'),
         JSON.stringify([], null, 2),
@@ -225,7 +269,7 @@ const exportDataAndBuild = async (data, localOnly = false, vercelApiToken = null
     );
     console.log('[Build API] Exported settings (vercelApiKey hidden)');
 
-    // Save data to persistent storage for future builds (with real vercelApiKey)
+    // Save data to persistent storage for future builds
     fs.writeFileSync(
       path.join(projectRoot, '.cms-data.json'),
       JSON.stringify(cmsData, null, 2),
@@ -234,7 +278,6 @@ const exportDataAndBuild = async (data, localOnly = false, vercelApiToken = null
 
     // Copy static/uploads to main-site/static/uploads
     if (fs.existsSync(uploadsSrcDir)) {
-      // Remove existing uploadsDestDir first to ensure clean copy
       if (fs.existsSync(uploadsDestDir)) {
         fs.rmSync(uploadsDestDir, { recursive: true, force: true });
       }
@@ -248,7 +291,7 @@ const exportDataAndBuild = async (data, localOnly = false, vercelApiToken = null
 
     // Now trigger the main site build (and optionally deploy)
     if (localOnly) {
-      console.log('[Build API] Local only mode - skipping Gatsby build (gatsby develop will pick up changes)');
+      console.log('[Build API] Local only mode - skipping Gatsby build (gatsby develop will pick up changes)', "Project root is", projectRoot);
       return runMainSiteBuild(projectRoot, localOnly);
     } else {
       if (vercelApiToken && vercelApiToken.trim() !== '') {
@@ -267,80 +310,66 @@ const exportDataAndBuild = async (data, localOnly = false, vercelApiToken = null
 
 const runMainSiteBuild = (projectRoot, localOnly = false) => {
   return new Promise((resolve, reject) => {
-    const mainSiteDir = path.join(projectRoot, 'main-site');
+    // Try Resources path first, then local projectRoot
+    let mainSiteDir = path.join(projectRoot, 'main-site');
+    if (!fs.existsSync(mainSiteDir)) {
+      mainSiteDir = path.join(projectRoot, 'main-site');
+    }
+    
     const publicDir = path.join(mainSiteDir, 'public');
 
     console.log('[Build API] Starting main site Gatsby build...');
-    console.log('[Build API] Main site directory:', mainSiteDir);
-    console.log('[Build API] NODE_ENV:', process.env.NODE_ENV);
-
-    // Skip build in local mode - gatsby develop will pick up the changes automatically
-    // Only when localOnly=true (development), we skip the build
-    // When localOnly=false (production), we run the full Gatsby build
+    
     if (localOnly) {
       console.log('[Build API] Local mode detected - skipping Gatsby build');
-      console.log('[Build API] The gatsby develop server will automatically pick up data changes');
       resolve();
       return;
     }
 
-    // Check if main-site exists
     if (!fs.existsSync(mainSiteDir)) {
-      console.error('[Build API] main-site directory not found');
       reject(new Error('main-site directory not found'));
       return;
     }
 
-    // Check if node_modules exists in main-site
+    const { node, npm, binDir, isBundled } = findBinaries();
+    
+    // Prepare environment
+    const envWithPath = {
+      ...process.env,
+      NODE_ENV: 'production'
+    };
+    if (binDir) {
+      envWithPath.PATH = `${binDir}${path.delimiter}${process.env.PATH}`;
+    }
+
+    // Determine the npm command
+    const npmCmd = isBundled ? `"${node}" "${npm}"` : `"${npm}"`;
+
     const mainSiteNodeModules = path.join(mainSiteDir, 'node_modules');
     if (!fs.existsSync(mainSiteNodeModules)) {
       console.log('[Build API] Installing main-site dependencies first...');
-
-      // Find npm binary and install dependencies first
-      findNpmBinary((npmPath) => {
-        // Add node bin directory to PATH
-        const nodeBinDir = path.dirname(npmPath);
-        const envWithPath = {
-          ...process.env,
-          PATH: `${nodeBinDir}:${process.env.PATH}`
-        };
-
-        exec(`"${npmPath}" install`, {
-          cwd: mainSiteDir,
-          env: envWithPath
-        }, (installError) => {
-          if (installError) {
-            console.error('[Build API] npm install failed:', installError);
-            reject(installError);
-            return;
-          }
-
-          console.log('[Build API] Dependencies installed, starting build...');
-          executeBuild(npmPath);
-        });
+      exec(`${npmCmd} install`, {
+        cwd: mainSiteDir,
+        env: envWithPath
+      }, (installError) => {
+        if (installError) {
+          console.error('[Build API] npm install failed:', installError);
+          reject(installError);
+          return;
+        }
+        console.log('[Build API] Dependencies installed, starting build...');
+        executeBuild(npmCmd, envWithPath);
       });
     } else {
-      // Find npm binary for build step
-      findNpmBinary((npmPath) => {
-        executeBuild(npmPath);
-      });
+      executeBuild(npmCmd, envWithPath);
     }
 
-    function executeBuild(npmPath) {
-      // Add node bin directory to PATH
-      const nodeBinDir = path.dirname(npmPath);
-      const envWithPath = {
-        ...process.env,
-        PATH: `${nodeBinDir}:${process.env.PATH}`,
-        NODE_ENV: 'production'
-      };
-
-      // Execute gatsby build in main-site directory
+    function executeBuild(command, env) {
       const buildProcess = exec(
-        `"${npmPath}" run build`,
+        `${command} run build`,
         {
           cwd: mainSiteDir,
-          env: envWithPath,
+          env: env,
           maxBuffer: 10 * 1024 * 1024 // 10MB buffer
         },
         (error) => {
@@ -352,17 +381,12 @@ const runMainSiteBuild = (projectRoot, localOnly = false) => {
 
           console.log('[Build API] Main site build completed');
 
-          // Check if public directory was created
           if (fs.existsSync(publicDir)) {
-            console.log('[Build API] Main site public directory exists');
-
-            // Copy built site to root public directory for serving
             const rootPublicDir = path.join(projectRoot, 'public');
             if (!fs.existsSync(rootPublicDir)) {
               fs.mkdirSync(rootPublicDir, { recursive: true });
             }
 
-            // Copy contents
             try {
               copyDir(publicDir, rootPublicDir);
               console.log('[Build API] Built site copied to root public directory');
@@ -372,13 +396,11 @@ const runMainSiteBuild = (projectRoot, localOnly = false) => {
               reject(copyError);
             }
           } else {
-            console.error('[Build API] Main site public directory not found');
             reject(new Error('Public directory not created'));
           }
         }
       );
 
-      // Log build output in real-time
       buildProcess.stdout.on('data', (data) => {
         const output = data.toString().trim();
         if (output) console.log('[Main Site Build]', output);
@@ -392,66 +414,36 @@ const runMainSiteBuild = (projectRoot, localOnly = false) => {
   });
 };
 
-// // Utility function to recursively copy directory
-// function copyDir(src, dest) {
-//   if (!fs.existsSync(dest)) {
-//     fs.mkdirSync(dest, { recursive: true });
-//   }
-
-//   const entries = fs.readdirSync(src, { withFileTypes: true });
-
-//   for (const entry of entries) {
-//     const srcPath = path.join(src, entry.name);
-//     const destPath = path.join(dest, entry.name);
-
-//     if (entry.isDirectory()) {
-//       copyDir(srcPath, destPath);
-//     } else {
-//       fs.copyFileSync(srcPath, destPath);
-//     }
-//   }
-// }
 const runMainSiteDeployOnly = (projectRoot, vercelApiToken, vercelProjectName) => {
   return new Promise((resolve, reject) => {
-    const mainSiteDir = path.join(projectRoot, 'main-site');
+    // Try Resources path first, then local projectRoot
+    let mainSiteDir = path.join(projectRoot, 'main-site');
+    if (!fs.existsSync(mainSiteDir)) {
+      mainSiteDir = path.join(projectRoot, 'main-site');
+    }
 
     console.log('[Build API] Starting Vercel deployment (no local build) ...');
-    console.log('[Build API] Main site directory:', mainSiteDir);
-    console.log('[Build API] NODE_ENV:', process.env.NODE_ENV);
 
-    // Check if main-site exists
     if (!fs.existsSync(mainSiteDir)) {
-      console.error('[Build API] main-site directory not found');
       reject(new Error('main-site directory not found'));
       return;
     }
 
-    // Check if vercelApiToken is provided
     if (!vercelApiToken || vercelApiToken.trim() === '') {
-      console.error('[Build API] Vercel API token not provided');
-      reject(new Error('Vercel API token is required for deployment. Please set it in Settings.'));
+      reject(new Error('Vercel API token is required for deployment.'));
       return;
     }
 
-    // Remove .cache and public directories before deploying
-    const cacheDir = path.join(mainSiteDir, '.cache');
-    const publicDir = path.join(mainSiteDir, 'public');
     try {
-      if (fs.existsSync(cacheDir)) {
-        fs.rmSync(cacheDir, { recursive: true, force: true });
-        console.log('[Build API] Removed main-site/.cache directory');
-      }
-      if (fs.existsSync(publicDir)) {
-        fs.rmSync(publicDir, { recursive: true, force: true });
-        console.log('[Build API] Removed main-site/public directory');
-      }
+      const cacheDir = path.join(mainSiteDir, '.cache');
+      const publicDir = path.join(mainSiteDir, 'public');
+      if (fs.existsSync(cacheDir)) fs.rmSync(cacheDir, { recursive: true, force: true });
+      if (fs.existsSync(publicDir)) fs.rmSync(publicDir, { recursive: true, force: true });
     } catch (cleanupError) {
       console.error('[Build API] Error removing .cache or public directories:', cleanupError);
-      // Not rejecting here, just logging, as cleanup failure shouldn't block deploy
     }
 
-    // Only deploy to Vercel, do not run local build
-    console.log('[Build API] Deploying to Vercel...');
+    console.log('[Build API] About to deploy to Vercel...');
     deployToVercel(mainSiteDir, vercelApiToken, vercelProjectName)
       .then(() => {
         console.log('[Build API] Deployment completed successfully');
@@ -466,123 +458,80 @@ const runMainSiteDeployOnly = (projectRoot, vercelApiToken, vercelProjectName) =
 
 const deployToVercel = (mainSiteDir, vercelApiToken, vercelProjectName) => {
   return new Promise((resolve, reject) => {
-    // Check if node_modules exists in main-site
+    const { node, npm, npx, binDir, isBundled } = findBinaries();
+
+    const envWithPath = {
+      ...process.env,
+      NODE_ENV: 'production',
+      VERCEL_TOKEN: vercelApiToken
+    };
+    if (binDir) {
+      envWithPath.PATH = `${binDir}${path.delimiter}${process.env.PATH}`;
+    }
+
+    const npmCmd = isBundled ? `"${node}" "${npm}"` : `"${npm}"`;
+    const npxCmd = isBundled ? `"${node}" "${npx}"` : `"${npx}"`;
+
     const mainSiteNodeModules = path.join(mainSiteDir, 'node_modules');
     if (!fs.existsSync(mainSiteNodeModules)) {
       console.log('[Build API] Installing main-site dependencies first...');
-
-      // Find npm binary and install dependencies first
-      findNpmBinary((npmPath) => {
-        // Add node bin directory to PATH
-        const nodeBinDir = path.dirname(npmPath);
-        const envWithPath = {
-          ...process.env,
-          PATH: `${nodeBinDir}:${process.env.PATH}`
-        };
-
-        exec(`"${npmPath}" install`, {
-          cwd: mainSiteDir,
-          env: envWithPath
-        }, (installError) => {
-          if (installError) {
-            console.error('[Build API] npm install failed:', installError);
-            reject(installError);
-            return;
-          }
-
-          console.log('[Build API] Dependencies installed, starting deployment...');
-          executeVercelDeploy(npmPath);
-        });
+      exec(`${npmCmd} install`, {
+        cwd: mainSiteDir,
+        env: envWithPath
+      }, (installError) => {
+        if (installError) {
+          reject(installError);
+          return;
+        }
+        executeVercelDeploy(npxCmd, envWithPath);
       });
     } else {
-      // Find npm binary for deployment step
-      findNpmBinary((npmPath) => {
-        executeVercelDeploy(npmPath);
-      });
+      executeVercelDeploy(npxCmd, envWithPath);
     }
 
-    function executeVercelDeploy(npmPath) {
-      // Add node bin directory to PATH
-      const nodeBinDir = path.dirname(npmPath);
-      const envWithPath = {
-        ...process.env,
-        PATH: `${nodeBinDir}:${process.env.PATH}`,
-        NODE_ENV: 'production',
-        VERCEL_TOKEN: vercelApiToken
-      };
-
+    function executeVercelDeploy(npxCommand, env) {
+      // Handle project name update in project.json
       const vercelProjectJsonPath = path.join(mainSiteDir, '.vercel', 'project.json');
-      if (fs.existsSync(vercelProjectJsonPath) && vercelProjectName && vercelProjectName.trim() !== '') {
+      if (fs.existsSync(vercelProjectJsonPath) && vercelProjectName?.trim()) {
         try {
-          console.log(`[Build API] Found ${vercelProjectJsonPath}, attempting to update project name...`);
           const projectConfig = JSON.parse(fs.readFileSync(vercelProjectJsonPath, 'utf8'));
           if (projectConfig.projectName !== vercelProjectName) {
-            const oldProjectName = projectConfig.projectName;
             projectConfig.projectName = vercelProjectName;
             fs.writeFileSync(vercelProjectJsonPath, JSON.stringify(projectConfig, null, 2), 'utf8');
-            console.log(`[Build API] Updated projectName in ${vercelProjectJsonPath} from "${oldProjectName}" to "${vercelProjectName}"`);
-          } else {
-            console.log(`[Build API] projectName in ${vercelProjectJsonPath} is already "${vercelProjectName}", no update needed.`);
           }
         } catch (error) {
           console.error(`[Build API] Error updating ${vercelProjectJsonPath}:`, error);
-          // Don't reject, continue with deployment, Vercel CLI might still handle it
         }
-      } else if (vercelProjectName && vercelProjectName.trim() !== '') {
-        console.log(`[Build API] ${vercelProjectJsonPath} not found, but a project name was provided. Vercel CLI will likely create it.`);
       }
 
-      // Check if Vercel CLI is installed
-      exec('which vercel', { env: envWithPath }, (whichError, whichStdout) => {
-        let vercelCommand = 'vercel';
-
-        if (whichError) {
-          console.log('[Build API] Vercel CLI not found globally, trying npx...');
-          vercelCommand = 'npx vercel';
-        } else {
-          vercelCommand = whichStdout.trim();
-          console.log('[Build API] Found Vercel CLI at:', vercelCommand);
-        }
-
-        // Deploy to Vercel with production flag
-        console.log('[Build API] Deploying to Vercel...');
-        console.log('[Build API] Project name:', vercelProjectName || 'auto-detect');
-
-        // Use --name flag to specify the project name if provided
-        // This flag overrides the projectName in project.json, but updating the file
-        // makes sure subsequent deploys *without* a specific projectName will still use the last one.
-        const vercelProjectFlag = vercelProjectName && vercelProjectName.trim() !== '' ? ` --name="${vercelProjectName}"` : '';
-        const deployProcess = exec(
-          `${vercelCommand} --prod --token="${vercelApiToken}" ${vercelProjectFlag} --yes`,
-          {
-            cwd: mainSiteDir,
-            env: envWithPath,
-            maxBuffer: 10 * 1024 * 1024 // 10MB buffer
-          },
-          (error, stdout, stderr) => {
-            if (error) {
-              console.error('[Build API] Vercel deployment error:', error);
-              console.error('[Build API] Deployment stderr:', stderr);
-              reject(error);
-              return;
-            }
-
-            console.log('[Build API] Vercel deployment completed successfully');
-            console.log('[Build API] Deployment output:', stdout);
-            resolve();
+      const vercelProjectFlag = vercelProjectName?.trim() ? ` --name="${vercelProjectName}"` : '';
+      
+      // Deploy using npx vercel
+      const deployProcess = exec(
+        `${npxCommand} vercel --prod --token="${vercelApiToken}" ${vercelProjectFlag} --yes`,
+        {
+          cwd: mainSiteDir,
+          env: env,
+          maxBuffer: 10 * 1024 * 1024
+        },
+        (error, stdout) => {
+          if (error) {
+            reject(error);
+            return;
           }
-        );
+          console.log('[Build API] Vercel deployment completed successfully');
+          resolve();
+        }
+      );
 
-        // Log deployment output in real-time
-        deployProcess.stdout.on('data', (data) => {
-          const output = data.toString().trim();
-          if (output) console.log('[Vercel Deploy]', output);
-        });
+      deployProcess.stdout.on('data', (data) => {
+        const output = data.toString().trim();
+        if (output) console.log('[Vercel Deploy]', output);
+      });
 
-        deployProcess.stderr.on('data', (data) => {
-          const output = data.toString().trim();
-          if (output) console.log('[Vercel Deploy]', output); // bug where stdout is sent to stderr, so we handle errors by ignoring them as if they're non-errors
-        });
+      deployProcess.stderr.on('data', (data) => {
+        const output = data.toString().trim();
+        if (output) console.log('[Vercel Deploy Output]', output);
       });
     }
   });

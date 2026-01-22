@@ -1,5 +1,5 @@
 import fs from 'fs';
-import path from 'path';
+import { getUploadDir } from '../utils/pathResolver';
 
 export default function handler(req, res) {
   if (req.method !== 'GET') {
@@ -7,19 +7,13 @@ export default function handler(req, res) {
     return;
   }
 
-  const uploadDir = path.join(process.cwd(), 'static', 'uploads');
+  const uploadDir = getUploadDir();
 
   fs.readdir(uploadDir, (err, files) => {
     if (err) {
-      if (err.code === 'ENOENT') {
-        // If the directory doesn't exist, create it and return an empty array.
-        if (!fs.existsSync(uploadDir)) {
-          fs.mkdirSync(uploadDir, { recursive: true });
-        }
-        return res.json([]);
-      }
       return res.status(500).send('Unable to scan directory.');
     }
+    
     const fileUrls = files
       .filter(file => !file.startsWith('.') && file !== 'placeholder')
       .map(file => ({
