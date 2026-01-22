@@ -6,20 +6,58 @@
   <style>
     body {
       margin: 0;
-      background: #111;
-      color: #eee;
+      background: lightsteelblue;
+      color: #111;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      font-family: sans-serif;
     }
-    pre {
+    #logo-container {
+      text-align: center;
+      padding: 20px;
+    }
+    #logo {
+      width: 200px;
+      height: 100px;
+    }
+    #progress-container {
+      width: 80%;
+      margin: 0 auto;
+      border: 1px solid #0001ff50;
+      height: 20px;
+    }
+    #progress-bar {
+      width: 0%;
+      height: 100%;
+      background: #0001ff;
+      transition: width 0.5s;
+    }
+    #status-text {
+      text-align: center;
+      margin-top: 10px;
+      font-family: monospace;
+    }
+    #output {
+      flex-grow: 1;
       background: #111;
       color: #eee;
       padding: 1em;
       font-family: monospace;
       white-space: pre-wrap;
+      overflow-y: auto;
     }
   </style>
 </head>
 <body>
-  <pre id="output"></pre>
+  <div id="logo-container">
+    <img id="logo" src="static/assets/tables-logo.svg" alt="TABLES Logo">
+  </div>
+  <div id="progress-container">
+    <div id="progress-bar"></div>
+  </div>
+  <div id="status-text">Starting...</div>
+  <pre id="output" style="display: none;"></pre>
   <script src="./electron-launch.js"></script>
 </body>
 </html>

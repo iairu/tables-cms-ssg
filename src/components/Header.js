@@ -72,7 +72,7 @@ const Header = ({
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      padding: '4px 32px',
+      padding: '20px 32px 4px 32px',
       background: '#fff',
       borderBottom: '1px solid #eee',
       boxSizing: 'border-box',

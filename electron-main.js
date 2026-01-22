@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const { spawn } = require('child_process');
 const os = require('os');
@@ -22,19 +22,25 @@ const createLaunchWindow = () => {
   launchWindow = new BrowserWindow({
     width: 800,
     height: 400,
+    frame: false,
+    titleBarStyle: 'hidden',
     title: 'Launch and Console Output',
     webPreferences: {
       preload: path.join(__dirname, 'electron-preload.js'),
       contextIsolation: true,
+      webSecurity: false,
     },
   });
 
   launchWindow.loadFile('electron-launch.html');
   launchWindow.on('closed', () => {
-    if (gatsbyProcess) {
-      gatsbyProcess.kill();
+    // If launchWindow is closed and mainWindow has not yet been initialized (meaning it was not
+    // closed programmatically because mainWindow is opening), then it implies the user
+    // manually closed the launch window, and we should quit the app.
+    if (!mainWindow) {
+      app.quit();
     }
-    app.quit();
+    launchWindow = null;
   });
 
   return new Promise((resolve) => {
@@ -48,6 +54,9 @@ const createMainWindow = () => {
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
+    show: false,
+    frame: false,
+    titleBarStyle: 'hidden',
     webPreferences: {
       preload: path.join(__dirname, 'electron-preload.js'),
     },
@@ -60,6 +69,26 @@ const createMainWindow = () => {
     app.quit();
   });
 };
+
+ipcMain.on('close-app', () => {
+  app.quit();
+});
+
+ipcMain.on('minimize-app', () => {
+  if (mainWindow) {
+    mainWindow.minimize();
+  }
+});
+
+ipcMain.on('maximize-app', () => {
+  if (mainWindow) {
+    if (mainWindow.isMaximized()) {
+      mainWindow.unmaximize();
+    } else {
+      mainWindow.maximize();
+    }
+  }
+});
 
 const runCommand = (command, args) => {
   return new Promise((resolve, reject) => {
@@ -106,7 +135,7 @@ const ensureNodeAndNpm = async () => {
         await runCommand('bash', ['-c', 'curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash - && sudo apt-get install -y nodejs']);
       } else if (platform === 'win32') {
         log('Installing Node.js and npm for Windows using PowerShell...');
-        await runCommand('powershell', ['-Command', 'Invoke-WebRequest -Uri https://nodejs.org/dist/v22.2.0/node-v22.2.0-x64.msi -OutFile node-setup.msi; Start-Process msiexec.exe -Wait -ArgumentList \'/i node-setup.msi /quiet\'; Remove-Item node-setup.msi']);
+        await runCommand('powershell', ['-Command', 'Invoke-WebRequest -Uri https://nodejs.org/dist/v22.2.0/node-v22.2.0-x64.msi -OutFile node-setup.msi; Start-Process msiexec.exe -Wait -ArgumentList "/i node-setup.msi /quiet"; Remove-Item node-setup.msi']);
       } else {
         throw new Error('Unsupported OS for automatic Node.js installation.');
       }
@@ -154,10 +183,13 @@ app.whenReady().then(async () => {
 
   if (await ensureNodeAndNpm() && await ensureNpmInstall()) {
     await startGatsby();
-    if (launchWindow && !launchWindow.isDestroyed()) {
-      launchWindow.close();
-    }
     createMainWindow();
+    mainWindow.once('ready-to-show', () => {
+      if (launchWindow && !launchWindow.isDestroyed()) {
+        launchWindow.close();
+      }
+      mainWindow.show();
+    });
   } else {
     log('Failed to set up the environment. Please check the logs.');
   }
