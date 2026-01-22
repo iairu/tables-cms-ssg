@@ -1,7 +1,10 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const { spawn } = require('child_process');
 const os = require('os');
+const AnsiToHtml = require('ansi-to-html');
+
+const ansiToHtml = new AnsiToHtml();
 
 let gatsbyProcess;
 let mainWindow;
@@ -10,7 +13,8 @@ let launchWindow;
 const log = (msg) => {
   console.log(msg);
   if (launchWindow && !launchWindow.isDestroyed()) {
-    launchWindow.webContents.send('console-output', msg.toString().replace(/</g, '&lt;').replace(/>/g, '&gt;'));
+    const html = ansiToHtml.toHtml(msg.toString().replace(/</g, '&lt;').replace(/>/g, '&gt;'));
+    launchWindow.webContents.send('console-output', html);
   }
 };
 
@@ -26,6 +30,12 @@ const createLaunchWindow = () => {
   });
 
   launchWindow.loadFile('electron-launch.html');
+  launchWindow.on('closed', () => {
+    if (gatsbyProcess) {
+      gatsbyProcess.kill();
+    }
+    app.quit();
+  });
 
   return new Promise((resolve) => {
     launchWindow.webContents.on('did-finish-load', () => {
@@ -43,25 +53,35 @@ const createMainWindow = () => {
     },
   });
   mainWindow.loadURL('http://localhost:8000/cms/settings');
+  mainWindow.on('closed', () => {
+    if (gatsbyProcess) {
+      gatsbyProcess.kill();
+    }
+    app.quit();
+  });
 };
 
 const runCommand = (command, args) => {
   return new Promise((resolve, reject) => {
     const childProcess = spawn(command, args, { shell: true });
+    let stdout = '';
+    let stderr = '';
 
     childProcess.stdout.on('data', (data) => {
+      stdout += data.toString();
       log(data.toString());
     });
 
     childProcess.stderr.on('data', (data) => {
+      stderr += data.toString();
       log(data.toString());
     });
 
     childProcess.on('close', (code) => {
       if (code === 0) {
-        resolve();
+        resolve(stdout);
       } else {
-        reject(new Error(`Command failed with exit code: ${code}`));
+        reject(new Error(stderr));
       }
     });
   });
@@ -158,6 +178,11 @@ app.on('activate', () => {
 app.on('before-quit', () => {
   if (gatsbyProcess) {
     log('Terminating Gatsby process...');
-    gatsbyProcess.kill();
+    const killed = gatsbyProcess.kill();
+    if (killed) {
+      log('Gatsby process terminated.');
+    } else {
+      log('Failed to terminate Gatsby process.');
+    }
   }
 });
