@@ -341,6 +341,7 @@ body.theme-goldshow h1.big {
 .page-main-content {
   max-width: 1200px;
   margin: 0 auto;
+  overflow: hidden;
 }
 
 .page-title-slide {

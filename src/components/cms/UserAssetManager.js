@@ -18,7 +18,7 @@ const styles = {
   uploadButton: {
     display: 'inline-block',
     padding: '10px 20px',
-    background: 'var(--page-button-color)',
+    background: '#0002ff',
     color: 'white',
     border: 'none',
     borderRadius: '4px',

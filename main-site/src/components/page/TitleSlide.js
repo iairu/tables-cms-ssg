@@ -186,13 +186,13 @@ const TitleSlide = ({ row }) => {
             className={headingSize === 'big' ? 'big' : 'normal'}
             dangerouslySetInnerHTML={{ 
               __html: align === 'left' && typeof row.fields.heading === 'string' 
-                ? row.fields.heading.replace(/\s/g, '<br>') 
+                ? unescape(row.fields.heading.replace(/\s/g, '<br>')) 
                 : row.fields.heading 
             }}
           />
         )}
         {row.fields.text && (
-          <p style={styles.text} dangerouslySetInnerHTML={{ __html: row.fields.text }} />
+          <p style={styles.text} dangerouslySetInnerHTML={{ __html: unescape(row.fields.text) }} />
         )}
         {row.fields.buttons && row.fields.buttons.length > 0 && (
           <nav style={styles.nav}>

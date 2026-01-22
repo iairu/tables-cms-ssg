@@ -97,7 +97,7 @@ const Infobar = ({ row }) => {
       ) : null}
       
       {row.fields.text && (
-        <span style={styles.text} dangerouslySetInnerHTML={{ __html: row.fields.text }} />
+        <span style={styles.text} dangerouslySetInnerHTML={{ __html: unescape(row.fields.text) }} />
       )}
       
       {row.fields.buttons && row.fields.buttons.length > 0 && (

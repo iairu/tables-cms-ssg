@@ -124,7 +124,7 @@ const Boxes = ({ row }) => {
                 />
               )}
               {box.text && (
-                <p style={styles.text} dangerouslySetInnerHTML={{ __html: box.text }} />
+                <p style={styles.text} dangerouslySetInnerHTML={{ __html: unescape(box.text) }} />
               )}
               {box.lowerCornerText && (
                 <span style={styles.corner}>{box.lowerCornerText}</span>

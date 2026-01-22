@@ -142,10 +142,10 @@ const Slide = ({ row }) => {
     >
       <div style={styles.left} className={`left${leftDark ? ' dark' : ''}${row.fields.hideLeftOnMobile ? ' hide-left-on-mobile' : ''}`}>
         {row.fields.leftHeading && (
-          <h1 style={styles.heading} dangerouslySetInnerHTML={{ __html: row.fields.leftHeading }} />
+          <h1 style={styles.heading} dangerouslySetInnerHTML={{ __html: unescape(row.fields.leftHeading) }} />
         )}
         {row.fields.leftText && (
-          <p style={styles.text} dangerouslySetInnerHTML={{ __html: row.fields.leftText }} />
+          <p style={styles.text} dangerouslySetInnerHTML={{ __html: unescape(row.fields.leftText) }} />
         )}
         {row.fields.leftButtons && row.fields.leftButtons.length > 0 && (
           <nav style={styles.nav}>
@@ -167,10 +167,10 @@ const Slide = ({ row }) => {
 
       <div style={styles.right} className={`right${rightDark ? ' dark' : ''}${row.fields.hideRightOnMobile ? ' hide-right-on-mobile' : ''}`}>
         {row.fields.rightHeading && (
-          <h1 style={styles.heading} dangerouslySetInnerHTML={{ __html: row.fields.rightHeading }} />
+          <h1 style={styles.heading} dangerouslySetInnerHTML={{ __html: unescape(row.fields.rightHeading) }} />
         )}
         {row.fields.rightText && (
-          <p style={styles.text} dangerouslySetInnerHTML={{ __html: row.fields.rightText }} />
+          <p style={styles.text} dangerouslySetInnerHTML={{ __html: unescape(row.fields.rightText) }} />
         )}
         {row.fields.rightButtons && row.fields.rightButtons.length > 0 && (
           <nav style={styles.nav}>
@@ -271,6 +271,12 @@ const Slide = ({ row }) => {
         @media (min-width: 901px) {
           section.slide .hide-left-on-mobile {
             display: flex;
+          }
+        }
+
+        @media (max-width: 900px) {
+          section.slide .hide-right-on-mobile {
+            display: none;
           }
         }
       `}</style>

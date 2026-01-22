@@ -78,7 +78,7 @@ const Ranking = ({ row }) => {
               <h1 
                 className="count"
                 style={styles.count}
-                dangerouslySetInnerHTML={{ __html: rank.heading || '' }}
+                dangerouslySetInnerHTML={{ __html: unescape(rank.heading) || '' }}
               />
               <span className="name" style={styles.name}>{rank.subheading || ''}</span>
             </li>

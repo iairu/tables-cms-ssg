@@ -10,38 +10,41 @@ const References = ({ row }) => {
     
     // Auto-scroll functionality similar to refsAutoScroll.js
     let refInterval;
+    let isSetup = false; // Lock variable to prevent multiple setups
     
     const setupAutoScroll = () => {
-      if (contentRef.current && sectionRef.current) {
-        const content = contentRef.current;
-        const section = sectionRef.current;
+      if (isSetup || !contentRef.current || !sectionRef.current) return;
+      
+      const content = contentRef.current;
+      const section = sectionRef.current;
+      
+      // Check if content is wider than section
+      const shouldAnimate = content.scrollWidth > section.clientWidth;
+      
+      if (shouldAnimate) {
+        section.classList.add('animate');
         
-        // Check if content is wider than section
-        const shouldAnimate = content.scrollWidth > section.clientWidth;
+        // Auto-scroll logic
+        let scrollPosition = 0;
+        const scrollSpeed = 0.5; // pixels per frame
         
-        if (shouldAnimate) {
-          section.classList.add('animate');
+        refInterval = setInterval(() => {
+          scrollPosition += scrollSpeed;
           
-          // Auto-scroll logic
-          let scrollPosition = 0;
-          const scrollSpeed = 0.5; // pixels per frame
+          // Reset when reaching halfway point (for seamless loop)
+          if (scrollPosition >= content.scrollWidth / 2) {
+            scrollPosition = 0;
+          }
           
-          refInterval = setInterval(() => {
-            scrollPosition += scrollSpeed;
-            
-            // Reset when reaching halfway point (for seamless loop)
-            if (scrollPosition >= content.scrollWidth / 2) {
-              scrollPosition = 0;
-            }
-            
-            if (section) {
-              section.scrollLeft = scrollPosition;
-            }
-          }, 16); // ~60fps
-        } else {
-          section.classList.remove('animate');
-        }
+          if (section) {
+            section.scrollLeft = scrollPosition;
+          }
+        }, 16); // ~60fps
+      } else {
+        section.classList.remove('animate');
       }
+      
+      isSetup = true; // Set lock after successful setup
     };
 
     setupAutoScroll();
@@ -52,6 +55,7 @@ const References = ({ row }) => {
         clearInterval(refInterval);
       }
       window.removeEventListener('resize', setupAutoScroll);
+      isSetup = false; // Reset lock on cleanup
     };
   }, [row.fields.images]);
 

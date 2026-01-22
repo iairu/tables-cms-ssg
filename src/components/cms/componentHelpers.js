@@ -14,7 +14,7 @@ export const renderEmojiPicker = (rowIndex, fieldName, value, handleChange, item
             padding: '5px 10px',
             border: '1px solid #cbd5e1',
 
-            background: value === emoji ? 'var(--page-button-color)' : 'white',
+            background: value === emoji ? '#0002ff' : 'white',
             cursor: 'pointer',
             fontSize: '18px'
           }}
@@ -51,7 +51,7 @@ export const renderRichTextEditor = (editorId, value, onChange) => {
         contentEditable
         suppressContentEditableWarning
         onBlur={(e) => onChange(e.currentTarget.innerHTML)}
-        dangerouslySetInnerHTML={{ __html: value || '' }}
+        dangerouslySetInnerHTML={{ __html: unescape(value) || '' }}
         style={{
           padding: '10px',
           minHeight: '100px',
@@ -85,7 +85,7 @@ export function RenderImageUpload({ label, value, onUpload, onRemove, onSelect }
         <button
           type="button"
           onClick={handleUpload}
-          style={{ padding: '8px 16px', background: 'var(--page-button-color)', color: 'white', border: 'none', cursor: 'pointer' }}
+          style={{ padding: '8px 16px', background: '#0002ff', color: 'white', border: 'none', cursor: 'pointer' }}
           disabled={uploading}
         >
           {uploading ? 'Uploading...' : 'Upload Image'}
@@ -200,7 +200,7 @@ export const renderButtonList = (buttons, onAdd, onRemove, onChange, renderEmoji
       <button
         type="button"
         onClick={onAdd}
-        style={{ padding: '8px 16px', background: 'var(--page-button-color)', color: 'white', border: 'none',  cursor: 'pointer' }}
+        style={{ padding: '8px 16px', background: '#0002ff', color: 'white', border: 'none',  cursor: 'pointer' }}
       >
         + Add Button
       </button>

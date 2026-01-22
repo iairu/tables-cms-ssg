@@ -106,7 +106,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
         <h3 style={{ margin: 0 }}>Page Components</h3>
         <span style={{ 
           padding: '6px 12px', 
-          background: 'var(--page-button-color)', 
+          background: '#0002ff', 
           color: 'white', 
           fontSize: '14px',
           fontWeight: '600'
@@ -402,7 +402,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                 <button
                   type="button"
                   onClick={() => handleArrayItemAdd(rowIndex, 'boxes', { heading: '', subheading: '', text: '', lowerCornerText: '', icon: '', horizontalAdjustment: 0, verticalAdjustment: 0 })}
-                  style={{ padding: '8px 16px', background: 'var(--page-button-color)', color: 'white', border: 'none',  cursor: 'pointer' }}
+                  style={{ padding: '8px 16px', background: '#0002ff', color: 'white', border: 'none',  cursor: 'pointer' }}
                 >
                   + Add Box
                 </button>
@@ -593,7 +593,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                 <button
                   type="button"
                   onClick={() => handleArrayItemAdd(rowIndex, 'flies', { backgroundImage: '', marginFromEdge: 0, marginFromTop: 0, rotation: 0, scalingFactor: 1, transparency: 100, showOnMobile: false, stickToRightSide: false })}
-                  style={{ padding: '8px 16px', background: 'var(--page-button-color)', color: 'white', border: 'none',  cursor: 'pointer' }}
+                  style={{ padding: '8px 16px', background: '#0002ff', color: 'white', border: 'none',  cursor: 'pointer' }}
                 >
                   + Add Fly
                 </button>
@@ -782,7 +782,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                     </div>
                   </div>
                 ))}
-                <button type="button" onClick={() => handleArrayItemAdd(rowIndex, 'ranks', { heading: '', subheading: '' })} style={{ padding: '8px 16px', background: 'var(--page-button-color)', color: 'white', border: 'none',  cursor: 'pointer' }}>+ Add Rank</button>
+                <button type="button" onClick={() => handleArrayItemAdd(rowIndex, 'ranks', { heading: '', subheading: '' })} style={{ padding: '8px 16px', background: '#0002ff', color: 'white', border: 'none',  cursor: 'pointer' }}>+ Add Rank</button>
               </div>
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
@@ -814,7 +814,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                     )}
                   </div>
                 ))}
-                <button type="button" onClick={() => handleArrayItemAdd(rowIndex, 'images', { imageUrl: '' })} style={{ padding: '8px 16px', background: 'var(--page-button-color)', color: 'white', border: 'none',  cursor: 'pointer' }}>+ Add Image</button>
+                <button type="button" onClick={() => handleArrayItemAdd(rowIndex, 'images', { imageUrl: '' })} style={{ padding: '8px 16px', background: '#0002ff', color: 'white', border: 'none',  cursor: 'pointer' }}>+ Add Image</button>
               </div>
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
@@ -846,7 +846,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                     </div>
                   </div>
                 ))}
-                <button type="button" onClick={() => handleArrayItemAdd(rowIndex, 'reviews', { text: '', author: '' })} style={{ padding: '8px 16px', background: 'var(--page-button-color)', color: 'white', border: 'none',  cursor: 'pointer' }}>+ Add Review</button>
+                <button type="button" onClick={() => handleArrayItemAdd(rowIndex, 'reviews', { text: '', author: '' })} style={{ padding: '8px 16px', background: '#0002ff', color: 'white', border: 'none',  cursor: 'pointer' }}>+ Add Review</button>
               </div>
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>

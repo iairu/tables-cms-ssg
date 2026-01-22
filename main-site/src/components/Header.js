@@ -14,7 +14,43 @@ const Header = ({
 }) => {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [isSafari, setIsSafari] = useState(false);
+  const [actualCurrentLanguage, setActualCurrentLanguage] = useState(currentLanguage);
   const headerRef = useRef(null);
+
+  // Function to get current language from URI
+  const getLanguageFromURI = () => {
+    if (typeof window === 'undefined') return currentLanguage;
+    
+    const pathname = window.location.pathname;
+    const pathSegments = pathname.split('/').filter(segment => segment.length > 0);
+    
+    // Check if first path segment is a language code
+    if (pathSegments.length > 0) {
+      const firstSegment = pathSegments[0];
+      const supportedLanguages = languages.map(lang => lang.code);
+      
+      if (supportedLanguages.includes(firstSegment)) {
+        return firstSegment;
+      }
+    }
+    
+    // Default to first supported language or passed currentLanguage
+    return languages.length > 0 ? languages[0].code : currentLanguage;
+  };
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const ua = window.navigator.userAgent;
+      const safari = (ua.includes('Safari') && (ua.includes('iPhone') || ua.includes('iPad') || ua.includes('Macintosh')) && !ua.includes('Chrome'));
+      setIsSafari(safari);
+      
+      // Update actual current language from URI
+      const languageFromURI = getLanguageFromURI();
+      if (languageFromURI !== actualCurrentLanguage) {
+        setActualCurrentLanguage(languageFromURI);
+      }
+    }
+  }, [currentLanguage, languages]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -197,7 +233,7 @@ const Header = ({
           )}
 
           {/* Logo */}
-          <a style={styles.logo} href={`/${currentLanguage}`}>
+          <a style={styles.logo} href={`/${actualCurrentLanguage}`}>
             {(isDark && settings?.siteLogoWhite) || settings?.siteLogo ? (
               <img
                 src={isDark && settings?.siteLogoWhite ? settings.siteLogoWhite : settings.siteLogo}
@@ -225,10 +261,10 @@ const Header = ({
                   const navDropdown = menuPage.navigationDropdown || 'none';
                   return navDropdown === 'none' || navDropdown === 'header';
                 }).map(menuPage => {
-                  const localizedTitle = getLocalizedPageTitle(menuPage, currentLanguage);
+                  const localizedTitle = getLocalizedPageTitle(menuPage, actualCurrentLanguage);
                   const slug = getLocalizedPageSlug(menuPage);
                   const isHomePage = menuPage.slug === 'home';
-                  const href = isHomePage ? `/${currentLanguage}` : `/${currentLanguage}/${slug}`;
+                  const href = isHomePage ? `/${actualCurrentLanguage}` : `/${actualCurrentLanguage}/${slug}`;
                   const isActive = typeof window !== 'undefined' && window.location.pathname === href;
 
                   return (
@@ -247,10 +283,10 @@ const Header = ({
                 })}
                 {settings?.hasBlogArticles && (
                   <a
-                    href={`/${currentLanguage}/blog`}
+                    href={`/${actualCurrentLanguage}/blog`}
                     style={styles.navLink}
                   >
-                    {t('blog', currentLanguage)}
+                    {t('blog', actualCurrentLanguage)}
                   </a>
                 )}
                 {showCatalogLink && (
@@ -303,7 +339,7 @@ const Header = ({
               {/* Language Selector */}
               {languages.length > 0 && (
                 <select
-                  value={currentLanguage}
+                  value={actualCurrentLanguage}
                   onChange={(e) => handleLanguageChange(e.target.value)}
                   style={styles.langSelector}
                 >

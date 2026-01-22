@@ -53,7 +53,7 @@ const styles = {
     fontWeight: 600,
   },
   replaceButton: {
-    background: 'var(--page-button-color)',
+    background: '#0002ff',
   },
   deleteButton: {
     background: '#ef4444',

@@ -220,7 +220,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                             
                             cursor: 'pointer',
                             backgroundColor: selectedHistoryIndex === actualIndex ? '#e0e7ff' : '#f1f5f9',
-                            border: selectedHistoryIndex === actualIndex ? '2px solid var(--page-button-color)' : '2px solid transparent'
+                            border: selectedHistoryIndex === actualIndex ? '2px solid #0002ff' : '2px solid transparent'
                           }}
                         >
                           <strong>{new Date(item.timestamp).toLocaleString('ja-JP')}</strong>
@@ -263,7 +263,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                       padding: '8px 16px',
                       
                       border: 'none',
-                      backgroundColor: 'var(--page-button-color)',
+                      backgroundColor: '#0002ff',
                       color: 'white',
                       cursor: 'pointer'
                     }}>Rollback to this version</button>
@@ -404,7 +404,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                   <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: '5px' }}>
                     <input
                       type="color"
-                      value={currentPage.buttonLinkColor || 'var(--page-button-color)'}
+                      value={currentPage.buttonLinkColor || '#0002ff'}
                       onChange={(e) => updatePage(currentPage.id, { buttonLinkColor: e.target.value })}
                       style={{
                         width: '60px',
@@ -418,7 +418,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                       type="text"
                       value={currentPage.buttonLinkColor || ''}
                       onChange={(e) => updatePage(currentPage.id, { buttonLinkColor: e.target.value })}
-                      placeholder="var(--page-button-color)"
+                      placeholder="#0002ff"
                       style={{
                         flex: 1,
                         padding: '10px',

@@ -174,7 +174,7 @@ const Reviews = ({ row }) => {
             className={index === currentSlide ? 'slide' : 'slide hidden'}
           >
             {review.text && (
-              <p style={styles.text} dangerouslySetInnerHTML={{ __html: review.text }} />
+              <p style={styles.text} dangerouslySetInnerHTML={{ __html: unescape(review.text) }} />
             )}
             {review.author && (
               <div style={styles.author}>~ {review.author}</div>

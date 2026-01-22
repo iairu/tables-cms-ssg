@@ -303,7 +303,7 @@ const PageTemplate = ({ pageContext, location }) => {
 
           {/* Render page components */}
           {rows && rows.map((row, index) => (
-            <div key={index} style={{
+            <div className="content-section" key={index} style={{
               marginBottom: '0',
               position: 'relative'
             }}>
