@@ -36,7 +36,7 @@ const startProgressAnimation = (target) => {
 };
 
 window.electron.onConsoleOutput((msg) => {
-  output.innerHTML += msg;
+  output.innerHTML += msg + "\n";
   window.scrollTo(0, document.body.scrollHeight);
 
   for (const stage of progressStages) {

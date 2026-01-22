@@ -116,6 +116,26 @@ const runCommand = (command, args) => {
   });
 };
 
+const ensureBrew = async () => {
+  log('Checking for Homebrew...');
+  try {
+    await runCommand('command', ['-v', 'brew']);
+    log('Homebrew is already installed.');
+    return true;
+  } catch (e) {
+    log('Homebrew not found. Attempting to install...');
+    try {
+      const installCommand = 'NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"';
+      await runCommand(installCommand, []);
+      log('Homebrew installed successfully.');
+      return true;
+    } catch (err) {
+      log(`Failed to install Homebrew: ${err}`);
+      return false;
+    }
+  }
+};
+
 const ensureNodeAndNpm = async () => {
   log('Checking for Node.js and npm...');
   try {
@@ -128,6 +148,9 @@ const ensureNodeAndNpm = async () => {
     const platform = os.platform();
     try {
       if (platform === 'darwin') {
+        if (!await ensureBrew()) {
+          throw new Error('Homebrew is required and could not be installed.');
+        }
         log('Installing Node.js and npm for macOS using Homebrew...');
         await runCommand('brew', ['install', 'node@22']);
       } else if (platform === 'linux') {
