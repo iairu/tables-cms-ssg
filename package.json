@@ -72,16 +72,18 @@
       "output": "dist"
     },
     "mac": {
-      "target": "dmg",
-      "arch": [
-        "x86_64",
-        "arm64"
-      ],
+      "target": {
+        "target": "dmg",
+        "arch": [
+          "x64",
+          "arm64"
+        ]
+      },
       "artifactName": "tables-cms-macos-${arch}.${ext}",
       "icon": "static/assets/tables-icon.png"
     },
     "win": {
-      "target": "nsis",
+      "target": "msi",
       "artifactName": "tables-cms-windows.${ext}",
       "icon": "static/assets/tables-icon.png"
     },

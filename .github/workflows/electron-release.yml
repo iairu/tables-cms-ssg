@@ -52,8 +52,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ needs.create-github-release.outputs.upload_url }}
-        asset_path: ./dist/tables-cms-windows.exe
-        asset_name: tables-cms-windows.exe
+        asset_path: ./dist/tables-cms-windows.msi
+        asset_name: tables-cms-windows.msi
         asset_content_type: application/octet-stream
 
   build-macos:
@@ -79,14 +79,14 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
-    - name: Upload Release Asset (macOS x86_64)
+    - name: Upload Release Asset (macOS x64)
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ needs.create-github-release.outputs.upload_url }}
-        asset_path: ./dist/tables-cms-macos-x86_64.dmg
-        asset_name: tables-cms-macos-x86_64.dmg
+        asset_path: ./dist/tables-cms-macos-x64.dmg
+        asset_name: tables-cms-macos-x64.dmg
         asset_content_type: application/octet-stream
 
     - name: Upload Release Asset (macOS arm64)
