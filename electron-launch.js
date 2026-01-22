@@ -6,14 +6,13 @@ const closeBtn = document.getElementById('close-btn');
 const progressStages = [
   { key: 'Checking for Node.js and npm...', progress: 10, status: 'Checking and updating environment...' },
   { key: 'Node.js and npm found.', progress: 20, status: 'Environment checked and updated.' },
-  { key: 'Running npm install...', progress: 30, status: 'Installing dependencies...' },
-  { key: 'npm install completed successfully.', progress: 50, status: 'Dependencies installed.' },
+  { key: 'Executing npm: install', progress: 30, status: 'Installing dependencies...' },
+  { key: 'All binaries and scripts consolidated', progress: 50, status: 'Dependencies installed.' },
   { key: 'Starting Gatsby development server...', progress: 60, status: 'Starting server...' },
   { key: 'success compile gatsby files', progress: 70, status: 'Compiling files...' },
   { key: 'success onPreBootstrap', progress: 80, status: 'Bootstrapping...' },
   { key: 'bootstrap finished', progress: 90, status: 'Finishing up...' },
-  { key: 'success extract queries from components', progress: 95, status: 'Extracting queries...' },
-  { key: 'You can now view tables-cms in the browser.', progress: 100, status: 'Ready!' },
+  { key: 'success extract queries from components', progress: 100, status: 'Extracting queries...' },
 ];
 
 let currentProgress = 0;

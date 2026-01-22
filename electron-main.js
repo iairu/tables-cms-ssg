@@ -24,7 +24,9 @@ function getBundledNodePath() {
   const nodeBinName = process.platform === 'win32' ? 'node.exe' : 'node';
   const nodePath = path.join(
     process.resourcesPath,
-    'node-bin', 
+    'electron-bin',
+    'npm_source',
+    'bin',
     nodeBinName
   );
 
@@ -57,30 +59,23 @@ function getBundledNpmPath() {
   const nodePath = getBundledNodePath();
   const nodeDir = path.dirname(nodePath);
   
-  // Try the wrapper first
-  let npmName = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-  let npmPath = path.join(nodeDir, npmName);
-
   // Fallback to the npm-cli.js inside the source directory we created
-  if (!fs.existsSync(npmPath)) {
-    const isWin = process.platform === 'win32';
-    const npmCliPath = path.join(
-      nodeDir,
-      'npm_source',
-      'bin',
-      'npm_cli.js'
-    );
-    
-    if (fs.existsSync(npmCliPath)) {
-      npmPath = npmCliPath;
-    } else {
-      console.warn('Bundled npm-cli.js not found, falling back to system npm');
-      return npmName;
-    }
+  const npmCliPath = path.join(
+    nodeDir,
+    'npm_source',
+    'bin',
+    'npm_cli.js'
+  );
+  
+  if (fs.existsSync(npmCliPath)) {
+    npmPath = nodePath + " " + npmCliPath;
+  } else {
+    console.warn('Bundled npm-cli.js not found, falling back to system npm');
+    return npmName;
   }
 
-  if (process.platform !== 'win32' && fs.existsSync(npmPath)) {
-    try { fs.chmodSync(npmPath, 0o755); } catch (err) {}
+  if (process.platform !== 'win32' && fs.existsSync(npmCliPath)) {
+    try { fs.chmodSync(npmCliPath, 0o755); } catch (err) {}
   }
 
   return npmPath;
@@ -97,7 +92,7 @@ function getNodeEnvironment() {
     ...process.env,
     PATH: `${nodeDir}${path.delimiter}${process.env.PATH}`,
     // Required for npm to find its internal modules when running via node npm-cli.js
-    NODE_PATH: path.join(nodeDir, 'npm_source', 'node_modules'),
+    NODE_PATH: path.join(nodeDir),
     // Pass the resources path so Gatsby can find static assets in production
     ELECTRON_RESOURCES_PATH: process.resourcesPath
   };
@@ -289,9 +284,9 @@ const startGatsby = () => {
 };
 
 app.whenReady().then(async () => {
-  await createLaunchWindow();
+  createLaunchWindow();
   if (await ensureNpmInstall()) {
-    await startGatsby();
+    startGatsby();
     createMainWindow();
     mainWindow.once('ready-to-show', () => {
       if (launchWindow && !launchWindow.isDestroyed()) {

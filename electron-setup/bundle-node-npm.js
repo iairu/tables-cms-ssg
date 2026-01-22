@@ -48,20 +48,46 @@ async function setupBinaries() {
   execSync(`curl -L ${TARBALL_URL} | tar -xz -C ${NPM_SOURCE_DIR} --strip-components=1`);
 
   // 5. Move npm binaries (npm, npx) to BIN_ROOT
+  // Define the destination inside npm_source
   const npmBinPath = path.join(NPM_SOURCE_DIR, 'bin');
-  if (fs.existsSync(npmBinPath)) {
-    const files = fs.readdirSync(npmBinPath);
+  
+  // Ensure the destination bin directory exists
+  if (!fs.existsSync(npmBinPath)) {
+    fs.mkdirSync(npmBinPath, { recursive: true });
+  }
+  
+  // Read the root electron-bin directory
+  if (fs.existsSync(BIN_ROOT)) {
+    const files = fs.readdirSync(BIN_ROOT);
+    
     files.forEach(file => {
-      const oldPath = path.join(npmBinPath, file);
-      const newPath = path.join(BIN_ROOT, file);
-      fs.renameSync(oldPath, newPath);
+      const oldPath = path.join(BIN_ROOT, file);
+      const newPath = path.join(npmBinPath, file);
+  
+      // Skip the npm_source directory itself to avoid recursive errors
+      if (file === 'npm_source') return;
+  
+      // Get file stats to check if it's a file (not a directory)
+      const stats = fs.statSync(oldPath);
       
-      if (process.platform !== 'win32') {
-        fs.chmodSync(newPath, '755');
+      if (stats.isFile()) {
+        // Logic: Move if it's a binary, a windows command, or a javascript file
+        const isBinary = !file.includes('.') || file.endsWith('.exe') || file.endsWith('.cmd') || file.endsWith('.js');
+  
+        if (isBinary) {
+          console.log(`Moving ${file} to ${npmBinPath}...`);
+          fs.renameSync(oldPath, newPath);
+          
+          // Ensure execution permissions for Unix
+          if (process.platform !== 'win32') {
+            fs.chmodSync(newPath, '755');
+          }
+        }
       }
     });
+    console.log('All binaries and scripts consolidated into npm_source/bin');
   }
-
+  
   console.log(`Setup complete. All binaries located in: ${BIN_ROOT}`);
 }
 
