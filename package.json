@@ -52,6 +52,7 @@
   "build": {
     "appId": "com.tables.cms",
     "productName": "TABLES CMS",
+    "icon": "static/assets/tables-icon.png",
     "files": [
       "electron-main.js",
       "electron-preload.js",
@@ -62,16 +63,29 @@
       "output": "dist"
     },
     "mac": {
-      "target": "dmg",
-      "artifactName": "tables-cms-macos.${ext}"
+      "target": [
+        {
+          "target": "mas",
+          "arch": [
+            "universal"
+          ]
+        },
+        {
+          "target": "mas-dev"
+        }
+      ],
+      "artifactName": "tables-cms-macos.${ext}",
+      "icon": "static/assets/tables-icon.png"
     },
     "win": {
       "target": "nsis",
-      "artifactName": "tables-cms-windows.${ext}"
+      "artifactName": "tables-cms-windows.${ext}",
+      "icon": "static/assets/tables-icon.png"
     },
     "linux": {
       "target": "AppImage",
-      "artifactName": "tables-cms-linux.${ext}"
+      "artifactName": "tables-cms-linux.${ext}",
+      "icon": "static/assets/tables-icon.png"
     }
   }
 }

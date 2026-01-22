@@ -24,7 +24,7 @@ jobs:
 
   build-windows:
     needs: create-github-release
-    runs-on: ubuntu-latest # Can cross-compile Windows from Linux
+    runs-on: windows-latest # Required for building Windows natively
     steps:
     - name: Check out code
       uses: actions/checkout@v2
