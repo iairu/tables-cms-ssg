@@ -61,6 +61,7 @@
       "main-site/package.json",
       "src",
       "static",
+      "electron-*.html",
       "electron-*.js",
       "gatsby-*.js",
       "gatsby-*.json",
