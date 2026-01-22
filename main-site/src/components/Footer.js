@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { t } from '../utils/localization';
+import AccessibilityControls from './common/AccessibilityControls';
+import Sitemap from './common/Sitemap';
 
 const Footer = ({
   settings,
@@ -9,6 +11,7 @@ const Footer = ({
   getLocalizedPageSlug,
   simplified = false,
 }) => {
+  const [showSitemap, setShowSitemap] = useState(false);
   if (simplified) {
     return (
       <footer style={{
@@ -82,12 +85,86 @@ const Footer = ({
         )}
 
         <div style={{
-          textAlign: 'center',
-          color: '#64748b',
-          fontSize: '0.875rem'
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginTop: '1rem',
+          paddingTop: '1rem',
+          borderTop: '1px solid rgba(255, 255, 255, 0.2)',
+          flexWrap: 'wrap',
+          gap: '1rem'
         }}>
-          <p>© {new Date().getFullYear()} {settings?.siteTitle || 'TABLES'}. {t('builtWith', currentLanguage)}.</p>
+          <div style={{
+            textAlign: 'center',
+            color: '#64748b',
+            fontSize: '0.875rem'
+          }}>
+            <p style={{ margin: 0 }}>
+              © {new Date().getFullYear()} {settings?.siteTitle || 'TABLES'}. {t('builtWith', currentLanguage)}.
+            </p>
+          </div>
+          
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '1rem',
+            flexWrap: 'wrap'
+          }}>
+            <button
+              onClick={() => setShowSitemap(!showSitemap)}
+              style={{
+                background: 'none',
+                border: '1px solid #64748b',
+                borderRadius: '4px',
+                padding: '4px 8px',
+                cursor: 'pointer',
+                fontSize: '12px',
+                color: '#64748b',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = '#64748b';
+                e.target.style.color = 'white';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = 'none';
+                e.target.style.color = '#64748b';
+              }}
+              title={showSitemap ? 'Hide sitemap' : 'Show sitemap'}
+            >
+              {showSitemap ? t('hideSitemap', currentLanguage) || 'Hide Sitemap' : t('showSitemap', currentLanguage) || 'Show Sitemap'}
+            </button>
+            
+            <AccessibilityControls />
+          </div>
         </div>
+
+        {/* Sitemap Section */}
+        {showSitemap && (
+          <div style={{
+            marginTop: '2rem',
+            padding: '1rem',
+            backgroundColor: 'transparent',
+            borderRadius: '8px',
+            border: '1px solid rgba(255, 255, 255, 0.2)'
+          }}>
+            <h3 style={{
+              margin: '0 0 1rem 0',
+              fontSize: '1.125rem',
+              fontWeight: 'bold',
+              color: '#334155'
+            }}>
+              {t('sitemap', currentLanguage) || 'Sitemap'}
+            </h3>
+            <Sitemap
+              menuPages={menuPages}
+              currentLanguage={currentLanguage}
+              getLocalizedPageTitle={getLocalizedPageTitle}
+              getLocalizedPageSlug={getLocalizedPageSlug}
+              settings={settings}
+            />
+          </div>
+        )}
       </div>
     </footer>
   );
