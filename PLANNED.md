@@ -2,11 +2,7 @@ blog is improperly showing english pinned article in both english and slovak, an
 
 ---
 
-add sitemap to main-site footer alongside accessibility A+ and A- buttons
-
----
-
-make main-site theme mobile friendly
+have the export data and import data option within Settings include all uploads from static/uploads folder, so that they are added into the folder (replace if exists) on import
 
 ---
 

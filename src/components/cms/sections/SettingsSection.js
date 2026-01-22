@@ -62,7 +62,7 @@ const SettingsSection = ({ cmsData }) => {
     saveSettings({ ...settings, socialMedia: updatedSocialMedia });
   };
 
-  const handleExportData = () => {
+  const handleExportData = async () => {
     try {
       // Collect all localStorage data
       const exportData = {
@@ -77,6 +77,33 @@ const SettingsSection = ({ cmsData }) => {
         currentBlogArticleId: JSON.parse(localStorage.getItem('currentBlogArticleId') || 'null')
       };
 
+      // Collect uploads from static/uploads folder
+      try {
+        const response = await fetch('/api/uploads');
+        if (!response.ok) {
+          throw new Error('Failed to fetch upload list.');
+        }
+        const uploadFiles = await response.json();
+
+        const uploads = {};
+        for (const file of uploadFiles) {
+          try {
+            const response = await fetch(`/uploads/${file.name}`);
+            if (response.ok) {
+              const blob = await response.blob();
+              const base64 = await toBase64(blob);
+              uploads[file.name] = base64;
+            }
+          } catch (error) {
+            console.warn(`Failed to fetch upload file ${file.name}:`, error);
+          }
+        }
+
+        exportData.uploads = uploads;
+      } catch (error) {
+        console.warn('Failed to collect uploads:', error);
+      }
+
       // Create a blob and download it
       const dataStr = JSON.stringify(exportData, null, 2);
       const dataBlob = new Blob([dataStr], { type: 'application/json' });
@@ -89,7 +116,7 @@ const SettingsSection = ({ cmsData }) => {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
 
-      alert('Data exported successfully!');
+      alert('Data exported successfully! Upload files are included in the export.');
     } catch (error) {
       console.error('Export error:', error);
       alert('Failed to export data: ' + error.message);
@@ -101,19 +128,17 @@ const SettingsSection = ({ cmsData }) => {
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       try {
         const importData = JSON.parse(e.target.result);
 
         // Confirm before overwriting
-        if (!window.confirm('⚠️ WARNING: This will overwrite ALL current data in localStorage. Are you sure you want to continue?')) {
+        if (!window.confirm('⚠️ WARNING: This will overwrite ALL current data. Are you sure you want to continue?')) {
           event.target.value = ''; // Reset file input
           return;
         }
 
         // Clear all localStorage data first
-        const keysToPreserve = [];
-        const allKeys = Object.keys(localStorage);
         const cmsKeys = ['pages', 'blogArticles', 'catRows', 'componentRows', 'settings', 'acl', 'extensions', 'currentPageId', 'currentBlogArticleId'];
         
         // Remove only CMS-related keys
@@ -131,6 +156,29 @@ const SettingsSection = ({ cmsData }) => {
         if (importData.extensions) localStorage.setItem('extensions', JSON.stringify(importData.extensions));
         if (importData.currentPageId !== undefined) localStorage.setItem('currentPageId', JSON.stringify(importData.currentPageId));
         if (importData.currentBlogArticleId !== undefined) localStorage.setItem('currentBlogArticleId', JSON.stringify(importData.currentBlogArticleId));
+
+        // Handle uploads restoration
+        if (importData.uploads && Object.keys(importData.uploads).length > 0) {
+          try {
+            const response = await fetch('/api/import-uploads', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ uploads: importData.uploads }),
+            });
+
+            if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(errorData.message || 'Failed to import uploads.');
+            }
+            
+            alert('Uploads imported successfully!');
+
+          } catch (error) {
+            alert(`Failed to import uploads: ${error.message}`);
+          }
+        }
 
         alert('✅ Data imported successfully! The page will reload to reflect changes.');
         
@@ -182,9 +230,9 @@ const SettingsSection = ({ cmsData }) => {
       <div style={{ padding: '20px' }}>
         <div style={{ marginBottom: '30px', padding: '20px', background: '#f8fafc',  border: '1px solid #e2e8f0' }}>
           <h2 style={{ marginTop: '0', marginBottom: '15px', fontSize: '18px', fontWeight: 'bold' }}>Data Management</h2>
-          <p style={{ fontSize: '14px', color: '#64748b', marginBottom: '15px' }}>
-            Export your CMS data to a JSON file for backup, or import data from a previous export.
-          </p>
+           <p style={{ fontSize: '14px', color: '#64748b', marginBottom: '15px' }}>
+             Export your CMS data and upload files to a JSON file for backup, or import data from a previous export.
+           </p>
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
             <button
               onClick={handleExportData}
@@ -221,9 +269,9 @@ const SettingsSection = ({ cmsData }) => {
               />
             </label>
           </div>
-          <p style={{ fontSize: '12px', color: '#ef4444', marginTop: '10px', fontWeight: '500' }}>
-            ⚠️ Warning: Importing will overwrite all existing data. Make sure to export first!
-          </p>
+           <p style={{ fontSize: '12px', color: '#ef4444', marginTop: '10px', fontWeight: '500' }}>
+             ⚠️ Warning: Importing will overwrite all existing data and uploads. Make sure to export first!
+           </p>
         </div>
 
         <div style={{ marginBottom: '20px' }}>
