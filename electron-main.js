@@ -74,7 +74,7 @@ function getBundledNpmPath() {
     if (fs.existsSync(npmCliPath)) {
       npmPath = npmCliPath;
     } else {
-      console.warn('Bundled npm(.cmd) not found, falling back to system npm');
+      console.warn('Bundled npm-cli.js not found, falling back to system npm');
       return npmName;
     }
   }

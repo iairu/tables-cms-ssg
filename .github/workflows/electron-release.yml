@@ -22,39 +22,39 @@ jobs:
         draft: false
         prerelease: false
 
-  build-windows:
-    needs: create-github-release
-    runs-on: windows-latest # Required for building Windows natively
-    steps:
-    - name: Check out code
-      uses: actions/checkout@v2
+  # build-windows:
+  #   needs: create-github-release
+  #   runs-on: windows-latest # Required for building Windows natively
+  #   steps:
+  #   - name: Check out code
+  #     uses: actions/checkout@v2
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '22'
+  #   - name: Set up Node.js
+  #     uses: actions/setup-node@v2
+  #     with:
+  #       node-version: '22'
 
-    - name: Install dependencies
-      run: npm install
+  #   - name: Install dependencies
+  #     run: npm install
 
-    - name: Build Gatsby
-      run: npm run build
+  #   - name: Build Gatsby
+  #     run: npm run build
 
-    - name: Build Electron app (Windows)
-      run: npm run dist -- -w
-      env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+  #   - name: Build Electron app (Windows)
+  #     run: npm run dist -- -w
+  #     env:
+  #       GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
-    - name: Upload Release Asset (Windows)
-      id: upload-windows-asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-      with:
-        upload_url: ${{ needs.create-github-release.outputs.upload_url }}
-        asset_path: ./dist/tables-cms-windows.msi
-        asset_name: tables-cms-windows.msi
-        asset_content_type: application/octet-stream
+  #   - name: Upload Release Asset (Windows)
+  #     id: upload-windows-asset
+  #     uses: actions/upload-release-asset@v1
+  #     env:
+  #       GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+  #     with:
+  #       upload_url: ${{ needs.create-github-release.outputs.upload_url }}
+  #       asset_path: ./dist/tables-cms-windows.msi
+  #       asset_name: tables-cms-windows.msi
+  #       asset_content_type: application/octet-stream
 
   build-macos:
     needs: create-github-release
