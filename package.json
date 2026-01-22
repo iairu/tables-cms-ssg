@@ -2,10 +2,10 @@
   "name": "tables-cms",
   "version": "1.0.0",
   "description": "Gatsby + React CMS for TABLES project",
-  "main": "index.js",
+  "main": "electron-main.js",
   "scripts": {
+    "start": "electron .",
     "develop": "gatsby develop",
-    "start": "gatsby develop",
     "build": "gatsby build",
     "serve": "gatsby serve",
     "clean": "gatsby clean"
@@ -28,7 +28,8 @@
     "moment": "^2.30.0",
     "multer": "^2.0.2",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "fs-extra": "^11.3.3"
   },
   "devDependencies": {
     "@babel/core": "^7.23.0",
@@ -36,7 +37,8 @@
     "@types/node": "^25.0.8",
     "@types/react": "^19.2.8",
     "@types/react-dom": "^19.2.3",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "electron": "^40.0.0"
   },
   "overrides": {
     "react-server-dom-webpack": {

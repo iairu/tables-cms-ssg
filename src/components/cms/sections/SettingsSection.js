@@ -201,6 +201,20 @@ const SettingsSection = ({ cmsData }) => {
     reader.readAsText(file);
   };
 
+  const handleTriggerBuild = async () => {
+    if (window.electron) {
+      try {
+        const result = await window.electron.triggerBuild();
+        alert('Build process completed: ' + result);
+      } catch (error) {
+        console.error('Build failed:', error);
+        alert('Build failed: ' + error.message);
+      }
+    } else {
+      alert('This feature is only available in the Electron app.');
+    }
+  };
+
   return (
     <section className="main-section active" id="settings">
       <header>
