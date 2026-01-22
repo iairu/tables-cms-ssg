@@ -15,7 +15,7 @@ jobs:
       id: create_release
       uses: actions/create-release@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         tag_name: v${{ github.run_number }}
         release_name: Release v${{ github.run_number }}
@@ -43,13 +43,13 @@ jobs:
     - name: Build Electron app (Windows)
       run: npm run dist -- -w
       env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
     - name: Upload Release Asset (Windows)
       id: upload-windows-asset
       uses: actions/upload-release-asset@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ needs.create-github-release.outputs.upload_url }}
         asset_path: ./dist/
@@ -77,13 +77,13 @@ jobs:
     - name: Build Electron app (macOS)
       run: npm run dist -- -m
       env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
     - name: Upload Release Asset (macOS)
       id: upload-mac-asset
       uses: actions/upload-release-asset@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ needs.create-github-release.outputs.upload_url }}
         asset_path: ./dist/
@@ -111,13 +111,13 @@ jobs:
     - name: Build Electron app (Linux)
       run: npm run dist -- -l
       env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
     - name: Upload Release Asset (Linux)
       id: upload-linux-asset
       uses: actions/upload-release-asset@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ needs.create-github-release.outputs.upload_url }}
         asset_path: ./dist/
