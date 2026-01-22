@@ -62,13 +62,16 @@
       "output": "dist"
     },
     "mac": {
-      "target": "dmg"
+      "target": "dmg",
+      "artifactName": "tables-cms-macos.${ext}"
     },
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "artifactName": "tables-cms-windows.${ext}"
     },
     "linux": {
-      "target": "AppImage"
+      "target": "AppImage",
+      "artifactName": "tables-cms-linux.${ext}"
     }
   }
 }

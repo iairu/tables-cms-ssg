@@ -52,7 +52,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ needs.create-github-release.outputs.upload_url }}
-        asset_path: ./dist/
+        asset_path: ./dist/tables-cms-windows.exe
         asset_name: tables-cms-windows.exe
         asset_content_type: application/octet-stream
 
@@ -86,7 +86,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ needs.create-github-release.outputs.upload_url }}
-        asset_path: ./dist/
+        asset_path: ./dist/tables-cms-macos.dmg
         asset_name: tables-cms-macos.dmg
         asset_content_type: application/octet-stream
 
@@ -120,6 +120,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ needs.create-github-release.outputs.upload_url }}
-        asset_path: ./dist/
+        asset_path: ./dist/tables-cms-linux.AppImage
         asset_name: tables-cms-linux.AppImage
         asset_content_type: application/octet-stream
