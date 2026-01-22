@@ -79,15 +79,24 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
-    - name: Upload Release Asset (macOS)
-      id: upload-mac-asset
+    - name: Upload Release Asset (macOS x86_64)
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ needs.create-github-release.outputs.upload_url }}
-        asset_path: ./dist/tables-cms-macos.dmg
-        asset_name: tables-cms-macos.dmg
+        asset_path: ./dist/tables-cms-macos-x86_64.dmg
+        asset_name: tables-cms-macos-x86_64.dmg
+        asset_content_type: application/octet-stream
+
+    - name: Upload Release Asset (macOS arm64)
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      with:
+        upload_url: ${{ needs.create-github-release.outputs.upload_url }}
+        asset_path: ./dist/tables-cms-macos-arm64.dmg
+        asset_name: tables-cms-macos-arm64.dmg
         asset_content_type: application/octet-stream
 
   build-linux:

@@ -72,18 +72,12 @@
       "output": "dist"
     },
     "mac": {
-      "target": [
-        {
-          "target": "mas",
-          "arch": [
-            "universal"
-          ]
-        },
-        {
-          "target": "mas-dev"
-        }
+      "target": "dmg",
+      "arch": [
+        "x86_64",
+        "arm64"
       ],
-      "artifactName": "tables-cms-macos.${ext}",
+      "artifactName": "tables-cms-macos-${arch}.${ext}",
       "icon": "static/assets/tables-icon.png"
     },
     "win": {
