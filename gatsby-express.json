@@ -29,10 +29,10 @@
       "path": "/cms/employees/"
     },
     {
-      "path": "/cms/inventory/"
+      "path": "/cms/extensions/"
     },
     {
-      "path": "/cms/extensions/"
+      "path": "/cms/inventory/"
     },
     {
       "path": "/cms/pages/edit/"
