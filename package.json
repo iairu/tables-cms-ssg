@@ -5,10 +5,6 @@
   "main": "electron-main.js",
   "scripts": {
     "start": "npm run grabnodenpm && electron .",
-    "develop": "GATSBY_LOGGER_LOG_LEVEL=error GATSBY_TELEMETRY_DISABLED=1 gatsby develop",
-    "build": "gatsby build",
-    "serve": "gatsby serve",
-    "clean": "gatsby clean",
     "grabnodenpm": "node electron-setup/bundle-node-npm.js",
     "dist": "npm run grabnodenpm && electron-builder"
   },
@@ -21,35 +17,14 @@
   "license": "MIT",
   "dependencies": {
     "ansi-to-html": "^0.7.2",
-    "express": "^4.18.2",
-    "formidable": "^3.5.4",
     "fs-extra": "^11.3.3",
-    "gatsby": "^5.12.0",
-    "gatsby-plugin-express": "^1.1.6",
-    "gatsby-source-filesystem": "^5.12.0",
-    "intersection-observer": "^0.12.2",
-    "mkdirp": "^3.0.1",
-    "moment": "^2.30.0",
-    "multer": "^2.0.2",
-    "node-bin-setup": "^1.1.4",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "node-bin-setup": "^1.1.4"
   },
   "devDependencies": {
-    "@babel/core": "^7.23.0",
-    "@babel/preset-react": "^7.22.0",
     "@types/node": "^25.0.8",
-    "@types/react": "^19.2.8",
-    "@types/react-dom": "^19.2.3",
     "electron": "^40.0.0",
     "electron-builder": "^24.13.3",
     "typescript": "^5.9.3"
-  },
-  "overrides": {
-    "react-server-dom-webpack": {
-      "react": "^18.2.0",
-      "react-dom": "^18.2.0"
-    }
   },
   "build": {
     "appId": "com.tables.cms",
@@ -62,13 +37,13 @@
       "main-site/gatsby-*.js",
       "main-site/package.json",
       "electron-bin",
-      "src",
-      "static",
+      "cms-site/src",
+      "cms-site/static",
+      "cms-site/gatsby-*.js",
+      "cms-site/gatsby-*.json",
+      "cms-site/package.json",
       "electron-*.html",
       "electron-*.js",
-      "gatsby-*.js",
-      "gatsby-*.json",
-      "package.json",
       "tsconfig.json"
     ],
     "extraResources": [
@@ -87,27 +62,10 @@
         ]
       },
       {
-        "from": "static",
-        "to": "static",
+        "from": "cms-site",
+        "to": "cms-site",
         "filter": [
           "*"
-        ]
-      },
-      {
-        "from": "src",
-        "to": "src",
-        "filter": [
-          "*"
-        ]
-      },
-      {
-        "from": ".",
-        "to": ".",
-        "filter": [
-          "package.json",
-          "gatsby-*.js",
-          "gatsby-*.json",
-          "tsconfig.json"
         ]
       }
     ],

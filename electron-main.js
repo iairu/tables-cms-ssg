@@ -99,7 +99,7 @@ const startGatsby = () => {
   const binPath = path.join(resourcesPath, 'electron-bin', 'npm_source', 'bin');
   const nodePath = path.join(binPath, nodeExecutable);
   const npmCliPath = path.join(binPath, 'npm-cli.js');
-  const cmsSiteDir = resourcesPath;
+  const cmsSiteDir = path.join(resourcesPath, 'cms-site');
 
   log('Starting Gatsby development server using bundled node and npm...');
 

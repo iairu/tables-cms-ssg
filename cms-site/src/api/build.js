@@ -151,7 +151,7 @@ function copyDir(src, dest) {
 }
 
 const exportDataAndBuild = async (data, localOnly = false, vercelApiToken = null, vercelProjectName = null) => {
-  let projectRoot = path.resolve(__dirname, '..', '..');
+  let projectRoot = path.resolve(__dirname, '..', '..', '..');
   
   // Define candidate paths
   let mainSiteStaticDir = path.join(projectRoot, 'main-site', 'static', 'data');
