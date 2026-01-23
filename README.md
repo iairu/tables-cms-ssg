@@ -1,5 +1,5 @@
 
-<img src="static/assets/tables-feature-highlight-banner.png" alt="Tables CMS Feature Highlight and Logo" />
+<img src="TABLES.app/Contents/MacOS/static/assets/tables-feature-highlight-banner.png" alt="Tables CMS Feature Highlight and Logo" />
 
 # TABLES CMS
 
