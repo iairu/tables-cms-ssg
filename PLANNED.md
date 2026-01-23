@@ -1,22 +1,10 @@
-now we have successfully:
-1. put node npm npx to electron-bin/npm_source/bin as it should be
-2. setup electron-main.js to use that node npm npx to npm run develop which i verified without issues
-3. have working bundle-node-npm.js that runs before any electron-specific package.json commands only
-good, now we have to do this:
-1. copy main-site to project resource path so it is editable within distributed electron app: done electron-builder automatically based on package.json, no changes needed
-2. use said main-site from project resources if running distributed electron app, otherwise if only running "electron ." in other words "npm start" we need to use the existing main-site in project directory
-3. in other words: within dist release have src/api/*.js use main-site in resources path else if running non-dist use main-site directly
+stop the frontend deploy timer when BUILD_END happens, allowing the user to use the buttons again
 
-cmsSite is the root project with __dirname and main-site is the output project of cmsSite, we want electron to run cmsSite and src/api/build.js to deploy from cmsSite to editable main-site then that main-site within the same api goes to vercel, all of this is already working, do not touch it and do the steps i told you
+and also improve console window css now that it has more purposes than just a launch progress bar, make the console within it always visible, use the loading for builds as well, instead of height growth of the console have it be fixed height with overflow scroll-y
 
-fix the following electron-main.js problem:
-Console window created.
-Starting Gatsby development server using bundled node and npm...
-Running npm install in CMS site...
-spawn ENOTDIR
-Failed to set up the environment.
+---
 
-perhaps pull the bundled node and npm from project resources (see package.json extraResources) if IS_PACKAGED is true, create and manage the IS_PACKAGED variable within the electron-main.js file based on whether the app is packaged or not
+have open and save buttons next to local deploy and visit buttons, we will utilize json import/export functionality for "document saving and opening" instead. make sure to clear all user assets on open/import, remove data management from settings now that the buttons are differently placed and named
 
 ---
 
