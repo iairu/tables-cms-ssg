@@ -85,6 +85,7 @@ export default async function handler(req, res) {
 
   // Handle POST request - trigger build
   if (req.method === 'POST') {
+    console.log('BUILD_START');
     const { timestamp, trigger, data, localOnly, vercelApiToken, vercelProjectName } = req.body;
 
     console.log(`[Build API] Build request received at ${timestamp} (trigger: ${trigger}, localOnly: ${localOnly})`);
@@ -119,11 +120,13 @@ export default async function handler(req, res) {
         lastBuildTime = completionTime;
         isBuildInProgress = false;
         console.log('[Build API] Status updated - isBuildInProgress: false, lastBuildTime:', completionTime);
+        console.log('BUILD_END');
       })
       .catch(err => {
         console.error('[Build API] Build failed:', err);
         isBuildInProgress = false;
         lastBuildTime = new Date().toISOString(); // Set timestamp even on failure so polling can detect completion
+        console.log('BUILD_END');
       });
   } else {
     return res.status(405).json({ error: 'Method not allowed' });

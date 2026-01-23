@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu } = require('electron');
 const path = require('path');
 const { spawn } = require('child_process');
 const os = require('os');
@@ -9,13 +9,37 @@ const ansiToHtml = new AnsiToHtml();
 let gatsbyProcess;
 let mainWindow;
 let launchWindow;
+let keepConsoleVisible = false;
+let isBuildInProgress = false;
 
 const IS_PACKAGED = app.isPackaged;
 
 const log = (msg) => {
-  console.log(msg);
+  const msgStr = msg.toString();
+
+  // Check for build lifecycle messages
+  if (msgStr.includes('BUILD_START')) {
+    isBuildInProgress = true;
+    if (launchWindow && !launchWindow.isDestroyed() && !launchWindow.isVisible()) {
+      launchWindow.show();
+    }
+    // We don't want to show the lifecycle message in the console UI
+    console.log(msgStr); // log to terminal
+    return;
+  }
+  if (msgStr.includes('BUILD_END')) {
+    isBuildInProgress = false;
+    if (launchWindow && !launchWindow.isDestroyed() && !keepConsoleVisible) {
+      launchWindow.hide();
+    }
+    // We don't want to show the lifecycle message in the console UI
+    console.log(msgStr); // log to terminal
+    return;
+  }
+
+  console.log(msgStr); // log to terminal
   if (launchWindow && !launchWindow.isDestroyed()) {
-    const html = ansiToHtml.toHtml(msg.toString().replace(/</g, '&lt;').replace(/>/g, '&gt;'));
+    const html = ansiToHtml.toHtml(msgStr.replace(/</g, '&lt;').replace(/>/g, '&gt;'));
     launchWindow.webContents.send('console-output', html);
   }
 };
@@ -158,12 +182,48 @@ app.whenReady().then(async () => {
   await createLaunchWindow();
   log('Console window created.');
 
+  const menu = Menu.buildFromTemplate([
+    {
+      label: 'View',
+      submenu: [
+        {
+          label: 'Keep Console Visible',
+          type: 'checkbox',
+          checked: keepConsoleVisible,
+          click: (item) => {
+            keepConsoleVisible = item.checked;
+            if (launchWindow && !launchWindow.isDestroyed()) {
+              if (keepConsoleVisible) {
+                launchWindow.show();
+              } else if (!isBuildInProgress) {
+                launchWindow.hide();
+              }
+            }
+          }
+        },
+        {
+          label: 'Toggle Developer Tools',
+          accelerator: 'CmdOrCtrl+Alt+I',
+          click: () => {
+            if (mainWindow && !mainWindow.isDestroyed()) {
+              mainWindow.webContents.toggleDevTools();
+            }
+            if (launchWindow && !launchWindow.isDestroyed()) {
+              launchWindow.webContents.toggleDevTools();
+            }
+          }
+        }
+      ]
+    }
+  ]);
+  Menu.setApplicationMenu(menu);
+
   try {
     await startGatsby();
     createMainWindow();
     mainWindow.once('ready-to-show', () => {
-      if (launchWindow && !launchWindow.isDestroyed()) {
-        launchWindow.close();
+      if (launchWindow && !launchWindow.isDestroyed() && !keepConsoleVisible) {
+        launchWindow.hide();
       }
       mainWindow.show();
     });
