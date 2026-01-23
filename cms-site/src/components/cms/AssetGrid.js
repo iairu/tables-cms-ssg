@@ -8,7 +8,6 @@ const styles = {
   },
   card: {
     border: '1px solid #e2e8f0',
-    borderRadius: '4px',
     padding: '10px',
     transition: 'all 0.2s',
     background: '#fff',
@@ -24,7 +23,6 @@ const styles = {
     width: '100%',
     height: '100px',
     objectFit: 'cover',
-    borderRadius: '4px',
     marginBottom: '8px',
   },
   filename: {
@@ -44,7 +42,6 @@ const styles = {
   button: {
     padding: '5px 8px',
     border: 'none',
-    borderRadius: '4px',
     color: 'white',
     cursor: 'pointer',
     fontSize: '10px',

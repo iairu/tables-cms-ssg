@@ -2,7 +2,7 @@ make bundle-node-npm.js and electron-main.js extremely robust, current npm+node 
 
 ---
 
-have all uploads be purged on import
+in cms-site have all uploads be purged on import
 
 add an electron window drag area over the entire header while keeping its original onClick functionality
 

@@ -115,7 +115,6 @@ const Footer = ({
               style={{
                 background: 'none',
                 border: '1px solid #64748b',
-                borderRadius: '4px',
                 padding: '4px 8px',
                 cursor: 'pointer',
                 fontSize: '12px',
@@ -145,7 +144,6 @@ const Footer = ({
             marginTop: '2rem',
             padding: '1rem',
             backgroundColor: 'transparent',
-            borderRadius: '8px',
             border: '1px solid rgba(255, 255, 255, 0.2)'
           }}>
             <h3 style={{

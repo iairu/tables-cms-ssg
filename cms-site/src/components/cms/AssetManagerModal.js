@@ -16,7 +16,6 @@ const styles = {
   },
   modal: {
     background: '#f9f9f9',
-    borderRadius: '8px',
     width: '90%',
     maxWidth: '1200px',
     height: '90vh',

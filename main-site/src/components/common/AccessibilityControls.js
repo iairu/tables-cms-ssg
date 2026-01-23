@@ -7,7 +7,7 @@ const AccessibilityControls = ({ style = {} }) => {
   const buttonStyle = {
     background: 'none',
     border: '1px solid #64748b',
-    borderRadius: '4px',
+    ,
     padding: '4px 8px',
     margin: '0 2px',
     cursor: 'pointer',

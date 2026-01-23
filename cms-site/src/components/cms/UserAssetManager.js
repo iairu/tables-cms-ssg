@@ -21,7 +21,6 @@ const styles = {
     background: '#0002ff',
     color: 'white',
     border: 'none',
-    borderRadius: '4px',
     cursor: 'pointer',
     fontSize: '14px',
     fontWeight: 500,
@@ -39,7 +38,6 @@ const styles = {
     fontSize: '18px',
     color: '#718096',
     border: '2px dashed #e2e8f0',
-    borderRadius: '4px',
   },
   searchInput: {
     display: 'block',
@@ -49,7 +47,6 @@ const styles = {
     padding: '8px 12px',
     fontSize: '15px',
     border: '1px solid #cbd5e1',
-    borderRadius: '4px',
     outline: 'none',
     boxSizing: 'border-box',
   }

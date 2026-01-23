@@ -487,7 +487,6 @@ const Header = ({
            <div
              style={{
                background: 'white',
-               borderRadius: '8px',
                padding: '20px',
                maxWidth: '400px',
                margin: '0 auto',
@@ -516,7 +515,6 @@ const Header = ({
                      fontWeight: '600',
                      cursor: (isBuilding || !canBuild) ? 'not-allowed' : 'pointer',
                      marginBottom: '10px',
-                     borderRadius: '4px'
                    }}
                  >
                    Local Build
@@ -537,7 +535,6 @@ const Header = ({
                        fontSize: '16px',
                        fontWeight: '600',
                        cursor: (isBuilding || !canBuild) ? 'not-allowed' : 'pointer',
-                       borderRadius: '4px'
                      }}
                    >
                      {isBuilding ? 'Building...' : (!canBuild ? `${formatTime(buildCooldownSeconds)}` : 'Deploy')}
@@ -562,7 +559,6 @@ const Header = ({
                    fontSize: '16px',
                    fontWeight: '600',
                    cursor: 'pointer',
-                   borderRadius: '4px',
                    textDecoration: 'none',
                    textAlign: 'center',
                    marginBottom: '10px'

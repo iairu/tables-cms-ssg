@@ -142,7 +142,7 @@ const SettingsSection = ({ cmsData }) => {
           </label>
           {settings.siteLogo && (
             <div style={{ marginTop: '10px' }}>
-              <img src={settings.siteLogo} alt="Site Logo Preview" style={{ maxWidth: '200px', maxHeight: '100px', border: '1px solid #e2e8f0', borderRadius: '4px' }} />
+              <img src={settings.siteLogo} alt="Site Logo Preview" style={{ maxWidth: '200px', maxHeight: '100px', border: '1px solid #e2e8f0' }} />
               <button
                 onClick={() => handleChange('siteLogo', '')}
                 style={{
@@ -177,8 +177,8 @@ const SettingsSection = ({ cmsData }) => {
             />
           </label>
           {settings.siteLogoWhite && (
-            <div style={{ marginTop: '10px', padding: '10px', background: '#1e293b', borderRadius: '4px' }}>
-              <img src={settings.siteLogoWhite} alt="Site Logo White Preview" style={{ maxWidth: '200px', maxHeight: '100px', border: '1px solid #e2e8f0', borderRadius: '4px' }} />
+            <div style={{ marginTop: '10px', padding: '10px', background: '#1e293b' }}>
+              <img src={settings.siteLogoWhite} alt="Site Logo White Preview" style={{ maxWidth: '200px', maxHeight: '100px', border: '1px solid #e2e8f0' }} />
               <button
                 onClick={() => handleChange('siteLogoWhite', '')}
                 style={{
@@ -217,7 +217,7 @@ const SettingsSection = ({ cmsData }) => {
           </label>
           {settings.siteFavicon && (
             <div style={{ marginTop: '10px' }}>
-              <img src={settings.siteFavicon} alt="Favicon Preview" style={{ width: '32px', height: '32px', border: '1px solid #e2e8f0', borderRadius: '4px' }} />
+              <img src={settings.siteFavicon} alt="Favicon Preview" style={{ width: '32px', height: '32px', border: '1px solid #e2e8f0' }} />
               <button
                 onClick={() => handleChange('siteFavicon', '')}
                 style={{

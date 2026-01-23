@@ -559,7 +559,7 @@ export const RentalEmployeesSection = ({ cmsData }) => {
                       width: '100%',
                       padding: '8px',
                       border: '1px solid #cbd5e1',
-                      borderRadius: '4px'
+                      
                     }}
                   />
                 </td>
@@ -573,7 +573,7 @@ export const RentalEmployeesSection = ({ cmsData }) => {
                       width: '100%',
                       padding: '8px',
                       border: '1px solid #cbd5e1',
-                      borderRadius: '4px'
+                      
                     }}
                   />
                 </td>
@@ -586,7 +586,7 @@ export const RentalEmployeesSection = ({ cmsData }) => {
                       width: '100%',
                       padding: '8px',
                       border: '1px solid #cbd5e1',
-                      borderRadius: '4px'
+                      
                     }}
                   />
                 </td>
@@ -599,7 +599,7 @@ export const RentalEmployeesSection = ({ cmsData }) => {
                       width: '100%',
                       padding: '8px',
                       border: '1px solid #cbd5e1',
-                      borderRadius: '4px'
+                      
                     }}
                   />
                 </td>
@@ -611,7 +611,7 @@ export const RentalEmployeesSection = ({ cmsData }) => {
                       width: '100%',
                       padding: '8px',
                       border: '1px solid #cbd5e1',
-                      borderRadius: '4px'
+                      
                     }}
                   >
                     <option value="">Select</option>

@@ -29,7 +29,6 @@ const IndexPage = () => {
       <div style={{
         background: 'white',
         padding: '3rem 4rem',
-        borderRadius: '1rem',
         boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
         textAlign: 'center',
         maxWidth: '600px'
@@ -64,7 +63,6 @@ const IndexPage = () => {
               background: '#2563eb',
               color: 'white',
               textDecoration: 'none',
-              borderRadius: '0.5rem',
               fontWeight: '600',
               transition: 'background 0.2s',
               fontSize: '1rem'
@@ -84,7 +82,6 @@ const IndexPage = () => {
               background: '#f1f5f9',
               color: '#334155',
               textDecoration: 'none',
-              borderRadius: '0.5rem',
               fontWeight: '600',
               transition: 'background 0.2s',
               fontSize: '1rem'
@@ -99,7 +96,6 @@ const IndexPage = () => {
           marginTop: '2rem',
           padding: '1.5rem',
           background: '#f8fafc',
-          borderRadius: '0.5rem',
           textAlign: 'left'
         }}>
           <h2 style={{

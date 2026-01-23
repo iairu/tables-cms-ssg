@@ -73,7 +73,7 @@ export const RentalAttendanceSection = ({ cmsData }) => {
                   <select
                     value={row.employeeName}
                     onChange={(e) => handleUpdateRow(index, 'employeeName', e.target.value)}
-                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
                   >
                     <option value="">Select Employee</option>
                     {employeeRows.map(employee => (
@@ -86,7 +86,7 @@ export const RentalAttendanceSection = ({ cmsData }) => {
                     type="date"
                     value={row.date}
                     onChange={(e) => handleUpdateRow(index, 'date', e.target.value)}
-                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
                   />
                 </td>
                 <td>
@@ -105,7 +105,7 @@ export const RentalAttendanceSection = ({ cmsData }) => {
                       const newTimeOut = e.target.checked ? new Date().toTimeString().slice(0, 5) : '';
                       handleUpdateRow(index, 'timeOut', newTimeOut);
                     }}
-                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
                   />
                 </td>
                 <td>
@@ -114,7 +114,7 @@ export const RentalAttendanceSection = ({ cmsData }) => {
                     value={row.timeOut}
                     disabled={!row.timeOut}
                     onChange={(e) => handleUpdateRow(index, 'timeOut', e.target.value)}
-                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
                   />
                 </td>
                 <td>

@@ -75,7 +75,7 @@ export const RentalReservationsSection = ({ cmsData }) => {
                   <select
                     value={row.customerName}
                     onChange={(e) => handleUpdateRow(index, 'customerName', e.target.value)}
-                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
                   >
                     <option value="">Select Customer</option>
                     {customerRows.map(customer => (
@@ -87,7 +87,7 @@ export const RentalReservationsSection = ({ cmsData }) => {
                   <select
                     value={row.itemName}
                     onChange={(e) => handleUpdateRow(index, 'itemName', e.target.value)}
-                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
                   >
                     <option value="">Select Item</option>
                     {inventoryRows.map(item => (
@@ -99,7 +99,7 @@ export const RentalReservationsSection = ({ cmsData }) => {
                   <select
                     value={row.responsibleEmployee}
                     onChange={(e) => handleUpdateRow(index, 'responsibleEmployee', e.target.value)}
-                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
                   >
                     <option value="">Select Employee</option>
                     {employeeRows.map(employee => (
@@ -112,7 +112,7 @@ export const RentalReservationsSection = ({ cmsData }) => {
                     type="date"
                     value={row.startDate}
                     onChange={(e) => handleUpdateRow(index, 'startDate', e.target.value)}
-                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
                   />
                 </td>
                 <td>
@@ -120,14 +120,14 @@ export const RentalReservationsSection = ({ cmsData }) => {
                     type="date"
                     value={row.endDate}
                     onChange={(e) => handleUpdateRow(index, 'endDate', e.target.value)}
-                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
                   />
                 </td>
                 <td>
                   <select
                     value={row.status}
                     onChange={(e) => handleUpdateRow(index, 'status', e.target.value)}
-                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
                   >
                     <option value="Confirmed">Confirmed</option>
                     <option value="Picked Up">Picked Up</option>
