@@ -1,11 +1,43 @@
-const { app, BrowserWindow, ipcMain, Menu } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu, dialog } = require('electron');
 const path = require('path');
-const { spawn } = require('child_process');
+const { spawn, exec } = require('child_process');
 const os = require('os');
 const fs = require('fs');
+const net = require('net');
 const AnsiToHtml = require('ansi-to-html');
 
 const ansiToHtml = new AnsiToHtml();
+const logHistory = [];
+
+const log = (msg) => {
+  const msgStr = msg.toString();
+  logHistory.push(msgStr);
+  console.log(msgStr);
+  if (launchWindow && !launchWindow.isDestroyed()) {
+    const html = ansiToHtml.toHtml(msgStr.replace(/</g, '&lt;').replace(/>/g, '&gt;'));
+    launchWindow.webContents.send('console-output', html);
+  }
+};
+
+const handleFatalError = (error, type) => {
+  const errorMessage = `A fatal error of type ${type} occurred: ${error.stack || error}`;
+  log(errorMessage);
+
+  const logPath = path.join(os.tmpdir(), `tables-cms-crash-${Date.now()}.log`);
+  const fullLog = `${logHistory.join('\n')}\n\n${errorMessage}`;
+  fs.writeFileSync(logPath, fullLog);
+
+  dialog.showMessageBoxSync({
+    type: 'error',
+    title: 'Application Error',
+    message: `A critical error occurred. The application must close.\n\nA log file has been saved at:\n${logPath}`,
+    buttons: ['OK']
+  });
+  app.quit();
+};
+
+process.on('uncaughtException', (error) => handleFatalError(error, 'Uncaught Exception'));
+process.on('unhandledRejection', (reason) => handleFatalError(reason, 'Unhandled Rejection'));
 
 let gatsbyProcess;
 let mainWindow;
@@ -15,228 +47,377 @@ let isBuildInProgress = false;
 
 const IS_PACKAGED = app.isPackaged;
 
-const log = (msg) => {
-  const msgStr = msg.toString();
-
-  // Check for build lifecycle messages
-  if (msgStr.includes('BUILD_START')) {
-    isBuildInProgress = true;
-    if (launchWindow && !launchWindow.isDestroyed() && !launchWindow.isVisible()) {
-      launchWindow.show();
-    }
-    // We don't want to show the lifecycle message in the console UI
-    console.log(msgStr); // log to terminal
-    return;
-  }
-  if (msgStr.includes('BUILD_END')) {
-    isBuildInProgress = false;
-    if (launchWindow && !launchWindow.isDestroyed() && !keepConsoleVisible) {
-      launchWindow.hide();
-    }
-    // We don't want to show the lifecycle message in the console UI
-    console.log(msgStr); // log to terminal
-    return;
-  }
-
-  console.log(msgStr); // log to terminal
-  if (launchWindow && !launchWindow.isDestroyed()) {
-    const html = ansiToHtml.toHtml(msgStr.replace(/</g, '&lt;').replace(/>/g, '&gt;'));
-    launchWindow.webContents.send('console-output', html);
-  }
-};
-
 const createLaunchWindow = () => {
-  launchWindow = new BrowserWindow({
-    width: 800,
-    height: 400,
-    frame: false,
-    icon: path.join(__dirname, 'static/assets/tables-icon.png'),
-    titleBarStyle: 'hidden',
-    title: 'Launch and Console Output',
-    webPreferences: {
-      preload: path.join(__dirname, 'electron-preload.js'),
-      contextIsolation: true,
-      webSecurity: false,
-    },
-  });
-
-  launchWindow.loadFile('electron-launch.html');
-  launchWindow.on('closed', () => {
-    // If launchWindow is closed and mainWindow has not yet been initialized (meaning it was not
-    // closed programmatically because mainWindow is opening), then it implies the user
-    // manually closed the launch window, and we should quit the app.
-    if (!mainWindow) {
-      app.quit();
-    }
-    launchWindow = null;
-  });
-
-  return new Promise((resolve) => {
-    launchWindow.webContents.on('did-finish-load', () => {
-      resolve();
+  try {
+    launchWindow = new BrowserWindow({
+      width: 800,
+      height: 400,
+      frame: false,
+      icon: path.join(__dirname, 'static/assets/tables-icon.png'),
+      titleBarStyle: 'hidden',
+      title: 'Launch and Console Output',
+      webPreferences: {
+        preload: path.join(__dirname, 'electron-preload.js'),
+        contextIsolation: true,
+        webSecurity: false,
+      },
     });
-  });
+
+    launchWindow.loadFile('electron-launch.html');
+    launchWindow.on('closed', () => {
+      if (!mainWindow) {
+        app.quit();
+      }
+      launchWindow = null;
+    });
+
+    return new Promise((resolve) => {
+      launchWindow.webContents.on('did-finish-load', resolve);
+    });
+  } catch (error) {
+    handleFatalError(error, 'Launch Window Creation');
+  }
 };
 
 const createMainWindow = () => {
-  mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 800,
-    show: false,
-    frame: false,
-    icon: path.join(__dirname, 'static/assets/tables-icon.png'),
-    titleBarStyle: 'hidden',
-    webPreferences: {
-      preload: path.join(__dirname, 'electron-preload.js'),
-    },
-  });
-  mainWindow.loadURL('http://localhost:8000/cms/settings');
-  mainWindow.on('closed', () => {
-    if (gatsbyProcess) {
-      gatsbyProcess.kill();
+  try {
+    mainWindow = new BrowserWindow({
+      width: 1200,
+      height: 800,
+      show: false,
+      frame: false,
+      icon: path.join(__dirname, 'static/assets/tables-icon.png'),
+      titleBarStyle: 'hidden',
+      webPreferences: {
+        preload: path.join(__dirname, 'electron-preload.js'),
+      },
+    });
+    mainWindow.loadURL('http://localhost:8000/cms/settings');
+    mainWindow.on('closed', () => {
+      if (gatsbyProcess) {
+        gatsbyProcess.kill();
+      }
+      app.quit();
+    });
+  } catch (error) {
+    handleFatalError(error, 'Main Window Creation');
+  }
+};
+
+ipcMain.on('close-app', () => app.quit());
+ipcMain.on('minimize-app', () => mainWindow?.minimize());
+ipcMain.on('maximize-app', () => {
+  if (mainWindow?.isMaximized()) {
+    mainWindow.unmaximize();
+  } else {
+    mainWindow?.maximize();
+  }
+});
+
+ipcMain.on('run-command', (event, command) => {
+  log(`> ${command}`);
+  exec(command, (error, stdout, stderr) => {
+    if (error) {
+      log(`exec error: ${error.message}`);
+      return;
     }
-    app.quit();
+    if (stderr) {
+      log(`stderr: ${stderr}`);
+    }
+    log(`stdout: ${stdout}`);
+  });
+});
+
+// Utility function to check if a port is open
+const checkPort = (port, host = 'localhost') => {
+  return new Promise((resolve) => {
+    const socket = new net.Socket();
+    const timeout = 1000;
+    
+    socket.setTimeout(timeout);
+    socket.once('connect', () => {
+      socket.destroy();
+      resolve(true);
+    });
+    socket.once('timeout', () => {
+      socket.destroy();
+      resolve(false);
+    });
+    socket.once('error', () => {
+      resolve(false);
+    });
+    
+    socket.connect(port, host);
   });
 };
 
-ipcMain.on('close-app', () => {
-  app.quit();
-});
-
-ipcMain.on('minimize-app', () => {
-  if (mainWindow) {
-    mainWindow.minimize();
-  }
-});
-
-ipcMain.on('maximize-app', () => {
-  if (mainWindow) {
-    if (mainWindow.isMaximized()) {
-      mainWindow.unmaximize();
-    } else {
-      mainWindow.maximize();
+// Utility function to wait for a port to become available
+const waitForPort = async (port, host = 'localhost', maxAttempts = 30, delayMs = 1000) => {
+  for (let i = 0; i < maxAttempts; i++) {
+    const isOpen = await checkPort(port, host);
+    if (isOpen) {
+      return true;
     }
+    await new Promise(resolve => setTimeout(resolve, delayMs));
   }
-});
+  return false;
+};
 
 const startGatsby = () => {
   return new Promise(async (resolve, reject) => {
     try {
       const platform = os.platform();
       const nodeExecutable = platform === 'win32' ? 'node.exe' : 'node';
+      log(`Node executable will be: ${nodeExecutable}`);
       const resourcesPath = IS_PACKAGED ? process.resourcesPath : __dirname;
+      log(`Resources path: ${resourcesPath}`);
       const binPath = path.join(resourcesPath, 'support-bin', 'npm_source', 'bin');
       const nodePath = path.join(binPath, nodeExecutable);
+      log(`Node.js path: ${nodePath}`);
       const npmCliPath = path.join(binPath, 'npm-cli.js');
+      log(`npm-cli.js path: ${npmCliPath}`);
       const cmsSiteDir = path.join(resourcesPath, 'cms-site');
+      log(`cms-site directory: ${cmsSiteDir}`);
+      
+      const bundleScriptPath = IS_PACKAGED
+        ? path.join(process.resourcesPath, 'app', 'support-setup', 'bundle-node-npm.js')
+        : path.join(__dirname, 'support-setup', 'bundle-node-npm.js');
 
-      // Check for binaries and download if missing
-      if (!fs.existsSync(nodePath) || !fs.existsSync(npmCliPath)) {
-        log('Node.js/npm binaries not found. Attempting to download them...');
-        try {
-          const { setupBinaries } = require('./support-setup/bundle-node-npm.js');
-          await setupBinaries(resourcesPath);
-          log('Binaries downloaded successfully.');
-        } catch (error) {
-          log('Failed to download binaries. Please check your internet connection and try again.');
-          log(error.message);
-          app.quit();
-          return reject(new Error('Failed to download binaries.'));
+      if (!fs.existsSync(bundleScriptPath)) {
+        const tempPath = path.join(__dirname, 'support-setup', 'bundle-node-npm.js');
+        if (fs.existsSync(tempPath)) {
+          bundleScriptPath = tempPath;
         }
       }
 
-      log('Starting Gatsby development server using bundled node and npm...');
+      const { setupBinaries, getPackageManager } = require(bundleScriptPath);
 
-      const runNpmCommand = (args) => {
+      // Validate or setup binaries
+      const npmSourceDir = path.join(resourcesPath, 'support-bin', 'npm_source');
+      const utilsPath = path.join(npmSourceDir, 'lib', 'utils');
+      const commandsPath = path.join(npmSourceDir, 'lib', 'commands');
+      
+      if (!fs.existsSync(nodePath) || !fs.existsSync(utilsPath) || !fs.existsSync(commandsPath)) {
+        if (!fs.existsSync(nodePath)) {
+          log('Node.js/npm binaries not found. Attempting to download them...');
+        } else {
+          log('npm installation appears incomplete (missing critical directories). Re-downloading...');
+          log(`Missing: ${!fs.existsSync(utilsPath) ? 'lib/utils ' : ''}${!fs.existsSync(commandsPath) ? 'lib/commands' : ''}`);
+        }
+        
+        try {
+          await setupBinaries(resourcesPath);
+          log('Binaries setup completed successfully.');
+          
+          // Verify installation after setup
+          if (!fs.existsSync(utilsPath) || !fs.existsSync(commandsPath)) {
+            throw new Error('Binary setup completed but npm installation is still incomplete. Please check the console output above for errors.');
+          }
+        } catch (error) {
+          log('Failed to setup binaries. Please check your internet connection and try again.');
+          log(error.message);
+          log(error.stack || '');
+          return reject(new Error('Failed to setup binaries: ' + error.message));
+        }
+      } else {
+        log('Binaries validated successfully.');
+      }
+      
+      const packageManager = getPackageManager(resourcesPath);
+      log(`Using ${packageManager.name} for package management.`);
+
+      const runPkgCommand = (args, options = {}) => {
         return new Promise((resolve, reject) => {
-          const childProcess = spawn(nodePath, [npmCliPath, ...args], { cwd: cmsSiteDir });
+          const command = packageManager.name === 'npm' ? nodePath : packageManager.path;
+          const finalArgs = packageManager.name === 'npm' ? [packageManager.path, ...args] : args;
+          
+          log(`Executing: ${command} ${finalArgs.join(' ')}`);
+          log(`Working directory: ${cmsSiteDir}`);
+          
+          // Validate command and args exist
+          if (!fs.existsSync(command)) {
+            return reject(new Error(`Command executable not found: ${command}`));
+          }
+          if (packageManager.name === 'npm' && !fs.existsSync(packageManager.path)) {
+            return reject(new Error(`npm-cli.js not found: ${packageManager.path}`));
+          }
+          
+          const spawnOptions = {
+            cwd: cmsSiteDir,
+            env: { ...process.env, NODE_ENV: options.nodeEnv || process.env.NODE_ENV },
+          };
+          
+          const childProcess = spawn(command, finalArgs, spawnOptions);
+          
           childProcess.stdout.on('data', (data) => log(data.toString()));
           childProcess.stderr.on('data', (data) => log(data.toString()));
+          
+          childProcess.on('error', (error) => {
+            log(`Process error: ${error.message}`);
+            reject(new Error(`Failed to spawn ${packageManager.name}: ${error.message}`));
+          });
+          
           childProcess.on('close', (code) => {
             if (code === 0) {
               resolve();
             } else {
-              reject(new Error(`Command "npm ${args.join(' ')}" failed with code ${code}`));
+              reject(new Error(`Command "${packageManager.name} ${args.join(' ')}" failed with code ${code}`));
             }
           });
         });
       };
 
-      log('Running npm install in CMS site...');
-      await runNpmCommand(['install']);
-      log('npm install completed.');
+      log(`Running ${packageManager.name} install...`);
+      try {
+        await runPkgCommand(['install']);
+        log(`${packageManager.name} install completed.`);
+      } catch (installError) {
+        log(`Error during ${packageManager.name} install: ${installError.message}`);
+        throw installError;
+      }
 
-      log('Running gatsby develop in CMS site...');
-      gatsbyProcess = spawn(nodePath, [npmCliPath, 'run', 'develop'], { cwd: cmsSiteDir });
-
-      gatsbyProcess.stdout.on('data', (data) => {
-          log(data.toString());
-          if (data.toString().includes('You can now view')) {
-              log('Gatsby development server is ready.');
-              resolve();
-          }
+      log(`Running gatsby develop with ${packageManager.name}...`);
+      const command = packageManager.name === 'npm' ? nodePath : packageManager.path;
+      const finalArgs = packageManager.name === 'npm' 
+        ? [packageManager.path, 'run', 'develop'] 
+        : ['run', 'develop'];
+      
+      log(`Gatsby command: ${command} ${finalArgs.join(' ')}`);
+      
+      // Use explicit environment to force color output and proper TTY behavior
+      const gatsbyEnv = {
+        ...process.env,
+        FORCE_COLOR: '1',
+        CI: 'false',
+        // Ensure Gatsby doesn't wait for stdin
+        GATSBY_TELEMETRY_DISABLED: '1',
+        GATSBY_LOGGER_LOG_LEVEL: 'error'
+      };
+      
+      gatsbyProcess = spawn(command, finalArgs, { 
+        cwd: cmsSiteDir,
+        env: gatsbyEnv,
+        stdio: ['ignore', 'pipe', 'pipe'] // Ignore stdin, pipe stdout/stderr
+      });
+      
+      let serverReady = false;
+      let readyTimeout;
+      
+      gatsbyProcess.on('error', (error) => {
+        log(`Failed to start Gatsby process: ${error.message}`);
+        if (!serverReady) {
+          reject(new Error(`Failed to start Gatsby: ${error.message}`));
+        }
       });
 
-      gatsbyProcess.stderr.on('data', (data) => log(data.toString()));
+      const checkOutput = (data) => {
+        const output = data.toString();
+        log(output);
+        
+        // Fallback: if we see "write out requires" (one of the last steps before server start),
+        // start checking the port
+        if (!serverReady && output.includes('write out requires')) {
+          log('Detected final build step, checking if server is starting...');
+          clearTimeout(readyTimeout);
+          
+          // Start polling the port to see when Gatsby server actually starts
+          const pollPort = async () => {
+            log('Waiting for Gatsby server on port 8000...');
+            const isReady = await waitForPort(8000, 'localhost', 30, 1000);
+            
+            if (isReady) {
+              log('Gatsby development server is ready and accessible on port 8000.');
+              serverReady = true;
+              resolve();
+            } else {
+              log('Warning: Port 8000 did not become available within expected time.');
+              log('The server might still be starting. Will continue waiting...');
+              // Try one more time with extended timeout
+              const isReadyExtended = await waitForPort(8000, 'localhost', 30, 2000);
+              if (isReadyExtended) {
+                log('Gatsby development server is now ready.');
+                serverReady = true;
+                resolve();
+              } else {
+                log('Error: Gatsby server failed to start on port 8000.');
+                reject(new Error('Gatsby server did not start within expected time'));
+              }
+            }
+          };
+          
+          pollPort().catch(err => {
+            log(`Error while waiting for Gatsby server: ${err.message}`);
+            if (!serverReady) {
+              reject(err);
+            }
+          });
+        }
+        
+        // Also check for direct indicators that server is ready
+        if (!serverReady && (
+          output.includes('You can now view') ||
+          output.match(/Local:\s+http:\/\/localhost:\d+/)
+        )) {
+          log('Detected server ready message in output, verifying port...');
+          checkPort(8000).then(isOpen => {
+            if (isOpen && !serverReady) {
+              serverReady = true;
+              clearTimeout(readyTimeout);
+              log('Gatsby development server is ready (confirmed via output and port check).');
+              resolve();
+            }
+          });
+        }
+      };
 
+      gatsbyProcess.stdout.on('data', checkOutput);
+      gatsbyProcess.stderr.on('data', checkOutput);
+      
       gatsbyProcess.on('close', (code) => {
-          if (code !== 0) {
-              const errorMsg = `Gatsby process exited with code ${code}`;
-              log(errorMsg);
-              reject(new Error(errorMsg));
-          }
+        clearTimeout(readyTimeout);
+        if (!serverReady && code !== 0) {
+          reject(new Error(`Gatsby process exited with code ${code}`));
+        }
       });
     } catch (error) {
-        log(error.message);
-        reject(error);
+      reject(error);
     }
   });
 };
 
 app.whenReady().then(async () => {
-  if (process.platform === 'darwin') {
-    app.dock.setIcon(path.join(__dirname, 'static/assets/tables-icon.png'));
-  }
-  await createLaunchWindow();
-  log('Console window created.');
-
-  const menu = Menu.buildFromTemplate([
-    {
-      label: 'View',
-      submenu: [
-        {
-          label: 'Keep Console Visible',
-          type: 'checkbox',
-          checked: keepConsoleVisible,
-          click: (item) => {
-            keepConsoleVisible = item.checked;
-            if (launchWindow && !launchWindow.isDestroyed()) {
-              if (keepConsoleVisible) {
-                launchWindow.show();
-              } else if (!isBuildInProgress) {
-                launchWindow.hide();
-              }
-            }
-          }
-        },
-        {
-          label: 'Toggle Developer Tools',
-          accelerator: 'CmdOrCtrl+Alt+I',
-          click: () => {
-            if (mainWindow && !mainWindow.isDestroyed()) {
-              mainWindow.webContents.toggleDevTools();
-            }
-            if (launchWindow && !launchWindow.isDestroyed()) {
-              launchWindow.webContents.toggleDevTools();
-            }
-          }
-        }
-      ]
-    }
-  ]);
-  Menu.setApplicationMenu(menu);
-
   try {
+    if (process.platform === 'darwin') {
+      app.dock.setIcon(path.join(__dirname, 'static/assets/tables-icon.png'));
+    }
+    await createLaunchWindow();
+    log('Console window created.');
+
+    const menu = Menu.buildFromTemplate([
+      {
+        label: 'View',
+        submenu: [
+          {
+            label: 'Keep Console Visible',
+            type: 'checkbox',
+            checked: keepConsoleVisible,
+            click: (item) => {
+              keepConsoleVisible = item.checked;
+            },
+          },
+          {
+            label: 'Toggle Developer Tools',
+            accelerator: 'CmdOrCtrl+Alt+I',
+            click: () => {
+              mainWindow?.webContents.toggleDevTools();
+              launchWindow?.webContents.toggleDevTools();
+            },
+          },
+        ],
+      },
+    ]);
+    Menu.setApplicationMenu(menu);
+
     await startGatsby();
     createMainWindow();
     mainWindow.once('ready-to-show', () => {
@@ -246,9 +427,7 @@ app.whenReady().then(async () => {
       mainWindow.show();
     });
   } catch (error) {
-    log('Failed to set up the environment. Please check the logs.');
-    // Optionally, you could show an error message to the user in the launch window
-    // and/or prevent the app from quitting immediately to let them read the log.
+    handleFatalError(error, 'Application Startup');
   }
 });
 
@@ -268,10 +447,6 @@ app.on('before-quit', () => {
   if (gatsbyProcess) {
     log('Terminating Gatsby process...');
     const killed = gatsbyProcess.kill();
-    if (killed) {
-      log('Gatsby process terminated.');
-    } else {
-      log('Failed to terminate Gatsby process.');
-    }
+    log(killed ? 'Gatsby process terminated.' : 'Failed to terminate Gatsby process.');
   }
 });

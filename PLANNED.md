@@ -1,8 +1,10 @@
-new task: if electron-main.js fails to find node and or npm, run the support-setup/bundle-node-npm.js from within it, placing the files into proper resources subfolder if app is packaged
+make bundle-node-npm.js and electron-main.js extremely robust, current npm+node combo is working correctly for system install, but failing with the support-bin install
 
 ---
 
 have all uploads be purged on import
+
+add an electron window drag area over the entire header while keeping its original onClick functionality
 
 ---
 

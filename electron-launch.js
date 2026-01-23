@@ -2,71 +2,146 @@ const output = document.getElementById('output');
 const progressBar = document.getElementById('progress-bar');
 const statusText = document.getElementById('status-text');
 const closeBtn = document.getElementById('close-btn');
+const commandInput = document.getElementById('command-input');
+const executeButton = document.getElementById('execute-button');
 
+// More granular progress stages based on actual Gatsby startup sequence
 const progressStages = [
-  { key: 'Checking for Node.js and npm...', progress: 10, status: 'Checking environment...' },
-  { key: 'Node.js and npm found.', progress: 20, status: 'Environment checked.' },
-  { key: 'Running npm install...', progress: 30, status: 'Installing dependencies...' },
-  { key: 'npm install completed successfully.', progress: 50, status: 'Dependencies installed.' },
-  { key: 'Starting Gatsby development server...', progress: 60, status: 'Starting server...' },
-  { key: 'success compile gatsby files', progress: 70, status: 'Compiling files...' },
-  { key: 'success onPreBootstrap', progress: 80, status: 'Bootstrapping...' },
-  { key: 'bootstrap finished', progress: 90, status: 'Finishing up...' },
-  { key: 'success extract queries from components', progress: 95, status: 'Extracting queries...' },
-  { key: 'You can now view tables-cms in the browser.', progress: 100, status: 'Ready!' },
+  { key: 'Binaries already present', progress: 2, status: 'Validating binaries...' },
+  { key: 'Binaries validated successfully', progress: 5, status: 'Environment ready.' },
+  { key: 'Running npm install', progress: 8, status: 'Checking dependencies...' },
+  { key: 'audited', progress: 15, status: 'Dependencies verified.' },
+  { key: 'npm install completed', progress: 18, status: 'Dependencies ready.' },
+  { key: 'Running gatsby develop', progress: 20, status: 'Starting Gatsby...' },
+  { key: 'success compile gatsby files', progress: 25, status: 'Compiling Gatsby files...' },
+  { key: 'success load gatsby config', progress: 28, status: 'Loading configuration...' },
+  { key: 'success load plugins', progress: 32, status: 'Loading plugins...' },
+  { key: 'success onPreInit', progress: 35, status: 'Pre-initializing...' },
+  { key: 'success initialize cache', progress: 38, status: 'Initializing cache...' },
+  { key: 'success copy gatsby files', progress: 42, status: 'Copying Gatsby files...' },
+  { key: 'success Compiling Gatsby Functions', progress: 46, status: 'Compiling functions...' },
+  { key: 'success onPreBootstrap', progress: 50, status: 'Pre-bootstrapping...' },
+  { key: 'success createSchemaCustomization', progress: 54, status: 'Creating schema...' },
+  { key: 'success Clean up stale nodes', progress: 57, status: 'Cleaning up nodes...' },
+  { key: 'success Checking for changed pages', progress: 60, status: 'Checking pages...' },
+  { key: 'success source and transform nodes', progress: 63, status: 'Transforming nodes...' },
+  { key: 'success building schema', progress: 66, status: 'Building schema...' },
+  { key: 'success createPages', progress: 69, status: 'Creating pages...' },
+  { key: 'success createPagesStatefully', progress: 72, status: 'Creating pages statefully...' },
+  { key: 'success write out redirect data', progress: 75, status: 'Writing redirects...' },
+  { key: 'success onPostBootstrap', progress: 78, status: 'Post-bootstrapping...' },
+  { key: 'bootstrap finished', progress: 81, status: 'Bootstrap complete.' },
+  { key: 'success onPreExtractQueries', progress: 84, status: 'Preparing query extraction...' },
+  { key: 'success extract queries from components', progress: 87, status: 'Extracting queries...' },
+  { key: 'success write out requires', progress: 90, status: 'Writing requirements...' },
+  { key: 'Detected final build step', progress: 92, status: 'Starting development server...' },
+  { key: 'Waiting for Gatsby server', progress: 93, status: 'Waiting for server...' },
+  { key: 'Gatsby development server is ready', progress: 95, status: 'Server ready!' },
+  { key: 'You can now view', progress: 96, status: 'Application ready!' },
+  { key: 'success Building development bundle', progress: 98, status: 'Building bundle...' },
+  { key: 'success Writing page-data', progress: 99, status: 'Writing page data...' },
 ];
 
 let currentProgress = 0;
 let targetProgress = 0;
 let progressInterval = null;
+let lastStageIndex = -1;
 
+// Smooth progress animation
 const startProgressAnimation = (target) => {
-  targetProgress = target;
+  targetProgress = Math.min(target, 100);
   if (progressInterval) {
     clearInterval(progressInterval);
   }
+  
+  const increment = (targetProgress - currentProgress) / 50; // Smooth over ~5 seconds
+  
   progressInterval = setInterval(() => {
     if (currentProgress < targetProgress) {
-      currentProgress += 0.1;
+      currentProgress += Math.max(increment, 0.5);
+      if (currentProgress > targetProgress) {
+        currentProgress = targetProgress;
+      }
       progressBar.style.width = `${currentProgress}%`;
     } else {
       clearInterval(progressInterval);
+      progressInterval = null;
     }
   }, 100);
 };
 
+// Handle console output and update progress
 window.electron.onConsoleOutput((msg) => {
   output.innerHTML += msg + "\n";
   output.scrollTop = output.scrollHeight;
 
-  if (msg.includes('BUILD_END')) {
+  // Check for completion signal
+  if (msg.includes('BUILD_END') || msg.includes('Writing page-data.json files to public directory')) {
     if (progressInterval) {
       clearInterval(progressInterval);
     }
     currentProgress = 100;
+    targetProgress = 100;
     progressBar.style.width = '100%';
-    statusText.textContent = 'Build complete!';
-    // Re-enable any disabled buttons here
-    return; // Stop processing other stages
+    statusText.textContent = '✓ Ready! Opening application...';
+    progressBar.style.background = 'linear-gradient(90deg, #34c759, #30d158)';
+    return;
   }
 
-  for (const stage of progressStages) {
-    if (msg.includes(stage.key) && stage.progress > currentProgress) {
-      currentProgress = stage.progress;
-      progressBar.style.width = `${currentProgress}%`;
+  // Match progress stages
+  for (let i = 0; i < progressStages.length; i++) {
+    const stage = progressStages[i];
+    
+    // Only process stages we haven't seen yet
+    if (i > lastStageIndex && msg.toLowerCase().includes(stage.key.toLowerCase())) {
+      lastStageIndex = i;
       statusText.textContent = stage.status;
-      const nextStage = progressStages.find(s => s.progress > currentProgress);
-      if (nextStage) {
-        startProgressAnimation(nextStage.progress);
+      startProgressAnimation(stage.progress);
+      
+      // Update color as we progress
+      if (stage.progress < 50) {
+        progressBar.style.background = 'linear-gradient(90deg, #007aff, #5ac8fa)';
+      } else if (stage.progress < 90) {
+        progressBar.style.background = 'linear-gradient(90deg, #5ac8fa, #32ade6)';
+      } else {
+        progressBar.style.background = 'linear-gradient(90deg, #32ade6, #34c759)';
       }
+      
+      break;
     }
+  }
+  
+  // Fallback: if we haven't made progress in a while, slowly increment
+  if (!progressInterval && currentProgress < 90 && currentProgress < targetProgress - 1) {
+    startProgressAnimation(currentProgress + 2);
   }
 });
 
+// Close button handler
 if (closeBtn) {
   closeBtn.addEventListener('click', () => {
     window.electron.closeApp();
   });
 }
 
-startProgressAnimation(progressStages[0].progress);
+// Command execution
+const executeCommand = () => {
+  const command = commandInput.value.trim();
+  if (command) {
+    output.innerHTML += `<span style="color: #5ac8fa;">&gt; ${command}</span>\n`;
+    output.scrollTop = output.scrollHeight;
+    window.electron.runCommand(command);
+    commandInput.value = '';
+  }
+};
+
+executeButton.addEventListener('click', executeCommand);
+commandInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    executeCommand();
+  }
+});
+
+// Start with initial animation
+statusText.textContent = 'Initializing...';
+startProgressAnimation(2);

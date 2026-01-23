@@ -18,6 +18,7 @@ support-bin/npm_source/man
 support-bin/npm_source/node_modules
 support-bin/npm_source/index.js
 support-bin/npm_source/package.json
+.npmrc
 
 # Gatsby files
 .cache/

@@ -35,7 +35,6 @@
       "main-site/.env.development",
       "main-site/gatsby-*.js",
       "main-site/package.json",
-      "support-bin",
       "cms-site/src",
       "cms-site/static",
       "cms-site/gatsby-*.js",
@@ -43,38 +42,15 @@
       "cms-site/package.json",
       "electron-*.html",
       "electron-*.js",
-      "static",
+      "support-setup",
       "tsconfig.json"
     ],
     "extraResources": [
-      {
-        "from": "support-bin",
-        "to": "support-bin",
-        "filter": [
-          "*"
-        ]
-      },
-      {
-        "from": "main-site",
-        "to": "main-site",
-        "filter": [
-          "*"
-        ]
-      },
-      {
-        "from": "cms-site",
-        "to": "cms-site",
-        "filter": [
-          "*"
-        ]
-      },
-      {
-        "from": "static",
-        "to": "static",
-        "filter": [
-          "*"
-        ]
-      }
+      "support-bin",
+      "support-setup",
+      "main-site",
+      "cms-site",
+      "static"
     ],
     "directories": {
       "output": "dist"
