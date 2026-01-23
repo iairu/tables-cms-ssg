@@ -37,7 +37,18 @@ const startProgressAnimation = (target) => {
 
 window.electron.onConsoleOutput((msg) => {
   output.innerHTML += msg + "\n";
-  window.scrollTo(0, document.body.scrollHeight);
+  output.scrollTop = output.scrollHeight;
+
+  if (msg.includes('BUILD_END')) {
+    if (progressInterval) {
+      clearInterval(progressInterval);
+    }
+    currentProgress = 100;
+    progressBar.style.width = '100%';
+    statusText.textContent = 'Build complete!';
+    // Re-enable any disabled buttons here
+    return; // Stop processing other stages
+  }
 
   for (const stage of progressStages) {
     if (msg.includes(stage.key) && stage.progress > currentProgress) {
@@ -52,8 +63,10 @@ window.electron.onConsoleOutput((msg) => {
   }
 });
 
-closeBtn.addEventListener('click', () => {
-  window.electron.closeApp();
-});
+if (closeBtn) {
+  closeBtn.addEventListener('click', () => {
+    window.electron.closeApp();
+  });
+}
 
 startProgressAnimation(progressStages[0].progress);
