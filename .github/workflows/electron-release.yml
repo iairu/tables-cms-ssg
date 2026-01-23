@@ -44,7 +44,7 @@ jobs:
       run: cd cms-site && npm install
 
     - name: Build Electron app (macOS)
-      run: npm run bundle_node_binaries && npm run dist -- -m
+      run: npm run bundle_support_binaries && npm run dist -- -m
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
@@ -87,7 +87,7 @@ jobs:
       run: cd cms-site && npm install
 
     - name: Build Electron app (Linux)
-      run: npm run bundle_node_binaries && npm run dist -- -l
+      run: npm run bundle_support_binaries && npm run dist -- -l
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 

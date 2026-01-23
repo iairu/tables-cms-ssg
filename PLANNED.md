@@ -1,9 +1,4 @@
-now onto the next task, within built electron app there is an issue right at the beginning of Running npm install in CMS site: Uncaught Exception:
-Error: spawn /Users/iairu/Desktop/TABLES CMS v22.app/Contents/Resources/support-bin/npm_source/bin/node ENOENT
-
-tables logo in console window is also not showing properly in the packaged app
-
-afterwards also add tables icon to be shown as app icon not just on the .app but also dock icon when running the app
+new task: if electron-main.js fails to find node and or npm, run the support-setup/bundle-node-npm.js from within it, placing the files into proper resources subfolder if app is packaged
 
 ---
 
