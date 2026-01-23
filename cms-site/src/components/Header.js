@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toBase64 } from './cms/utils';
 
 const pathFromSection = {
@@ -27,6 +27,7 @@ const Header = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [allSearchableItems, setAllSearchableItems] = useState([]);
 
   let extensions = {};
   try {
@@ -34,6 +35,60 @@ const Header = ({
   } catch (e) {
     extensions = {};
   }
+
+  // Build searchable items from localStorage
+  useEffect(() => {
+    const items = [];
+    
+    // Add side menu links
+    const menuItems = [
+      { type: 'menu', icon: 'fa-file', label: 'Pages', path: '/cms/pages/', section: 'pages' },
+      { type: 'menu', icon: 'fa-blog', label: 'Blog', path: '/cms/blog/', section: 'blog' },
+      { type: 'menu', icon: 'fa-paw', label: 'Pedigree', path: '/cms/pedigree/', section: 'cats' },
+      { type: 'menu', icon: 'fa-box', label: 'Inventory', path: '/cms/inventory/', section: 'rental-inventory' },
+      { type: 'menu', icon: 'fa-calendar-check', label: 'Attendance', path: '/cms/attendance/', section: 'rental-attendance' },
+      { type: 'menu', icon: 'fa-users', label: 'Customers', path: '/cms/customers/', section: 'rental-customers' },
+      { type: 'menu', icon: 'fa-user-tie', label: 'Employees', path: '/cms/employees/', section: 'rental-employees' },
+      { type: 'menu', icon: 'fa-clipboard-list', label: 'Reservations', path: '/cms/reservations/', section: 'rental-reservations' },
+      { type: 'menu', icon: 'fa-calendar', label: 'Calendar', path: '/cms/calendar/', section: 'rental-calendar' },
+      { type: 'menu', icon: 'fa-puzzle-piece', label: 'Extensions', path: '/cms/extensions/', section: 'extensions' },
+      { type: 'menu', icon: 'fa-cog', label: 'Settings', path: '/cms/settings/', section: 'settings' },
+      { type: 'menu', icon: 'fa-upload', label: 'Uploads', path: '/cms/uploads/', section: 'uploads' },
+    ];
+    items.push(...menuItems);
+
+    // Add pages
+    try {
+      const pages = JSON.parse(localStorage.getItem('pages') || '[]');
+      pages.forEach(page => {
+        items.push({
+          type: 'page',
+          icon: 'fa-file-alt',
+          label: page.title || 'Untitled Page',
+          path: `/cms/pages/?id=${page.id}`,
+          section: 'pages',
+          meta: page.route || ''
+        });
+      });
+    } catch (e) {}
+
+    // Add blog articles
+    try {
+      const articles = JSON.parse(localStorage.getItem('blogArticles') || '[]');
+      articles.forEach(article => {
+        items.push({
+          type: 'blog',
+          icon: 'fa-newspaper',
+          label: article.title || 'Untitled Article',
+          path: `/cms/blog/?id=${article.id}`,
+          section: 'blog',
+          meta: article.date || ''
+        });
+      });
+    } catch (e) {}
+
+    setAllSearchableItems(items);
+  }, []);
 
   const handleExportData = async () => {
     try {
@@ -105,9 +160,22 @@ const Header = ({
         const importData = JSON.parse(e.target.result);
 
         // Confirm before overwriting
-        if (!window.confirm('⚠️ WARNING: This will overwrite ALL current data. Are you sure you want to continue?')) {
+        if (!window.confirm('⚠️ WARNING: This will overwrite ALL current data and DELETE all uploads. Are you sure you want to continue?')) {
           event.target.value = ''; // Reset file input
           return;
+        }
+
+        // First, purge all existing uploads
+        try {
+          const purgeResponse = await fetch('/api/purge-uploads', {
+            method: 'POST',
+          });
+          
+          if (!purgeResponse.ok) {
+            console.warn('Failed to purge existing uploads');
+          }
+        } catch (error) {
+          console.warn('Error purging uploads:', error);
         }
 
         // Clear all localStorage data first
@@ -189,14 +257,68 @@ const Header = ({
   };
 
   const handleSearchChange = (e) => {
-    const query = e.target.value;
+    const query = e.target.value.trim();
     setSearchQuery(query);
 
-    // Placeholder fuzzy search logic
-    const placeholderResults = ['Result 1', 'Result 2', 'Result 3'].filter((item) =>
-      item.toLowerCase().includes(query.toLowerCase())
-    );
-    setSearchResults(placeholderResults);
+    if (!query) {
+      setSearchResults([]);
+      return;
+    }
+
+    // Fuzzy search implementation
+    const fuzzyMatch = (str, pattern) => {
+      const patternLower = pattern.toLowerCase();
+      const strLower = str.toLowerCase();
+      
+      // Simple contains check
+      if (strLower.includes(patternLower)) {
+        return { score: 100, matches: true };
+      }
+      
+      // Fuzzy matching - check if all characters in pattern exist in order
+      let patternIdx = 0;
+      let lastMatchIdx = -1;
+      
+      for (let i = 0; i < strLower.length && patternIdx < patternLower.length; i++) {
+        if (strLower[i] === patternLower[patternIdx]) {
+          lastMatchIdx = i;
+          patternIdx++;
+        }
+      }
+      
+      if (patternIdx === patternLower.length) {
+        // All characters matched - calculate score based on distance
+        const score = Math.max(0, 50 - (lastMatchIdx - patternIdx));
+        return { score, matches: true };
+      }
+      
+      return { score: 0, matches: false };
+    };
+
+    // Search through all items
+    const results = allSearchableItems
+      .map(item => {
+        const labelMatch = fuzzyMatch(item.label, query);
+        const metaMatch = item.meta ? fuzzyMatch(item.meta, query) : { score: 0, matches: false };
+        const maxScore = Math.max(labelMatch.score, metaMatch.score);
+        
+        return {
+          ...item,
+          score: maxScore,
+          matches: labelMatch.matches || metaMatch.matches
+        };
+      })
+      .filter(item => item.matches)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 10);
+
+    setSearchResults(results);
+  };
+
+  const handleSearchResultClick = (result) => {
+    window.location.href = result.path;
+    setSearchQuery('');
+    setSearchResults([]);
   };
 
    const toggleMobileMenu = () => {
@@ -237,35 +359,81 @@ const Header = ({
     },
     searchBar: {
       position: 'relative',
-      flex: '1',
-      margin: '0 32px',
-      maxWidth: '400px',
+      flex: '1 1 auto',
+      margin: '0 16px',
+      maxWidth: '500px'
     },
     searchInput: {
       width: '100%',
-      padding: '2px 12px',
-      border: '1px solid #ccc',
-      fontSize: '16px',
+      padding: '8px 36px 8px 12px',
+      border: '1px solid #d2d2d7',
+      fontSize: '14px',
       outline: 'none',
       boxSizing: 'border-box',
+      borderRadius: '6px',
+      transition: 'all 0.2s'
+    },
+    searchInputIcon: {
+      position: 'absolute',
+      right: '12px',
+      top: '50%',
+      transform: 'translateY(-50%)',
+      color: '#86868b',
+      pointerEvents: 'none'
     },
     searchResults: {
       position: 'absolute',
-      top: '110%',
-      left: 0,
-      right: 0,
+      top: '100%',
+      left: '0',
+      right: '0',
       background: '#fff',
-      border: '1px solid #ddd',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
-      marginTop: '4px',
-      zIndex: 10,
+      border: '1px solid #d2d2d7',
+      boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+      marginTop: '8px',
+      zIndex: '1000',
       listStyle: 'none',
-      padding: '0',
+      padding: '8px',
+      borderRadius: '8px',
+      maxHeight: '400px',
+      overflowY: 'auto'
     },
     searchResult: {
-      padding: '2px 12px',
+      padding: '10px 12px',
       cursor: 'pointer',
-      borderBottom: '1px solid #f3f3f3',
+      borderRadius: '6px',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px',
+      transition: 'all 0.2s',
+      marginBottom: '2px'
+    },
+    searchResultIcon: {
+      width: '20px',
+      textAlign: 'center',
+      color: '#06c',
+      fontSize: '14px'
+    },
+    searchResultContent: {
+      flex: '1',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '2px'
+    },
+    searchResultLabel: {
+      fontSize: '14px',
+      fontWeight: '500',
+      color: '#1d1d1f'
+    },
+    searchResultMeta: {
+      fontSize: '12px',
+      color: '#86868b'
+    },
+    searchResultType: {
+      fontSize: '11px',
+      color: '#86868b',
+      textTransform: 'uppercase',
+      letterSpacing: '0.5px',
+      fontWeight: '600'
     },
     buttons: {
       display: 'flex',
@@ -313,17 +481,33 @@ const Header = ({
       <div style={styles.searchBar}>
         <input
           type="text"
-          disabled
-          placeholder="Work in progress..."
+          placeholder="Search pages, posts, menu..."
           value={searchQuery}
           onChange={handleSearchChange}
           style={styles.searchInput}
         />
-        {searchQuery && (
+        <i className="fa fa-search" style={styles.searchInputIcon}></i>
+        {searchQuery && searchResults.length > 0 && (
           <ul style={styles.searchResults}>
             {searchResults.map((result, index) => (
-              <li key={index} style={styles.searchResult}>
-                {result}
+              <li 
+                key={index} 
+                style={{
+                  ...styles.searchResult,
+                  background: 'transparent'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = '#f5f5f7'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                onClick={() => handleSearchResultClick(result)}
+              >
+                <div style={styles.searchResultIcon}>
+                  <i className={`fa ${result.icon}`}></i>
+                </div>
+                <div style={styles.searchResultContent}>
+                  <div style={styles.searchResultLabel}>{result.label}</div>
+                  {result.meta && <div style={styles.searchResultMeta}>{result.meta}</div>}
+                </div>
+                <div style={styles.searchResultType}>{result.type}</div>
               </li>
             ))}
           </ul>
@@ -354,6 +538,7 @@ const Header = ({
             transition: 'all 0.2s'
           }}
         >
+          <i className="fa fa-download"></i>
           Save
         </button>
         <label style={{
@@ -371,6 +556,7 @@ const Header = ({
             padding: '4px 16px',
             transition: 'all 0.2s'
         }}>
+          <i className="fa fa-upload"></i>
           Open
           <input
             type="file"
@@ -401,6 +587,7 @@ const Header = ({
               transition: 'all 0.2s'
             }}
           >
+            <i className="fa fa-hammer"></i>
             Local
           </button>
         )}
@@ -432,10 +619,11 @@ const Header = ({
                   height: '14px',
                   border: '2px solid rgba(255, 255, 255, 0.3)',
                   borderTopColor: 'white',
-                  
+                  borderRadius: '50%',
                   animation: 'spin 0.8s linear infinite'
                 }}></div>
               )}
+              {!isBuilding && <i className="fa fa-rocket"></i>}
               {isBuilding ? 'Building...' : (!canBuild ? `${formatTime(buildCooldownSeconds)}` : 'Deploy')}
             </button>
           )}{/* Visit Deployment Button */}

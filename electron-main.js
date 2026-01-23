@@ -393,7 +393,61 @@ app.whenReady().then(async () => {
     await createLaunchWindow();
     log('Console window created.');
 
+    const isMac = process.platform === 'darwin';
+
     const menu = Menu.buildFromTemplate([
+      // App Menu (macOS only)
+      ...(isMac ? [{
+        label: app.name,
+        submenu: [
+          { role: 'about' },
+          { type: 'separator' },
+          { role: 'services' },
+          { type: 'separator' },
+          { role: 'hide' },
+          { role: 'hideOthers' },
+          { role: 'unhide' },
+          { type: 'separator' },
+          { role: 'quit' }
+        ]
+      }] : []),
+      // File Menu
+      {
+        label: 'File',
+        submenu: [
+          isMac ? { role: 'close' } : { role: 'quit' }
+        ]
+      },
+      // Edit Menu
+      {
+        label: 'Edit',
+        submenu: [
+          { role: 'undo' },
+          { role: 'redo' },
+          { type: 'separator' },
+          { role: 'cut' },
+          { role: 'copy' },
+          { role: 'paste' },
+          ...(isMac ? [
+            { role: 'pasteAndMatchStyle' },
+            { role: 'delete' },
+            { role: 'selectAll' },
+            { type: 'separator' },
+            {
+              label: 'Speech',
+              submenu: [
+                { role: 'startSpeaking' },
+                { role: 'stopSpeaking' }
+              ]
+            }
+          ] : [
+            { role: 'delete' },
+            { type: 'separator' },
+            { role: 'selectAll' }
+          ])
+        ]
+      },
+      // View Menu
       {
         label: 'View',
         submenu: [
@@ -405,16 +459,46 @@ app.whenReady().then(async () => {
               keepConsoleVisible = item.checked;
             },
           },
+          { type: 'separator' },
+          { role: 'reload' },
+          { role: 'forceReload' },
           {
             label: 'Toggle Developer Tools',
-            accelerator: 'CmdOrCtrl+Alt+I',
+            accelerator: isMac ? 'Cmd+Alt+I' : 'Ctrl+Shift+I',
             click: () => {
-              mainWindow?.webContents.toggleDevTools();
-              launchWindow?.webContents.toggleDevTools();
+              const focusedWindow = BrowserWindow.getFocusedWindow();
+              if (focusedWindow) {
+                focusedWindow.webContents.toggleDevTools();
+              } else {
+                mainWindow?.webContents.toggleDevTools();
+                launchWindow?.webContents.toggleDevTools();
+              }
             },
           },
+          { type: 'separator' },
+          { role: 'resetZoom' },
+          { role: 'zoomIn' },
+          { role: 'zoomOut' },
+          { type: 'separator' },
+          { role: 'togglefullscreen' }
         ],
       },
+      // Window Menu
+      {
+        label: 'Window',
+        submenu: [
+          { role: 'minimize' },
+          { role: 'zoom' },
+          ...(isMac ? [
+            { type: 'separator' },
+            { role: 'front' },
+            { type: 'separator' },
+            { role: 'window' }
+          ] : [
+            { role: 'close' }
+          ])
+        ]
+      }
     ]);
     Menu.setApplicationMenu(menu);
 

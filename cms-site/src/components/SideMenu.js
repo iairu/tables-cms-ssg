@@ -55,6 +55,7 @@ const SideMenu = ({ currentSection, isBuilding, lastSaved, onBuildClick, canBuil
                   to={`/cms/${pathFromSection.pages}`}
                   className={currentSection === 'pages' ? 'active' : ''}
                 >
+                  <i className="fa fa-file" style={{ marginRight: '8px' }}></i>
                   Pages
                 </Link>
               )}
@@ -63,6 +64,7 @@ const SideMenu = ({ currentSection, isBuilding, lastSaved, onBuildClick, canBuil
                   to={`/cms/${pathFromSection.blog}`}
                   className={currentSection === 'blog' ? 'active' : ''}
                 >
+                  <i className="fa fa-blog" style={{ marginRight: '8px' }}></i>
                   Blog
                 </Link>
               )}
@@ -71,27 +73,34 @@ const SideMenu = ({ currentSection, isBuilding, lastSaved, onBuildClick, canBuil
                   to={`/cms/${pathFromSection.cats}`}
                   className={currentSection === 'cats' ? 'active' : ''}
                 >
+                  <i className="fa fa-paw" style={{ marginRight: '8px' }}></i>
                   Pedigree
                 </Link>
               )}
               {extensions['rental-extension-enabled'] && (
                 <div>
                       <Link to={`/cms/${pathFromSection['rental-inventory']}`} className={currentSection === 'rental-inventory' ? 'active' : ''}>
+                        <i className="fa fa-box" style={{ marginRight: '8px' }}></i>
                         Inventory
                       </Link>
                       <Link to={`/cms/${pathFromSection['rental-attendance']}`} className={currentSection === 'rental-attendance' ? 'active' : ''}>
+                        <i className="fa fa-calendar-check" style={{ marginRight: '8px' }}></i>
                         Attendance
                       </Link>
                       <Link to={`/cms/${pathFromSection['rental-customers']}`} className={currentSection === 'rental-customers' ? 'active' : ''}>
+                        <i className="fa fa-users" style={{ marginRight: '8px' }}></i>
                         Customers
                       </Link>
                       <Link to={`/cms/${pathFromSection['rental-employees']}`} className={currentSection === 'rental-employees' ? 'active' : ''}>
+                        <i className="fa fa-user-tie" style={{ marginRight: '8px' }}></i>
                         Employees
                       </Link>
                       <Link to={`/cms/${pathFromSection['rental-reservations']}`} className={currentSection === 'rental-reservations' ? 'active' : ''}>
+                        <i className="fa fa-clipboard-list" style={{ marginRight: '8px' }}></i>
                         Reservations
                       </Link>
                       <Link to={`/cms/${pathFromSection['rental-calendar']}`} className={currentSection === 'rental-calendar' ? 'active' : ''}>
+                        <i className="fa fa-calendar" style={{ marginRight: '8px' }}></i>
                         Calendar
                       </Link>
                     </div>
@@ -113,6 +122,7 @@ const SideMenu = ({ currentSection, isBuilding, lastSaved, onBuildClick, canBuil
           to={`/cms/${pathFromSection.settings}`}
           className={currentSection === 'settings' ? 'active' : ''}
         >
+          <i className="fa fa-cog" style={{ marginRight: '8px' }}></i>
           Settings
         </Link>
         {/* <a 
@@ -126,12 +136,14 @@ const SideMenu = ({ currentSection, isBuilding, lastSaved, onBuildClick, canBuil
           to={`/cms/${pathFromSection.extensions}`}
           className={currentSection === 'extensions' ? 'active' : ''}
         >
+          <i className="fa fa-puzzle-piece" style={{ marginRight: '8px' }}></i>
           Extensions
         </Link>
         <Link
           to="/cms/uploads"
           className={currentSection === 'uploads' ? 'active' : ''}
         >
+          <i className="fa fa-upload" style={{ marginRight: '8px' }}></i>
           Uploads
         </Link>
       </div>

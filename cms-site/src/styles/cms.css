@@ -390,7 +390,11 @@ label {
   margin-top: 8px;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   font-size: 14px;
+  border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 102, 204, 0.3);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .add-row-btn:hover,
@@ -421,8 +425,12 @@ label {
   font-size: 14px;
   cursor: pointer;
   margin-right: 8px;
+  border-radius: 6px;
   font-weight: 500;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .upload-btn:hover {
@@ -443,9 +451,13 @@ label {
   font-size: 13px;
   cursor: pointer;
   margin-left: 8px;
+  border-radius: 6px;
   font-weight: 500;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 2px 6px rgba(255, 59, 48, 0.3);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .remove-row-btn:hover,
@@ -581,7 +593,11 @@ label {
   cursor: pointer;
   margin-right: 8px;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 6px;
   font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .blog-article-back-btn:hover,
@@ -641,7 +657,7 @@ label {
   border-bottom: 1px solid #f5f5f7;
   background: transparent;
   position: sticky;
-  top: 66px;
+  top: 65px;
 }
 
 .main-section.active {
@@ -721,8 +737,12 @@ label {
   padding: 6px 12px;
   font-size: 14px;
   cursor: pointer;
+  border-radius: 6px;
   font-weight: 500;
   box-shadow: 0 2px 6px rgba(255, 59, 48, 0.3);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .page-history-rollback {
@@ -734,7 +754,11 @@ label {
   cursor: pointer;
   margin-top: 8px;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 102, 204, 0.3);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .page-history-rollback:hover {
@@ -745,6 +769,14 @@ label {
 
 .cms-container {
   flex-direction: column;
+}
+
+/* Button icon spacing */
+button i,
+a i,
+.adjustment-buttons button i,
+.adjustment-buttons a i {
+  font-size: 13px;
 }
 
 /* Custom scrollbar for webkit browsers */
