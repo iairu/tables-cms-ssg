@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Get the absolute path to the directory containing this script
+CURRENTPATH=$(cd "$(dirname "$0")" && pwd)
+
+# Wrap the execution in an AppleScript that:
+# 1. Opens Terminal
+# 2. Changes directory and runs start.sh
+# 3. Tells the terminal window to close itself once the process finishes
+osascript <<EOF
+tell application "Terminal"
+    activate
+    do script "cd '$CURRENTPATH' && ./start.sh; exit"
+end tell
+EOF
