@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain, Menu } = require('electron');
 const path = require('path');
 const { spawn } = require('child_process');
 const os = require('os');
+const fs = require('fs');
 const AnsiToHtml = require('ansi-to-html');
 
 const ansiToHtml = new AnsiToHtml();
@@ -119,35 +120,48 @@ ipcMain.on('maximize-app', () => {
 });
 
 const startGatsby = () => {
-  const platform = os.platform();
-  const nodeExecutable = platform === 'win32' ? 'node.exe' : 'node';
-  const resourcesPath = IS_PACKAGED ? process.resourcesPath : __dirname;
-  const binPath = path.join(resourcesPath, 'support-bin', 'npm_source', 'bin');
-  const nodePath = path.join(binPath, nodeExecutable);
-  const npmCliPath = path.join(binPath, 'npm-cli.js');
-  const cmsSiteDir = path.join(resourcesPath, 'cms-site');
-
-  log('Starting Gatsby development server using bundled node and npm...');
-
-  const runNpmCommand = (args) => {
-    return new Promise((resolve, reject) => {
-      const childProcess = spawn(nodePath, [npmCliPath, ...args], { cwd: cmsSiteDir });
-
-      childProcess.stdout.on('data', (data) => log(data.toString()));
-      childProcess.stderr.on('data', (data) => log(data.toString()));
-
-      childProcess.on('close', (code) => {
-        if (code === 0) {
-          resolve();
-        } else {
-          reject(new Error(`Command "npm ${args.join(' ')}" failed with code ${code}`));
-        }
-      });
-    });
-  };
-
   return new Promise(async (resolve, reject) => {
     try {
+      const platform = os.platform();
+      const nodeExecutable = platform === 'win32' ? 'node.exe' : 'node';
+      const resourcesPath = IS_PACKAGED ? process.resourcesPath : __dirname;
+      const binPath = path.join(resourcesPath, 'support-bin', 'npm_source', 'bin');
+      const nodePath = path.join(binPath, nodeExecutable);
+      const npmCliPath = path.join(binPath, 'npm-cli.js');
+      const cmsSiteDir = path.join(resourcesPath, 'cms-site');
+
+      // Check for binaries and download if missing
+      if (!fs.existsSync(nodePath) || !fs.existsSync(npmCliPath)) {
+        log('Node.js/npm binaries not found. Attempting to download them...');
+        try {
+          const { setupBinaries } = require('./support-setup/bundle-node-npm.js');
+          await setupBinaries(resourcesPath);
+          log('Binaries downloaded successfully.');
+        } catch (error) {
+          log('Failed to download binaries. Please check your internet connection and try again.');
+          log(error.message);
+          app.quit();
+          return reject(new Error('Failed to download binaries.'));
+        }
+      }
+
+      log('Starting Gatsby development server using bundled node and npm...');
+
+      const runNpmCommand = (args) => {
+        return new Promise((resolve, reject) => {
+          const childProcess = spawn(nodePath, [npmCliPath, ...args], { cwd: cmsSiteDir });
+          childProcess.stdout.on('data', (data) => log(data.toString()));
+          childProcess.stderr.on('data', (data) => log(data.toString()));
+          childProcess.on('close', (code) => {
+            if (code === 0) {
+              resolve();
+            } else {
+              reject(new Error(`Command "npm ${args.join(' ')}" failed with code ${code}`));
+            }
+          });
+        });
+      };
+
       log('Running npm install in CMS site...');
       await runNpmCommand(['install']);
       log('npm install completed.');
@@ -155,27 +169,26 @@ const startGatsby = () => {
       log('Running gatsby develop in CMS site...');
       gatsbyProcess = spawn(nodePath, [npmCliPath, 'run', 'develop'], { cwd: cmsSiteDir });
 
-      gatsbyProcess.stdout.on('data', (data) => log(data.toString()));
+      gatsbyProcess.stdout.on('data', (data) => {
+          log(data.toString());
+          if (data.toString().includes('You can now view')) {
+              log('Gatsby development server is ready.');
+              resolve();
+          }
+      });
+
       gatsbyProcess.stderr.on('data', (data) => log(data.toString()));
 
-      gatsbyProcess.stdout.on('data', (data) => {
-        if (data.toString().includes('You can now view')) {
-          log('Gatsby development server is ready.');
-          resolve();
-        }
-      });
-
       gatsbyProcess.on('close', (code) => {
-        if (code !== 0) {
-          const errorMsg = `Gatsby process exited with code ${code}`;
-          log(errorMsg);
-          reject(new Error(errorMsg));
-        }
+          if (code !== 0) {
+              const errorMsg = `Gatsby process exited with code ${code}`;
+              log(errorMsg);
+              reject(new Error(errorMsg));
+          }
       });
-
     } catch (error) {
-      log(error.message);
-      reject(error);
+        log(error.message);
+        reject(error);
     }
   });
 };
