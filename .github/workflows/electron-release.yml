@@ -38,10 +38,10 @@ jobs:
         node-version: '22.18.0'
 
     - name: Install electron dependencies
-      run: node -v && npm -v && npm install --verbose
+      run: node -v && npm -v && npm install
 
     - name: Install cms-site dependencies
-      run: cd cms-site && npm install --verbose
+      run: cd cms-site && npm install
 
     - name: Build Electron app (macOS)
       run: npm run dist -- -m
@@ -81,10 +81,10 @@ jobs:
         node-version: '22.18.0'
 
     - name: Install electron dependencies
-      run: node -v && npm -v && npm install --verbose
+      run: node -v && npm -v && npm install
 
     - name: Install cms-site dependencies
-      run: cd cms-site && npm install --verbose
+      run: cd cms-site && npm install
 
     - name: Build Electron app (Linux)
       run: npm run dist -- -l
