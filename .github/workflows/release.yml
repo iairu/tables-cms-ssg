@@ -27,15 +27,15 @@ jobs:
       - name: 1. Setup Support Binaries (${{ matrix.arch }})
         run: |
           # Pass the matrix architecture to your setup script
-          node TABLES.app/Contents/MacOS/support-setup/bundle-node-npm.js ${{ matrix.arch }}
+          node TABLES.app/Contents/Resources/support-setup/bundle-node-npm.js ${{ matrix.arch }}
           
           # Verify the correct binary exists (check if node is actually for the right arch)
-          ls -R TABLES.app/Contents/MacOS/support-bin
+          ls -R TABLES.app/Contents/Resources/support-bin
 
       - name: 2. Set Executable Permissions
         run: |
           chmod +x "TABLES.app/Contents/MacOS/TABLES"
-          chmod +x "TABLES.app/Contents/MacOS/start.sh"
+          chmod +x "TABLES.app/Contents/Resources/start.sh"
 
       - name: 3. Create DMG (${{ matrix.arch }})
         run: |
