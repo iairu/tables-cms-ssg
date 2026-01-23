@@ -25,7 +25,7 @@ function findBinaries() {
 
   // Define search paths in order of priority
   const searchPaths = [
-    path.join(__dirname, '../../electron-bin'), // 1. Development folder
+    path.join(__dirname, '../../../electron-bin'), // 1. Development folder
     ...(typeof process.resourcesPath === 'string' 
       ? [path.join(process.resourcesPath, 'node-bin')] 
       : []) // 2. Production resources (only if string)
