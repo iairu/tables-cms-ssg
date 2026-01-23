@@ -280,7 +280,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
             </div>
           </div>
         )}
-        <header>
+        <header style={{ zIndex: 1001 }}>
           <h1>
             <span>Edit Page</span>
           </h1>

@@ -336,7 +336,8 @@ const Header = ({
       borderBottom: '1px solid #eee',
       boxSizing: 'border-box',
       margin: 0,
-      position: 'relative'
+      position: 'relative',
+      zIndex: 2000
     },
     logo: {
       display: 'flex',
@@ -361,7 +362,9 @@ const Header = ({
       position: 'relative',
       flex: '1 1 auto',
       margin: '0 16px',
-      maxWidth: '500px'
+      maxWidth: '500px',
+      zIndex: 2000,
+      display: 'none' // search doesn't have proper filtering by enabled extensions, zindex on results and parsing of items from enabled extensions
     },
     searchInput: {
       width: '100%',
@@ -395,7 +398,8 @@ const Header = ({
       padding: '8px',
       borderRadius: '8px',
       maxHeight: '400px',
-      overflowY: 'auto'
+      overflowY: 'auto',
+      zIndex: 2001
     },
     searchResult: {
       padding: '10px 12px',
@@ -405,35 +409,41 @@ const Header = ({
       alignItems: 'center',
       gap: '12px',
       transition: 'all 0.2s',
-      marginBottom: '2px'
+      marginBottom: '2px',
+      zIndex: 2001
     },
     searchResultIcon: {
       width: '20px',
       textAlign: 'center',
       color: '#06c',
-      fontSize: '14px'
+      fontSize: '14px',
+      zIndex: 2001
     },
     searchResultContent: {
       flex: '1',
       display: 'flex',
       flexDirection: 'column',
-      gap: '2px'
+      gap: '2px',
+      zIndex: 2001
     },
     searchResultLabel: {
       fontSize: '14px',
       fontWeight: '500',
-      color: '#1d1d1f'
+      color: '#1d1d1f',
+      zIndex: 2001
     },
     searchResultMeta: {
       fontSize: '12px',
-      color: '#86868b'
+      color: '#86868b',
+      zIndex: 2001
     },
     searchResultType: {
       fontSize: '11px',
       color: '#86868b',
       textTransform: 'uppercase',
       letterSpacing: '0.5px',
-      fontWeight: '600'
+      fontWeight: '600',
+      zIndex: 2001
     },
     buttons: {
       display: 'flex',

@@ -423,7 +423,7 @@ const Header = ({
             border: ${isDark ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid rgba(0, 0, 0, 0.2)'};
             border-top: none;
             box-shadow: ${isDark ? '0 4px 6px rgba(0, 0, 0, 0.3)' : '0 4px 6px rgba(0, 0, 0, 0.1)'};
-            z-index: 998;
+            z-index: 1998;
             max-height: 80vh;
             overflow-y: auto;
           }
@@ -458,7 +458,7 @@ const Header = ({
             right: 0;
             bottom: 0;
             background: rgba(0, 0, 0, 0.5);
-            z-index: 997;
+            z-index: 1997;
           }
 
           header .right {
@@ -574,7 +574,7 @@ const Header = ({
             flex-flow: column;
             border: ${isDark ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid rgba(0, 0, 0, 0.2)'};
             background: ${isDark ? 'black' : 'white'};
-            z-index: 998;
+            z-index: 1998;
           }
 
           header nav.pages a {
