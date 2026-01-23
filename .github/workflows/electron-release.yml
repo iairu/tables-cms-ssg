@@ -24,37 +24,6 @@ jobs:
 
   # build-windows:
   #   needs: create-github-release
-  #   runs-on: windows-latest # Required for building Windows natively
-  #   steps:
-  #   - name: Check out code
-  #     uses: actions/checkout@v2
-
-  #   - name: Set up Node.js
-  #     uses: actions/setup-node@v2
-  #     with:
-  #       node-version: '22'
-
-  #   - name: Install dependencies
-  #     run: npm install
-
-  #   - name: Build Gatsby
-  #     run: npm run build
-
-  #   - name: Build Electron app (Windows)
-  #     run: npm run dist -- -w
-  #     env:
-  #       GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-
-  #   - name: Upload Release Asset (Windows)
-  #     id: upload-windows-asset
-  #     uses: actions/upload-release-asset@v1
-  #     env:
-  #       GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-  #     with:
-  #       upload_url: ${{ needs.create-github-release.outputs.upload_url }}
-  #       asset_path: ./dist/tables-cms-windows.msi
-  #       asset_name: tables-cms-windows.msi
-  #       asset_content_type: application/octet-stream
 
   build-macos:
     needs: create-github-release
@@ -66,13 +35,13 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: '22'
+        node-version: '22.18.0'
 
-    - name: Install dependencies
-      run: npm install
+    - name: Install electron dependencies
+      run: node -v && npm -v && npm install --verbose
 
-    - name: Build Gatsby
-      run: npm run build
+    - name: Install cms-site dependencies
+      run: cd cms-site && npm install --verbose
 
     - name: Build Electron app (macOS)
       run: npm run dist -- -m
@@ -109,13 +78,13 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: '22'
+        node-version: '22.18.0'
 
-    - name: Install dependencies
-      run: npm install
+    - name: Install electron dependencies
+      run: node -v && npm -v && npm install --verbose
 
-    - name: Build Gatsby
-      run: npm run build
+    - name: Install cms-site dependencies
+      run: cd cms-site && npm install --verbose
 
     - name: Build Electron app (Linux)
       run: npm run dist -- -l
