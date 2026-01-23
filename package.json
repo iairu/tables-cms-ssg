@@ -43,6 +43,7 @@
       "electron-*.html",
       "electron-*.js",
       "support-setup",
+      "static",
       "tsconfig.json"
     ],
     "extraResources": [
