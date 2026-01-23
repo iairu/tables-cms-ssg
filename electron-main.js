@@ -6,6 +6,31 @@ const fs = require('fs');
 const net = require('net');
 const AnsiToHtml = require('ansi-to-html');
 
+// NOTE: asar is disabled in package.json, allowing direct writes to the app folder
+// This means we can modify files, create directories, and store data directly in:
+// - app.getAppPath() when packaged (e.g., .../Resources/app/)
+// - __dirname during development
+// This enables: support-bin downloads, cms-site node_modules, cached data, etc.
+
+// Set resource limits to prevent system hogging
+app.commandLine.appendSwitch('disable-gpu-vsync');
+app.commandLine.appendSwitch('max-old-space-size', '1024'); // Limit memory to 1GB
+app.commandLine.appendSwitch('js-flags', '--max-old-space-size=1024');
+app.commandLine.appendSwitch('disable-background-timer-throttling');
+app.commandLine.appendSwitch('disable-renderer-backgrounding');
+app.commandLine.appendSwitch('disable-software-rasterizer');
+app.commandLine.appendSwitch('disable-dev-shm-usage');
+app.commandLine.appendSwitch('no-sandbox'); // Faster startup
+
+// Set process priority (lower priority to be nicer to system)
+if (process.platform !== 'win32') {
+  try {
+    os.setPriority(os.constants.priority.PRIORITY_BELOW_NORMAL || 10);
+  } catch (e) {
+    console.log('Could not set process priority:', e.message);
+  }
+}
+
 const ansiToHtml = new AnsiToHtml();
 const logHistory = [];
 
@@ -20,24 +45,38 @@ const log = (msg) => {
 };
 
 const handleFatalError = (error, type) => {
-  const errorMessage = `A fatal error of type ${type} occurred: ${error.stack || error}`;
+  const errorMessage = `\n⚠️  ERROR (${type}): ${error.message || error}`;
   log(errorMessage);
+  if (error.stack) {
+    log(`Stack trace: ${error.stack}`);
+  }
 
   const logPath = path.join(os.tmpdir(), `tables-cms-crash-${Date.now()}.log`);
   const fullLog = `${logHistory.join('\n')}\n\n${errorMessage}`;
   fs.writeFileSync(logPath, fullLog);
 
-  dialog.showMessageBoxSync({
-    type: 'error',
-    title: 'Application Error',
-    message: `A critical error occurred. The application must close.\n\nA log file has been saved at:\n${logPath}`,
-    buttons: ['OK']
-  });
-  app.quit();
+  log(`\n📋 Log file saved: ${logPath}`);
+  log(`\n💡 Interactive console mode enabled. You can run commands below.`);
+  log(`   Type commands and press Execute to run them in the cms-site directory.`);
+  log(`   Close the window when done.\n`);
+  
+  // Keep the app running in console mode instead of quitting
+  if (launchWindow && !launchWindow.isDestroyed()) {
+    launchWindow.setTitle('TABLES CMS - Console Mode (Error Recovery)');
+  }
+  
+  // Don't quit - let user interact with console
+  return;
 };
 
-process.on('uncaughtException', (error) => handleFatalError(error, 'Uncaught Exception'));
-process.on('unhandledRejection', (reason) => handleFatalError(reason, 'Unhandled Rejection'));
+process.on('uncaughtException', (error) => {
+  handleFatalError(error, 'Uncaught Exception');
+  // Don't exit, keep console running
+});
+process.on('unhandledRejection', (reason) => {
+  handleFatalError(reason, 'Unhandled Rejection');
+  // Don't exit, keep console running
+});
 
 let gatsbyProcess;
 let mainWindow;
@@ -47,23 +86,111 @@ let isBuildInProgress = false;
 
 const IS_PACKAGED = app.isPackaged;
 
+// Helper function to get the correct resource path
+const getResourcePath = (...pathSegments) => {
+  if (IS_PACKAGED) {
+    // When packaged without asar, files are in app.getAppPath()
+    return path.join(app.getAppPath(), ...pathSegments);
+  }
+  return path.join(__dirname, ...pathSegments);
+};
+
+// Helper function to ensure writable directories exist (cached)
+const writableDirCache = new Set();
+const ensureWritableDir = (dirPath) => {
+  if (writableDirCache.has(dirPath)) return true;
+  
+  try {
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true, mode: 0o755 });
+      log(`Created writable directory: ${dirPath}`);
+    }
+    writableDirCache.add(dirPath);
+    return true;
+  } catch (error) {
+    log(`Warning: Directory ${dirPath} may not be writable: ${error.message}`);
+    return false;
+  }
+};
+
 const createLaunchWindow = () => {
   try {
+    // Find icon path that exists
+    const iconPaths = [
+      getResourcePath('static/assets/tables-icon.png'),
+      path.join(process.resourcesPath, 'static/assets/tables-icon.png'),
+      path.join(__dirname, 'static/assets/tables-icon.png')
+    ];
+    
+    log('Searching for launch window icon in paths:');
+    let iconPath = undefined;
+    for (const testPath of iconPaths) {
+      log(`  Checking: ${testPath}`);
+      if (fs.existsSync(testPath)) {
+        iconPath = testPath;
+        log(`  ✓ Found icon at: ${testPath}`);
+        break;
+      }
+    }
+    if (!iconPath) {
+      log('  ⚠ Warning: Icon not found at any path, window will use default icon');
+    }
+    
+    // Find preload script path that exists
+    const preloadPaths = [
+      getResourcePath('electron-preload.js'),
+      path.join(__dirname, 'electron-preload.js'),
+      path.join(process.resourcesPath, 'electron-preload.js')
+    ];
+    
+    log('Searching for preload script in paths:');
+    let preloadPath = preloadPaths[0]; // Default to first path
+    for (const testPath of preloadPaths) {
+      log(`  Checking: ${testPath}`);
+      if (fs.existsSync(testPath)) {
+        preloadPath = testPath;
+        log(`  ✓ Found preload script at: ${testPath}`);
+        break;
+      }
+    }
+    
     launchWindow = new BrowserWindow({
       width: 800,
       height: 400,
       frame: false,
-      icon: path.join(__dirname, 'static/assets/tables-icon.png'),
+      icon: iconPath,
       titleBarStyle: 'hidden',
       title: 'Launch and Console Output',
+      show: false, // Don't show immediately for faster perceived startup
       webPreferences: {
-        preload: path.join(__dirname, 'electron-preload.js'),
+        preload: preloadPath,
         contextIsolation: true,
         webSecurity: false,
+        nodeIntegration: false,
+        enableRemoteModule: false,
+        backgroundThrottling: false,
       },
     });
 
-    launchWindow.loadFile('electron-launch.html');
+    // Find HTML file path that exists
+    const htmlPaths = [
+      getResourcePath('electron-launch.html'),
+      path.join(__dirname, 'electron-launch.html'),
+      path.join(process.resourcesPath, 'electron-launch.html')
+    ];
+    
+    log('Searching for launch HTML file in paths:');
+    let htmlPath = 'electron-launch.html'; // Fallback
+    for (const testPath of htmlPaths) {
+      log(`  Checking: ${testPath}`);
+      if (fs.existsSync(testPath)) {
+        htmlPath = testPath;
+        log(`  ✓ Found HTML at: ${testPath}`);
+        break;
+      }
+    }
+    
+    launchWindow.loadFile(htmlPath);
     launchWindow.on('closed', () => {
       if (!mainWindow) {
         app.quit();
@@ -72,24 +199,73 @@ const createLaunchWindow = () => {
     });
 
     return new Promise((resolve) => {
-      launchWindow.webContents.on('did-finish-load', resolve);
+      launchWindow.webContents.on('did-finish-load', () => {
+        launchWindow.show(); // Show after load for smoother appearance
+        resolve();
+      });
     });
   } catch (error) {
+    log(`Error creating launch window: ${error.message}`);
+    log(`Stack trace: ${error.stack}`);
     handleFatalError(error, 'Launch Window Creation');
   }
 };
 
 const createMainWindow = () => {
   try {
+    // Find icon path that exists
+    const iconPaths = [
+      getResourcePath('static/assets/tables-icon.png'),
+      path.join(process.resourcesPath, 'static/assets/tables-icon.png'),
+      path.join(__dirname, 'static/assets/tables-icon.png')
+    ];
+    
+    log('Searching for main window icon in paths:');
+    let iconPath = undefined;
+    for (const testPath of iconPaths) {
+      log(`  Checking: ${testPath}`);
+      if (fs.existsSync(testPath)) {
+        iconPath = testPath;
+        log(`  ✓ Found icon at: ${testPath}`);
+        break;
+      }
+    }
+    if (!iconPath) {
+      log('  ⚠ Warning: Icon not found at any path, window will use default icon');
+    }
+    
+    // Find preload script path that exists
+    const preloadPaths = [
+      getResourcePath('electron-preload.js'),
+      path.join(__dirname, 'electron-preload.js'),
+      path.join(process.resourcesPath, 'electron-preload.js')
+    ];
+    
+    log('Searching for main window preload script in paths:');
+    let preloadPath = preloadPaths[0]; // Default to first path
+    for (const testPath of preloadPaths) {
+      log(`  Checking: ${testPath}`);
+      if (fs.existsSync(testPath)) {
+        preloadPath = testPath;
+        log(`  ✓ Found preload script at: ${testPath}`);
+        break;
+      }
+    }
+    
     mainWindow = new BrowserWindow({
       width: 1200,
       height: 800,
       show: false,
       frame: false,
-      icon: path.join(__dirname, 'static/assets/tables-icon.png'),
+      icon: iconPath,
       titleBarStyle: 'hidden',
       webPreferences: {
-        preload: path.join(__dirname, 'electron-preload.js'),
+        preload: preloadPath,
+        nodeIntegration: false,
+        contextIsolation: true,
+        enableRemoteModule: false,
+        backgroundThrottling: false,
+        spellcheck: false, // Disable spellcheck for better performance
       },
     });
     mainWindow.loadURL('http://localhost:8000/cms/settings');
@@ -100,6 +276,8 @@ const createMainWindow = () => {
       app.quit();
     });
   } catch (error) {
+    log(`Error creating main window: ${error.message}`);
+    log(`Stack trace: ${error.stack}`);
     handleFatalError(error, 'Main Window Creation');
   }
 };
@@ -115,16 +293,32 @@ ipcMain.on('maximize-app', () => {
 });
 
 ipcMain.on('run-command', (event, command) => {
-  log(`> ${command}`);
-  exec(command, (error, stdout, stderr) => {
+  const workDir = IS_PACKAGED 
+    ? path.join(getResourcePath(), 'cms-site')
+    : path.join(__dirname, 'cms-site');
+  
+  log(`\n> ${command}`);
+  log(`Working directory: ${workDir}`);
+  
+  exec(command, { 
+    cwd: workDir, 
+    maxBuffer: 10 * 1024 * 1024,
+    env: { ...process.env } // Use updated PATH with our node/npm
+  }, (error, stdout, stderr) => {
     if (error) {
-      log(`exec error: ${error.message}`);
+      log(`❌ Error (exit code ${error.code || 'unknown'}): ${error.message}`);
+      if (stderr) {
+        log(`stderr: ${stderr}`);
+      }
       return;
     }
     if (stderr) {
       log(`stderr: ${stderr}`);
     }
-    log(`stdout: ${stdout}`);
+    if (stdout) {
+      log(stdout);
+    }
+    log(`✓ Command completed successfully\n`);
   });
 });
 
@@ -169,9 +363,16 @@ const startGatsby = () => {
       const platform = os.platform();
       const nodeExecutable = platform === 'win32' ? 'node.exe' : 'node';
       log(`Node executable will be: ${nodeExecutable}`);
-      const resourcesPath = IS_PACKAGED ? process.resourcesPath : __dirname;
+      const resourcesPath = getResourcePath();
       log(`Resources path: ${resourcesPath}`);
-      const binPath = path.join(resourcesPath, 'support-bin', 'npm_source', 'bin');
+      
+      // Ensure support-bin directory exists and is writable
+      const supportBinDir = path.join(resourcesPath, 'support-bin');
+      ensureWritableDir(supportBinDir);
+      ensureWritableDir(path.join(supportBinDir, 'npm_source'));
+      ensureWritableDir(path.join(supportBinDir, 'npm_source', 'bin'));
+      
+      const binPath = path.join(supportBinDir, 'npm_source', 'bin');
       const nodePath = path.join(binPath, nodeExecutable);
       log(`Node.js path: ${nodePath}`);
       const npmCliPath = path.join(binPath, 'npm-cli.js');
@@ -179,15 +380,39 @@ const startGatsby = () => {
       const cmsSiteDir = path.join(resourcesPath, 'cms-site');
       log(`cms-site directory: ${cmsSiteDir}`);
       
-      const bundleScriptPath = IS_PACKAGED
-        ? path.join(process.resourcesPath, 'app', 'support-setup', 'bundle-node-npm.js')
-        : path.join(__dirname, 'support-setup', 'bundle-node-npm.js');
+      // Set PATH to include our bundled node and npm
+      const originalPath = process.env.PATH || '';
+      const newPath = `${binPath}${path.delimiter}${originalPath}`;
+      process.env.PATH = newPath;
+      log(`Updated PATH to include: ${binPath}`);
+      
+      // Ensure cms-site is writable
+      ensureWritableDir(cmsSiteDir);
+      
+      // Try multiple paths to find the bundle script
+      log('Searching for bundle-node-npm.js in paths:');
+      const bundleScriptPaths = [
+        getResourcePath('support-setup', 'bundle-node-npm.js'),
+        path.join(resourcesPath, 'support-setup', 'bundle-node-npm.js'),
+        path.join(__dirname, 'support-setup', 'bundle-node-npm.js'),
+        path.join(process.resourcesPath, 'support-setup', 'bundle-node-npm.js')
+      ];
 
-      if (!fs.existsSync(bundleScriptPath)) {
-        const tempPath = path.join(__dirname, 'support-setup', 'bundle-node-npm.js');
-        if (fs.existsSync(tempPath)) {
-          bundleScriptPath = tempPath;
+      let bundleScriptPath = null;
+      for (const testPath of bundleScriptPaths) {
+        log(`  Checking: ${testPath}`);
+        if (fs.existsSync(testPath)) {
+          bundleScriptPath = testPath;
+          log(`  ✓ Found bundle script at: ${bundleScriptPath}`);
+          break;
         }
+      }
+
+      if (!bundleScriptPath) {
+        const errorMsg = 'Could not find bundle-node-npm.js script at any expected location:\n' + 
+                        bundleScriptPaths.map(p => `  - ${p}`).join('\n');
+        log(errorMsg);
+        throw new Error(errorMsg);
       }
 
       const { setupBinaries, getPackageManager } = require(bundleScriptPath);
@@ -196,27 +421,40 @@ const startGatsby = () => {
       const npmSourceDir = path.join(resourcesPath, 'support-bin', 'npm_source');
       const utilsPath = path.join(npmSourceDir, 'lib', 'utils');
       const commandsPath = path.join(npmSourceDir, 'lib', 'commands');
+      const nodeModulesPath = path.join(npmSourceDir, 'node_modules');
       
-      if (!fs.existsSync(nodePath) || !fs.existsSync(utilsPath) || !fs.existsSync(commandsPath)) {
+      // Check if npm has all required directories including node_modules
+      // Skip expensive checks if node binary doesn't exist
+      let npmValid = false;
+      if (fs.existsSync(nodePath)) {
+        npmValid = fs.existsSync(utilsPath) && 
+                   fs.existsSync(commandsPath) &&
+                   fs.existsSync(nodeModulesPath) &&
+                   fs.existsSync(path.join(nodeModulesPath, 'semver'));
+      }
+      
+      if (!npmValid) {
         if (!fs.existsSync(nodePath)) {
           log('Node.js/npm binaries not found. Attempting to download them...');
         } else {
-          log('npm installation appears incomplete (missing critical directories). Re-downloading...');
-          log(`Missing: ${!fs.existsSync(utilsPath) ? 'lib/utils ' : ''}${!fs.existsSync(commandsPath) ? 'lib/commands' : ''}`);
+          log('npm installation appears incomplete (missing critical directories or dependencies). Re-downloading...');
+          const missing = [];
+          if (!fs.existsSync(utilsPath)) missing.push('lib/utils');
+          if (!fs.existsSync(commandsPath)) missing.push('lib/commands');
+          if (!fs.existsSync(nodeModulesPath)) missing.push('node_modules');
+          else if (!fs.existsSync(path.join(nodeModulesPath, 'semver'))) missing.push('node_modules/semver');
+          log(`Missing: ${missing.join(', ')}`);
         }
         
         try {
           await setupBinaries(resourcesPath);
           log('Binaries setup completed successfully.');
           
-          // Verify installation after setup
-          if (!fs.existsSync(utilsPath) || !fs.existsSync(commandsPath)) {
-            throw new Error('Binary setup completed but npm installation is still incomplete. Please check the console output above for errors.');
-          }
         } catch (error) {
-          log('Failed to setup binaries. Please check your internet connection and try again.');
+          log('\n⚠️  Failed to setup binaries. Please check your internet connection and try again.');
           log(error.message);
           log(error.stack || '');
+          log('\n💡 Entering console mode. You can manually debug the issue.');
           return reject(new Error('Failed to setup binaries: ' + error.message));
         }
       } else {
@@ -225,6 +463,31 @@ const startGatsby = () => {
       
       const packageManager = getPackageManager(resourcesPath);
       log(`Using ${packageManager.name} for package management.`);
+
+      const cleanupOnError = async () => {
+        log('Cleaning up node_modules and package-lock.json due to error...');
+        const pathsToClean = [
+          path.join(cmsSiteDir, 'node_modules'),
+          path.join(cmsSiteDir, 'package-lock.json'),
+          path.join(cmsSiteDir, '.cache'),
+          path.join(resourcesPath, 'main-site', 'node_modules'),
+          path.join(resourcesPath, 'main-site', 'package-lock.json'),
+          path.join(resourcesPath, 'main-site', '.cache')
+        ];
+        
+        for (const cleanPath of pathsToClean) {
+          if (fs.existsSync(cleanPath)) {
+            try {
+              log(`  Removing: ${cleanPath}`);
+              fs.rmSync(cleanPath, { recursive: true, force: true });
+              log(`  ✓ Removed: ${cleanPath}`);
+            } catch (err) {
+              log(`  ⚠ Failed to remove ${cleanPath}: ${err.message}`);
+            }
+          }
+        }
+        log('✓ Cleanup complete. App folder is directly writable (asar disabled).');
+      };
 
       const runPkgCommand = (args, options = {}) => {
         return new Promise((resolve, reject) => {
@@ -244,7 +507,12 @@ const startGatsby = () => {
           
           const spawnOptions = {
             cwd: cmsSiteDir,
-            env: { ...process.env, NODE_ENV: options.nodeEnv || process.env.NODE_ENV },
+            env: { 
+              ...process.env, 
+              NODE_ENV: options.nodeEnv || process.env.NODE_ENV,
+              NODE_PATH: path.join(npmSourceDir, 'node_modules'),
+              PATH: process.env.PATH // Use updated PATH with our node/npm
+            },
           };
           
           const childProcess = spawn(command, finalArgs, spawnOptions);
@@ -257,10 +525,11 @@ const startGatsby = () => {
             reject(new Error(`Failed to spawn ${packageManager.name}: ${error.message}`));
           });
           
-          childProcess.on('close', (code) => {
+          childProcess.on('close', async (code) => {
             if (code === 0) {
               resolve();
             } else {
+              await cleanupOnError();
               reject(new Error(`Command "${packageManager.name} ${args.join(' ')}" failed with code ${code}`));
             }
           });
@@ -269,11 +538,43 @@ const startGatsby = () => {
 
       log(`Running ${packageManager.name} install...`);
       try {
-        await runPkgCommand(['install']);
+        // Check if node_modules already exists and is valid
+        const cmsSiteNodeModules = path.join(cmsSiteDir, 'node_modules');
+        const packageLockPath = path.join(cmsSiteDir, 'package-lock.json');
+        
+        if (fs.existsSync(cmsSiteNodeModules) && fs.existsSync(packageLockPath)) {
+          log('node_modules and package-lock.json exist, checking validity...');
+          // Try to verify it's complete by checking for key packages
+          const hasGatsby = fs.existsSync(path.join(cmsSiteNodeModules, 'gatsby'));
+          const hasReact = fs.existsSync(path.join(cmsSiteNodeModules, 'react'));
+          
+          if (hasGatsby && hasReact) {
+            log('node_modules appears valid, skipping install for faster startup.');
+          } else {
+            log('node_modules incomplete, cleaning and reinstalling...');
+            await cleanupOnError();
+            await runPkgCommand(['install', '--prefer-offline', '--no-audit', '--no-fund']);
+          }
+        } else {
+          log('node_modules missing, installing...');
+          await runPkgCommand(['install', '--prefer-offline', '--no-audit', '--no-fund']);
+        }
         log(`${packageManager.name} install completed.`);
       } catch (installError) {
         log(`Error during ${packageManager.name} install: ${installError.message}`);
-        throw installError;
+        log('Attempting cleanup and retry...');
+        await cleanupOnError();
+        
+        // Try one more time after cleanup with faster flags
+        try {
+          await runPkgCommand(['install', '--prefer-offline', '--no-audit', '--no-fund', '--legacy-peer-deps']);
+          log('Retry succeeded after cleanup.');
+        } catch (retryError) {
+          log(`Retry also failed: ${retryError.message}`);
+          log('\n💡 npm install failed. Entering console mode for manual debugging.');
+          log(`   You can run: cd cms-site && npm install`);
+          throw installError;
+        }
       }
 
       log(`Running gatsby develop with ${packageManager.name}...`);
@@ -291,7 +592,8 @@ const startGatsby = () => {
         CI: 'false',
         // Ensure Gatsby doesn't wait for stdin
         GATSBY_TELEMETRY_DISABLED: '1',
-        GATSBY_LOGGER_LOG_LEVEL: 'error'
+        GATSBY_LOGGER_LOG_LEVEL: 'error',
+        PATH: process.env.PATH // Ensure PATH includes our node/npm
       };
       
       gatsbyProcess = spawn(command, finalArgs, { 
@@ -376,10 +678,13 @@ const startGatsby = () => {
       gatsbyProcess.on('close', (code) => {
         clearTimeout(readyTimeout);
         if (!serverReady && code !== 0) {
+          log(`Gatsby process exited unexpectedly with code ${code}`);
           reject(new Error(`Gatsby process exited with code ${code}`));
         }
       });
     } catch (error) {
+      log(`Error in startGatsby: ${error.message}`);
+      log(`Stack trace: ${error.stack}`);
       reject(error);
     }
   });
@@ -387,8 +692,41 @@ const startGatsby = () => {
 
 app.whenReady().then(async () => {
   try {
+    log('=== Application Starting ===');
+    log(`App is packaged: ${IS_PACKAGED}`);
+    log(`asar disabled: true (direct filesystem access enabled)`);
+    log(`__dirname: ${__dirname}`);
+    log(`process.resourcesPath: ${process.resourcesPath}`);
+    log(`app.getAppPath(): ${app.getAppPath()}`);
+    log(`App folder writable: ${ensureWritableDir(getResourcePath())}`);
+    
     if (process.platform === 'darwin') {
-      app.dock.setIcon(path.join(__dirname, 'static/assets/tables-icon.png'));
+      try {
+        // Try multiple icon paths for both dev and packaged scenarios
+        log('Searching for macOS dock icon in paths:');
+        const iconPaths = [
+          getResourcePath('static/assets/tables-icon.png'),
+          path.join(process.resourcesPath, 'static', 'assets', 'tables-icon.png'),
+          path.join(__dirname, 'static/assets/tables-icon.png')
+        ];
+        
+        let iconSet = false;
+        for (const iconPath of iconPaths) {
+          log(`  Checking: ${iconPath}`);
+          if (fs.existsSync(iconPath)) {
+            app.dock.setIcon(iconPath);
+            iconSet = true;
+            log(`  ✓ Dock icon set from: ${iconPath}`);
+            break;
+          }
+        }
+        
+        if (!iconSet) {
+          log('  ⚠ Warning: Could not find dock icon at any expected path');
+        }
+      } catch (iconError) {
+        log(`  ⚠ Warning: Failed to set dock icon: ${iconError.message}`);
+      }
     }
     await createLaunchWindow();
     log('Console window created.');
@@ -511,7 +849,15 @@ app.whenReady().then(async () => {
       mainWindow.show();
     });
   } catch (error) {
+    log(`\n${'='.repeat(60)}`);
+    log(`⚠️  STARTUP ERROR`);
+    log(`${'='.repeat(60)}`);
+    log(`Error: ${error.message}`);
+    if (error.stack) {
+      log(`Stack: ${error.stack}`);
+    }
     handleFatalError(error, 'Application Startup');
+    // Don't propagate - keep console running
   }
 });
 

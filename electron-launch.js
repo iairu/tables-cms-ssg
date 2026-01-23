@@ -5,6 +5,9 @@ const closeBtn = document.getElementById('close-btn');
 const commandInput = document.getElementById('command-input');
 const executeButton = document.getElementById('execute-button');
 
+let consoleMode = false;
+let startupCompleted = false;
+
 // More granular progress stages based on actual Gatsby startup sequence
 const progressStages = [
   { key: 'Binaries already present', progress: 2, status: 'Validating binaries...' },
@@ -75,6 +78,18 @@ window.electron.onConsoleOutput((msg) => {
   output.innerHTML += msg + "\n";
   output.scrollTop = output.scrollHeight;
 
+  // Check if entering console mode due to error
+  if (msg.includes('💡 Interactive console mode enabled') || msg.includes('💡 Entering console mode')) {
+    consoleMode = true;
+    statusText.textContent = '⚠️ Console Mode - Debug & Run Commands';
+    progressBar.style.background = 'linear-gradient(90deg, #ff9500, #ff6b00)';
+    if (progressInterval) {
+      clearInterval(progressInterval);
+    }
+    showConsoleHelp();
+    return;
+  }
+
   // Check for completion signal
   if (msg.includes('BUILD_END') || msg.includes('Writing page-data.json files to public directory')) {
     if (progressInterval) {
@@ -85,6 +100,7 @@ window.electron.onConsoleOutput((msg) => {
     progressBar.style.width = '100%';
     statusText.textContent = '✓ Ready! Opening application...';
     progressBar.style.background = 'linear-gradient(90deg, #34c759, #30d158)';
+    startupCompleted = true;
     return;
   }
 
@@ -117,6 +133,36 @@ window.electron.onConsoleOutput((msg) => {
   }
 });
 
+// Show helpful console commands
+const showConsoleHelp = () => {
+  const helpText = `
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💡 CONSOLE MODE - Helpful Commands
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Common debugging commands:
+  ls                    - List files in cms-site directory
+  pwd                   - Show current working directory
+  npm install           - Reinstall dependencies
+  npm run develop       - Start Gatsby manually
+  node --version        - Check Node.js version
+  
+File operations:
+  rm -rf node_modules   - Remove node_modules
+  rm package-lock.json  - Remove package lock
+  
+Navigation:
+  cd ..                 - Go up one directory
+  ls support-bin        - Check support-bin contents
+  
+Type a command above and click Execute to run it.
+Close the window when done debugging.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+`;
+  output.innerHTML += helpText;
+  output.scrollTop = output.scrollHeight;
+};
+
 // Close button handler
 if (closeBtn) {
   closeBtn.addEventListener('click', () => {
@@ -128,16 +174,55 @@ if (closeBtn) {
 const executeCommand = () => {
   const command = commandInput.value.trim();
   if (command) {
-    output.innerHTML += `<span style="color: #5ac8fa;">&gt; ${command}</span>\n`;
+    // Show command in console
+    const timestamp = new Date().toLocaleTimeString();
+    output.innerHTML += `<span style="color: #5ac8fa;">[${timestamp}] $ ${command}</span>\n`;
     output.scrollTop = output.scrollHeight;
+    
+    // Execute command
     window.electron.runCommand(command);
     commandInput.value = '';
+    
+    // Show helpful suggestions based on command
+    if (command === 'help') {
+      showConsoleHelp();
+    }
   }
 };
 
 executeButton.addEventListener('click', executeCommand);
 commandInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
+    executeCommand();
+  }
+});
+
+// Add command history with up/down arrows
+let commandHistory = [];
+let historyIndex = -1;
+
+commandInput.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (historyIndex < commandHistory.length - 1) {
+      historyIndex++;
+      commandInput.value = commandHistory[commandHistory.length - 1 - historyIndex];
+    }
+  } else if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (historyIndex > 0) {
+      historyIndex--;
+      commandInput.value = commandHistory[commandHistory.length - 1 - historyIndex];
+    } else if (historyIndex === 0) {
+      historyIndex = -1;
+      commandInput.value = '';
+    }
+  } else if (e.key === 'Enter') {
+    const cmd = commandInput.value.trim();
+    if (cmd && (commandHistory.length === 0 || commandHistory[commandHistory.length - 1] !== cmd)) {
+      commandHistory.push(cmd);
+      historyIndex = -1;
+    }
     executeCommand();
   }
 });

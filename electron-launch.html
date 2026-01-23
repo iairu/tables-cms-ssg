@@ -121,8 +121,6 @@
 
     #debug-console {
       display: flex;
-      /*hidden from enduser, only for debug*/
-      display: none;
       gap: 8px;
       padding: 12px 16px;
       background: rgba(255, 255, 255, 0.85);
@@ -234,7 +232,7 @@
   <div id="drag-region"></div>
   
   <div id="logo-container">
-    <img id="logo" src="static/assets/tables-logo.svg" alt="TABLES Logo">
+    <img id="logo" alt="TABLES Logo">
   </div>
 
   <div id="progress-section">
@@ -250,7 +248,39 @@
     <input type="text" id="command-input" placeholder="Enter command to execute..." spellcheck="false" autocomplete="off">
     <button id="execute-button">Execute</button>
   </div>
-
-  <script src="./electron-launch.js"></script>
+  
+<script>
+  // Try multiple paths for logo in packaged app
+  (function() {
+    const logo = document.getElementById('logo');
+    const possiblePaths = [
+      './static/assets/tables-logo.svg',
+      'static/assets/tables-logo.svg',
+      '../static/assets/tables-logo.svg',
+      '../../static/assets/tables-logo.svg'
+    ];
+      
+    let currentIndex = 0;
+      
+    function tryNextPath() {
+      if (currentIndex >= possiblePaths.length) {
+        console.error('Logo not found at any path');
+        logo.style.display = 'none';
+        return;
+      }
+        
+      logo.src = possiblePaths[currentIndex];
+      currentIndex++;
+    }
+      
+    logo.onerror = tryNextPath;
+    logo.onload = function() {
+      console.log('Logo loaded from:', logo.src);
+    };
+      
+    tryNextPath();
+  })();
+</script>
+<script src="./electron-launch.js"></script>
 </body>
 </html>

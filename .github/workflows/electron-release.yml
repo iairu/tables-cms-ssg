@@ -3,7 +3,7 @@ name: Electron Release
 on:
   push:
     branches:
-      - main
+      - disabled
 
 jobs:
   create-github-release:

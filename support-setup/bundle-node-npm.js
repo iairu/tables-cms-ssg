@@ -9,7 +9,7 @@ function getNodeUrl() {
   const platform = process.platform === 'win32' ? 'win' : process.platform;
   const arch = process.arch === 'ia32' ? 'x86' : process.arch;
   const extension = process.platform === 'win32' ? 'zip' : 'tar.gz';
-  
+
   // Example: https://nodejs.org/dist/v22.18.0/node-v22.18.0-win-x64.zip
   return `https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-${platform}-${arch}.${extension}`;
 }
@@ -34,7 +34,7 @@ async function setupBinaries(basePath) {
       console.log('Incomplete installation detected. Re-downloading...');
     }
   }
-  
+
   // 1. Clean and Prep
   if (fs.existsSync(binRoot)) fs.rmSync(binRoot, { recursive: true, force: true });
   fs.mkdirSync(npmSourceDir, { recursive: true });
@@ -51,91 +51,111 @@ async function setupBinaries(basePath) {
       const zipPath = path.join(binRoot, 'node.zip');
       console.log('Downloading archive...');
       execSync(`curl -L -o "${zipPath}" "${nodeUrl}"`, { stdio: 'inherit' });
-      
+
       console.log('Extracting archive...');
       execSync(`powershell -Command "Expand-Archive -Path '${zipPath}' -DestinationPath '${tempNodeDir}'"`, { stdio: 'inherit' });
-      
+
       const extractedDir = fs.readdirSync(tempNodeDir).find(d => d.startsWith('node-v'));
       if (!extractedDir) throw new Error('Could not find extracted Node.js directory.');
 
       const extractedPath = path.join(tempNodeDir, extractedDir);
-      
+
       // Copy node.exe to our bin directory
       fs.copyFileSync(path.join(extractedPath, 'node.exe'), finalNodePath);
-      
+
       // Copy the entire npm from node_modules to our npm_source
       const nodeModulesNpm = path.join(extractedPath, 'node_modules', 'npm');
       if (!fs.existsSync(nodeModulesNpm)) {
         throw new Error('npm not found in Node.js distribution');
       }
-      
+
+      // Move node_modules into the bin directory UNTESTED
+      const nodeModulesNpm_ = path.join(extractedPath, 'lib', 'node_modules', 'npm');
+      const nodeModulesLib = path.join(extractedPath, 'lib', 'node_modules');
+      copyRecursive(nodeModulesNpm_, npmSourceDir);
+      copyRecursive(nodeModulesLib, path.join(npmSourceDir, 'bin', 'node_modules'));
+      copyRecursive(path.join(npmSourceDir, 'node_modules'), path.join(npmSourceDir, 'bin', 'node_modules'));
+
       console.log('Copying npm from Node.js distribution...');
       copyRecursive(nodeModulesNpm, npmSourceDir);
-      
+
       fs.rmSync(tempNodeDir, { recursive: true, force: true });
       fs.rmSync(zipPath);
     } else {
       const tarballPath = path.join(binRoot, 'node.tar.gz');
       console.log('Downloading archive...');
       execSync(`curl -L -o "${tarballPath}" "${nodeUrl}"`, { stdio: 'inherit' });
-      
+
       console.log('Extracting archive...');
       execSync(`tar -xzf "${tarballPath}" -C "${tempNodeDir}"`, { stdio: 'inherit' });
-      
+
       const extractedDir = fs.readdirSync(tempNodeDir).find(d => d.startsWith('node-v'));
       if (!extractedDir) throw new Error('Could not find extracted Node.js directory.');
-      
+
       const extractedPath = path.join(tempNodeDir, extractedDir);
-      
+
       // Copy node binary to our bin directory
       const extractedNodePath = path.join(extractedPath, 'bin', 'node');
       fs.copyFileSync(extractedNodePath, finalNodePath);
       fs.chmodSync(finalNodePath, '755');
-      
+
       // Copy the entire npm from lib/node_modules to our npm_source
-      const nodeModulesNpm = path.join(extractedPath, 'lib', 'node_modules', 'npm');
-      if (!fs.existsSync(nodeModulesNpm)) {
+      const nodeModulesNpm_ = path.join(extractedPath, 'lib', 'node_modules', 'npm');
+      const nodeModulesLib = path.join(extractedPath, 'lib', 'node_modules');
+      if (!fs.existsSync(nodeModulesNpm_)) {
         throw new Error('npm not found in Node.js distribution');
       }
-      
+
       console.log('Copying npm from Node.js distribution...');
-      copyRecursive(nodeModulesNpm, npmSourceDir);
-      
+      copyRecursive(nodeModulesNpm_, npmSourceDir);
+      copyRecursive(nodeModulesLib, path.join(npmSourceDir, 'bin', 'node_modules'));
+      copyRecursive(path.join(npmSourceDir, 'node_modules'), path.join(npmSourceDir, 'bin', 'node_modules'));
+
       fs.rmSync(tempNodeDir, { recursive: true, force: true });
       fs.rmSync(tarballPath);
     }
 
-    // 3. Verify critical directories exist
+    // 3. Verify critical directories and dependencies exist
     console.log('Verifying npm installation...');
     const utilsPath = path.join(npmSourceDir, 'lib', 'utils');
     const commandsPath = path.join(npmSourceDir, 'lib', 'commands');
     const nodeModulesPath = path.join(npmSourceDir, 'node_modules');
     const npmCliPath = path.join(npmSourceDir, 'bin', 'npm-cli.js');
-    
+
     const missingPaths = [];
     if (!fs.existsSync(utilsPath)) missingPaths.push('lib/utils');
     if (!fs.existsSync(commandsPath)) missingPaths.push('lib/commands');
     if (!fs.existsSync(nodeModulesPath)) missingPaths.push('node_modules');
     if (!fs.existsSync(npmCliPath)) missingPaths.push('bin/npm-cli.js');
-    
+
+    // Verify critical npm dependencies
+    const criticalDeps = ['semver', 'validate-npm-package-name', 'npm-pick-manifest'];
+    for (const dep of criticalDeps) {
+      const depPath = path.join(nodeModulesPath, dep);
+      if (!fs.existsSync(depPath)) {
+        missingPaths.push(`node_modules/${dep}`);
+      }
+    }
+
     if (missingPaths.length > 0) {
       throw new Error(`npm installation incomplete. Missing: ${missingPaths.join(', ')}`);
     }
 
     console.log('npm setup completed successfully.');
+    console.log(`Verified ${criticalDeps.length} critical npm dependencies.`);
     console.log(`Node.js binary: ${finalNodePath}`);
     console.log(`npm-cli.js: ${npmCliPath}`);
     console.log(`Setup complete. Binaries are ready in: ${binRoot}`);
-    
+
   } catch (error) {
     console.error('Failed to set up npm:', error.message);
     console.error(error.stack);
-    
+
     // Clean up on failure
     if (fs.existsSync(binRoot)) {
       fs.rmSync(binRoot, { recursive: true, force: true });
     }
-    
+
     throw error;
   }
 }
@@ -143,12 +163,12 @@ async function setupBinaries(basePath) {
 // Recursive copy helper
 function copyRecursive(src, dest) {
   const stats = fs.statSync(src);
-  
+
   if (stats.isDirectory()) {
     if (!fs.existsSync(dest)) {
       fs.mkdirSync(dest, { recursive: true });
     }
-    
+
     const entries = fs.readdirSync(src);
     for (const entry of entries) {
       const srcPath = path.join(src, entry);
@@ -157,7 +177,7 @@ function copyRecursive(src, dest) {
     }
   } else if (stats.isFile()) {
     fs.copyFileSync(src, dest);
-    
+
     // Preserve execute permissions on Unix-like systems
     if (process.platform !== 'win32') {
       const srcMode = fs.statSync(src).mode;
@@ -174,11 +194,11 @@ function copyRecursive(src, dest) {
 function getPackageManager(basePath) {
   const binRoot = basePath ? path.join(basePath, 'support-bin') : path.join(__dirname, '../support-bin');
   const npmCliPath = path.join(binRoot, 'npm_source', 'bin', 'npm-cli.js');
-  
+
   if (!fs.existsSync(npmCliPath)) {
     throw new Error('npm-cli.js not found. Please run bundle-node-npm.js first.');
   }
-  
+
   return { name: 'npm', path: npmCliPath };
 }
 

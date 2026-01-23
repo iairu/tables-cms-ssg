@@ -1,12 +1,12 @@
 {
-  "name": "tables-cms",
-  "version": "1.0.0",
+  "name": "tables-cms-electron",
+  "version": "0.0.1",
   "description": "Gatsby + React CMS for TABLES project",
   "main": "electron-main.js",
   "scripts": {
-    "start": "npm run bundle_support_binaries && electron .",
+    "start": "electron .",
     "bundle_support_binaries": "node support-setup/bundle-node-npm.js",
-    "dist": "npm run bundle_support_binaries && electron-builder"
+    "dist": "electron-builder"
   },
   "keywords": [
     "gatsby",
@@ -21,6 +21,9 @@
   },
   "devDependencies": {
     "@types/node": "^25.0.8",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "ajv-keywords": "^5.1.0",
     "electron": "^40.0.0",
     "electron-builder": "^24.13.3",
     "typescript": "^5.9.3"
@@ -29,43 +32,57 @@
     "appId": "com.tables.cms",
     "productName": "TABLES CMS",
     "icon": "static/assets/tables-icon.png",
+    "asar": false,
+    "electronCompile": false,
+    "nodeGypRebuild": false,
+    "buildDependenciesFromSource": false,
     "files": [
-      "main-site/src",
-      "main-site/static",
-      "main-site/.env.development",
-      "main-site/gatsby-*.js",
-      "main-site/package.json",
-      "cms-site/src",
-      "cms-site/static",
-      "cms-site/gatsby-*.js",
-      "cms-site/gatsby-*.json",
-      "cms-site/package.json",
-      "electron-*.html",
-      "electron-*.js",
-      "support-setup",
-      "static",
-      "tsconfig.json"
-    ],
-    "extraResources": [
-      "support-bin",
-      "support-setup",
-      "main-site",
-      "cms-site",
-      "static"
+      "node_modules/**/*",
+      "**/node_modules/**/*",
+      "**/*",
+      "!dist/**/*",
+      "!.git/**/*",
+      "!*.md",
+      "!*.log",
+      "!.cache/**/*",
+      "!**/.cache/**/*",
+      "!**/test/**/*",
+      "!**/tests/**/*",
+      "!**/__tests__/**/*",
+      "!**/.DS_Store"
     ],
     "directories": {
-      "output": "dist"
+      "output": "dist",
+      "buildResources": "static"
     },
     "mac": {
       "target": {
         "target": "dmg",
         "arch": [
-          "x64",
-          "arm64"
+          "x64"
         ]
       },
       "artifactName": "tables-cms-macos-${arch}.${ext}",
-      "icon": "static/assets/tables-icon.png"
+      "icon": "static/assets/tables-icon.png",
+      "category": "public.app-category.developer-tools",
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false,
+      "entitlements": null,
+      "entitlementsInherit": null,
+      "type": "distribution",
+      "minimumSystemVersion": "10.15.0",
+      "extendInfo": {
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true
+        },
+        "LSEnvironment": {
+          "MallocNanoZone": "0"
+        },
+        "NSSupportsAutomaticGraphicsSwitching": true,
+        "NSHighResolutionCapable": true,
+        "LSBackgroundOnly": false,
+        "NSRequiresAquaSystemAppearance": false
+      }
     },
     "win": {
       "target": "msi",
@@ -75,7 +92,8 @@
     "linux": {
       "target": "AppImage",
       "artifactName": "tables-cms-linux.${ext}",
-      "icon": "static/assets/tables-icon.png"
+      "icon": "static/assets/tables-icon.png",
+      "category": "Development"
     }
   }
 }
