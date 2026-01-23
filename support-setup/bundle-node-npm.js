@@ -5,7 +5,7 @@ const { execSync } = require('child_process');
 const NODE_VERSION = '22.18.0';
 const NPM_VERSION = '11.7.0'; 
 
-const BIN_ROOT = path.join(__dirname, '../electron-bin');
+const BIN_ROOT = path.join(__dirname, '../support-bin');
 const NPM_SOURCE_DIR = path.join(BIN_ROOT, 'npm_source');
 const NPM_BIN_PATH = path.join(NPM_SOURCE_DIR, 'bin');
 

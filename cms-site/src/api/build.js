@@ -17,7 +17,7 @@ export const config = {
 
 /**
  * Finds the bundled or system node, npm, and npx binaries.
- * Priority: 1. electron-bin (Local), 2. node-bin (Resources), 3. System Default
+ * Priority: 1. support-bin (Local), 2. node-bin (Resources), 3. System Default
  */
 function findBinaries() {
   const isWin = process.platform === 'win32';
@@ -25,7 +25,7 @@ function findBinaries() {
 
   // Define search paths in order of priority
   const searchPaths = [
-    path.join(__dirname, '../../../electron-bin'), // 1. Development folder
+    path.join(__dirname, '../../../support-bin'), // 1. Development folder
     ...(typeof process.resourcesPath === 'string' 
       ? [path.join(process.resourcesPath, 'node-bin')] 
       : []) // 2. Production resources (only if string)

@@ -4,9 +4,9 @@
   "description": "Gatsby + React CMS for TABLES project",
   "main": "electron-main.js",
   "scripts": {
-    "start": "npm run bundle_node_binaries && electron .",
-    "bundle_node_binaries": "node electron-setup/bundle-node-npm.js",
-    "dist": "npm run bundle_node_binaries && electron-builder"
+    "start": "npm run bundle_support_binaries && electron .",
+    "bundle_support_binaries": "node support-setup/bundle-node-npm.js",
+    "dist": "npm run bundle_support_binaries && electron-builder"
   },
   "keywords": [
     "gatsby",
@@ -35,7 +35,7 @@
       "main-site/.env.development",
       "main-site/gatsby-*.js",
       "main-site/package.json",
-      "electron-bin",
+      "support-bin",
       "cms-site/src",
       "cms-site/static",
       "cms-site/gatsby-*.js",
@@ -48,8 +48,8 @@
     ],
     "extraResources": [
       {
-        "from": "electron-bin",
-        "to": "electron-bin",
+        "from": "support-bin",
+        "to": "support-bin",
         "filter": [
           "*"
         ]
@@ -64,6 +64,13 @@
       {
         "from": "cms-site",
         "to": "cms-site",
+        "filter": [
+          "*"
+        ]
+      },
+      {
+        "from": "static",
+        "to": "static",
         "filter": [
           "*"
         ]

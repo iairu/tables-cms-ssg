@@ -122,7 +122,7 @@ const startGatsby = () => {
   const platform = os.platform();
   const nodeExecutable = platform === 'win32' ? 'node.exe' : 'node';
   const resourcesPath = IS_PACKAGED ? process.resourcesPath : __dirname;
-  const binPath = path.join(resourcesPath, 'electron-bin', 'npm_source', 'bin');
+  const binPath = path.join(resourcesPath, 'support-bin', 'npm_source', 'bin');
   const nodePath = path.join(binPath, nodeExecutable);
   const npmCliPath = path.join(binPath, 'npm-cli.js');
   const cmsSiteDir = path.join(resourcesPath, 'cms-site');

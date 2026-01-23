@@ -9,8 +9,15 @@ lerna-debug.log*
 # Dependency directories
 node_modules/
 jspm_packages/
-bin
-electron-bin
+support-bin/npm_source/bin/*
+!support-bin/npm_source/bin/placeholder
+support-bin/npm_source/lib/*
+!support-bin/npm_source/lib/placeholder
+support-bin/npm_source/docs
+support-bin/npm_source/man
+support-bin/npm_source/node_modules
+support-bin/npm_source/index.js
+support-bin/npm_source/package.json
 
 # Gatsby files
 .cache/

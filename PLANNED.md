@@ -1,5 +1,5 @@
 now onto the next task, within built electron app there is an issue right at the beginning of Running npm install in CMS site: Uncaught Exception:
-Error: spawn /Users/iairu/Desktop/TABLES CMS v22.app/Contents/Resources/electron-bin/npm_source/bin/node ENOENT
+Error: spawn /Users/iairu/Desktop/TABLES CMS v22.app/Contents/Resources/support-bin/npm_source/bin/node ENOENT
 
 tables logo in console window is also not showing properly in the packaged app
 
