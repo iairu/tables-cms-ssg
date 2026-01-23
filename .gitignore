@@ -61,6 +61,7 @@ yarn-error.log*
 .eslintcache
 .stylelintcache
 .cache
+package-lock.json
 
 # Optional npm cache directory
 .npm
