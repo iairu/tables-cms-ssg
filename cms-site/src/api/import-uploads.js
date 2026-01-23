@@ -18,6 +18,17 @@ export default function handler(req, res) {
   const uploadDir = getUploadDir();
 
   try {
+    // Clear the uploads directory first
+    fs.readdirSync(uploadDir).forEach(file => {
+      // a simple placeholder file exists in this directory, we should not delete it
+      if (file === 'placeholder') return;
+      try {
+        fs.unlinkSync(path.join(uploadDir, file));
+      } catch (err) {
+        console.error(`Failed to delete file: ${file}`, err);
+      }
+    });
+
     const { uploads } = req.body;
 
     if (!uploads || typeof uploads !== 'object') {
