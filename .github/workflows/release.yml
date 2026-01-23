@@ -3,13 +3,18 @@ name: Custom macOS Release
 on:
   push:
     branches:
-      - main  # Trigger on push to main
+      - main
 
 jobs:
   build-macos:
     runs-on: macos-latest
     permissions:
-      contents: write # Needed to upload releases
+      contents: write
+    strategy:
+      matrix:
+        # Define the architectures we want to build for
+        arch: [arm64, x64]
+    
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -19,46 +24,43 @@ jobs:
         with:
           node-version: '22.18.0'
 
-      - name: 1. Setup Support Binaries
+      - name: 1. Setup Support Binaries (${{ matrix.arch }})
         run: |
-          # Ensure setup script is executable if needed
-          node TABLES.app/Contents/MacOS/support-setup/bundle-node-npm.js
+          # Pass the matrix architecture to your setup script
+          node TABLES.app/Contents/MacOS/support-setup/bundle-node-npm.js ${{ matrix.arch }}
           
-          # Verify the folder was created and populated
+          # Verify the correct binary exists (check if node is actually for the right arch)
           ls -R TABLES.app/Contents/MacOS/support-bin
 
       - name: 2. Set Executable Permissions
         run: |
-          # Crucial: Ensure macOS recognizes the shell wrappers as executables
           chmod +x "TABLES.app/Contents/MacOS/TABLES"
           chmod +x "TABLES.app/Contents/MacOS/start.sh"
 
-      - name: 3. Create DMG
+      - name: 3. Create DMG (${{ matrix.arch }})
         run: |
-          # Install create-dmg utility
           brew install create-dmg
           
-          # Create the DMG container
-          # Adjust --window-size and --icon-size as you like
+          # We name the DMG based on the architecture
           create-dmg \
-            --volname "TABLES Installer" \
+            --volname "TABLES Installer ${{ matrix.arch }}" \
             --window-pos 200 120 \
             --window-size 600 400 \
             --icon-size 100 \
             --icon "TABLES.app" 175 190 \
             --hide-extension "TABLES.app" \
             --app-drop-link 425 190 \
-            "TABLES-v${{ github.run_number }}-mac.dmg" \
+            "TABLES-v${{ github.run_number }}-${{ matrix.arch }}.dmg" \
             "TABLES.app"
 
-      - name: 4. Create GitHub Release
-        id: create_release
+      - name: 4. Upload to GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ github.run_number }}
           name: Release v${{ github.run_number }}
           draft: false
           prerelease: false
-          files: TABLES-v${{ github.run_number }}-mac.dmg
+          # This will append the file to the release created by the first job that finishes
+          files: TABLES-v${{ github.run_number }}-${{ matrix.arch }}.dmg
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}

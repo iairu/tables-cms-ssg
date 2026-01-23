@@ -4,11 +4,14 @@ const { execSync } = require('child_process');
 
 const NODE_VERSION = '22.18.0';
 
+
 // Helper to determine Node Download URL
 function getNodeUrl() {
   const platform = process.platform === 'win32' ? 'win' : process.platform;
-  const arch = process.arch === 'ia32' ? 'x86' : process.arch;
   const extension = process.platform === 'win32' ? 'zip' : 'tar.gz';
+  
+  // Allow overriding via command line argument, otherwise default to current system
+  const arch = process.argv[2] || (process.arch === 'ia32' ? 'x86' : process.arch);
 
   // Example: https://nodejs.org/dist/v22.18.0/node-v22.18.0-win-x64.zip
   return `https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-${platform}-${arch}.${extension}`;
