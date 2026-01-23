@@ -44,7 +44,7 @@ jobs:
       run: cd cms-site && npm install
 
     - name: Build Electron app (macOS)
-      run: npm run dist -- -m
+      run: npm run bundle_node_binaries && npm run dist -- -m
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
@@ -87,7 +87,7 @@ jobs:
       run: cd cms-site && npm install
 
     - name: Build Electron app (Linux)
-      run: npm run dist -- -l
+      run: npm run bundle_node_binaries && npm run dist -- -l
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
@@ -99,5 +99,5 @@ jobs:
       with:
         upload_url: ${{ needs.create-github-release.outputs.upload_url }}
         asset_path: ./dist/tables-cms-linux.AppImage
-        asset_name: tables-cms-linux.AppImage
+        asset_name: tables-cms-linux-UNTESTED.AppImage
         asset_content_type: application/octet-stream

@@ -49,6 +49,7 @@ const createLaunchWindow = () => {
     width: 800,
     height: 400,
     frame: false,
+    icon: path.join(__dirname, 'static/assets/tables-icon.png'),
     titleBarStyle: 'hidden',
     title: 'Launch and Console Output',
     webPreferences: {
@@ -82,6 +83,7 @@ const createMainWindow = () => {
     height: 800,
     show: false,
     frame: false,
+    icon: path.join(__dirname, 'static/assets/tables-icon.png'),
     titleBarStyle: 'hidden',
     webPreferences: {
       preload: path.join(__dirname, 'electron-preload.js'),
@@ -179,6 +181,9 @@ const startGatsby = () => {
 };
 
 app.whenReady().then(async () => {
+  if (process.platform === 'darwin') {
+    app.dock.setIcon(path.join(__dirname, 'static/assets/tables-icon.png'));
+  }
   await createLaunchWindow();
   log('Console window created.');
 

@@ -4,9 +4,9 @@
   "description": "Gatsby + React CMS for TABLES project",
   "main": "electron-main.js",
   "scripts": {
-    "start": "npm run grabnodenpm && electron .",
-    "grabnodenpm": "node electron-setup/bundle-node-npm.js",
-    "dist": "npm run grabnodenpm && electron-builder"
+    "start": "npm run bundle_node_binaries && electron .",
+    "bundle_node_binaries": "node electron-setup/bundle-node-npm.js",
+    "dist": "npm run bundle_node_binaries && electron-builder"
   },
   "keywords": [
     "gatsby",
@@ -43,6 +43,7 @@
       "cms-site/package.json",
       "electron-*.html",
       "electron-*.js",
+      "static",
       "tsconfig.json"
     ],
     "extraResources": [

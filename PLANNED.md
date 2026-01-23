@@ -1,6 +1,19 @@
+now onto the next task, within built electron app there is an issue right at the beginning of Running npm install in CMS site: Uncaught Exception:
+Error: spawn /Users/iairu/Desktop/TABLES CMS v22.app/Contents/Resources/electron-bin/npm_source/bin/node ENOENT
+
+tables logo in console window is also not showing properly in the packaged app
+
+afterwards also add tables icon to be shown as app icon not just on the .app but also dock icon when running the app
+
+---
+
+have all uploads be purged on import
+
+---
+
 stop the frontend deploy timer when BUILD_END happens, allowing the user to use the buttons again
 
-and also improve console window css now that it has more purposes than just a launch progress bar, make the console within it always visible, use the loading for builds as well, instead of height growth of the console have it be fixed height with overflow scroll-y
+and also improve console window css now that it has more purposes than just a launch progress bar, make the console within it always visible, use the loading for builds as well, instead of height growth of the console have it be fixed height with overflow scroll-y, do not show the loading bar during deploy, make the window always on top
 
 ---
 

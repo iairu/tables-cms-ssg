@@ -46,19 +46,37 @@ async function setupBinaries() {
   fs.mkdirSync(tempNodeDir, { recursive: true });
 
   if (process.platform === 'win32') {
-    // Windows: Download zip and extract specific file
+    // Windows: Download zip, extract, and move the node binary
     const zipPath = path.join(BIN_ROOT, 'node.zip');
     execSync(`curl -L -o "${zipPath}" "${nodeUrl}"`);
-    // Use PowerShell to expand (standard on Win10+)
     execSync(`powershell -Command "Expand-Archive -Path '${zipPath}' -DestinationPath '${tempNodeDir}'"`);
     
     const extractedDir = fs.readdirSync(tempNodeDir).find(d => d.startsWith('node-v'));
+    if (!extractedDir) throw new Error('Could not find extracted Node.js directory.');
+
     fs.renameSync(path.join(tempNodeDir, extractedDir, 'node.exe'), finalNodePath);
+
+    // Clean up
+    fs.rmSync(tempNodeDir, { recursive: true, force: true });
+    fs.rmSync(zipPath);
+
   } else {
-    // macOS/Linux: Stream tarball and extract only the node binary
-    // The --strip-components logic depends on the internal folder structure of the Node tarball
-    execSync(`curl -L ${nodeUrl} | tar -xz -C ${NPM_BIN_PATH} --strip-components=2 --wildcards "*/bin/node" || \
-              curl -L ${nodeUrl} | tar -xz -C ${NPM_BIN_PATH} --strip-components=2 "*/bin/node"`);
+    // macOS/Linux: Download tarball, extract, and move the node binary
+    const tarballPath = path.join(BIN_ROOT, 'node.tar.gz');
+    execSync(`curl -L -o "${tarballPath}" "${nodeUrl}"`);
+    execSync(`tar -xzf "${tarballPath}" -C "${tempNodeDir}"`);
+    
+    const extractedDir = fs.readdirSync(tempNodeDir).find(d => d.startsWith('node-v'));
+    if (!extractedDir) {
+      throw new Error('Could not find extracted Node.js directory.');
+    }
+    
+    const extractedNodePath = path.join(tempNodeDir, extractedDir, 'bin', 'node');
+    fs.renameSync(extractedNodePath, finalNodePath);
+    
+    // Clean up the extracted files and tarball
+    fs.rmSync(tempNodeDir, { recursive: true, force: true });
+    fs.rmSync(tarballPath);
   }
 
   // 4. Set Permissions
