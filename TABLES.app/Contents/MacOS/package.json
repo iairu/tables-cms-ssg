@@ -5,8 +5,7 @@
   "main": "electron-main.js",
   "scripts": {
     "start": "electron .",
-    "bundle_support_binaries": "node support-setup/bundle-node-npm.js",
-    "dist": "electron-builder"
+    "bundle_support_binaries": "node support-setup/bundle-node-npm.js"
   },
   "keywords": [
     "gatsby",
@@ -25,75 +24,6 @@
     "ajv-formats": "^3.0.1",
     "ajv-keywords": "^5.1.0",
     "electron": "^40.0.0",
-    "electron-builder": "^24.13.3",
     "typescript": "^5.9.3"
-  },
-  "build": {
-    "appId": "com.tables.cms",
-    "productName": "TABLES CMS",
-    "icon": "static/assets/tables-icon.png",
-    "asar": false,
-    "electronCompile": false,
-    "nodeGypRebuild": false,
-    "buildDependenciesFromSource": false,
-    "files": [
-      "node_modules/**/*",
-      "**/node_modules/**/*",
-      "**/*",
-      "!dist/**/*",
-      "!.git/**/*",
-      "!*.md",
-      "!*.log",
-      "!.cache/**/*",
-      "!**/.cache/**/*",
-      "!**/test/**/*",
-      "!**/tests/**/*",
-      "!**/__tests__/**/*",
-      "!**/.DS_Store"
-    ],
-    "directories": {
-      "output": "dist",
-      "buildResources": "static"
-    },
-    "mac": {
-      "target": {
-        "target": "dmg",
-        "arch": [
-          "x64"
-        ]
-      },
-      "artifactName": "tables-cms-macos-${arch}.${ext}",
-      "icon": "static/assets/tables-icon.png",
-      "category": "public.app-category.developer-tools",
-      "hardenedRuntime": false,
-      "gatekeeperAssess": false,
-      "entitlements": null,
-      "entitlementsInherit": null,
-      "type": "distribution",
-      "minimumSystemVersion": "10.15.0",
-      "extendInfo": {
-        "NSAppTransportSecurity": {
-          "NSAllowsArbitraryLoads": true
-        },
-        "LSEnvironment": {
-          "MallocNanoZone": "0"
-        },
-        "NSSupportsAutomaticGraphicsSwitching": true,
-        "NSHighResolutionCapable": true,
-        "LSBackgroundOnly": false,
-        "NSRequiresAquaSystemAppearance": false
-      }
-    },
-    "win": {
-      "target": "msi",
-      "artifactName": "tables-cms-windows.${ext}",
-      "icon": "static/assets/tables-icon.png"
-    },
-    "linux": {
-      "target": "AppImage",
-      "artifactName": "tables-cms-linux.${ext}",
-      "icon": "static/assets/tables-icon.png",
-      "category": "Development"
-    }
   }
 }
