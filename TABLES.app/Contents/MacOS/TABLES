@@ -10,6 +10,6 @@ CURRENTPATH=$(cd "$(dirname "$0")" && pwd)
 osascript <<EOF
 tell application "Terminal"
     activate
-    do script "cd '$CURRENTPATH' && ./start.sh; exit"
+    do script "cd '$CURRENTPATH/../Resources' && ./start.sh; exit"
 end tell
 EOF
