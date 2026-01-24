@@ -5,6 +5,7 @@ const useCMSData = () => {
   // Build trigger state
   const buildTimeoutRef = useRef(null);
   const pollIntervalRef = useRef(null);
+  const countdownIntervalRef = useRef(null);
   const isBuildingRef = useRef(false);
   const lastBuildTimeRef = useRef(null);
   const [isBuilding, setIsBuilding] = useState(false);
@@ -21,56 +22,63 @@ const useCMSData = () => {
   // Poll build status
   const pollBuildStatus = useCallback(() => {
     console.log('[useCMSData] Polling build status...');
-    fetch('/api/build')
+    return fetch(`/api/build?t=${Date.now()}`)
       .then(res => res.json())
-      .then(data => {
+      .catch(err => {
+        console.error('[useCMSData] Build status poll failed:', err);
+        // Return a default object on error to avoid breaking the chain
+        return { isBuildInProgress: isBuildingRef.current, lastBuildTime: null };
+      });
+  }, []);
+
+  const startPolling = useCallback(() => {
+    // Clear any existing poll timer
+    if (pollIntervalRef.current) {
+      clearTimeout(pollIntervalRef.current);
+    }
+
+    const poll = () => {
+      pollBuildStatus().then(data => {
         console.log('[useCMSData] Build status response:', data);
-        
-        // Check if we're currently building (based on our local state)
+
         if (isBuildingRef.current) {
-          // We think we're building, check server status
           if (!data.isBuildInProgress && data.lastBuildTime) {
-            // Build is complete
-            console.log('[useCMSData] Build complete! Stopping polling. Last build time:', data.lastBuildTime);
+            // Build complete
+            console.log('[useCMSData] Build complete! Stopping polling.');
             setIsBuildingState(false);
             setLastSaved(data.lastBuildTime);
-            
-            // Clear polling interval
+
+            if (countdownIntervalRef.current) {
+              clearInterval(countdownIntervalRef.current);
+              countdownIntervalRef.current = null;
+            }
+            setCanBuild(true);
+            setBuildCooldownSeconds(0);
+
             if (pollIntervalRef.current) {
-              clearInterval(pollIntervalRef.current);
+              clearTimeout(pollIntervalRef.current);
               pollIntervalRef.current = null;
             }
-          } else if (data.isBuildInProgress) {
-            // Build still in progress
-            console.log('[useCMSData] Build still in progress, will poll again...');
           } else {
-            // Unclear state - stop polling to be safe
-            console.log('[useCMSData] Unclear build state, stopping polling');
-            setIsBuildingState(false);
-            if (pollIntervalRef.current) {
-              clearInterval(pollIntervalRef.current);
-              pollIntervalRef.current = null;
-            }
+            // Build still in progress, poll again
+            pollIntervalRef.current = setTimeout(poll, 3000);
           }
         } else {
-          // We're not building according to our state, stop polling
-          console.log('[useCMSData] Not building locally, stopping polling');
+          // Not supposed to be building, so stop polling
           if (pollIntervalRef.current) {
-            clearInterval(pollIntervalRef.current);
+            clearTimeout(pollIntervalRef.current);
             pollIntervalRef.current = null;
           }
         }
-      })
-      .catch(err => {
-        console.error('[useCMSData] Build status poll failed:', err);
-        // On error, DON'T stop polling immediately - the build might still be running
-        // Just log the error and let the next poll attempt continue
       });
-  }, [setIsBuildingState]);
+    };
+
+    // Start the first poll immediately
+    poll();
+  }, [pollBuildStatus, setIsBuildingState]);
 
   // Trigger build function
   const triggerBuild = useCallback((localOnly = false) => {
-    // Don't trigger if already building (check ref for current state)
     if (isBuildingRef.current) {
       console.log('[useCMSData] Build already in progress, skipping trigger');
       return;
@@ -79,7 +87,7 @@ const useCMSData = () => {
     setIsBuildingState(true);
     console.log('[useCMSData] Starting new build...', localOnly ? '(local only)' : '(build and deploy)');
     
-    // Collect all localStorage data
+    // ... (rest of the function is the same)
     const cmsData = {
       pages: JSON.parse(localStorage.getItem('pages') || '[]'),
       blogArticles: JSON.parse(localStorage.getItem('blogArticles') || '[]'),
@@ -93,11 +101,9 @@ const useCMSData = () => {
       extensions: JSON.parse(localStorage.getItem('extensions') || '{}')
     };
     
-    // Get Vercel API token and project name from settings
     const vercelApiToken = cmsData.settings.vercelApiKey || '';
     const vercelProjectName = cmsData.settings.vercelProjectName || '';
     
-    // Trigger Gatsby build with data
     fetch('/api/build', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -112,7 +118,6 @@ const useCMSData = () => {
     })
     .then(res => {
       if (res.status === 409) {
-        // Build already in progress
         console.log('[useCMSData] Build already in progress on server');
         return res.json();
       }
@@ -124,26 +129,20 @@ const useCMSData = () => {
     .then(data => {
       console.log('[useCMSData] Build trigger response:', data);
       
-      if (data.status === 'conflict') {
-        // Build already in progress, just start polling
-        console.log('[useCMSData] Conflict detected, starting polling for existing build...');
-      }
-      
-      // Start polling for build status every 3 seconds (less aggressive)
-      if (pollIntervalRef.current) {
-        clearInterval(pollIntervalRef.current);
-      }
-      console.log('[useCMSData] Starting build status polling every 3 seconds...');
-      pollIntervalRef.current = setInterval(pollBuildStatus, 3000);
-      
-      // Poll once after 1 second to check initial status
-      setTimeout(pollBuildStatus, 1000);
+      // Start polling for build status
+      startPolling();
     })
     .catch(err => {
       console.error('[useCMSData] Build trigger failed:', err);
       setIsBuildingState(false);
+      if (countdownIntervalRef.current) {
+        clearInterval(countdownIntervalRef.current);
+        countdownIntervalRef.current = null;
+      }
+      setCanBuild(true);
+      setBuildCooldownSeconds(0);
     });
-  }, [pollBuildStatus, setIsBuildingState]);
+  }, [setIsBuildingState, startPolling]);
 
   // Manual trigger function (exposed to components)
   const manualTriggerBuild = useCallback((localOnly = false) => {
@@ -166,10 +165,10 @@ const useCMSData = () => {
     setBuildCooldownSeconds(cooldownSeconds);
     
     // Start countdown timer
-    const countdownInterval = setInterval(() => {
+    countdownIntervalRef.current = setInterval(() => {
       setBuildCooldownSeconds(prev => {
         if (prev <= 1) {
-          clearInterval(countdownInterval);
+          clearInterval(countdownIntervalRef.current);
           setCanBuild(true);
           return 0;
         }
@@ -211,7 +210,10 @@ const useCMSData = () => {
         clearTimeout(buildTimeoutRef.current);
       }
       if (pollIntervalRef.current) {
-        clearInterval(pollIntervalRef.current);
+        clearTimeout(pollIntervalRef.current);
+      }
+      if (countdownIntervalRef.current) {
+        clearInterval(countdownIntervalRef.current);
       }
     };
   }, []);

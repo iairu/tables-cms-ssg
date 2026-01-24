@@ -61,8 +61,13 @@ function findBinaries() {
   };
 }
 
-let isBuildInProgress = false;
-let lastBuildTime = null;
+// Use global state to survive hot reloads in development
+if (typeof global.isBuildInProgress === 'undefined') {
+  global.isBuildInProgress = false;
+}
+if (typeof global.lastBuildTime === 'undefined') {
+  global.lastBuildTime = null;
+}
 
 export default async function handler(req, res) {
   // Set CORS headers
@@ -78,8 +83,8 @@ export default async function handler(req, res) {
   // Handle GET request - return build status
   if (req.method === 'GET') {
     return res.status(200).json({
-      isBuildInProgress,
-      lastBuildTime,
+      isBuildInProgress: global.isBuildInProgress,
+      lastBuildTime: global.lastBuildTime,
       mode: process.env.NODE_ENV
     });
   }
@@ -92,7 +97,7 @@ export default async function handler(req, res) {
     console.log(`[Build API] Build request received at ${timestamp} (trigger: ${trigger}, localOnly: ${localOnly})`);
 
     // If a build is already in progress, reject this request (don't queue)
-    if (isBuildInProgress) {
+    if (global.isBuildInProgress) {
       console.log('[Build API] Build already in progress, rejecting request');
       return res.status(409).json({
         status: 'conflict',
@@ -102,7 +107,8 @@ export default async function handler(req, res) {
     }
 
     // Mark build as in progress BEFORE doing anything else
-    isBuildInProgress = true;
+    global.isBuildInProgress = true;
+    console.log('[Build API] isBuildInProgress set to true');
     console.log('[Build API] Build status set to IN PROGRESS');
 
     // Send immediate response with build in progress status
@@ -116,17 +122,21 @@ export default async function handler(req, res) {
     // Export localStorage data and run the build asynchronously
     exportDataAndBuild(data || {}, localOnly, vercelApiToken, vercelProjectName)
       .then(() => {
+        console.log('[Build API] Build promise resolved');
         console.log('[Build API] Build completed successfully');
         const completionTime = new Date().toISOString();
-        lastBuildTime = completionTime;
-        isBuildInProgress = false;
+        global.lastBuildTime = completionTime;
+        global.isBuildInProgress = false;
+        console.log('[Build API] isBuildInProgress set to false');
         console.log('[Build API] Status updated - isBuildInProgress: false, lastBuildTime:', completionTime);
         console.log('BUILD_END');
       })
       .catch(err => {
+        console.log('[Build API] Build promise rejected');
         console.error('[Build API] Build failed:', err);
-        isBuildInProgress = false;
-        lastBuildTime = new Date().toISOString(); // Set timestamp even on failure so polling can detect completion
+        global.isBuildInProgress = false;
+        console.log('[Build API] isBuildInProgress set to false');
+        global.lastBuildTime = new Date().toISOString(); // Set timestamp even on failure so polling can detect completion
         console.log('BUILD_END');
       });
   } else {
