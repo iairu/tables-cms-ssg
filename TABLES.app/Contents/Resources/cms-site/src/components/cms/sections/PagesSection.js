@@ -132,6 +132,61 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
     }
   };
 
+  const handleDownloadHistoryEntry = () => {
+    if (currentPage && selectedHistoryIndex !== null) {
+      const historyItem = currentPage.history[selectedHistoryIndex];
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(historyItem));
+      const downloadAnchorNode = document.createElement('a');
+      downloadAnchorNode.setAttribute("href", dataStr);
+      downloadAnchorNode.setAttribute("download", `history-entry-${historyItem.timestamp}.json`);
+      document.body.appendChild(downloadAnchorNode); // required for firefox
+      downloadAnchorNode.click();
+      downloadAnchorNode.remove();
+    }
+  };
+
+  const handleLabelHistoryEntry = () => {
+    if (currentPage && selectedHistoryIndex !== null) {
+      const labelInput = document.getElementById('history-label-input');
+      if (labelInput && labelInput.value) {
+        const history = [...currentPage.history];
+        history[selectedHistoryIndex].label = labelInput.value;
+        updatePage(currentPage.id, { history });
+        labelInput.value = '';
+      }
+    }
+  };
+
+  const handleImportHistory = () => {
+    if (!currentPage) {
+      alert('Please select a page first.');
+      return;
+    }
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const importedHistoryItem = JSON.parse(event.target.result);
+          importedHistoryItem.label = 'Imported';
+          const history = currentPage.history || [];
+          history.push(importedHistoryItem);
+          updatePage(currentPage.id, { history });
+        } catch (error) {
+          console.error('Error parsing imported history file:', error);
+          alert('Error parsing imported history file. Please make sure it is a valid JSON file.');
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  };
+
   const currentPage = pages.find(p => p.id === currentPageId);
 
   // Get current language content
@@ -204,14 +259,13 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 1000
+            zIndex: 2000
           }}>
             <div style={{
               backgroundColor: 'white',
               padding: '30px',
               
               boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-              maxWidth: '600px',
               width: '90%',
               maxHeight: '80vh',
               overflow: 'auto'
@@ -238,6 +292,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                           }}
                         >
                           <strong>{new Date(item.timestamp).toLocaleString('ja-JP')}</strong>
+                          {item.label && <span style={{marginLeft: '10px', padding: '2px 5px', backgroundColor: '#e5e7eb', borderRadius: '4px', fontSize: '12px'}}>{item.label}</span>}
                         </div>
                       );
                     })}
@@ -258,7 +313,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                   )}
                 </>
               )}
-              <div style={{ display: 'flex', gap: '10px', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-start' }}>
                   {selectedHistoryIndex !== null && (
                     <button onClick={handleDeleteHistoryEntry} style={{
                       padding: '8px 16px',
@@ -267,10 +322,35 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                       backgroundColor: '#ef4444',
                       color: 'white',
                       cursor: 'pointer'
-                    }}>Delete this entry</button>
+                    }}>Delete this version</button>
                   )}
-                </div>
-                <div style={{ display: 'flex', gap: '10px' }}>
+                  {selectedHistoryIndex !== null && (
+                    <button onClick={handleDownloadHistoryEntry} style={{
+                      padding: '8px 16px',
+                      border: '1px solid rgba(37, 99, 235, 0.314)', color: 'rgb(37, 99, 235)',
+                      cursor: 'pointer',
+                      marginLeft: '10px'
+                    }}>Download this version</button>
+                  )}
+                  <button onClick={handleImportHistory} style={{
+                    padding: '8px 16px',
+                    border: '1px solid rgba(37, 99, 235, 0.314)', color: 'rgb(37, 99, 235)',
+                    cursor: 'pointer',
+                    marginLeft: '10px'
+                  }}>Upload</button>
+                  {selectedHistoryIndex !== null && (
+                    <div style={{marginLeft: '10px', display: 'flex'}}>
+                      <input type="text" id="history-label-input" placeholder="Enter label" style={{padding: '8px', border: '1px solid #cbd5e1'}} />
+                      <button onClick={handleLabelHistoryEntry} style={{
+                        padding: '8px 16px',
+                        border: 'none',
+                        backgroundColor: '#3b82f6',
+                        color: 'white',
+                        cursor: 'pointer',
+                        marginLeft: '5px'
+                      }}>Label</button>
+                    </div>
+                  )}
                   {selectedHistoryIndex !== null && (
                     <button onClick={handleRollback} style={{
                       padding: '8px 16px',
@@ -288,7 +368,6 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                     backgroundColor: 'white',
                     cursor: 'pointer'
                   }}>Close</button>
-                </div>
               </div>
             </div>
           </div>

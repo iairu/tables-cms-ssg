@@ -134,6 +134,61 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
     }
   };
 
+  const handleDownloadHistoryEntry = () => {
+    if (currentArticle && selectedHistoryIndex !== null) {
+      const historyItem = currentArticle.history[selectedHistoryIndex];
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(historyItem));
+      const downloadAnchorNode = document.createElement('a');
+      downloadAnchorNode.setAttribute("href", dataStr);
+      downloadAnchorNode.setAttribute("download", `history-entry-${historyItem.timestamp}.json`);
+      document.body.appendChild(downloadAnchorNode); // required for firefox
+      downloadAnchorNode.click();
+      downloadAnchorNode.remove();
+    }
+  };
+
+  const handleLabelHistoryEntry = () => {
+    if (currentArticle && selectedHistoryIndex !== null) {
+      const labelInput = document.getElementById('history-label-input-blog');
+      if (labelInput && labelInput.value) {
+        const history = [...currentArticle.history];
+        history[selectedHistoryIndex].label = labelInput.value;
+        updateBlogArticle(currentArticle.id, { history });
+        labelInput.value = '';
+      }
+    }
+  };
+
+  const handleImportHistory = () => {
+    if (!currentArticle) {
+      alert('Please select an article first.');
+      return;
+    }
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const importedHistoryItem = JSON.parse(event.target.result);
+          importedHistoryItem.label = 'Imported';
+          const history = currentArticle.history || [];
+          history.push(importedHistoryItem);
+          updateBlogArticle(currentArticle.id, { history });
+        } catch (error) {
+          console.error('Error parsing imported history file:', error);
+          alert('Error parsing imported history file. Please make sure it is a valid JSON file.');
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  };
+
   const currentArticle = blogArticles.find(a => a.id === currentBlogArticleId);
 
   // Get current language content
@@ -204,11 +259,10 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
   });
 
   if (editMode && currentArticle) {
+    const historyItem = selectedHistoryIndex !== null ? currentArticle.history[selectedHistoryIndex] : null;
     return (
       <section className="main-section active" id="blog-editor">
-      {historyModalOpen && (() => {
-        const historyItem = selectedHistoryIndex !== null ? currentArticle.history[selectedHistoryIndex] : null;
-        return (
+      {historyModalOpen && (
           <div style={{
             position: 'fixed',
             top: 0,
@@ -224,9 +278,8 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
             <div style={{
               backgroundColor: 'white',
               padding: '30px',
-
+              
               boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-              maxWidth: '600px',
               width: '90%',
               maxHeight: '80vh',
               overflow: 'auto'
@@ -246,25 +299,26 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
                           style={{
                             padding: '10px',
                             marginBottom: '8px',
-
+                            
                             cursor: 'pointer',
                             backgroundColor: selectedHistoryIndex === actualIndex ? '#e0e7ff' : '#f1f5f9',
                             border: selectedHistoryIndex === actualIndex ? '2px solid #0002ff' : '2px solid transparent'
                           }}
                         >
                           <strong>{new Date(item.timestamp).toLocaleString('ja-JP')}</strong>
+                          {item.label && <span style={{marginLeft: '10px', padding: '2px 5px', backgroundColor: '#e5e7eb', borderRadius: '4px', fontSize: '12px'}}>{item.label}</span>}
                           <div style={{ fontSize: '14px', color: '#64748b', marginTop: '4px' }}>
-                            {item.translations ? item.translations[currentLanguage]?.title : item.title}
+                            {item.title}
                           </div>
                         </div>
                       );
                     })}
                   </div>
-                  {historyItem && (
+                  {selectedHistoryIndex !== null && (
                     <div style={{
                       padding: '15px',
                       backgroundColor: '#f9fafb',
-
+                      
                       marginBottom: '15px',
                       maxHeight: '200px',
                       overflow: 'auto'
@@ -320,24 +374,48 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
                   )}
                 </>
               )}
-              <div style={{ display: 'flex', gap: '10px', justifyContent: 'space-between' }}>
-                <div>
+              <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-start' }}>
                   {selectedHistoryIndex !== null && (
                     <button onClick={handleDeleteHistoryEntry} style={{
                       padding: '8px 16px',
-
+                      
                       border: 'none',
                       backgroundColor: '#ef4444',
                       color: 'white',
                       cursor: 'pointer'
-                    }}>Delete this entry</button>
+                    }}>Delete this version</button>
                   )}
-                </div>
-                <div style={{ display: 'flex', gap: '10px' }}>
+                  {selectedHistoryIndex !== null && (
+                    <button onClick={handleDownloadHistoryEntry} style={{
+                      padding: '8px 16px',
+                      border: '1px solid rgba(37, 99, 235, 0.314)', color: 'rgb(37, 99, 235)',
+                      cursor: 'pointer',
+                      marginLeft: '10px'
+                    }}>Download this version</button>
+                  )}
+                  <button onClick={handleImportHistory} style={{
+                    padding: '8px 16px',
+                    border: '1px solid rgba(37, 99, 235, 0.314)', color: 'rgb(37, 99, 235)',
+                    cursor: 'pointer',
+                    marginLeft: '10px'
+                  }}>Upload</button>
+                  {selectedHistoryIndex !== null && (
+                    <div style={{marginLeft: '10px', display: 'flex'}}>
+                      <input type="text" id="history-label-input-blog" placeholder="Enter label" style={{padding: '8px', border: '1px solid #cbd5e1'}} />
+                      <button onClick={handleLabelHistoryEntry} style={{
+                        padding: '8px 16px',
+                        border: 'none',
+                        backgroundColor: '#3b82f6',
+                        color: 'white',
+                        cursor: 'pointer',
+                        marginLeft: '5px'
+                      }}>Label</button>
+                    </div>
+                  )}
                   {selectedHistoryIndex !== null && (
                     <button onClick={handleRollback} style={{
                       padding: '8px 16px',
-
+                      
                       border: 'none',
                       backgroundColor: '#0002ff',
                       color: 'white',
@@ -346,17 +424,15 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
                   )}
                   <button onClick={handleCloseHistory} style={{
                     padding: '8px 16px',
-
+                    
                     border: '1px solid #cbd5e1',
                     backgroundColor: 'white',
                     cursor: 'pointer'
                   }}>Close</button>
-                </div>
               </div>
             </div>
           </div>
-        );
-      })()}
+      )}
         <header>
           <h1>
             <span>Edit Article</span>
