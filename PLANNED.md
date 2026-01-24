@@ -6,6 +6,10 @@ add slideshow page component with support for multiple slides (slide can contain
 
 ---
 
+in cms-site: remember state of the deploy and local buttons within header across navigation
+
+---
+
 add extension called Biometric for a database of users with fingerprints imgs (left thumb, right thumb, palm), face mugshot (with grouping and better sort: front, back, left side, right side), user data and sensitive data (place of origin, date of birth, gender, height, weight, eye color, hair color, skin color, blood type, Rh factor, national ID, social security number, passport number, driver's license number, first name, last name, middle names, marriage status, children, spouse name, ...), this will be editable same way as the pedigree cats table with an expand button, show a warning within the picker that this is for demo only due to low or non-existent security
 
 ---

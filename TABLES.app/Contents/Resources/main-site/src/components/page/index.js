@@ -8,6 +8,7 @@ import Video from './Video';
 import Ranking from './Ranking';
 import References from './References';
 import Reviews from './Reviews';
+import Slideshow from '../slideshow/Slideshow';
 
 const PageComponent = ({ row }) => {
   switch (row.component) {
@@ -29,6 +30,8 @@ const PageComponent = ({ row }) => {
       return <References row={row} />;
     case 'Reviews':
       return <Reviews row={row} />;
+    case 'Slideshow':
+      return <Slideshow slides={row.fields.slides} minHeight={row.fields.minHeight} maxHeight={row.fields.maxHeight} />;
     default:
       return null;
   }

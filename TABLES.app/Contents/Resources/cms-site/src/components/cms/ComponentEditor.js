@@ -165,6 +165,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                 <option value="Ranking">Ranking</option>
                 <option value="References">References</option>
                 <option value="Reviews">Reviews</option>
+                <option value="Slideshow">Slideshow</option>
               </select>
             </label>
             <div style={{ display: 'flex', gap: '5px' }}>
@@ -902,6 +903,90 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                   <input type="checkbox" checked={row.fields.darkTheme || false} onChange={(e) => handleFieldChange(rowIndex, 'darkTheme', e.target.checked)} />
                   <span>Dark Theme ({currentLanguage})</span>
                 </label>
+              </div>
+            </div>
+          )}
+
+          {/* Slideshow Component */}
+          {row.component === 'Slideshow' && (
+            <div>
+              <div style={{ marginBottom: '10px' }}>
+                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Slides ({currentLanguage}):</strong></label>
+                {row.fields.slides && row.fields.slides.map((slide, slideIndex) => (
+                  <div key={slideIndex} style={{ background: 'white', padding: '15px',  marginBottom: '10px', border: '1px solid #e2e8f0' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                      <strong>Slide {slideIndex + 1}</strong>
+                      <button type="button" onClick={() => handleArrayItemRemove(rowIndex, 'slides', slideIndex)} style={{ padding: '3px 10px', background: '#f87171', color: 'white', border: 'none',  cursor: 'pointer', fontSize: '12px' }}>Remove</button>
+                    </div>
+                    <div style={{ marginBottom: '8px' }}>
+                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Type ({currentLanguage}):</label>
+                      <select
+                        value={slide.type || 'image'}
+                        onChange={(e) => handleArrayItemChange(rowIndex, 'slides', slideIndex, 'type', e.target.value)}
+                        style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1' }}
+                      >
+                        <option value="image">Image</option>
+                        <option value="video">Video</option>
+                      </select>
+                    </div>
+                    {slide.type === 'image' && (
+                      <div style={{ marginBottom: '8px' }}>
+                        {renderImageUpload(
+                          'Image',
+                          slide.src,
+                          () => handleImageUpload(rowIndex, 'slides', slideIndex, 'src'),
+                          () => handleArrayItemChange(rowIndex, 'slides', slideIndex, 'src', ''),
+                          () => handleSelectImage(rowIndex, 'slides', slideIndex, 'src')
+                        )}
+                      </div>
+                    )}
+                    {slide.type === 'video' && (
+                      <div style={{ marginBottom: '8px' }}>
+                        <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Video URL ({currentLanguage}):</label>
+                        <input
+                          type="text"
+                          value={slide.src || ''}
+                          onChange={(e) => handleArrayItemChange(rowIndex, 'slides', slideIndex, 'src', e.target.value)}
+                          style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1' }}
+                        />
+                      </div>
+                    )}
+                    <div style={{ marginBottom: '8px' }}>
+                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Alt Text ({currentLanguage}):</label>
+                      <input
+                        type="text"
+                        value={slide.alt || ''}
+                        onChange={(e) => handleArrayItemChange(rowIndex, 'slides', slideIndex, 'alt', e.target.value)}
+                        style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1' }}
+                      />
+                    </div>
+                  </div>
+                ))}
+                <button type="button" onClick={() => handleArrayItemAdd(rowIndex, 'slides', { type: 'image', src: '', alt: '' })} style={{ padding: '8px 16px', background: '#0002ff', color: 'white', border: 'none',  cursor: 'pointer' }}>+ Add Slide</button>
+              </div>
+              <div style={{ marginBottom: '10px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                  <input type="checkbox" checked={row.fields.darkTheme || false} onChange={(e) => handleFieldChange(rowIndex, 'darkTheme', e.target.checked)} />
+                  <span>Dark Theme ({currentLanguage})</span>
+                </label>
+              </div>
+              <div style={{ marginBottom: '10px' }}>
+                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Min Height (vh) ({currentLanguage}):</strong></label>
+                <input
+                  type="number"
+                  value={row.fields.minHeight || 30}
+                  onChange={(e) => handleFieldChange(rowIndex, 'minHeight', parseInt(e.target.value) || 0)}
+                  style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
+                />
+              </div>
+              <div style={{ marginBottom: '10px' }}>
+                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Max Height (vh) ({currentLanguage}):</strong></label>
+                <input
+                  type="number"
+                  value={row.fields.maxHeight || 70}
+                  onChange={(e) => handleFieldChange(rowIndex, 'maxHeight', parseInt(e.target.value) || 0)}
+                  style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
+                />
               </div>
             </div>
           )}

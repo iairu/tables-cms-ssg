@@ -221,7 +221,7 @@ export const getDefaultFieldsForComponent = (type) => {
         buttons: [],
         darkTheme: false,
         backgroundColor: '#ffffff',
-        minimalHeight: 400,
+        minimalHeight: 70,
         backgroundImage: '',
         mobileBackgroundImage: '',
         scaleImageToWholeBackground: false,
@@ -265,8 +265,8 @@ export const getDefaultFieldsForComponent = (type) => {
         rightBackgroundImage: '',
         fitLeftBackground: false,
         fitRightBackground: false,
-        minimalLeftHeight: 300,
-        minimalRightHeight: 300,
+        minimalLeftHeight: 70,
+        minimalRightHeight: 70,
         hideLeftOnMobile: false,
         hideRightOnMobile: false,
         largerSlide: false,
@@ -292,6 +292,13 @@ export const getDefaultFieldsForComponent = (type) => {
       return {
         reviews: [],
         darkTheme: false
+      };
+    case 'Slideshow':
+      return {
+        slides: [],
+        darkTheme: false,
+        minHeight: 30,
+        maxHeight: 70,
       };
     default:
       return {};
