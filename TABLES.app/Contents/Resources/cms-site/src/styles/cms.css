@@ -177,7 +177,7 @@ header h1 input:focus {
 }
 
 input, select {
-  border: 1px solid #d2d2d7 !important;
+  border: 1px solid #d2d2d7;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 

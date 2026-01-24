@@ -1,4 +1,43 @@
-import React, { useState } from 'react';
+import React from 'react';
+import SlugPicker from './SlugPicker';
+import ButtonEditor from './ButtonEditor';
+
+export const renderRichTextEditor = (editorId, value, onChange) => {
+  const execCommand = (command, val = null) => {
+    const editor = document.getElementById(editorId);
+    if (editor) {
+      editor.focus();
+      document.execCommand(command, false, val);
+    }
+  };
+
+  return (
+    <div style={{ border: '1px solid #cbd5e1',  overflow: 'hidden' }}>
+      <div style={{ background: '#f8fafc', padding: '8px', borderBottom: '1px solid #cbd5e1', display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
+        <button type="button" onClick={() => execCommand('bold')} style={{ padding: '5px 10px', border: '1px solid #cbd5e1',  background: 'white', cursor: 'pointer', fontWeight: 'bold' }}>B</button>
+        <button type="button" onClick={() => execCommand('italic')} style={{ padding: '5px 10px', border: '1px solid #cbd5e1',  background: 'white', cursor: 'pointer', fontStyle: 'italic' }}>I</button>
+        <button type="button" onClick={() => execCommand('strikeThrough')} style={{ padding: '5px 10px', border: '1px solid #cbd5e1',  background: 'white', cursor: 'pointer', textDecoration: 'line-through' }}>S</button>
+        <button type="button" onClick={() => { const url = window.prompt('Enter URL:'); if (url) execCommand('createLink', url); }} style={{ padding: '5px 10px', border: '1px solid #cbd5e1',  background: 'white', cursor: 'pointer' }}>🔗</button>
+        <button type="button" onClick={() => execCommand('formatBlock', 'blockquote')} style={{ padding: '5px 10px', border: '1px solid #cbd5e1',  background: 'white', cursor: 'pointer' }}>❝❞</button>
+        <button type="button" onClick={() => execCommand('insertUnorderedList')} style={{ padding: '5px 10px', border: '1px solid #cbd5e1',  background: 'white', cursor: 'pointer' }}>• List</button>
+        <button type="button" onClick={() => execCommand('insertOrderedList')} style={{ padding: '5px 10px', border: '1px solid #cbd5e1',  background: 'white', cursor: 'pointer' }}>1. List</button>
+      </div>
+      <div
+        id={editorId}
+        contentEditable
+        suppressContentEditableWarning
+        onBlur={(e) => onChange(e.currentTarget.innerHTML)}
+        dangerouslySetInnerHTML={{ __html: unescape(value) || '' }}
+        style={{
+          padding: '10px',
+          minHeight: '100px',
+          outline: 'none',
+          background: 'white'
+        }}
+      />
+    </div>
+  );
+};
 
 export const renderIconPicker = (value, handleChange) => {
   const commonEmojis = ['😀', '😃', '😄', '😁', '😊', '🎉', '🎊', '🎈', '🎁', '🏆', '⭐', '✨', '🔥', '💡', '📌', '📍', '🏠', '🏢', '🏪', '🏬', '📧', '📞', '💬', '✅', '❌', '⚠️', '🔔', '🔍', '📝', '📄'];
@@ -42,46 +81,9 @@ export const renderIconPicker = (value, handleChange) => {
   );
 };
 
-export const renderRichTextEditor = (editorId, value, onChange) => {
-  const execCommand = (command, val = null) => {
-    const editor = document.getElementById(editorId);
-    if (editor) {
-      editor.focus();
-      document.execCommand(command, false, val);
-    }
-  };
-
-  return (
-    <div style={{ border: '1px solid #cbd5e1',  overflow: 'hidden' }}>
-      <div style={{ background: '#f8fafc', padding: '8px', borderBottom: '1px solid #cbd5e1', display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
-        <button type="button" onClick={() => execCommand('bold')} style={{ padding: '5px 10px', border: '1px solid #cbd5e1',  background: 'white', cursor: 'pointer', fontWeight: 'bold' }}>B</button>
-        <button type="button" onClick={() => execCommand('italic')} style={{ padding: '5px 10px', border: '1px solid #cbd5e1',  background: 'white', cursor: 'pointer', fontStyle: 'italic' }}>I</button>
-        <button type="button" onClick={() => execCommand('strikeThrough')} style={{ padding: '5px 10px', border: '1px solid #cbd5e1',  background: 'white', cursor: 'pointer', textDecoration: 'line-through' }}>S</button>
-        <button type="button" onClick={() => { const url = window.prompt('Enter URL:'); if (url) execCommand('createLink', url); }} style={{ padding: '5px 10px', border: '1px solid #cbd5e1',  background: 'white', cursor: 'pointer' }}>🔗</button>
-        <button type="button" onClick={() => execCommand('formatBlock', 'blockquote')} style={{ padding: '5px 10px', border: '1px solid #cbd5e1',  background: 'white', cursor: 'pointer' }}>❝❞</button>
-        <button type="button" onClick={() => execCommand('insertUnorderedList')} style={{ padding: '5px 10px', border: '1px solid #cbd5e1',  background: 'white', cursor: 'pointer' }}>• List</button>
-        <button type="button" onClick={() => execCommand('insertOrderedList')} style={{ padding: '5px 10px', border: '1px solid #cbd5e1',  background: 'white', cursor: 'pointer' }}>1. List</button>
-      </div>
-      <div
-        id={editorId}
-        contentEditable
-        suppressContentEditableWarning
-        onBlur={(e) => onChange(e.currentTarget.innerHTML)}
-        dangerouslySetInnerHTML={{ __html: unescape(value) || '' }}
-        style={{
-          padding: '10px',
-          minHeight: '100px',
-          outline: 'none',
-          background: 'white'
-        }}
-      />
-    </div>
-  );
-};
-
 // Modified renderImageUpload to wait for upload to complete before showing the image
 export function RenderImageUpload({ label, value, onUpload, onRemove, onSelect }) {
-  const [uploading, setUploading] = useState(false);
+  const [uploading, setUploading] = React.useState(false);
 
   // Wrap onUpload to set uploading state
   const handleUpload = async () => {
@@ -142,80 +144,19 @@ export const renderImageUpload = (label, value, onUpload, onRemove, onSelect) =>
   />
 );
 
-export const renderButtonList = (buttons, onAdd, onRemove, onChange, renderIconPickerFn, activeIconPicker, onIconFocus, onIconBlur, rowIndex, fieldName) => {
+export const renderButtonList = (buttons, onAdd, onRemove, onChange, openIconPickerModal, cmsData) => {
   return (
     <div style={{ marginTop: '10px' }}>
       {buttons && buttons.map((button, btnIndex) => (
-        <div key={btnIndex} style={{ background: 'white', padding: '15px',  marginBottom: '10px', border: '1px solid #e2e8f0' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-            <strong>Button {btnIndex + 1}</strong>
-            <button
-              type="button"
-              onClick={() => onRemove(btnIndex)}
-              style={{ padding: '3px 10px', background: '#f87171', color: 'white', border: 'none',  cursor: 'pointer', fontSize: '12px' }}
-            >
-              Remove
-            </button>
-          </div>
-
-          <div style={{ marginBottom: '8px' }}>
-            <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Icon (Emoji or Font Awesome):</label>
-            <input
-              type="text"
-              value={button.icon || ''}
-              onChange={(e) => onChange(btnIndex, 'icon', e.target.value)}
-              onFocus={() => onIconFocus(btnIndex)}
-              onBlur={onIconBlur}
-              style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1', marginBottom: '5px' }}
-              placeholder="e.g., 🚀 or fa-star"
-            />
-            {activeIconPicker && activeIconPicker.rowIndex === rowIndex && activeIconPicker.fieldName === fieldName && activeIconPicker.itemIndex === btnIndex &&
-              renderIconPickerFn(button.icon, (icon) => onChange(btnIndex, 'icon', icon))
-            }
-          </div>
-
-          <div style={{ marginBottom: '8px' }}>
-            <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Title:</label>
-            <input
-              type="text"
-              value={button.title || ''}
-              onChange={(e) => onChange(btnIndex, 'title', e.target.value)}
-              style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }}
-            />
-          </div>
-
-          <div style={{ marginBottom: '8px' }}>
-            <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Link:</label>
-            <input
-              type="text"
-              value={button.link || ''}
-              onChange={(e) => onChange(btnIndex, 'link', e.target.value)}
-              style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }}
-            />
-          </div>
-
-          <div style={{ marginBottom: '8px' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-              <input
-                type="checkbox"
-                checked={button.openAsPopup || false}
-                onChange={(e) => onChange(btnIndex, 'openAsPopup', e.target.checked)}
-              />
-              <span style={{ fontSize: '14px' }}>Open as popup</span>
-            </label>
-          </div>
-
-          <div>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-              <input
-                type="checkbox"
-                checked={button.showAsButton || false}
-                onChange={(e) => onChange(btnIndex, 'showAsButton', e.target.checked)}
-              />
-              <span style={{ fontSize: '14px' }}>Show as button (not link)</span>
-            </label>
-          </div>
-        </div>
+        <ButtonEditor 
+          key={btnIndex}
+          button={button}
+          btnIndex={btnIndex}
+          onChange={onChange}
+          onRemove={() => onRemove(btnIndex)}
+          openIconPickerModal={openIconPickerModal}
+          cmsData={cmsData}
+        />
       ))}
       <button
         type="button"

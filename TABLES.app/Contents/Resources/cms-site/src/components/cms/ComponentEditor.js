@@ -8,6 +8,7 @@ import {
   getDefaultFieldsForComponent 
 } from './componentHelpers';
 import AssetManagerModal from './AssetManagerModal';
+import IconPickerModal from './IconPickerModal';
 
 const componentIcons = {
   TitleSlide: 'fa-heading',
@@ -25,14 +26,12 @@ const componentIcons = {
 const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) => {
   const [assetModalOpen, setAssetModalOpen] = useState(false);
   const [assetModalTarget, setAssetModalTarget] = useState(null);
-  const [activeIconPicker, setActiveIconPicker] = useState(null);
+  const [isIconPickerModalOpen, setIsIconPickerModalOpen] = useState(false);
+  const [iconPickerTarget, setIconPickerTarget] = useState(null);
 
-  const handleIconPickerFocus = (rowIndex, fieldName, itemIndex = null) => {
-    setActiveIconPicker({ rowIndex, fieldName, itemIndex });
-  };
-
-  const handleIconPickerBlur = () => {
-    setActiveIconPicker(null);
+  const openIconPickerModal = (rowIndex, fieldName, itemIndex = null) => {
+    setIconPickerTarget({ rowIndex, fieldName, itemIndex });
+    setIsIconPickerModalOpen(true);
   };
 
   const handleAddComponent = () => {
@@ -138,6 +137,19 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
     setAssetModalTarget(null);
   };
 
+  const handleIconSelected = (icon) => {
+    if (iconPickerTarget) {
+      const { rowIndex, fieldName, itemIndex } = iconPickerTarget;
+      if (itemIndex !== null) {
+        handleArrayItemChange(rowIndex, fieldName, itemIndex, 'icon', icon);
+      } else {
+        handleFieldChange(rowIndex, fieldName, icon);
+      }
+    }
+    setIsIconPickerModalOpen(false);
+    setIconPickerTarget(null);
+  };
+
   return (
     <div style={{ marginTop: '20px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
@@ -172,11 +184,10 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
             <label style={{ fontWeight: '600' }}>
-              Component Type:
               <select
                 value={row.component}
                 onChange={(e) => handleChangeComponentType(rowIndex, e.target.value)}
-                style={{ marginLeft: '10px', padding: '5px 10px', border: '1px solid #cbd5e1', borderRadius: '6px' }}
+                style={{ padding: '5px 10px', border: '1px solid rgba(37, 99, 235, 0.314)', color: 'rgb(37, 99, 235)', backgroundColor: 'rgba(37, 99, 235, 0.314)', fontWeight: 'bold' }}
               >
                 <option value="TitleSlide">📝 TitleSlide</option>
                 <option value="Boxes">⏹️ Boxes</option>
@@ -196,12 +207,11 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                 disabled={rowIndex === 0}
                 style={{
                   padding: '5px 15px',
-                  background: '#4f46e5',
+                  background: 'rgb(37, 99, 235)',
                   color: 'white',
                   border: 'none',
                   cursor: 'pointer',
                   opacity: rowIndex === 0 ? 0.5 : 1,
-                  borderRadius: '6px'
                 }}
               >
                 <i className="fa fa-arrow-up"></i>
@@ -211,12 +221,11 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                 disabled={rowIndex === rows.length - 1}
                 style={{
                   padding: '5px 15px',
-                  background: '#4f46e5',
+                  background: 'rgb(37, 99, 235)',
                   color: 'white',
                   border: 'none',
                   cursor: 'pointer',
                   opacity: rowIndex === rows.length - 1 ? 0.5 : 1,
-                  borderRadius: '6px'
                 }}
               >
                 <i className="fa fa-arrow-down"></i>
@@ -229,7 +238,6 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                   color: 'white',
                   border: 'none',
                   cursor: 'pointer',
-                  borderRadius: '6px'
                 }}
               >
                 <i className="fa fa-trash"></i>
@@ -287,12 +295,8 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                   () => handleArrayItemAdd(rowIndex, 'buttons', { icon: '', title: '', link: '', openAsPopup: false, showAsButton: true }),
                   (btnIndex) => handleArrayItemRemove(rowIndex, 'buttons', btnIndex),
                   (btnIndex, field, value) => handleArrayItemChange(rowIndex, 'buttons', btnIndex, field, value),
-                  (value, onChange) => renderIconPicker(value, onChange),
-                  activeIconPicker,
-                  (itemIndex) => handleIconPickerFocus(rowIndex, 'buttons', itemIndex),
-                  handleIconPickerBlur,
-                  rowIndex,
-                  'buttons'
+                  (itemIndex) => openIconPickerModal(rowIndex, 'buttons', itemIndex),
+                  cmsData
                 )}
               </div>
               
@@ -523,10 +527,10 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                   type="text"
                   value={row.fields.alternativeIcon || ''}
                   onChange={(e) => handleFieldChange(rowIndex, 'alternativeIcon', e.target.value)}
+                  onFocus={() => openIconPickerModal(rowIndex, 'alternativeIcon')}
                   style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1', marginBottom: '5px' }}
                   placeholder="e.g., 🏠"
                 />
-                {renderIconPicker(row.fields.alternativeIcon, (value) => handleFieldChange(rowIndex, 'alternativeIcon', value))}
               </div>
               
               <div style={{ marginBottom: '10px' }}>
@@ -546,12 +550,8 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                   () => handleArrayItemAdd(rowIndex, 'buttons', { icon: '', title: '', link: '', openAsPopup: false, showAsButton: true }),
                   (btnIndex) => handleArrayItemRemove(rowIndex, 'buttons', btnIndex),
                   (btnIndex, field, value) => handleArrayItemChange(rowIndex, 'buttons', btnIndex, field, value),
-                  (value, onChange) => renderIconPicker(value, onChange),
-                  activeIconPicker,
-                  (itemIndex) => handleIconPickerFocus(rowIndex, 'buttons', itemIndex),
-                  handleIconPickerBlur,
-                  rowIndex,
-                  'buttons'
+                  (itemIndex) => openIconPickerModal(rowIndex, 'buttons', itemIndex),
+                  cmsData
                 )}
               </div>
               
@@ -727,7 +727,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                   () => handleArrayItemAdd(rowIndex, 'leftButtons', { icon: '', title: '', link: '', openAsPopup: false, showAsButton: true }),
                   (btnIndex) => handleArrayItemRemove(rowIndex, 'leftButtons', btnIndex),
                   (btnIndex, field, value) => handleArrayItemChange(rowIndex, 'leftButtons', btnIndex, field, value),
-                  (value, onChange) => renderIconPicker(value, onChange)
+                  (itemIndex) => openIconPickerModal(rowIndex, 'leftButtons', itemIndex)
                 )}
               </div>
               <div style={{ marginBottom: '10px' }}>
@@ -775,7 +775,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                   () => handleArrayItemAdd(rowIndex, 'rightButtons', { icon: '', title: '', link: '', openAsPopup: false, showAsButton: true }),
                   (btnIndex) => handleArrayItemRemove(rowIndex, 'rightButtons', btnIndex),
                   (btnIndex, field, value) => handleArrayItemChange(rowIndex, 'rightButtons', btnIndex, field, value),
-                  (value, onChange) => renderIconPicker(value, onChange)
+                  (itemIndex) => openIconPickerModal(rowIndex, 'rightButtons', itemIndex)
                 )}
               </div>
               <div style={{ marginBottom: '10px' }}>
@@ -1044,6 +1044,12 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
         onClose={() => setAssetModalOpen(false)}
         assets={cmsData?.uploads || []}
         onSelectAsset={handleAssetSelected}
+      />
+
+      <IconPickerModal
+        isOpen={isIconPickerModalOpen}
+        onClose={() => setIsIconPickerModalOpen(false)}
+        onSelectIcon={handleIconSelected}
       />
     </div>
   );

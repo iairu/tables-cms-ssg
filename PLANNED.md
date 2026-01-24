@@ -2,7 +2,7 @@ add support for page groups: page group will contain multiple pages and on main-
 
 ---
 
-add slideshow page component with support for multiple slides (slide can contain an image (upload asset + select asset) or a video link), transitions, and autoplay
+improve implementation of history and save to history, so that history properly shows content for all translations
 
 ---
 
