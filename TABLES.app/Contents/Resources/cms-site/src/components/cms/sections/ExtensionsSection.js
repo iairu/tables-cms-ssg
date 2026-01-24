@@ -10,21 +10,98 @@ const ExtensionsSection = ({ cmsData }) => {
   const extensionInfo = {
     'pages-extension-enabled': {
       name: 'Pages',
-      description: 'Create and manage custom pages with dynamic components like slides, reviews, and galleries.'
+      description: 'Create and manage custom pages with dynamic components like slides, reviews, and galleries.',
+      permaDisabled: false
     },
     'blog-extension-enabled': {
       name: 'Blog',
-      description: 'Write and publish blog articles with support for authors, dates, and rich content.'
+      description: 'Write and publish blog articles with support for authors, dates, and rich content.',
+      permaDisabled: false
     },
     'pedigree-extension-enabled': {
       name: 'Pedigree',
-      description: 'Manage a database of cats with information about names, breeds, and owners.'
+      description: 'Manage a database of cats with information about names, breeds, and owners.',
+      permaDisabled: false
     },
     'rental-extension-enabled': {
       name: 'Rental',
-      description: 'Manage rental solutions including inventory, attendance, contacts, reservations, and a calendar view.'
+      description: 'Manage rental solutions including inventory, attendance, contacts, reservations, and a calendar view.',
+      permaDisabled: false
+    },
+    'biometric-extension-enabled': {
+        name: 'Biometric',
+        description: "An non-secure database demo of users with fingerprints, face mugshots, and sensitive data.",
+        permaDisabled: true
+    },
+    'medical-extension-enabled': {
+        name: 'Medical',
+        description: "An non-secure database demo of users with medical records, allergies, and health history.",
+        permaDisabled: true
+    },
+    'financial-extension-enabled': {
+        name: 'Financial',
+        description: "An non-secure database demo of users with financial information, income, and assets.",
+        permaDisabled: true
+    },
+    'legal-extension-enabled': {
+        name: 'Legal',
+        description: "An non-secure database demo of users with legal information, criminal records, and court cases.",
+        permaDisabled: true
+    },
+    'personal-extension-enabled': {
+        name: 'Personal',
+        description: "An non-secure database demo of users with personal information, hobbies, and preferences.",
+        permaDisabled: true
     }
   };
+
+  const coreExtensions = ['pages-extension-enabled', 'blog-extension-enabled', 'pedigree-extension-enabled', 'rental-extension-enabled'];
+  const userDatabaseExtensions = ['biometric-extension-enabled', 'medical-extension-enabled', 'financial-extension-enabled', 'legal-extension-enabled', 'personal-extension-enabled'];
+
+  const renderExtension = (key) => (
+    <div
+      key={key}
+      style={{
+        border: '1px solid #e2e8f0',
+        padding: '20px',
+        background: extensions[key] ? '#f0fdf4' : 'white',
+        transition: 'all 0.2s',
+        opacity: extensionInfo[key]?.permaDisabled ? 0.6 : 1
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '15px' }}>
+        <input
+          type="checkbox"
+          checked={!!extensions[key]}
+          onChange={() => handleToggle(key)}
+          disabled={extensionInfo[key]?.permaDisabled}
+          style={{
+            width: '20px',
+            height: '20px',
+            cursor: extensionInfo[key]?.permaDisabled ? 'not-allowed' : 'pointer',
+            marginTop: '2px'
+          }}
+        />
+        <div style={{ flex: 1 }}>
+          <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: '600', color: '#0f172a' }}>
+            {extensionInfo[key]?.name || key}
+          </h3>
+          <p style={{ margin: 0, fontSize: '14px', color: '#64748b', lineHeight: '1.5' }}>
+            {extensionInfo[key]?.description || 'No description available'}
+          </p>
+        </div>
+        <span style={{
+          padding: '4px 12px',
+          fontSize: '12px',
+          fontWeight: '600',
+          background: extensions[key] ? '#10b981' : '#cbd5e1',
+          color: 'white'
+        }}>
+          {extensions[key] ? 'ENABLED' : 'DISABLED'}
+        </span>
+      </div>
+    </div>
+  );
 
   return (
     <section className="main-section active" id="extensions">
@@ -36,50 +113,11 @@ const ExtensionsSection = ({ cmsData }) => {
           Enable the features you want to use in your CMS.
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-          {Object.keys(extensions).map(key => (
-            <div
-              key={key}
-              style={{
-                border: '1px solid #e2e8f0',
-                
-                padding: '20px',
-                background: extensions[key] ? '#f0fdf4' : 'white',
-                transition: 'all 0.2s'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '15px' }}>
-                <input
-                  type="checkbox"
-                  checked={extensions[key]}
-                  onChange={() => handleToggle(key)}
-                  style={{
-                    width: '20px',
-                    height: '20px',
-                    cursor: 'pointer',
-                    marginTop: '2px'
-                  }}
-                />
-                <div style={{ flex: 1 }}>
-                  <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: '600', color: '#0f172a' }}>
-                    {extensionInfo[key]?.name || key}
-                  </h3>
-                  <p style={{ margin: 0, fontSize: '14px', color: '#64748b', lineHeight: '1.5' }}>
-                    {extensionInfo[key]?.description || 'No description available'}
-                  </p>
-                </div>
-                <span style={{
-                  padding: '4px 12px',
-                  
-                  fontSize: '12px',
-                  fontWeight: '600',
-                  background: extensions[key] ? '#10b981' : '#cbd5e1',
-                  color: 'white'
-                }}>
-                  {extensions[key] ? 'ENABLED' : 'DISABLED'}
-                </span>
-              </div>
-            </div>
-          ))}
+          {coreExtensions.map(renderExtension)}
+
+          <h2 style={{ marginTop: '30px', borderBottom: '1px solid #e2e8f0', paddingBottom: '10px', fontSize: '24px', fontWeight: '600' }}>User Databases</h2>
+
+          {userDatabaseExtensions.map(renderExtension)}
         </div>
       </div>
     </section>

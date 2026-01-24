@@ -275,7 +275,12 @@ const useCMSData = () => {
     'pages-extension-enabled': false,
     'blog-extension-enabled': false,
     'pedigree-extension-enabled': false,
-    'rental-extension-enabled': false
+    'rental-extension-enabled': false,
+    'biometric-extension-enabled': false,
+    'medical-extension-enabled': false,
+    'financial-extension-enabled': false,
+    'legal-extension-enabled': false,
+    'personal-extension-enabled': false
   });
 
   // Upload functions
