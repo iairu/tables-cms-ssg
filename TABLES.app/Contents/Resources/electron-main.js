@@ -789,15 +789,6 @@ app.whenReady().then(async () => {
       {
         label: 'View',
         submenu: [
-          {
-            label: 'Keep Console Visible',
-            type: 'checkbox',
-            checked: keepConsoleVisible,
-            click: (item) => {
-              keepConsoleVisible = item.checked;
-            },
-          },
-          { type: 'separator' },
           { role: 'reload' },
           { role: 'forceReload' },
           {
