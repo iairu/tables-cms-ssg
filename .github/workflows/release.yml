@@ -18,11 +18,44 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22.18.0'
+
+      - name: Generate release body
+        id: generate_body
+        run: |
+          # Get the latest tag. If no tags, it will be empty.
+          latest_tag=$(git describe --tags --abbrev=0 2>/dev/null)
+          
+          if [ -z "$latest_tag" ]
+          then
+            # No tags, so we get all commits
+            log_range=""
+            echo "No previous release tag found, listing all commits."
+          else
+            # Tags exist, so we create a range for git log
+            log_range="$latest_tag..HEAD"
+            echo "Found previous release tag: $latest_tag. Getting commits since then."
+          fi
+          
+          # Get commit subjects
+          commits=$(git log $log_range --pretty=format:'* %s')
+          
+          # Set a default message if no commits are found
+          if [ -z "$commits" ]
+          then
+            commits="No new commits for this release."
+          fi
+          
+          # Use GITHUB_OUTPUT to pass the body to the next step
+          echo "release_body<<EOF" >> $GITHUB_OUTPUT
+          echo -e "All commit names since last release:\n\n$commits" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: 1. Setup Support Binaries (${{ matrix.arch }})
         run: |
@@ -58,6 +91,7 @@ jobs:
         with:
           tag_name: v${{ github.run_number }}
           name: Release v${{ github.run_number }}
+          body: ${{ steps.generate_body.outputs.release_body }}
           draft: false
           prerelease: false
           # This will append the file to the release created by the first job that finishes
