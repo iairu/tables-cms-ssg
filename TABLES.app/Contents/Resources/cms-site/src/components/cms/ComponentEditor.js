@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { 
-  renderEmojiPicker, 
+  renderIconPicker, 
   renderRichTextEditor, 
   renderImageUpload, 
   renderButtonList, 
@@ -9,9 +9,31 @@ import {
 } from './componentHelpers';
 import AssetManagerModal from './AssetManagerModal';
 
+const componentIcons = {
+  TitleSlide: 'fa-heading',
+  Boxes: 'fa-th-large',
+  Infobar: 'fa-info-circle',
+  Flies: 'fa-fly',
+  Slide: 'fa-columns',
+  Video: 'fa-video',
+  Ranking: 'fa-star',
+  References: 'fa-quote-right',
+  Reviews: 'fa-comment-alt',
+  Slideshow: 'fa-images',
+};
+
 const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) => {
   const [assetModalOpen, setAssetModalOpen] = useState(false);
   const [assetModalTarget, setAssetModalTarget] = useState(null);
+  const [activeIconPicker, setActiveIconPicker] = useState(null);
+
+  const handleIconPickerFocus = (rowIndex, fieldName, itemIndex = null) => {
+    setActiveIconPicker({ rowIndex, fieldName, itemIndex });
+  };
+
+  const handleIconPickerBlur = () => {
+    setActiveIconPicker(null);
+  };
 
   const handleAddComponent = () => {
     const newRows = [...rows, { component: 'TitleSlide', fields: getDefaultFieldsForComponent('TitleSlide') }];
@@ -156,16 +178,16 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                 onChange={(e) => handleChangeComponentType(rowIndex, e.target.value)}
                 style={{ marginLeft: '10px', padding: '5px 10px', border: '1px solid #cbd5e1', borderRadius: '6px' }}
               >
-                <option value="TitleSlide">TitleSlide</option>
-                <option value="Boxes">Boxes</option>
-                <option value="Infobar">Infobar</option>
-                <option value="Flies">Flies</option>
-                <option value="Slide">Slide</option>
-                <option value="Video">Video</option>
-                <option value="Ranking">Ranking</option>
-                <option value="References">References</option>
-                <option value="Reviews">Reviews</option>
-                <option value="Slideshow">Slideshow</option>
+                <option value="TitleSlide">📝 TitleSlide</option>
+                <option value="Boxes">⏹️ Boxes</option>
+                <option value="Infobar">ℹ️ Infobar</option>
+                <option value="Flies">🦋 Flies</option>
+                <option value="Slide">📰 Slide</option>
+                <option value="Video">📹 Video</option>
+                <option value="Ranking">⭐ Ranking</option>
+                <option value="References">💬 References</option>
+                <option value="Reviews">🗣️ Reviews</option>
+                <option value="Slideshow">🖼️ Slideshow</option>
               </select>
             </label>
             <div style={{ display: 'flex', gap: '5px' }}>
@@ -182,7 +204,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                   borderRadius: '6px'
                 }}
               >
-                Up
+                <i className="fa fa-arrow-up"></i>
               </button>
               <button
                 onClick={() => handleMoveComponentDown(rowIndex)}
@@ -197,7 +219,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                   borderRadius: '6px'
                 }}
               >
-                Down
+                <i className="fa fa-arrow-down"></i>
               </button>
               <button
                 onClick={() => handleRemoveComponent(rowIndex)}
@@ -210,7 +232,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                   borderRadius: '6px'
                 }}
               >
-                Remove
+                <i className="fa fa-trash"></i>
               </button>
             </div>
           </div>
@@ -265,7 +287,12 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                   () => handleArrayItemAdd(rowIndex, 'buttons', { icon: '', title: '', link: '', openAsPopup: false, showAsButton: true }),
                   (btnIndex) => handleArrayItemRemove(rowIndex, 'buttons', btnIndex),
                   (btnIndex, field, value) => handleArrayItemChange(rowIndex, 'buttons', btnIndex, field, value),
-                  (value, onChange) => renderEmojiPicker(rowIndex, 'buttons', value, onChange)
+                  (value, onChange) => renderIconPicker(value, onChange),
+                  activeIconPicker,
+                  (itemIndex) => handleIconPickerFocus(rowIndex, 'buttons', itemIndex),
+                  handleIconPickerBlur,
+                  rowIndex,
+                  'buttons'
                 )}
               </div>
               
@@ -499,7 +526,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                   style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1', marginBottom: '5px' }}
                   placeholder="e.g., 🏠"
                 />
-                {renderEmojiPicker(rowIndex, 'alternativeIcon', row.fields.alternativeIcon, (value) => handleFieldChange(rowIndex, 'alternativeIcon', value))}
+                {renderIconPicker(row.fields.alternativeIcon, (value) => handleFieldChange(rowIndex, 'alternativeIcon', value))}
               </div>
               
               <div style={{ marginBottom: '10px' }}>
@@ -519,7 +546,12 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                   () => handleArrayItemAdd(rowIndex, 'buttons', { icon: '', title: '', link: '', openAsPopup: false, showAsButton: true }),
                   (btnIndex) => handleArrayItemRemove(rowIndex, 'buttons', btnIndex),
                   (btnIndex, field, value) => handleArrayItemChange(rowIndex, 'buttons', btnIndex, field, value),
-                  (value, onChange) => renderEmojiPicker(rowIndex, 'buttons', value, onChange)
+                  (value, onChange) => renderIconPicker(value, onChange),
+                  activeIconPicker,
+                  (itemIndex) => handleIconPickerFocus(rowIndex, 'buttons', itemIndex),
+                  handleIconPickerBlur,
+                  rowIndex,
+                  'buttons'
                 )}
               </div>
               
@@ -695,7 +727,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                   () => handleArrayItemAdd(rowIndex, 'leftButtons', { icon: '', title: '', link: '', openAsPopup: false, showAsButton: true }),
                   (btnIndex) => handleArrayItemRemove(rowIndex, 'leftButtons', btnIndex),
                   (btnIndex, field, value) => handleArrayItemChange(rowIndex, 'leftButtons', btnIndex, field, value),
-                  (value, onChange) => renderEmojiPicker(rowIndex, 'leftButtons', value, onChange)
+                  (value, onChange) => renderIconPicker(value, onChange)
                 )}
               </div>
               <div style={{ marginBottom: '10px' }}>
@@ -743,7 +775,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                   () => handleArrayItemAdd(rowIndex, 'rightButtons', { icon: '', title: '', link: '', openAsPopup: false, showAsButton: true }),
                   (btnIndex) => handleArrayItemRemove(rowIndex, 'rightButtons', btnIndex),
                   (btnIndex, field, value) => handleArrayItemChange(rowIndex, 'rightButtons', btnIndex, field, value),
-                  (value, onChange) => renderEmojiPicker(rowIndex, 'rightButtons', value, onChange)
+                  (value, onChange) => renderIconPicker(value, onChange)
                 )}
               </div>
               <div style={{ marginBottom: '10px' }}>

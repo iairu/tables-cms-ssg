@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 
-export const renderEmojiPicker = (rowIndex, fieldName, value, handleChange, itemIndex = null, itemFieldName = null) => {
+export const renderIconPicker = (value, handleChange) => {
   const commonEmojis = ['😀', '😃', '😄', '😁', '😊', '🎉', '🎊', '🎈', '🎁', '🏆', '⭐', '✨', '🔥', '💡', '📌', '📍', '🏠', '🏢', '🏪', '🏬', '📧', '📞', '💬', '✅', '❌', '⚠️', '🔔', '🔍', '📝', '📄'];
+  const commonFaIcons = ['fa-star', 'fa-heart', 'fa-check', 'fa-times', 'fa-arrow-left', 'fa-arrow-right', 'fa-plus', 'fa-minus', 'fa-home', 'fa-user', 'fa-cog', 'fa-envelope'];
 
   return (
     <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', marginTop: '5px' }}>
@@ -13,13 +14,28 @@ export const renderEmojiPicker = (rowIndex, fieldName, value, handleChange, item
           style={{
             padding: '5px 10px',
             border: '1px solid #cbd5e1',
-
             background: value === emoji ? '#0002ff' : 'white',
             cursor: 'pointer',
             fontSize: '18px'
           }}
         >
           {emoji}
+        </button>
+      ))}
+      {commonFaIcons.map(icon => (
+        <button
+          key={icon}
+          type="button"
+          onClick={() => handleChange(icon)}
+          style={{
+            padding: '5px 10px',
+            border: '1px solid #cbd5e1',
+            background: value === icon ? '#0002ff' : 'white',
+            cursor: 'pointer',
+            fontSize: '18px'
+          }}
+        >
+          <i className={`fa ${icon}`}></i>
         </button>
       ))}
     </div>
@@ -88,7 +104,7 @@ export function RenderImageUpload({ label, value, onUpload, onRemove, onSelect }
           style={{ padding: '8px 16px', background: '#0002ff', color: 'white', border: 'none', cursor: 'pointer' }}
           disabled={uploading}
         >
-          {uploading ? 'Uploading...' : 'Upload Image'}
+          {uploading ? 'Uploading...' : <><i className="fa fa-upload"></i> Upload Image</>}
         </button>
         <button
           type="button"
@@ -96,7 +112,7 @@ export function RenderImageUpload({ label, value, onUpload, onRemove, onSelect }
           style={{ padding: '8px 16px', background: '#4b5563', color: 'white', border: 'none', cursor: 'pointer' }}
           disabled={uploading}
         >
-          Select Asset
+          <i className="fa fa-folder-open"></i> Select Asset
         </button>
       </div>
       {value && !uploading && (
@@ -126,7 +142,7 @@ export const renderImageUpload = (label, value, onUpload, onRemove, onSelect) =>
   />
 );
 
-export const renderButtonList = (buttons, onAdd, onRemove, onChange, renderEmojiPickerFn) => {
+export const renderButtonList = (buttons, onAdd, onRemove, onChange, renderIconPickerFn, activeIconPicker, onIconFocus, onIconBlur, rowIndex, fieldName) => {
   return (
     <div style={{ marginTop: '10px' }}>
       {buttons && buttons.map((button, btnIndex) => (
@@ -143,15 +159,19 @@ export const renderButtonList = (buttons, onAdd, onRemove, onChange, renderEmoji
           </div>
 
           <div style={{ marginBottom: '8px' }}>
-            <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Icon (Emoji):</label>
+            <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Icon (Emoji or Font Awesome):</label>
             <input
               type="text"
               value={button.icon || ''}
               onChange={(e) => onChange(btnIndex, 'icon', e.target.value)}
+              onFocus={() => onIconFocus(btnIndex)}
+              onBlur={onIconBlur}
               style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1', marginBottom: '5px' }}
-              placeholder="e.g., 🚀"
+              placeholder="e.g., 🚀 or fa-star"
             />
-            {renderEmojiPickerFn(button.icon, (emoji) => onChange(btnIndex, 'icon', emoji))}
+            {activeIconPicker && activeIconPicker.rowIndex === rowIndex && activeIconPicker.fieldName === fieldName && activeIconPicker.itemIndex === btnIndex &&
+              renderIconPickerFn(button.icon, (icon) => onChange(btnIndex, 'icon', icon))
+            }
           </div>
 
           <div style={{ marginBottom: '8px' }}>
