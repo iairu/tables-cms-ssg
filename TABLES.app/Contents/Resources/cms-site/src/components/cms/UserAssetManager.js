@@ -138,11 +138,11 @@ const UserAssetManager = ({ assets, onPageLoad, onUpload, onDelete, onReplace })
     : assets;
 
   if (loading) {
-    return <div style={styles.loading}>Loading assets...</div>;
+    return <section className="main-section" style={styles.loading}>Loading assets...</section>;
   }
 
   return (
-    <div style={styles.container}>
+    <section className="main-section" style={styles.container}>
       <h2 style={styles.header}>User Asset Manager</h2>
       <input 
         type="file" 
@@ -176,7 +176,7 @@ const UserAssetManager = ({ assets, onPageLoad, onUpload, onDelete, onReplace })
           onDelete={handleDelete}
         />
       )}
-    </div>
+    </section>
   );
 };
 
