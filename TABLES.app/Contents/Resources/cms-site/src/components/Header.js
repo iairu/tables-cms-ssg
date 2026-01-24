@@ -589,7 +589,7 @@ const Header = ({
               fontSize: '13px',
               fontWeight: '600',
               cursor: (isBuilding || !canBuild) ? 'not-allowed' : 'pointer',
-              display: 'flex',
+              display: 'none',
               alignItems: 'center',
               justifyContent: 'center',
               gap: '8px',
@@ -598,7 +598,7 @@ const Header = ({
             }}
           >
             <i className="fa fa-hammer"></i>
-            Local
+            (Dev) Local-Only
           </button>
         )}
           {(extensions['pages-extension-enabled'] || extensions['blog-extension-enabled']) && vercelApiKey && (
