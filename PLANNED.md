@@ -1,50 +1,12 @@
-make bundle-node-npm.js and electron-main.js extremely robust, current npm+node combo is working correctly for system install, but failing with the support-bin install
+if i have two languages: english as default and slovak set in settings, then blog is improperly showing english pinned article in both english and slovak, and not showing slovak pinned article at all
 
 ---
 
-in cms-site have all uploads be purged on import
-
-add an electron window drag area over the entire header while keeping its original onClick functionality
+add support for page groups: page group will contain multiple pages and on main-site will be on, default group is "Direct Pages" (always exists and contains Homepage). All currently existing pages will be moved to this group. Each group will represent a "dropdown" menu entry in header (not actual dropdown, but hovering will expand to show pages in that group)
 
 ---
 
-stop the frontend deploy timer when BUILD_END happens, allowing the user to use the buttons again
-
-and also improve console window css now that it has more purposes than just a launch progress bar, make the console within it always visible, use the loading for builds as well, instead of height growth of the console have it be fixed height with overflow scroll-y, do not show the loading bar during deploy, make the window always on top
-
----
-
-have open and save buttons next to local deploy and visit buttons, we will utilize json import/export functionality for "document saving and opening" instead. make sure to clear all user assets on open/import, remove data management from settings now that the buttons are differently placed and named
-
----
-
-blog is improperly showing english pinned article in both english and slovak, and not showing slovak pinned article in either
-
----
-
-have the export data and import data option within Settings include all uploads from static/uploads folder, so that they are added into the folder (replace if exists) on import
-
----
-
-add support for page groups: page group will contain multiple pages and on main-site will be on /[lang]/[group]/[page], default group is "Direct Pages" (always exists) served on /[lang]/[page]. All currently existing pages will be moved to this group.
-
----
-
-update routing so that Pages will be on /cms/pages, Blog on /cms/blog and so on for Pedigree on /cms/pedigree, Inventory on /cms/inventory, Attendance on /cms/attendance, Customers on /cms/customers, Employees on /cms/employees, Reservations on /cms/reservations, Calendar on /cms/calendar, Settings on /cms/settings and Extensions on /cms/extensions, current state: all navigation resolves to /cms/pages
-
-update routing for actions so that page with slug will be on /cms/pages/edit?slug=[slug] (e.g., /cms/pages/about/edit), blog post with slug will be on /cms/blog/edit?route=[yyyy/mm/slug] (e.g., /cms/blog/edit?route=2026/01/demo-slug)
-
-similarly pedigree cats will now have ids and actions will be on /cms/pedigree/edit?id=[id] (e.g., /cms/pedigree/edit?id=1), same for inventory on /cms/inventory/edit?id=[id] (e.g., /cms/inventory/edit?id=1), employees on /cms/employees/edit?id=[id] (e.g., /cms/employees/edit?id=1), and customers on /cms/customers/edit?id=[id] (e.g., /cms/customers/edit?id=1), and attendance on /cms/attendance/edit?id=[id] (e.g., /cms/attendance/edit?id=1)
-
-clicking any button within SideMenu will always navigate even if already on the given section, same for clicking any Edit button (e.g. within /cms/pages table)
-
----
-
-add asset upload and management extension (will switch upload to json for select from assets on all file upload input fields)
-
----
-
-add slideshow page component with support for multiple slides, transitions, and autoplay
+add slideshow page component with support for multiple slides (slide can contain an image (upload asset + select asset) or a video link), transitions, and autoplay
 
 ---
 
