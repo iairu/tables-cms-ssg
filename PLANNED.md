@@ -10,7 +10,17 @@ in cms-site: remember state of the deploy and local buttons within header across
 
 ---
 
+add extension group called User Databases
+
 add extension called Biometric for a database of users with fingerprints imgs (left thumb, right thumb, palm), face mugshot (with grouping and better sort: front, back, left side, right side), user data and sensitive data (place of origin, date of birth, gender, height, weight, eye color, hair color, skin color, blood type, Rh factor, national ID, social security number, passport number, driver's license number, first name, last name, middle names, marriage status, children, spouse name, ...), this will be editable same way as the pedigree cats table with an expand button, show a warning within the picker that this is for demo only due to low or non-existent security
+
+add a similar extension called Medical for a database of users with medical records, allergies, medications, and health history, this will be editable same way as the pedigree cats table with an expand button, show a warning within the picker that this is for demo only due to low or non-existent security
+
+add a similar extension called Financial for a database of users with financial information, income, expenses, assets, liabilities, and credit scores, this will be editable same way as the pedigree cats table with an expand button, show a warning within the picker that this is for demo only due to low or non-existent security
+
+add a similar extension called Legal for a database of users with legal information, criminal records, court cases, and legal history, this will be editable same way as the pedigree cats table with an expand button, show a warning within the picker that this is for demo only due to low or non-existent security
+
+add a similar extension called Personal for a database of users with personal information, hobbies, interests, and preferences, this will be editable same way as the pedigree cats table with an expand button, show a warning within the picker that this is for demo only due to low or non-existent security
 
 ---
 

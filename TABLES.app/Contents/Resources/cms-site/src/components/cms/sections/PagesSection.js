@@ -71,9 +71,14 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
   const handleSaveToHistory = () => {
     if (currentPage) {
       const history = currentPage.history || [];
+      const translations = {};
+      settings.languages.forEach(lang => {
+        translations[lang.code] = getLocalizedContent(currentPage, lang.code);
+      });
+
       history.push({
         timestamp: Date.now(),
-        rows: JSON.parse(JSON.stringify(currentPage.rows))
+        translations: JSON.parse(JSON.stringify(translations))
       });
       updatePage(currentPage.id, {
         history,
@@ -100,9 +105,18 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
     if (currentPage && selectedHistoryIndex !== null) {
       const historyItem = currentPage.history[selectedHistoryIndex];
       if (historyItem) {
-        updatePage(currentPage.id, { 
-          rows: JSON.parse(JSON.stringify(historyItem.rows))
-        });
+        const updates = {};
+        if (historyItem.translations) {
+          // New history format with translations
+          updates.translations = JSON.parse(JSON.stringify(historyItem.translations));
+          // also update the top-level rows for the current language to update the UI
+          updates.rows = updates.translations[currentLanguage]?.rows || [];
+        } else {
+          // Old history format
+          updates.rows = JSON.parse(JSON.stringify(historyItem.rows));
+        }
+
+        updatePage(currentPage.id, updates);
         setHistoryModalOpen(false);
         setSelectedHistoryIndex(null);
       }
@@ -238,14 +252,13 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                       overflow: 'auto'
                     }}>
                       <pre style={{ margin: 0, fontSize: '12px' }}>
-                        {JSON.stringify(currentPage.history[selectedHistoryIndex].rows, null, 2)}
+                        {JSON.stringify(currentPage.history[selectedHistoryIndex].translations ? currentPage.history[selectedHistoryIndex].translations[currentLanguage]?.rows : currentPage.history[selectedHistoryIndex].rows, null, 2)}
                       </pre>
                     </div>
                   )}
                 </>
               )}
               <div style={{ display: 'flex', gap: '10px', justifyContent: 'space-between' }}>
-                <div>
                   {selectedHistoryIndex !== null && (
                     <button onClick={handleDeleteHistoryEntry} style={{
                       padding: '8px 16px',

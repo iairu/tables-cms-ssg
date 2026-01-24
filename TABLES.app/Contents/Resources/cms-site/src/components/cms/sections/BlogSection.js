@@ -67,12 +67,14 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
   const handleSaveToHistory = () => {
     if (currentArticle) {
       const history = currentArticle.history || [];
+      const translations = {};
+      settings.languages.forEach(lang => {
+        translations[lang.code] = getLocalizedContent(currentArticle, lang.code);
+      });
+
       history.push({
         timestamp: Date.now(),
-        content: currentArticle.content,
-        title: currentArticle.title,
-        author: currentArticle.author,
-        slug: currentArticle.slug
+        translations: JSON.parse(JSON.stringify(translations))
       });
       updateBlogArticle(currentArticle.id, { history });
       setSaveSuccessModalOpen(true);
@@ -97,12 +99,26 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
     if (currentArticle && selectedHistoryIndex !== null) {
       const historyItem = currentArticle.history[selectedHistoryIndex];
       if (historyItem) {
-        updateBlogArticle(currentArticle.id, {
-          content: historyItem.content,
-          title: historyItem.title,
-          author: historyItem.author,
-          slug: historyItem.slug
-        });
+        const updates = {};
+        if (historyItem.translations) {
+          // New history format with translations
+          updates.translations = JSON.parse(JSON.stringify(historyItem.translations));
+          // also update the top-level fields for the current language to update the UI
+          const currentLangContent = updates.translations[currentLanguage];
+          if (currentLangContent) {
+            updates.content = currentLangContent.content;
+            updates.title = currentLangContent.title;
+            updates.author = currentLangContent.author;
+          }
+        } else {
+          // Old history format
+          updates.content = historyItem.content;
+          updates.title = historyItem.title;
+          updates.author = historyItem.author;
+          updates.slug = historyItem.slug;
+        }
+
+        updateBlogArticle(currentArticle.id, updates);
         setHistoryModalOpen(false);
         setSelectedHistoryIndex(null);
       }
@@ -190,127 +206,157 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
   if (editMode && currentArticle) {
     return (
       <section className="main-section active" id="blog-editor">
-      {historyModalOpen && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000
-        }}>
+      {historyModalOpen && (() => {
+        const historyItem = selectedHistoryIndex !== null ? currentArticle.history[selectedHistoryIndex] : null;
+        return (
           <div style={{
-            backgroundColor: 'white',
-            padding: '30px',
-            
-            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-            maxWidth: '600px',
-            width: '90%',
-            maxHeight: '80vh',
-            overflow: 'auto'
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000
           }}>
-            <h2 style={{ marginTop: 0, marginBottom: '15px', fontSize: '1.25rem' }}>Article History</h2>
-            {!currentArticle?.history || currentArticle.history.length === 0 ? (
-              <p style={{ color: '#64748b' }}>No history yet. Click "Save to History" to create a snapshot.</p>
-            ) : (
-              <>
-                <div style={{ marginBottom: '20px' }}>
-                  {currentArticle.history.slice().reverse().map((item, idx) => {
-                    const actualIndex = currentArticle.history.length - 1 - idx;
-                    return (
-                      <div
-                        key={actualIndex}
-                        onClick={() => setSelectedHistoryIndex(actualIndex)}
-                        style={{
-                          padding: '10px',
-                          marginBottom: '8px',
-                          
-                          cursor: 'pointer',
-                          backgroundColor: selectedHistoryIndex === actualIndex ? '#e0e7ff' : '#f1f5f9',
-                          border: selectedHistoryIndex === actualIndex ? '2px solid #0002ff' : '2px solid transparent'
-                        }}
-                      >
-                        <strong>{new Date(item.timestamp).toLocaleString('ja-JP')}</strong>
-                        <div style={{ fontSize: '14px', color: '#64748b', marginTop: '4px' }}>
-                          {item.title}
+            <div style={{
+              backgroundColor: 'white',
+              padding: '30px',
+
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+              maxWidth: '600px',
+              width: '90%',
+              maxHeight: '80vh',
+              overflow: 'auto'
+            }}>
+              <h2 style={{ marginTop: 0, marginBottom: '15px', fontSize: '1.25rem' }}>Article History</h2>
+              {!currentArticle?.history || currentArticle.history.length === 0 ? (
+                <p style={{ color: '#64748b' }}>No history yet. Click "Save to History" to create a snapshot.</p>
+              ) : (
+                <>
+                  <div style={{ marginBottom: '20px' }}>
+                    {currentArticle.history.slice().reverse().map((item, idx) => {
+                      const actualIndex = currentArticle.history.length - 1 - idx;
+                      return (
+                        <div
+                          key={actualIndex}
+                          onClick={() => setSelectedHistoryIndex(actualIndex)}
+                          style={{
+                            padding: '10px',
+                            marginBottom: '8px',
+
+                            cursor: 'pointer',
+                            backgroundColor: selectedHistoryIndex === actualIndex ? '#e0e7ff' : '#f1f5f9',
+                            border: selectedHistoryIndex === actualIndex ? '2px solid #0002ff' : '2px solid transparent'
+                          }}
+                        >
+                          <strong>{new Date(item.timestamp).toLocaleString('ja-JP')}</strong>
+                          <div style={{ fontSize: '14px', color: '#64748b', marginTop: '4px' }}>
+                            {item.translations ? item.translations[currentLanguage]?.title : item.title}
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
-                </div>
-                {selectedHistoryIndex !== null && (
-                  <div style={{
-                    padding: '15px',
-                    backgroundColor: '#f9fafb',
-                    
-                    marginBottom: '15px',
-                    maxHeight: '200px',
-                    overflow: 'auto'
-                  }}>
-                    <div style={{ marginBottom: '10px' }}>
-                      <strong>Title:</strong> {currentArticle.history[selectedHistoryIndex].title}
-                    </div>
-                    <div style={{ marginBottom: '10px' }}>
-                      <strong>Author:</strong> {currentArticle.history[selectedHistoryIndex].author}
-                    </div>
-                    <div style={{ marginBottom: '10px' }}>
-                      <strong>Slug:</strong> {currentArticle.history[selectedHistoryIndex].slug}
-                    </div>
-                    <div>
-                      <strong>Content:</strong>
-                      <pre style={{
-                        margin: '8px 0 0 0',
-                        fontSize: '12px',
-                        whiteSpace: 'pre-wrap',
-                        wordBreak: 'break-word'
-                      }}>
-                        {currentArticle.history[selectedHistoryIndex].content}
-                      </pre>
-                    </div>
+                      );
+                    })}
                   </div>
-                )}
-              </>
-            )}
-            <div style={{ display: 'flex', gap: '10px', justifyContent: 'space-between' }}>
-              <div>
-                {selectedHistoryIndex !== null && (
-                  <button onClick={handleDeleteHistoryEntry} style={{
+                  {historyItem && (
+                    <div style={{
+                      padding: '15px',
+                      backgroundColor: '#f9fafb',
+
+                      marginBottom: '15px',
+                      maxHeight: '200px',
+                      overflow: 'auto'
+                    }}>
+                      {historyItem.translations ? (
+                        <>
+                          <div style={{ marginBottom: '10px' }}>
+                            <strong>Title:</strong> {historyItem.translations[currentLanguage]?.title}
+                          </div>
+                          <div style={{ marginBottom: '10px' }}>
+                            <strong>Author:</strong> {historyItem.translations[currentLanguage]?.author}
+                          </div>
+                          <div style={{ marginBottom: '10px' }}>
+                            <strong>Slug:</strong> {historyItem.translations[currentLanguage]?.slug}
+                          </div>
+                          <div>
+                            <strong>Content:</strong>
+                            <pre style={{
+                              margin: '8px 0 0 0',
+                              fontSize: '12px',
+                              whiteSpace: 'pre-wrap',
+                              wordBreak: 'break-word'
+                            }}>
+                              {historyItem.translations[currentLanguage]?.content}
+                            </pre>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div style={{ marginBottom: '10px' }}>
+                            <strong>Title:</strong> {historyItem.title}
+                          </div>
+                          <div style={{ marginBottom: '10px' }}>
+                            <strong>Author:</strong> {historyItem.author}
+                          </div>
+                          <div style={{ marginBottom: '10px' }}>
+                            <strong>Slug:</strong> {historyItem.slug}
+                          </div>
+                          <div>
+                            <strong>Content:</strong>
+                            <pre style={{
+                              margin: '8px 0 0 0',
+                              fontSize: '12px',
+                              whiteSpace: 'pre-wrap',
+                              wordBreak: 'break-word'
+                            }}>
+                              {historyItem.content}
+                            </pre>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
+              <div style={{ display: 'flex', gap: '10px', justifyContent: 'space-between' }}>
+                <div>
+                  {selectedHistoryIndex !== null && (
+                    <button onClick={handleDeleteHistoryEntry} style={{
+                      padding: '8px 16px',
+
+                      border: 'none',
+                      backgroundColor: '#ef4444',
+                      color: 'white',
+                      cursor: 'pointer'
+                    }}>Delete this entry</button>
+                  )}
+                </div>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  {selectedHistoryIndex !== null && (
+                    <button onClick={handleRollback} style={{
+                      padding: '8px 16px',
+
+                      border: 'none',
+                      backgroundColor: '#0002ff',
+                      color: 'white',
+                      cursor: 'pointer'
+                    }}>Rollback to this version</button>
+                  )}
+                  <button onClick={handleCloseHistory} style={{
                     padding: '8px 16px',
-                    
-                    border: 'none',
-                    backgroundColor: '#ef4444',
-                    color: 'white',
+
+                    border: '1px solid #cbd5e1',
+                    backgroundColor: 'white',
                     cursor: 'pointer'
-                  }}>Delete this entry</button>
-                )}
-              </div>
-              <div style={{ display: 'flex', gap: '10px' }}>
-                {selectedHistoryIndex !== null && (
-                  <button onClick={handleRollback} style={{
-                    padding: '8px 16px',
-                    
-                    border: 'none',
-                    backgroundColor: '#0002ff',
-                    color: 'white',
-                    cursor: 'pointer'
-                  }}>Rollback to this version</button>
-                )}
-                <button onClick={handleCloseHistory} style={{
-                  padding: '8px 16px',
-                  
-                  border: '1px solid #cbd5e1',
-                  backgroundColor: 'white',
-                  cursor: 'pointer'
-                }}>Close</button>
+                  }}>Close</button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
         <header>
           <h1>
             <span>Edit Article</span>
