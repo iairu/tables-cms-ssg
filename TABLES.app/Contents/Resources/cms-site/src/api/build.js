@@ -169,7 +169,7 @@ const exportDataAndBuild = async (data, localOnly = false, vercelApiToken = null
   
   // Define candidate paths
   let mainSiteStaticDir = path.join(projectRoot, 'main-site', 'static', 'data');
-  let uploadsSrcDir = path.join(projectRoot, 'static', 'uploads');
+  let uploadsSrcDir = path.join(projectRoot, 'cms-site', 'static', 'uploads');
   let uploadsDestDir = path.join(projectRoot, 'main-site', 'static', 'uploads');
 
   // Helper to check if a directory (or its parent if it doesn't exist) is writable
@@ -188,7 +188,7 @@ const exportDataAndBuild = async (data, localOnly = false, vercelApiToken = null
     console.log('[Build API] Write permissions restricted in project root. Utilizing process.resourcesPath...');
     projectRoot = process.resourcesPath;
     mainSiteStaticDir = path.join(projectRoot, 'main-site', 'static', 'data');
-    uploadsSrcDir = path.join(projectRoot, 'static', 'uploads');
+    uploadsSrcDir = path.join(projectRoot, 'cms-site', 'static', 'uploads');
     uploadsDestDir = path.join(projectRoot, 'main-site', 'static', 'uploads');
   }
 
