@@ -494,6 +494,12 @@ const deployToVercel = (mainSiteDir, vercelApiToken, vercelProjectName) => {
     }
 
     function executeVercelDeploy(npxCommand, env) {
+      const vercelDir = path.join(mainSiteDir, '.vercel');
+      if (fs.existsSync(vercelDir)) {
+        fs.rmSync(vercelDir, { recursive: true, force: true });
+        console.log('[Build API] Removed existing .vercel directory');
+      }
+
       // Handle project name update in project.json
       const vercelProjectJsonPath = path.join(mainSiteDir, '.vercel', 'project.json');
       if (fs.existsSync(vercelProjectJsonPath) && vercelProjectName?.trim()) {
