@@ -16,6 +16,8 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
   const [saveSuccessModalOpen, setSaveSuccessModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentLanguage, setCurrentLanguage] = useState(settings?.defaultLang || 'en');
+  const [selectedArticles, setSelectedArticles] = useState([]);
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'default', langCode: null });
 
   useEffect(() => {
     hideLoading();
@@ -52,11 +54,14 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
   };
 
   const handleConfirmDelete = () => {
-    if (articleToDelete) {
+    if (selectedArticles.length > 0) {
+      selectedArticles.forEach(id => deleteBlogArticle(id));
+      setSelectedArticles([]);
+    } else if (articleToDelete) {
       deleteBlogArticle(articleToDelete);
-      setDeleteModalOpen(false);
       setArticleToDelete(null);
     }
+    setDeleteModalOpen(false);
   };
 
   const handleCancelDelete = () => {
@@ -248,6 +253,16 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
     return `${protocol}//${host}${port}/${lang}/${year}/${month}/${article.slug}`;
   };
 
+  const handleSort = (key, langCode = null) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.langCode === langCode && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    } else if (sortConfig.key === key && sortConfig.langCode === langCode && sortConfig.direction === 'desc') {
+      direction = 'default';
+    }
+    setSortConfig({ key, direction, langCode });
+  };
+
   // Filter blog articles based on fuzzy search query
   const filteredBlogArticles = blogArticles.filter(article => {
     const defaultContent = getLocalizedContent(article, settings?.defaultLang || 'en');
@@ -257,6 +272,54 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
       fuzzyMatch(defaultContent.slug, searchQuery)
     );
   });
+
+  const sortedArticles = React.useMemo(() => {
+    let sortableArticles = [...filteredBlogArticles];
+    if (sortConfig.direction !== 'default') {
+      sortableArticles.sort((a, b) => {
+        if (sortConfig.key === 'title') {
+          const titleA = getLocalizedContent(a, sortConfig.langCode).title.toLowerCase();
+          const titleB = getLocalizedContent(b, sortConfig.langCode).title.toLowerCase();
+          if (titleA < titleB) {
+            return sortConfig.direction === 'asc' ? -1 : 1;
+          }
+          if (titleA > titleB) {
+            return sortConfig.direction === 'asc' ? 1 : -1;
+          }
+          return 0;
+        }
+        if (sortConfig.key === 'lastEdited') {
+          const dateA = a.lastEdited ? new Date(a.lastEdited).getTime() : 0;
+          const dateB = b.lastEdited ? new Date(b.lastEdited).getTime() : 0;
+          if (dateA < dateB) {
+            return sortConfig.direction === 'asc' ? -1 : 1;
+          }
+          if (dateA > dateB) {
+            return sortConfig.direction === 'asc' ? 1 : -1;
+          }
+          return 0;
+        }
+        return 0;
+      });
+    }
+    return sortableArticles;
+  }, [filteredBlogArticles, sortConfig, getLocalizedContent]);
+
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      setSelectedArticles(filteredBlogArticles.map(p => p.id));
+    } else {
+      setSelectedArticles([]);
+    }
+  };
+
+  const handleSelectArticle = (e, id) => {
+    if (e.target.checked) {
+      setSelectedArticles([...selectedArticles, id]);
+    } else {
+      setSelectedArticles(selectedArticles.filter(pId => pId !== id));
+    }
+  };
 
   if (editMode && currentArticle) {
     const historyItem = selectedHistoryIndex !== null ? currentArticle.history[selectedHistoryIndex] : null;
@@ -280,6 +343,7 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
               padding: '30px',
               
               boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+              maxWidth: '600px',
               width: '90%',
               maxHeight: '80vh',
               overflow: 'auto'
@@ -374,7 +438,8 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
                   )}
                 </>
               )}
-              <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-start' }}>
+              <div style={{ display: 'flex', gap: '10px', justifyContent: 'space-between' }}>
+                <div>
                   {selectedHistoryIndex !== null && (
                     <button onClick={handleDeleteHistoryEntry} style={{
                       padding: '8px 16px',
@@ -383,22 +448,27 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
                       backgroundColor: '#ef4444',
                       color: 'white',
                       cursor: 'pointer'
-                    }}>Delete this version</button>
+                    }}>Delete this entry</button>
                   )}
                   {selectedHistoryIndex !== null && (
                     <button onClick={handleDownloadHistoryEntry} style={{
                       padding: '8px 16px',
-                      border: '1px solid rgba(37, 99, 235, 0.314)', color: 'rgb(37, 99, 235)',
+                      
+                      border: 'none',
+                      backgroundColor: '#22c55e',
+                      color: 'white',
                       cursor: 'pointer',
                       marginLeft: '10px'
-                    }}>Download this version</button>
+                    }}>Download</button>
                   )}
                   <button onClick={handleImportHistory} style={{
                     padding: '8px 16px',
-                    border: '1px solid rgba(37, 99, 235, 0.314)', color: 'rgb(37, 99, 235)',
+                    border: 'none',
+                    backgroundColor: '#f97316',
+                    color: 'white',
                     cursor: 'pointer',
                     marginLeft: '10px'
-                  }}>Upload</button>
+                  }}>Import</button>
                   {selectedHistoryIndex !== null && (
                     <div style={{marginLeft: '10px', display: 'flex'}}>
                       <input type="text" id="history-label-input-blog" placeholder="Enter label" style={{padding: '8px', border: '1px solid #cbd5e1'}} />
@@ -412,6 +482,8 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
                       }}>Label</button>
                     </div>
                   )}
+                </div>
+                <div style={{ display: 'flex', gap: '10px' }}>
                   {selectedHistoryIndex !== null && (
                     <button onClick={handleRollback} style={{
                       padding: '8px 16px',
@@ -429,6 +501,7 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
                     backgroundColor: 'white',
                     cursor: 'pointer'
                   }}>Close</button>
+                </div>
               </div>
             </div>
           </div>
@@ -644,6 +717,18 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
               width: '200px'
             }}
           />
+          {selectedArticles.length > 0 && (
+            <div style={{ position: 'relative', display: 'inline-block' }}>
+              <button style={{ padding: '8px 16px', border: '1px solid #cbd5e1', backgroundColor: 'white', cursor: 'pointer' }}>
+                Mass Actions ({selectedArticles.length})
+              </button>
+              <div style={{ position: 'absolute', top: '100%', left: 0, backgroundColor: 'white', border: '1px solid #cbd5e1', zIndex: 100, minWidth: '160px' }}>
+                <button onClick={() => setDeleteModalOpen(true)} style={{ display: 'block', width: '100%', padding: '10px', textAlign: 'left', border: 'none', background: 'none', cursor: 'pointer' }}>
+                  Delete Selected
+                </button>
+              </div>
+            </div>
+          )}
           <a href="#" onClick={(e) => { e.preventDefault(); handleAddArticle(); }} className="highlighted">+ Add Article</a>
         </div>
       </header>
@@ -651,23 +736,34 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
         <table className="page-list-table">
           <thead>
             <tr>
+              <th><input type="checkbox" onChange={handleSelectAll} checked={selectedArticles.length === filteredBlogArticles.length && filteredBlogArticles.length > 0} /></th>
               {(settings?.languages || [{ code: 'en', name: 'English' }]).map(lang => (
-                <th key={lang.code}>Title ({lang.code})</th>
+                <th key={lang.code} onClick={() => handleSort('title', lang.code)} style={{cursor: 'pointer'}}>
+                  Title ({lang.code})
+                  {sortConfig.key === 'title' && sortConfig.langCode === lang.code && (
+                    <span style={{marginLeft: '5px'}}>{sortConfig.direction === 'asc' ? '🔼' : sortConfig.direction === 'desc' ? '🔽' : ''}</span>
+                  )}
+                </th>
               ))}
               <th>Author</th>
               <th>Date</th>
               <th>Slug</th>
               <th>Pinned?</th>
-              <th>Last Edited</th>
+              <th onClick={() => handleSort('lastEdited')} style={{cursor: 'pointer'}}>
+                Last Edited
+                {sortConfig.key === 'lastEdited' && (
+                  <span style={{marginLeft: '5px'}}>{sortConfig.direction === 'asc' ? '🔼' : sortConfig.direction === 'desc' ? '🔽' : ''}</span>
+                )}
+              </th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {filteredBlogArticles
-              .sort((a, b) => new Date(b.date) - new Date(a.date))
+            {sortedArticles
               .map(article => {
                 return (
                 <tr key={article.id}>
+                  <td><input type="checkbox" onChange={(e) => handleSelectArticle(e, article.id)} checked={selectedArticles.includes(article.id)} /></td>
                   {(settings?.languages || [{ code: 'en', name: 'English' }]).map(lang => (
                     <td key={lang.code}>{getLocalizedContent(article, lang.code).title}</td>
                   ))}
@@ -717,7 +813,7 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
           }}>
             <h2 style={{ marginTop: 0, marginBottom: '15px', fontSize: '1.25rem' }}>Confirm Delete</h2>
             <p style={{ marginBottom: '25px', color: '#64748b' }}>
-              Are you sure you want to delete this article? This action cannot be undone.
+              {selectedArticles.length > 0 ? `Are you sure you want to delete ${selectedArticles.length} selected articles?` : 'Are you sure you want to delete this article?'} This action cannot be undone.
             </p>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
               <button onClick={handleCancelDelete} style={{

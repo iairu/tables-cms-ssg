@@ -2,7 +2,7 @@ add support for page groups: page group will contain multiple pages and on main-
 
 ---
 
-improve implementation of history and save to history, so that history properly shows content for all translations
+in cms-site: within page list (PageSection.js) and blog article list (BlogSection.js) add mass actions and a checkbox selector (e.g. delete for all selected pages/articles with confirmation modal) + have the ability to sort "asc/desc/default" by "title (lang.code)", "last edited" by clicking respective <th> entry
 
 ---
 
