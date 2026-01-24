@@ -8,6 +8,7 @@ CURRENTPATH=$(cd "$(dirname "$0")" && pwd)
 BIN_DIR="$CURRENTPATH/support-bin/npm_source/bin"
 NODE="$BIN_DIR/node"
 NPM="$BIN_DIR/npm-cli.js"
+ELECTRON="$CURRENTPATH/node_modules/.bin/electron"
 PATH="$BIN_DIR:$PATH"
 
 # Ensure we are in the directory where package.json lives 
@@ -16,10 +17,10 @@ cd "$CURRENTPATH"
 
 # 1. Run NPM Install in the background (Optional: redirect logs to a file for debugging)
 # We use & to background it, but for Electron, you might want install to finish first.
-"$NODE" "$NPM" install --no-audit --no-fund # > /dev/null 2>&1
+nice -n 10 "$NODE" "$NPM" install --no-audit --no-fund # > /dev/null 2>&1
 
 # 2. Launch the app using NPM Start
 # Using 'exec' replaces the shell script process with the Node process.
 # This prevents a "zombie" shell script from hanging around and 
 # ensures the app closes properly when the process is terminated.
-exec "$NODE" "$NPM" start
+exec nice -n 10 "$NODE" "$ELECTRON" .

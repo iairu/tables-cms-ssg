@@ -12,7 +12,7 @@ let startupCompleted = false;
 const progressStages = [
   { key: 'Binaries already present', progress: 2, status: 'Validating binaries...' },
   { key: 'Binaries validated successfully', progress: 5, status: 'Environment ready.' },
-  { key: 'Running npm install', progress: 8, status: 'Checking dependencies...' },
+  { key: 'Running npm install', progress: 8, status: 'Installing dependencies (this may take a long time)...' },
   { key: 'audited', progress: 15, status: 'Dependencies verified.' },
   { key: 'npm install completed', progress: 18, status: 'Dependencies ready.' },
   { key: 'Running gatsby develop', progress: 20, status: 'Starting Gatsby...' },
@@ -40,9 +40,7 @@ const progressStages = [
   { key: 'Detected final build step', progress: 92, status: 'Starting development server...' },
   { key: 'Waiting for Gatsby server', progress: 93, status: 'Waiting for server...' },
   { key: 'Gatsby development server is ready', progress: 95, status: 'Server ready!' },
-  { key: 'You can now view', progress: 96, status: 'Application ready!' },
-  { key: 'success Building development bundle', progress: 98, status: 'Building bundle...' },
-  { key: 'success Writing page-data', progress: 99, status: 'Writing page data...' },
+  { key: 'You can now view', progress: 96, status: 'Application ready!' }
 ];
 
 let currentProgress = 0;
@@ -81,8 +79,8 @@ window.electron.onConsoleOutput((msg) => {
   // Check if entering console mode due to error
   if (msg.includes('💡 Interactive console mode enabled') || msg.includes('💡 Entering console mode')) {
     consoleMode = true;
-    statusText.textContent = '⚠️ Console Mode - Debug & Run Commands';
-    progressBar.style.background = 'linear-gradient(90deg, #ff9500, #ff6b00)';
+    statusText.textContent = '⚠️ Please close and start the app again. If problem persists, contact support@iairu.com.';
+    progressBar.style.background = 'orange';
     if (progressInterval) {
       clearInterval(progressInterval);
     }
@@ -91,7 +89,7 @@ window.electron.onConsoleOutput((msg) => {
   }
 
   // Check for completion signal
-  if (msg.includes('BUILD_END') || msg.includes('Writing page-data.json files to public directory')) {
+  if (msg.includes('BUILD_END') || msg.includes('Writing page-data.json files to public directory') || msg.includes('Gatsby development server is ready') || msg.includes('You can now view')) {
     if (progressInterval) {
       clearInterval(progressInterval);
     }
@@ -99,7 +97,7 @@ window.electron.onConsoleOutput((msg) => {
     targetProgress = 100;
     progressBar.style.width = '100%';
     statusText.textContent = '✓ Ready! Opening application...';
-    progressBar.style.background = 'linear-gradient(90deg, #34c759, #30d158)';
+    progressBar.style.background = '#007bff';
     startupCompleted = true;
     return;
   }
@@ -116,11 +114,11 @@ window.electron.onConsoleOutput((msg) => {
       
       // Update color as we progress
       if (stage.progress < 50) {
-        progressBar.style.background = 'linear-gradient(90deg, #007aff, #5ac8fa)';
+        progressBar.style.background = '#007bff';
       } else if (stage.progress < 90) {
-        progressBar.style.background = 'linear-gradient(90deg, #5ac8fa, #32ade6)';
+        progressBar.style.background = '#007bff';
       } else {
-        progressBar.style.background = 'linear-gradient(90deg, #32ade6, #34c759)';
+        progressBar.style.background = '#007bff';
       }
       
       break;
