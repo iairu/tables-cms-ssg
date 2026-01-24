@@ -725,10 +725,15 @@ body.theme-goldshow h1.big {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
+.blog-page-container {
+  background: white !important;
+}
+
 .blog-article-header {
   margin-bottom: 2rem;
   padding-bottom: 2rem;
   border-bottom: 2px solid #e2e8f0;
+  background: white;
 }
 
 .blog-article-header h1 {
@@ -772,10 +777,7 @@ body.theme-goldshow h1.big {
 }
 
 .blog-article-content {
-  font-size: 1.125rem;
-  line-height: 1.75;
-  color: #334155;
-  white-space: pre-wrap;
+    color: inherit !important;
 }
 
 .blog-article-backlink {
@@ -792,4 +794,19 @@ body.theme-goldshow h1.big {
   text-decoration: none;
   font-weight: 600;
   transition: background 0.2s;
+}
+
+/* Blog Theme Overrides */
+.blog-article-root, .blog-index-main-content {
+    background: white !important;
+    color: black !important;
+}
+
+.blog-article-header {
+    border-bottom-color: #e2e8f0 !important;
+}
+
+.dark .blog-article-header h1,
+.blog-article-header h1 {
+    color: inherit !important;
 }

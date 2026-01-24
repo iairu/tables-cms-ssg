@@ -212,7 +212,7 @@ const BlogIndexTemplate = ({ pageContext }) => {
   };
 
   return (
-    <div className="page-container">
+    <div className="page-container blog-page-container">
       <Header
         settings={settings}
         menuPages={menuPages}

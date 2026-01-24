@@ -121,14 +121,6 @@ const Footer = ({
                 color: '#64748b',
                 transition: 'all 0.2s ease'
               }}
-              onMouseEnter={(e) => {
-                e.target.style.backgroundColor = '#64748b';
-                e.target.style.color = 'white';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.backgroundColor = 'none';
-                e.target.style.color = '#64748b';
-              }}
               title={showSitemap ? 'Hide sitemap' : 'Show sitemap'}
             >
               {showSitemap ? t('hideSitemap', currentLanguage) || 'Hide Sitemap' : t('showSitemap', currentLanguage) || 'Show Sitemap'}
