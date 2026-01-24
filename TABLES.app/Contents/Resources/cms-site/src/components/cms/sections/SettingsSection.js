@@ -8,6 +8,15 @@ const SettingsSection = ({ cmsData }) => {
     saveSettings({ ...settings, [field]: value });
   };
 
+  const handleVercelProjectNameChange = (value) => {
+    const projectName = value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+    saveSettings({
+      ...settings,
+      vercelProjectName: projectName,
+      domain: projectName ? `https://${projectName}.vercel.app/` : ''
+    });
+  };
+
   const handleFileChange = async (field, file) => {
     if (file) {
       const base64 = await toBase64(file);
@@ -454,7 +463,7 @@ const SettingsSection = ({ cmsData }) => {
             <input
               type="text"
               value={settings.vercelProjectName || ''}
-              onChange={(e) => handleChange('vercelProjectName', e.target.value)}
+              onChange={(e) => handleVercelProjectNameChange(e.target.value)}
               placeholder="my-project-name"
               pattern="[a-z-]+"
               style={{
@@ -476,14 +485,16 @@ const SettingsSection = ({ cmsData }) => {
             <input
               type="text"
               value={settings.domain || ''}
-              onChange={(e) => handleChange('domain', e.target.value)}
-              placeholder="e.g., https://yourdomain.vercel.app"
+              readOnly
+              placeholder="Auto-generated from Vercel Project Name"
               style={{
                 width: '100%',
                 padding: '10px',
                 marginTop: '5px',
                 
-                border: '1px solid #cbd5e1'
+                border: '1px solid #cbd5e1',
+                background: '#f3f4f6',
+                cursor: 'not-allowed'
               }}
             />
           </label>
