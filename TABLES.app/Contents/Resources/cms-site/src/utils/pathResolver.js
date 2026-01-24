@@ -11,12 +11,12 @@ import path from 'path';
    // Use path.resolve to ensure we have a clean, absolute string
    const primaryPath = path.resolve(__dirname, '../../static/uploads');
    let fallbackPath = '';
-   try {
-     fallbackPath = path.join(process.resourcesPath, 'static/uploads');
-   } catch (e) {
-     console.warn('[Path Resolver] Error determining fallbackPath using process.resourcesPath:', e.message);
-     fallbackPath = '';
-   }
+   // try {
+   //   fallbackPath = path.join(process.resourcesPath, 'static/uploads');
+   // } catch (e) {
+   //   console.warn('[Path Resolver] Error determining fallbackPath using process.resourcesPath:', e.message);
+   //   fallbackPath = '';
+   // }
  
    console.log('[Path Resolver] Primary Path:', primaryPath);
  
