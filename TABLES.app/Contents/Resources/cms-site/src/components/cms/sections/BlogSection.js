@@ -529,7 +529,9 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
         <table className="page-list-table">
           <thead>
             <tr>
-              <th>Title</th>
+              {(settings?.languages || [{ code: 'en', name: 'English' }]).map(lang => (
+                <th key={lang.code}>Title ({lang.code})</th>
+              ))}
               <th>Author</th>
               <th>Date</th>
               <th>Slug</th>
@@ -542,13 +544,14 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
             {filteredBlogArticles
               .sort((a, b) => new Date(b.date) - new Date(a.date))
               .map(article => {
-                const defaultContent = getLocalizedContent(article, settings?.defaultLang || 'en');
                 return (
                 <tr key={article.id}>
-                  <td>{defaultContent.title}</td>
-                  <td>{defaultContent.author}</td>
+                  {(settings?.languages || [{ code: 'en', name: 'English' }]).map(lang => (
+                    <td key={lang.code}>{getLocalizedContent(article, lang.code).title}</td>
+                  ))}
+                  <td>{getLocalizedContent(article, settings?.defaultLang || 'en').author}</td>
                   <td>{new Date(article.date).toLocaleDateString('ja-JP')}</td>
-                  <td>{defaultContent.slug}</td>
+                  <td>{getLocalizedContent(article, settings?.defaultLang || 'en').slug}</td>
                   <td>
                     <input
                       type="checkbox"

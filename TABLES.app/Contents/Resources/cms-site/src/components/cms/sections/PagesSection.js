@@ -528,7 +528,9 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
         <table className="page-list-table">
           <thead>
             <tr>
-              <th>Title</th>
+              {(settings?.languages || [{ code: 'en', name: 'English' }]).map(lang => (
+                <th key={lang.code}>Title ({lang.code})</th>
+              ))}
               <th>Slug</th>
               <th>In Menu?</th>
               <th>Last Edited</th>
@@ -538,7 +540,9 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
           <tbody>
             {filteredPages.map(page => (
               <tr key={page.id} className={page.id === currentPageId ? 'active' : ''}>
-                <td>{getLocalizedContent(page, settings?.defaultLang || 'en').title}</td>
+                {(settings?.languages || [{ code: 'en', name: 'English' }]).map(lang => (
+                  <td key={lang.code}>{getLocalizedContent(page, lang.code).title}</td>
+                ))}
                 <td>{page.slug}</td>
                 <td>
                   <input
