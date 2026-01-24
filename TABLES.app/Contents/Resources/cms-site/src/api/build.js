@@ -25,15 +25,16 @@ function findBinaries() {
 
   // Define search paths in order of priority
   const searchPaths = [
-    path.join(__dirname, '../../../support-bin'), // 1. Development folder
+
+    path.join(__dirname, '../../../'), // 1. Development folder
     ...(typeof process.resourcesPath === 'string' 
-      ? [path.join(process.resourcesPath, 'node-bin')] 
+      ? [process.resourcesPath] 
       : []) // 2. Production resources (only if string)
   ];
   
   console.log("[Build API] Searching for binaries in paths:", searchPaths);
   for (const dir of searchPaths) {
-    const binPath = path.join(dir, 'npm_source', 'bin');
+    const binPath = path.join(dir, 'support-bin', 'npm_source', 'bin');
     const nodePath = path.join(binPath, nodeName);
     const npmPath = path.join(binPath, 'npm-cli.js');
     const npxPath = path.join(binPath, 'npx-cli.js');
@@ -477,17 +478,17 @@ const deployToVercel = (mainSiteDir, vercelApiToken, vercelProjectName) => {
 
     const mainSiteNodeModules = path.join(mainSiteDir, 'node_modules');
     if (!fs.existsSync(mainSiteNodeModules)) {
-      console.log('[Build API] Installing main-site dependencies first...');
-      exec(`${npmCmd} install`, {
-        cwd: mainSiteDir,
-        env: envWithPath
-      }, (installError) => {
-        if (installError) {
-          reject(installError);
-          return;
-        }
+      // console.log('[Build API] Installing main-site dependencies first...');
+      // exec(`${npmCmd} install`, {
+      //   cwd: mainSiteDir,
+      //   env: envWithPath
+      // }, (installError) => {
+      //   if (installError) {
+      //     reject(installError);
+      //     return;
+      //   }
         executeVercelDeploy(npxCmd, envWithPath);
-      });
+      
     } else {
       executeVercelDeploy(npxCmd, envWithPath);
     }
