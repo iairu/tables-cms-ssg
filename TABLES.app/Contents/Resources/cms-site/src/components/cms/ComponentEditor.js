@@ -23,6 +23,22 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
     onChange(newRows);
   };
 
+  const handleMoveComponentUp = (index) => {
+    if (index === 0) return;
+    const newRows = [...rows];
+    const [moved] = newRows.splice(index, 1);
+    newRows.splice(index - 1, 0, moved);
+    onChange(newRows);
+  };
+
+  const handleMoveComponentDown = (index) => {
+    if (index === rows.length - 1) return;
+    const newRows = [...rows];
+    const [moved] = newRows.splice(index, 1);
+    newRows.splice(index + 1, 0, moved);
+    onChange(newRows);
+  };
+
   const handleChangeComponentType = (index, newType) => {
     const newRows = [...rows];
     newRows[index] = { component: newType, fields: getDefaultFieldsForComponent(newType) };
@@ -133,12 +149,12 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
           background: '#f8fafc'
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-            <label>
+            <label style={{ fontWeight: '600' }}>
               Component Type:
               <select
                 value={row.component}
                 onChange={(e) => handleChangeComponentType(rowIndex, e.target.value)}
-                style={{ marginLeft: '10px', padding: '5px 10px' }}
+                style={{ marginLeft: '10px', padding: '5px 10px', border: '1px solid #cbd5e1', borderRadius: '6px' }}
               >
                 <option value="TitleSlide">TitleSlide</option>
                 <option value="Boxes">Boxes</option>
@@ -151,18 +167,51 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                 <option value="Reviews">Reviews</option>
               </select>
             </label>
-            <button
-              onClick={() => handleRemoveComponent(rowIndex)}
-              style={{
-                padding: '5px 15px',
-                background: '#ef4444',
-                color: 'white',
-                border: 'none',
-                cursor: 'pointer'
-              }}
-            >
-              Remove
-            </button>
+            <div style={{ display: 'flex', gap: '5px' }}>
+              <button
+                onClick={() => handleMoveComponentUp(rowIndex)}
+                disabled={rowIndex === 0}
+                style={{
+                  padding: '5px 15px',
+                  background: '#4f46e5',
+                  color: 'white',
+                  border: 'none',
+                  cursor: 'pointer',
+                  opacity: rowIndex === 0 ? 0.5 : 1,
+                  borderRadius: '6px'
+                }}
+              >
+                Up
+              </button>
+              <button
+                onClick={() => handleMoveComponentDown(rowIndex)}
+                disabled={rowIndex === rows.length - 1}
+                style={{
+                  padding: '5px 15px',
+                  background: '#4f46e5',
+                  color: 'white',
+                  border: 'none',
+                  cursor: 'pointer',
+                  opacity: rowIndex === rows.length - 1 ? 0.5 : 1,
+                  borderRadius: '6px'
+                }}
+              >
+                Down
+              </button>
+              <button
+                onClick={() => handleRemoveComponent(rowIndex)}
+                style={{
+                  padding: '5px 15px',
+                  background: '#ef4444',
+                  color: 'white',
+                  border: 'none',
+                  cursor: 'pointer',
+                  borderRadius: '6px'
+                }}
+              >
+                Remove
+              </button>
+            </div>
           </div>
 
           {/* TitleSlide Component */}
