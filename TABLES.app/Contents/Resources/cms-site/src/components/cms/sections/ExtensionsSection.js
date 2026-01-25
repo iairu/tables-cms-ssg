@@ -5,6 +5,7 @@ const ExtensionsSection = ({ cmsData }) => {
 
   const handleToggle = (key) => {
     saveExtensions({ ...extensions, [key]: !extensions[key] });
+    window.dispatchEvent(new Event('extensions-updated'));
   };
 
   const extensionInfo = {

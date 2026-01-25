@@ -30,13 +30,17 @@ const SideMenu = memo(({ currentSection, isBuilding, lastSaved, onBuildClick, ca
   const [extensions, setExtensions] = useState(getExtensionsFromStorage());
 
   useEffect(() => {
-    const handleStorage = (e) => {
-      if (e.key === 'extensions' || e.type === 'storage') {
-        setExtensions(getExtensionsFromStorage());
-      }
+    const updateExtensions = () => {
+      setExtensions(getExtensionsFromStorage());
     };
-    window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
+
+    window.addEventListener('storage', updateExtensions);
+    window.addEventListener('extensions-updated', updateExtensions);
+
+    return () => {
+      window.removeEventListener('storage', updateExtensions);
+      window.removeEventListener('extensions-updated', updateExtensions);
+    };
   }, []);
 
   const handleBuildClick = (e, localOnly = false) => {
