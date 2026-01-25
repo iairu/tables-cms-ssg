@@ -5,7 +5,7 @@ import ComponentEditor from '../ComponentEditor';
 import { fuzzyMatch } from '../utils';
 
 const PagesSection = ({ cmsData, edit: editModeProp }) => {
-  const { pages, currentPageId, saveCurrentPageId, addPage, deletePage, updatePage, settings } = cmsData;
+  const { pages, savePages, currentPageId, saveCurrentPageId, addPage, deletePage, updatePage, settings } = cmsData;
   const { showLoading, hideLoading } = useLoading();
   const navigate = createNavigation(showLoading, hideLoading);
   const [editMode, setEditMode] = useState(editModeProp || false);
@@ -59,7 +59,8 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
 
   const handleConfirmDelete = () => {
     if (selectedPages.length > 0) {
-      selectedPages.forEach(id => deletePage(id));
+      const updatedPages = pages.filter(p => !selectedPages.includes(p.id));
+      savePages(updatedPages);
       setSelectedPages([]);
     } else if (pageToDelete) {
       deletePage(pageToDelete);

@@ -4,7 +4,7 @@ import { createNavigation } from '../../../utils/navigation';
 import { fuzzyMatch } from '../utils';
 
 const BlogSection = ({ cmsData, edit: editModeProp }) => {
-  const { blogArticles, currentBlogArticleId, saveCurrentBlogArticleId, addBlogArticle, deleteBlogArticle, updateBlogArticle, isBuilding, settings } = cmsData;
+  const { blogArticles, saveBlogArticles, currentBlogArticleId, saveCurrentBlogArticleId, addBlogArticle, deleteBlogArticle, updateBlogArticle, isBuilding, settings } = cmsData;
   const { showLoading, hideLoading } = useLoading();
   const navigate = createNavigation(showLoading, hideLoading);
   const [editMode, setEditMode] = useState(editModeProp || false);
@@ -55,7 +55,8 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
 
   const handleConfirmDelete = () => {
     if (selectedArticles.length > 0) {
-      selectedArticles.forEach(id => deleteBlogArticle(id));
+      const updatedArticles = blogArticles.filter(a => !selectedArticles.includes(a.id));
+      saveBlogArticles(updatedArticles);
       setSelectedArticles([]);
     } else if (articleToDelete) {
       deleteBlogArticle(articleToDelete);
