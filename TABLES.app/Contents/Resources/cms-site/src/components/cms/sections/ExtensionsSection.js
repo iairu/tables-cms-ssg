@@ -58,48 +58,62 @@ const ExtensionsSection = ({ cmsData }) => {
   const coreExtensions = ['pages-extension-enabled', 'blog-extension-enabled', 'pedigree-extension-enabled', 'rental-extension-enabled'];
   const userDatabaseExtensions = ['biometric-extension-enabled', 'medical-extension-enabled', 'financial-extension-enabled', 'legal-extension-enabled', 'personal-extension-enabled'];
 
+  const cardStyle = {
+    background: '#f8fafc',
+    border: '1px solid #e2e8f0',
+    padding: '20px',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between'
+  };
+
+  const buttonStyle = {
+    padding: '10px 20px',
+    border: 'none',
+    cursor: 'pointer',
+    fontWeight: '600',
+    fontSize: '14px',
+    width: '100%',
+    marginTop: '15px'
+  };
+
+  const enabledButtonStyle = {
+    ...buttonStyle,
+    background: '#ef4444',
+    color: 'white',
+  };
+
+  const disabledButtonStyle = {
+    ...buttonStyle,
+    background: 'rgb(37, 99, 235)',
+    color: 'white',
+  };
+
+
   const renderExtension = (key) => (
     <div
       key={key}
       style={{
-        border: '1px solid #e2e8f0',
-        padding: '20px',
-        background: extensions[key] ? '#f0fdf4' : 'white',
-        transition: 'all 0.2s',
-        opacity: extensionInfo[key]?.permaDisabled ? 0.6 : 1
+        ...cardStyle,
+        opacity: extensionInfo[key]?.permaDisabled ? 0.6 : 1,
+        background: extensions[key] ? '#f0fdf4' : '#f8fafc',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '15px' }}>
-        <input
-          type="checkbox"
-          checked={!!extensions[key]}
-          onChange={() => handleToggle(key)}
-          disabled={extensionInfo[key]?.permaDisabled}
-          style={{
-            width: '20px',
-            height: '20px',
-            cursor: extensionInfo[key]?.permaDisabled ? 'not-allowed' : 'pointer',
-            marginTop: '2px'
-          }}
-        />
-        <div style={{ flex: 1 }}>
-          <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: '600', color: '#0f172a' }}>
-            {extensionInfo[key]?.name || key}
-          </h3>
-          <p style={{ margin: 0, fontSize: '14px', color: '#64748b', lineHeight: '1.5' }}>
-            {extensionInfo[key]?.description || 'No description available'}
-          </p>
-        </div>
-        <span style={{
-          padding: '4px 12px',
-          fontSize: '12px',
-          fontWeight: '600',
-          background: extensions[key] ? '#10b981' : '#cbd5e1',
-          color: 'white'
-        }}>
-          {extensions[key] ? 'ENABLED' : 'DISABLED'}
-        </span>
+      <div>
+        <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: '600', color: '#0f172a' }}>
+          {extensionInfo[key]?.name || key}
+        </h3>
+        <p style={{ margin: 0, fontSize: '14px', color: '#64748b', lineHeight: '1.5' }}>
+          {extensionInfo[key]?.description || 'No description available'}
+        </p>
       </div>
+      <button
+        onClick={() => handleToggle(key)}
+        disabled={extensionInfo[key]?.permaDisabled}
+        style={extensions[key] ? enabledButtonStyle : disabledButtonStyle}
+      >
+        {extensions[key] ? 'Disable' : 'Enable'}
+      </button>
     </div>
   );
 
@@ -112,11 +126,12 @@ const ExtensionsSection = ({ cmsData }) => {
         <p style={{ marginBottom: '20px', color: '#64748b' }}>
           Enable the features you want to use in your CMS.
         </p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
           {coreExtensions.map(renderExtension)}
-
-          <h2 style={{ marginTop: '30px', borderBottom: '1px solid #e2e8f0', paddingBottom: '10px', fontSize: '24px', fontWeight: '600' }}>User Databases</h2>
-
+        </div>
+        
+        <h2 style={{ marginTop: '30px', borderBottom: '1px solid #e2e8f0', paddingBottom: '10px', fontSize: '24px', fontWeight: '600' }}>User Databases</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px', marginTop: '20px' }}>
           {userDatabaseExtensions.map(renderExtension)}
         </div>
       </div>

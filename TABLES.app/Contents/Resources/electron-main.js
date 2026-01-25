@@ -553,11 +553,11 @@ const startGatsby = () => {
           } else {
             log('node_modules incomplete, cleaning and reinstalling...');
             await cleanupOnError();
-            await runPkgCommand(['install', '--prefer-offline', '--no-audit', '--no-fund']);
+            await runPkgCommand(['install', '--legacy-peer-deps', '--prefer-offline', '--no-audit', '--no-fund']);
           }
         } else {
           log('node_modules missing, installing...');
-          await runPkgCommand(['install', '--prefer-offline', '--no-audit', '--no-fund']);
+          await runPkgCommand(['install', '--legacy-peer-deps', '--prefer-offline', '--no-audit', '--no-fund']);
         }
         log(`${packageManager.name} install completed.`);
       } catch (installError) {

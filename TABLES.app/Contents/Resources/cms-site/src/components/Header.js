@@ -387,7 +387,6 @@ const Header = ({
       fontSize: '14px',
       outline: 'none',
       boxSizing: 'border-box',
-      borderRadius: '6px',
       transition: 'all 0.2s'
     },
     searchInputIcon: {
@@ -410,7 +409,6 @@ const Header = ({
       zIndex: '1000',
       listStyle: 'none',
       padding: '8px',
-      borderRadius: '8px',
       maxHeight: '400px',
       overflowY: 'auto',
       zIndex: 2001
@@ -418,7 +416,6 @@ const Header = ({
     searchResult: {
       padding: '10px 12px',
       cursor: 'pointer',
-      borderRadius: '6px',
       display: 'flex',
       alignItems: 'center',
       gap: '12px',

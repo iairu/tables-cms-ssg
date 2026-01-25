@@ -1,42 +1,35 @@
 import React from 'react';
 import SlugPicker from './SlugPicker';
 import ButtonEditor from './ButtonEditor';
+import ReactMde from 'react-mde';
+import ReactMarkdown from 'react-markdown';
+import 'react-mde/lib/styles/css/react-mde-all.css';
 
-export const renderRichTextEditor = (editorId, value, onChange) => {
-  const execCommand = (command, val = null) => {
-    const editor = document.getElementById(editorId);
-    if (editor) {
-      editor.focus();
-      document.execCommand(command, false, val);
-    }
-  };
+export const RichTextEditor = ({ value, onChange }) => {
+  const [selectedTab, setSelectedTab] = React.useState('write');
 
   return (
-    <div style={{ border: '1px solid #cbd5e1',  overflow: 'hidden' }}>
-      <div style={{ background: '#f8fafc', padding: '8px', borderBottom: '1px solid #cbd5e1', display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
-        <button type="button" onClick={() => execCommand('bold')} style={{ padding: '5px 10px', border: '1px solid #cbd5e1',  background: 'white', cursor: 'pointer', fontWeight: 'bold' }}>B</button>
-        <button type="button" onClick={() => execCommand('italic')} style={{ padding: '5px 10px', border: '1px solid #cbd5e1',  background: 'white', cursor: 'pointer', fontStyle: 'italic' }}>I</button>
-        <button type="button" onClick={() => execCommand('strikeThrough')} style={{ padding: '5px 10px', border: '1px solid #cbd5e1',  background: 'white', cursor: 'pointer', textDecoration: 'line-through' }}>S</button>
-        <button type="button" onClick={() => { const url = window.prompt('Enter URL:'); if (url) execCommand('createLink', url); }} style={{ padding: '5px 10px', border: '1px solid #cbd5e1',  background: 'white', cursor: 'pointer' }}>🔗</button>
-        <button type="button" onClick={() => execCommand('formatBlock', 'blockquote')} style={{ padding: '5px 10px', border: '1px solid #cbd5e1',  background: 'white', cursor: 'pointer' }}>❝❞</button>
-        <button type="button" onClick={() => execCommand('insertUnorderedList')} style={{ padding: '5px 10px', border: '1px solid #cbd5e1',  background: 'white', cursor: 'pointer' }}>• List</button>
-        <button type="button" onClick={() => execCommand('insertOrderedList')} style={{ padding: '5px 10px', border: '1px solid #cbd5e1',  background: 'white', cursor: 'pointer' }}>1. List</button>
-      </div>
-      <div
-        id={editorId}
-        contentEditable
-        suppressContentEditableWarning
-        onBlur={(e) => onChange(e.currentTarget.innerHTML)}
-        dangerouslySetInnerHTML={{ __html: unescape(value) || '' }}
-        style={{
-          padding: '10px',
-          minHeight: '100px',
-          outline: 'none',
-          background: 'white'
+    <div className="container">
+      <ReactMde
+        value={value}
+        onChange={onChange}
+        selectedTab={selectedTab}
+        onTabChange={setSelectedTab}
+        generateMarkdownPreview={(markdown) =>
+          Promise.resolve(<ReactMarkdown children={markdown} />)
+        }
+        childProps={{
+          writeButton: {
+            tabIndex: -1
+          }
         }}
       />
     </div>
   );
+};
+
+export const renderRichTextEditor = (editorId, value, onChange) => {
+  return <RichTextEditor value={value} onChange={onChange} />;
 };
 
 export const renderIconPicker = (value, handleChange) => {

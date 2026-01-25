@@ -395,7 +395,6 @@ label {
   margin-top: 8px;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   font-size: 14px;
-  border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 102, 204, 0.3);
   display: inline-flex;
   align-items: center;
@@ -430,7 +429,6 @@ label {
   font-size: 14px;
   cursor: pointer;
   margin-right: 8px;
-  border-radius: 6px;
   font-weight: 500;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-flex;
@@ -456,7 +454,6 @@ label {
   font-size: 13px;
   cursor: pointer;
   margin-left: 8px;
-  border-radius: 6px;
   font-weight: 500;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 2px 6px rgba(255, 59, 48, 0.3);
@@ -598,7 +595,6 @@ label {
   cursor: pointer;
   margin-right: 8px;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  border-radius: 6px;
   font-weight: 500;
   display: inline-flex;
   align-items: center;
@@ -742,7 +738,6 @@ label {
   padding: 6px 12px;
   font-size: 14px;
   cursor: pointer;
-  border-radius: 6px;
   font-weight: 500;
   box-shadow: 0 2px 6px rgba(255, 59, 48, 0.3);
   display: inline-flex;
@@ -759,7 +754,6 @@ label {
   cursor: pointer;
   margin-top: 8px;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 102, 204, 0.3);
   display: inline-flex;
   align-items: center;

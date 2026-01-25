@@ -371,7 +371,7 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
                           }}
                         >
                           <strong>{new Date(item.timestamp).toLocaleString('ja-JP')}</strong>
-                          {item.label && <span style={{marginLeft: '10px', padding: '2px 5px', backgroundColor: '#e5e7eb', borderRadius: '4px', fontSize: '12px'}}>{item.label}</span>}
+                          {item.label && <span style={{marginLeft: '10px', padding: '2px 5px', backgroundColor: '#e5e7eb', fontSize: '12px'}}>{item.label}</span>}
                           <div style={{ fontSize: '14px', color: '#64748b', marginTop: '4px' }}>
                             {item.title}
                           </div>
