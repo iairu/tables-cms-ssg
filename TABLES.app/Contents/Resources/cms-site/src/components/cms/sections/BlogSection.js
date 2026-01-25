@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 import { useLoading } from '../../../context/LoadingContext';
 import { createNavigation } from '../../../utils/navigation';
 import { fuzzyMatch } from '../utils';
+import '../../../styles/MassActions.css';
 
 const BlogSection = ({ cmsData, edit: editModeProp }) => {
   const { blogArticles, saveBlogArticles, currentBlogArticleId, saveCurrentBlogArticleId, addBlogArticle, deleteBlogArticle, updateBlogArticle, isBuilding, settings } = cmsData;
@@ -18,6 +21,7 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
   const [currentLanguage, setCurrentLanguage] = useState(settings?.defaultLang || 'en');
   const [selectedArticles, setSelectedArticles] = useState([]);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'default', langCode: null });
+  const [massActionsOpen, setMassActionsOpen] = useState(false);
 
   useEffect(() => {
     hideLoading();
@@ -557,140 +561,134 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
         </header>
 
         <div style={{ padding: '20px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: '10px' }}>
+                <strong>Title ({currentLanguage}):</strong>
+                <input
+                  type="text"
+                  value={currentLangContent?.title || ''}
+                  onChange={(e) => saveLocalizedContent(currentLanguage, { title: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+                    
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </label>
+            </div>
+            <div>
+              <label style={{ display: 'block', marginBottom: '10px' }}>
+                <strong>Slug:</strong>
+                <input
+                  type="text"
+                  value={currentArticle.slug || ''}
+                  onChange={e => updateBlogArticle(currentArticle.id, { slug: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </label>
+            </div>
+            <div>
+              <label style={{ display: 'block', marginBottom: '10px' }}>
+                <strong>Author ({currentLanguage}):</strong>
+                <input
+                  type="text"
+                  value={currentLangContent?.author || ''}
+                  onChange={(e) => saveLocalizedContent(currentLanguage, { author: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+                    
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </label>
+            </div>
+            <div>
+              <label style={{ display: 'block', marginBottom: '10px' }}>
+                <strong>Category ({currentLanguage}):</strong>
+                <input
+                  type="text"
+                  value={currentLangContent?.category || ''}
+                  onChange={(e) => saveLocalizedContent(currentLanguage, { category: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+                    
+                    border: '1px solid #cbd5e1'
+                  }}
+                  placeholder="e.g., Technology, News, Tutorial"
+                />
+              </label>
+            </div>
+            <div style={{ gridColumn: 'span 2' }}>
+              <label style={{ display: 'block', marginBottom: '10px' }}>
+                <strong>Tags ({currentLanguage}):</strong>
+                <input
+                  type="text"
+                  value={currentLangContent?.tags || ''}
+                  onChange={(e) => saveLocalizedContent(currentLanguage, { tags: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+                    
+                    border: '1px solid #cbd5e1'
+                  }}
+                  placeholder="e.g., javascript, react, web-development (comma-separated)"
+                />
+              </label>
+            </div>
+            <div style={{ gridColumn: 'span 2' }}>
+              <label style={{ display: 'block', marginBottom: '10px' }}>
+                <strong>Meta Description ({currentLanguage}):</strong>
+                <textarea
+                  value={currentLangContent?.metaDescription || ''}
+                  onChange={(e) => saveLocalizedContent(currentLanguage, { metaDescription: e.target.value })}
+                  rows="3"
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+                    
+                    border: '1px solid #cbd5e1',
+                    fontFamily: 'inherit'
+                  }}
+                  placeholder="Enter a meta description for this article"
+                />
+              </label>
+            </div>
+            <div>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', height: '100%' }}>
+                <input
+                  type="checkbox"
+                  checked={currentArticle.highlighted || false}
+                  onChange={(e) => handleUpdateArticle(currentArticle.id, { highlighted: e.target.checked })}
+                  style={{ cursor: 'pointer', width: '18px', height: '18px' }}
+                />
+                <strong>Highlight (Pin on Top)?</strong>
+              </label>
+            </div>
+          </div>
 
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
-              <strong>Title ({currentLanguage}):</strong>
-              <input
-                type="text"
-                value={currentLangContent?.title || ''}
-                onChange={(e) => saveLocalizedContent(currentLanguage, { title: e.target.value })}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1'
-                }}
-              />
-            </label>
-          </div>
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '10px' }}>
-              <strong>Slug:</strong>
-              <input
-                type="text"
-                value={currentArticle.slug || ''}
-                onChange={e => updateBlogArticle(currentArticle.id, { slug: e.target.value })}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  border: '1px solid #cbd5e1'
-                }}
-              />
-            </label>
-            <p style={{ fontSize: '14px', color: '#64748b', marginTop: '5px' }}>
-              {/* Full URL: {getArticleUrl(currentArticle, currentLanguage)}*/}
-            </p>
-          </div>
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '10px' }}>
-              <strong>Meta Description ({currentLanguage}):</strong>
-              <textarea
-                value={currentLangContent?.metaDescription || ''}
-                onChange={(e) => saveLocalizedContent(currentLanguage, { metaDescription: e.target.value })}
-                rows="3"
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1',
-                  fontFamily: 'inherit'
-                }}
-                placeholder="Enter a meta description for this article"
-              />
-            </label>
-          </div>
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '10px' }}>
-              <strong>Author ({currentLanguage}):</strong>
-              <input
-                type="text"
-                value={currentLangContent?.author || ''}
-                onChange={(e) => saveLocalizedContent(currentLanguage, { author: e.target.value })}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1'
-                }}
-              />
-            </label>
-          </div>
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '10px' }}>
-              <strong>Category ({currentLanguage}):</strong>
-              <input
-                type="text"
-                value={currentLangContent?.category || ''}
-                onChange={(e) => saveLocalizedContent(currentLanguage, { category: e.target.value })}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1'
-                }}
-                placeholder="e.g., Technology, News, Tutorial"
-              />
-            </label>
-          </div>
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '10px' }}>
-              <strong>Tags ({currentLanguage}):</strong>
-              <input
-                type="text"
-                value={currentLangContent?.tags || ''}
-                onChange={(e) => saveLocalizedContent(currentLanguage, { tags: e.target.value })}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1'
-                }}
-                placeholder="e.g., javascript, react, web-development (comma-separated)"
-              />
-            </label>
-          </div>
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer' }}>
-              <input
-                type="checkbox"
-                checked={currentArticle.highlighted || false}
-                onChange={(e) => handleUpdateArticle(currentArticle.id, { highlighted: e.target.checked })}
-                style={{ cursor: 'pointer', width: '18px', height: '18px' }}
-              />
-              <strong>Highlight (Pin on Top)?</strong>
-            </label>
-          </div>
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Content ({currentLanguage}):</strong>
-              <textarea
+              <ReactQuill
                 value={currentLangContent?.content || ''}
-                onChange={(e) => saveLocalizedContent(currentLanguage, { content: e.target.value })}
-                rows="15"
+                onChange={(content) => saveLocalizedContent(currentLanguage, { content })}
                 style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1',
-                  fontFamily: 'monospace'
+                  height: '400px',
+                  marginBottom: '50px'
                 }}
               />
             </label>
@@ -719,15 +717,17 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
             }}
           />
           {selectedArticles.length > 0 && (
-            <div style={{ position: 'relative', display: 'inline-block' }}>
-              <button style={{ padding: '8px 16px', border: '1px solid #cbd5e1', backgroundColor: 'white', cursor: 'pointer' }}>
+            <div className="mass-actions-container">
+              <button onClick={() => setMassActionsOpen(!massActionsOpen)} className="mass-actions-button">
                 Mass Actions ({selectedArticles.length})
               </button>
-              <div style={{ position: 'absolute', top: '100%', left: 0, backgroundColor: 'white', border: '1px solid #cbd5e1', zIndex: 100, minWidth: '160px' }}>
-                <button onClick={() => setDeleteModalOpen(true)} style={{ display: 'block', width: '100%', padding: '10px', textAlign: 'left', border: 'none', background: 'none', cursor: 'pointer' }}>
-                  Delete Selected
-                </button>
-              </div>
+              {massActionsOpen && (
+                <div className="mass-actions-dropdown">
+                  <button onClick={() => { setDeleteModalOpen(true); setMassActionsOpen(false); }} className="mass-actions-dropdown-button">
+                    Delete Selected
+                  </button>
+                </div>
+              )}
             </div>
           )}
           <a href="#" onClick={(e) => { e.preventDefault(); handleAddArticle(); }} className="highlighted">+ Add Article</a>

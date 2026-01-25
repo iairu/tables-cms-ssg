@@ -1,0 +1,36 @@
+.mass-actions-container {
+  position: relative;
+  display: inline-block;
+}
+
+.mass-actions-button {
+  padding: 8px 16px;
+  border: 1px solid #cbd5e1;
+  background-color: white;
+  cursor: pointer;
+}
+
+.mass-actions-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: white;
+  border: 1px solid #cbd5e1;
+  z-index: 100;
+  min-width: 160px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.mass-actions-dropdown-button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  text-align: left;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.mass-actions-dropdown-button:hover {
+  background-color: #f1f5f9;
+}

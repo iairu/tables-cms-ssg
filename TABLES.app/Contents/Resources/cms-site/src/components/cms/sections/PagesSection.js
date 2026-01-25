@@ -3,6 +3,7 @@ import { useLoading } from '../../../context/LoadingContext';
 import { createNavigation } from '../../../utils/navigation';
 import ComponentEditor from '../ComponentEditor';
 import { fuzzyMatch } from '../utils';
+import '../../../styles/MassActions.css';
 
 const PagesSection = ({ cmsData, edit: editModeProp }) => {
   const { pages, savePages, currentPageId, saveCurrentPageId, addPage, deletePage, updatePage, settings } = cmsData;
@@ -18,6 +19,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
   const [currentLanguage, setCurrentLanguage] = useState(settings?.defaultLang || 'en');
   const [selectedPages, setSelectedPages] = useState([]);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'default', langCode: null });
+  const [massActionsOpen, setMassActionsOpen] = useState(false);
 
   useEffect(() => {
     hideLoading();
@@ -688,15 +690,17 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
             }}
           />
           {selectedPages.length > 0 && (
-            <div style={{ position: 'relative', display: 'inline-block' }}>
-              <button style={{ padding: '8px 16px', border: '1px solid #cbd5e1', backgroundColor: 'white', cursor: 'pointer' }}>
+            <div className="mass-actions-container">
+              <button onClick={() => setMassActionsOpen(!massActionsOpen)} className="mass-actions-button">
                 Mass Actions ({selectedPages.length})
               </button>
-              <div style={{ position: 'absolute', top: '100%', left: 0, backgroundColor: 'white', border: '1px solid #cbd5e1', zIndex: 100, minWidth: '160px' }}>
-                <button onClick={() => setDeleteModalOpen(true)} style={{ display: 'block', width: '100%', padding: '10px', textAlign: 'left', border: 'none', background: 'none', cursor: 'pointer' }}>
-                  Delete Selected
-                </button>
-              </div>
+              {massActionsOpen && (
+                <div className="mass-actions-dropdown">
+                  <button onClick={() => { setDeleteModalOpen(true); setMassActionsOpen(false); }} className="mass-actions-dropdown-button">
+                    Delete Selected
+                  </button>
+                </div>
+              )}
             </div>
           )}
           <a href="#" onClick={(e) => { e.preventDefault(); handleAddPage(); }} className="highlighted">+ Add Page</a>
