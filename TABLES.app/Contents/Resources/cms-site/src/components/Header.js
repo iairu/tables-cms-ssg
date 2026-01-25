@@ -14,10 +14,20 @@ const pathFromSection = {
   settings: 'settings',
   extensions: 'extensions'
 };
+
+const getExtensionsFromStorage = () => {
+  try {
+    return JSON.parse(localStorage.getItem('extensions') || '{}');
+  } catch (e) {
+    return {};
+  }
+};
+
 const Header = memo(({
   onVisitDomain,
   onBuildAndDeploy,
   onBuildLocally,
+  onToggleNotesSidebar,
   isBuilding,
   canBuild,
   domain,
@@ -28,13 +38,21 @@ const Header = memo(({
   const [searchResults, setSearchResults] = useState([]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [allSearchableItems, setAllSearchableItems] = useState([]);
+  const [extensions, setExtensions] = useState(getExtensionsFromStorage());
 
-  let extensions = {};
-  try {
-    extensions = JSON.parse(localStorage.getItem('extensions') || '{}');
-  } catch (e) {
-    extensions = {};
-  }
+  useEffect(() => {
+    const updateExtensions = () => {
+      setExtensions(getExtensionsFromStorage());
+    };
+
+    window.addEventListener('storage', updateExtensions);
+    window.addEventListener('extensions-updated', updateExtensions);
+
+    return () => {
+      window.removeEventListener('storage', updateExtensions);
+      window.removeEventListener('extensions-updated', updateExtensions);
+    };
+  }, []);
 
   // Build searchable items from localStorage
   useEffect(() => {
@@ -675,7 +693,34 @@ const Header = memo(({
                 <span>Visit</span>
                 {/* <Icon icon="fa-solid fa-external-link-alt" />*/}
               </a>
-          )}
+        )}
+       {/* Toggle Notes Sidebar */}
+       {extensions['notes-extension-enabled'] && onToggleNotesSidebar && (
+         <button
+           style={{
+             width: '100%',
+             padding: '0px 16px',
+             border: '1px solid #00000050',
+             background: 'white',
+             color: 'black',
+             fontSize: '14px',
+             fontWeight: '600',
+             cursor: 'pointer',
+             display: 'flex',
+             alignItems: 'center',
+             justifyContent: 'center',
+             gap: '8px',
+             padding: '6px 16px',
+             boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+             transition: 'all 0.2s',
+             textDecoration: 'none'
+           }}
+           onClick={onToggleNotesSidebar}
+         >
+           <i className="fa fa-note-sticky"></i>
+           {/* <span>Notes</span>*/}
+         </button>
+       )}
         {/* Mobile Menu Overlay */}
        {mobileMenuOpen && (
          <div

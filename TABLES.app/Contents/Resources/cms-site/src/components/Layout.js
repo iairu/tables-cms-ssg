@@ -1,15 +1,40 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Header from './Header';
 import SideMenu from './SideMenu';
 import LoadingBar from './LoadingBar';
 import LoadingSkeleton from './LoadingSkeleton';
 import useCMSData from '../hooks/useCMSData';
 import { useLoading } from '../context/LoadingContext';
+import NotesSidebar from './NotesSidebar';
 import '../styles/cms.css';
+
+const getExtensionsFromStorage = () => {
+  try {
+    return JSON.parse(localStorage.getItem('extensions') || '{}');
+  } catch (e) {
+    return {};
+  }
+};
 
 const Layout = ({ children, location }) => {
   const cmsData = useCMSData();
   const { isLoading, showLoading, hideLoading } = useLoading();
+  const [isNotesSidebarOpen, setNotesSidebarOpen] = useState(false);
+  const [extensions, setExtensions] = useState(getExtensionsFromStorage());
+
+  useEffect(() => {
+    const updateExtensions = () => {
+      setExtensions(getExtensionsFromStorage());
+    };
+
+    window.addEventListener('storage', updateExtensions);
+    window.addEventListener('extensions-updated', updateExtensions);
+
+    return () => {
+      window.removeEventListener('storage', updateExtensions);
+      window.removeEventListener('extensions-updated', updateExtensions);
+    };
+  }, []);
 
   useEffect(() => {
     const handleShowLoading = () => showLoading();
@@ -49,32 +74,42 @@ const Layout = ({ children, location }) => {
     return '';
   };
 
+  const toggleNotesSidebar = () => {
+    setNotesSidebarOpen(!isNotesSidebarOpen);
+  };
+
   return (
-    <div className="cms-container">
-      <LoadingBar />
-      <Header
-        onVisitDomain={() => window.open(cmsData.settings.domain, '_blank')}
-        onBuildAndDeploy={() => handleManualBuild(false)}
-        onBuildLocally={() => handleManualBuild(true)}
-        isBuilding={cmsData.isBuilding}
-        canBuild={cmsData.canBuild}
-        domain={cmsData.settings.domain}
-        vercelApiKey={cmsData.settings.vercelApiKey}
-        buildCooldownSeconds={cmsData.buildCooldownSeconds}
-      />
-      <main>
-        <SideMenu
-          currentSection={getCurrentSection()}
+    <div style={{ display: 'flex', minHeight: '100vh' }}>
+      <div className="cms-container" style={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+        <LoadingBar />
+        <Header
+          onVisitDomain={() => window.open(cmsData.settings.domain, '_blank')}
+          onBuildAndDeploy={() => handleManualBuild(false)}
+          onBuildLocally={() => handleManualBuild(true)}
+          onToggleNotesSidebar={toggleNotesSidebar}
           isBuilding={cmsData.isBuilding}
-          lastSaved={cmsData.lastSaved}
-          onBuildClick={handleManualBuild}
           canBuild={cmsData.canBuild}
-          buildCooldownSeconds={cmsData.buildCooldownSeconds}
           domain={cmsData.settings.domain}
           vercelApiKey={cmsData.settings.vercelApiKey}
+          buildCooldownSeconds={cmsData.buildCooldownSeconds}
         />
-        {isLoading ? <LoadingSkeleton /> : children}
-      </main>
+        <main style={{ flexGrow: 1, position: 'relative', transition: 'margin-right 0.3s' }}>
+          <SideMenu
+            currentSection={getCurrentSection()}
+            isBuilding={cmsData.isBuilding}
+            lastSaved={cmsData.lastSaved}
+            onBuildClick={handleManualBuild}
+            canBuild={cmsData.canBuild}
+            buildCooldownSeconds={cmsData.buildCooldownSeconds}
+            domain={cmsData.settings.domain}
+            vercelApiKey={cmsData.settings.vercelApiKey}
+          />
+          {isLoading ? <LoadingSkeleton /> : children}
+        </main>
+      </div>
+      {extensions['notes-extension-enabled'] && toggleNotesSidebar && (
+        <NotesSidebar isOpen={isNotesSidebarOpen} onClose={toggleNotesSidebar} />
+      )}
     </div>
   );
 };

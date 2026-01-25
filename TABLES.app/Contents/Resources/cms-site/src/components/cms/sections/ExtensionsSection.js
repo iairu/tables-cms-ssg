@@ -53,11 +53,21 @@ const ExtensionsSection = ({ cmsData }) => {
         name: 'Personal',
         description: "An non-secure database demo of users with personal information, hobbies, and preferences.",
         permaDisabled: false
+    },
+    'notes-extension-enabled': {
+        name: 'Notes',
+        description: 'Capture sticky notes in a right-hand sidebar available throughout the app.',
+        permaDisabled: false
+    },
+    'movietracker-extension-enabled': {
+        name: 'Movie & Show Tracker',
+        description: 'Track movies and TV shows you have watched or want to watch. Data from IMDB.',
+        permaDisabled: true
     }
   };
 
   const coreExtensions = ['pages-extension-enabled', 'blog-extension-enabled', 'pedigree-extension-enabled', 'rental-extension-enabled'];
-  const userDatabaseExtensions = ['biometric-extension-enabled', 'medical-extension-enabled', 'financial-extension-enabled', 'legal-extension-enabled', 'personal-extension-enabled'];
+  const userDatabaseExtensions = ['biometric-extension-enabled', 'medical-extension-enabled', 'financial-extension-enabled', 'legal-extension-enabled', 'personal-extension-enabled', 'notes-extension-enabled', 'movietracker-extension-enabled'];
 
   const cardStyle = {
     background: '#f8fafc',

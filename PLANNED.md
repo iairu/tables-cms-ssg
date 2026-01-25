@@ -14,13 +14,15 @@ manual: have slightly gray background on asset grid assets so white images can b
 
 implement extension called Biometric for a database of users with fingerprints imgs (left thumb, right thumb, palm), face mugshot (with grouping and better sort: front, back, left side, right side), user data and sensitive data (place of origin, date of birth, gender, height, weight, eye color, hair color, skin color, blood type, Rh factor, national ID, social security number, passport number, driver's license number, first name, last name, middle names, marriage status, children, spouse name, ...), this will be editable same way as the pedigree cats table with an expand button, show a warning within the picker that this is for demo only due to low or non-existent security
 
-implement a similar extension called Medical for a database of users with medical records, allergies, medications, and health history, this will be editable same way as the pedigree cats table with an expand button, show a warning within the picker that this is for demo only due to low or non-existent security
+also: Biometric does not get properly marked as active in SideMenu whenever opened and expand form is missing CSS in Biometric from Cats
 
-implement a similar extension called Financial for a database of users with financial information, income, expenses, assets, liabilities, and credit scores, this will be editable same way as the pedigree cats table with an expand button, show a warning within the picker that this is for demo only due to low or non-existent security
+implement extension called Medical for a database of users with medical records, allergies, medications, and health history, this will be editable same way as the pedigree cats table with an expand button, show a warning within the picker that this is for demo only due to low or non-existent security
 
-implement a similar extension called Legal for a database of users with legal information, criminal records, court cases, and legal history, this will be editable same way as the pedigree cats table with an expand button, show a warning within the picker that this is for demo only due to low or non-existent security
+implement extension called Financial for a database of users with financial information, income, expenses, assets, liabilities, and credit scores, this will be editable same way as the pedigree cats table with an expand button, show a warning within the picker that this is for demo only due to low or non-existent security
 
-implement a similar extension called Personal for a database of users with personal information, hobbies, interests, and preferences, this will be editable same way as the pedigree cats table with an expand button, show a warning within the picker that this is for demo only due to low or non-existent security
+implement extension called Legal for a database of users with legal information, criminal records, court cases, and legal history, this will be editable same way as the pedigree cats table with an expand button, show a warning within the picker that this is for demo only due to low or non-existent security
+
+implement extension called Personal for a database of users with personal information, hobbies, interests, and preferences, this will be editable same way as the pedigree cats table with an expand button, show a warning within the picker that this is for demo only due to low or non-existent security
 
 ---
 
@@ -34,15 +36,11 @@ add more features to pedigree extension including breed history, and genetic ana
 
 ---
 
-add movie and show tracker extension (uses imdb numbering)
-
----
-
 improve the theme picker in settings to show actual themes (CSS) named: Default (Current CSS in main-site), Synthwave, Matrix, Monokai, GitHub, VSCode, Anime, Historic Paper, Senior Citizen, ayu; add css for all of these themes to the main-site frontend, utilize body class "theme-[themeName]" to switch between them
 
 ---
 
-add notes extension
+perfect! now add a "Notes" extension for capturing sticky notes within the app using a separate right sidebar and a "Movie and Show Tracker" extension that fetches data from (uses same ids as) IMDB
 
 ---
 
