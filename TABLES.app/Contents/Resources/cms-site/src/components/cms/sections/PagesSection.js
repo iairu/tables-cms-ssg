@@ -268,6 +268,16 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
     return `${protocol}//${host}${port}/${lang}/${langContent.slug}`;
   };
 
+  const getLocalizedGroupName = (group, lang) => {
+    if (group.id === 'direct-pages') {
+        return 'Direct pages';
+    }
+    if (lang === settings?.defaultLang) {
+        return group.name || '';
+    }
+    return group.translations?.[lang]?.name || group.name || ''; // Fallback to default name
+  };
+
   const handleGroupChange = (newGroupId) => {
     let updatedPageGroups = (pageGroups || []).map(group => ({
       ...group,
@@ -311,12 +321,12 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
           if (!map.has(pageId)) {
             map.set(pageId, []);
           }
-          map.get(pageId).push(group.name);
+          map.get(pageId).push(getLocalizedGroupName(group, settings?.defaultLang || 'en'));
         }
       }
     }
     return map;
-  }, [pageGroups]);
+  }, [pageGroups, settings?.defaultLang]);
 
   const sortedPages = React.useMemo(() => {
     let sortablePages = [...filteredPages];
@@ -609,7 +619,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                 >
                   <option value="">No Group</option>
                   {(pageGroups || []).map(group => (
-                    <option key={group.id} value={group.id}>{group.name}</option>
+                    <option key={group.id} value={group.id}>{getLocalizedGroupName(group, currentLanguage)}</option>
                   ))}
                 </select>
               </label>

@@ -1,6 +1,4 @@
-in PageGroupsSection: add group button is missing same styling as add page in PagesSection: use same layout for PageGroupsSection as for CatsSection, which also means: group should always be added to top of table with empty name field, search field for groups just like in PagesSection must be present
-
-always show "Page Group(s)" table column in PagesSection
+implement page groups support in main-site "to show a dropdown menu in header and a new column for showSitemap per each page group"
 
 ---
 

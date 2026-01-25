@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { fuzzyMatch } from '../utils';
 
 const PageGroupsSection = ({ cmsData }) => {
-  const { pageGroups, savePageGroups, pages } = cmsData;
+  const { pageGroups, savePageGroups, pages, settings } = cmsData;
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleAddGroup = () => {
@@ -10,6 +10,7 @@ const PageGroupsSection = ({ cmsData }) => {
       id: Date.now().toString(),
       name: '',
       pageIds: [],
+      translations: {},
     };
     savePageGroups([newGroup, ...pageGroups]);
   };
@@ -28,10 +29,41 @@ const PageGroupsSection = ({ cmsData }) => {
     savePageGroups(updatedGroups);
   };
 
-  const handleUpdateGroupName = (groupId, newName) => {
-    const updatedGroups = pageGroups.map(group =>
-      group.id === groupId ? { ...group, name: newName } : group
-    );
+  const getLocalizedGroupName = (group, lang) => {
+    if (group.id === 'direct-pages') {
+        return 'Direct pages';
+    }
+    if (lang === settings?.defaultLang) {
+        return group.name || '';
+    }
+    return group.translations?.[lang]?.name || '';
+  };
+
+  const handleUpdateGroupName = (groupId, lang, newName) => {
+    const updatedGroups = pageGroups.map(group => {
+        if (group.id !== groupId) {
+            return group;
+        }
+
+        const newGroup = { ...group };
+        if (lang === settings?.defaultLang) {
+            newGroup.name = newName;
+        } else {
+            newGroup.translations = {
+                ...(group.translations || {}),
+                [lang]: {
+                    name: newName,
+                },
+            };
+        }
+
+        // Ensure default language is not in translations
+        if (newGroup.translations && (settings?.defaultLang in newGroup.translations)) {
+            delete newGroup.translations[settings.defaultLang];
+        }
+
+        return newGroup;
+    });
     savePageGroups(updatedGroups);
   };
 
@@ -43,6 +75,9 @@ const PageGroupsSection = ({ cmsData }) => {
     <section className="main-section active" id="page-groups">
       <header>
         <h1>Page Groups</h1>
+        <p style={{ color: '#64748b', fontSize: '14px' }}>
+          Page groups are for combining multiple pages into a dropdown menu in the deployed site. You can assign a page to a group by editing it in the 'Pages' section.
+        </p>
         <div className="adjustment-buttons">
           <input
             type="text"
@@ -59,14 +94,13 @@ const PageGroupsSection = ({ cmsData }) => {
           <a href="#" onClick={(e) => { e.preventDefault(); handleAddGroup(); }} className="highlighted">+ Add Group</a>
         </div>
       </header>
-      <p style={{ color: '#64748b', fontSize: '14px', padding: '10px', marginBottom: '20px' }}>
-        Page groups are for combining multiple pages into a dropdown menu in the deployed site. You can assign a page to a group by editing it in the 'Pages' section.
-      </p>
       <div className="component-table-container">
         <table className="page-list-table">
           <thead>
             <tr>
-              <th style={{ width: '60%' }}>Group Name</th>
+              {(settings?.languages || [{ code: 'en', name: 'English' }]).map(lang => (
+                <th key={lang.code}>Group Name ({lang.code})</th>
+              ))}
               <th style={{ width: '20%' }}>Pages</th>
               <th style={{ width: '20%' }}>Actions</th>
             </tr>
@@ -74,15 +108,17 @@ const PageGroupsSection = ({ cmsData }) => {
           <tbody>
             {filteredPageGroups.map(group => (
               <tr key={group.id}>
-                <td>
-                  <input
-                    type="text"
-                    value={group.name}
-                    onChange={(e) => handleUpdateGroupName(group.id, e.target.value)}
-                    disabled={group.id === 'direct-pages'}
-                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', backgroundColor: group.id === 'direct-pages' ? '#f0f0f0' : 'white' }}
-                  />
-                </td>
+                {(settings?.languages || [{ code: 'en', name: 'English' }]).map(lang => (
+                  <td key={lang.code}>
+                    <input
+                      type="text"
+                      value={getLocalizedGroupName(group, lang.code)}
+                      onChange={(e) => handleUpdateGroupName(group.id, lang.code, e.target.value)}
+                      disabled={group.id === 'direct-pages'}
+                      style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', backgroundColor: group.id === 'direct-pages' ? '#f0f0f0' : 'white' }}
+                    />
+                  </td>
+                ))}
                 <td style={{ textAlign: 'center' }}>{group.pageIds.length}</td>
                 <td style={{ textAlign: 'center' }}>
                   {group.id !== 'direct-pages' && (
@@ -99,3 +135,4 @@ const PageGroupsSection = ({ cmsData }) => {
 };
 
 export default PageGroupsSection;
+
