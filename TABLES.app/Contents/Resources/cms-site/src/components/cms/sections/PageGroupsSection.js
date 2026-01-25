@@ -1,23 +1,22 @@
 import React, { useState } from 'react';
+import { fuzzyMatch } from '../utils';
 
 const PageGroupsSection = ({ cmsData }) => {
   const { pageGroups, savePageGroups, pages } = cmsData;
-  const [newGroupName, setNewGroupName] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleAddGroup = () => {
-    if (newGroupName.trim() === '') return;
     const newGroup = {
       id: Date.now().toString(),
-      name: newGroupName,
+      name: '',
       pageIds: [],
     };
-    savePageGroups([...pageGroups, newGroup]);
-    setNewGroupName('');
+    savePageGroups([newGroup, ...pageGroups]);
   };
 
   const handleDeleteGroup = (groupId) => {
     if (groupId === 'direct-pages') {
-      alert("Cannot delete the default 'Direct Pages' group.");
+      alert("Cannot delete the default page group.");
       return;
     }
     const groupToDelete = pageGroups.find(g => g.id === groupId);
@@ -36,22 +35,34 @@ const PageGroupsSection = ({ cmsData }) => {
     savePageGroups(updatedGroups);
   };
 
+  const filteredPageGroups = (pageGroups || []).filter(group => {
+    return fuzzyMatch(group.name || '', searchQuery);
+  });
+
   return (
     <section className="main-section active" id="page-groups">
       <header>
         <h1>Page Groups</h1>
-      </header>
-      <div className="component-table-container" style={{ padding: '20px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+        <div className="adjustment-buttons">
           <input
             type="text"
-            value={newGroupName}
-            onChange={(e) => setNewGroupName(e.target.value)}
-            placeholder="New group name"
-            style={{ padding: '10px', marginRight: '10px', border: '1px solid #ccc', flexGrow: 1 }}
+            placeholder="Search groups..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{
+              padding: '8px 12px',
+              border: '1px solid #cbd5e1',
+              marginRight: '10px',
+              width: '200px'
+            }}
           />
-          <button onClick={handleAddGroup} className="highlighted" style={{ padding: '10px 20px' }}>+ Add Group</button>
+          <a href="#" onClick={(e) => { e.preventDefault(); handleAddGroup(); }} className="highlighted">+ Add Group</a>
         </div>
+      </header>
+      <p style={{ color: '#64748b', fontSize: '14px', padding: '10px', marginBottom: '20px' }}>
+        Page groups are for combining multiple pages into a dropdown menu in the deployed site. You can assign a page to a group by editing it in the 'Pages' section.
+      </p>
+      <div className="component-table-container">
         <table className="page-list-table">
           <thead>
             <tr>
@@ -61,7 +72,7 @@ const PageGroupsSection = ({ cmsData }) => {
             </tr>
           </thead>
           <tbody>
-            {pageGroups.map(group => (
+            {filteredPageGroups.map(group => (
               <tr key={group.id}>
                 <td>
                   <input
@@ -69,7 +80,7 @@ const PageGroupsSection = ({ cmsData }) => {
                     value={group.name}
                     onChange={(e) => handleUpdateGroupName(group.id, e.target.value)}
                     disabled={group.id === 'direct-pages'}
-                    style={{ padding: '10px', border: '1px solid #ccc', width: '100%', backgroundColor: group.id === 'direct-pages' ? '#f0f0f0' : 'white' }}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', backgroundColor: group.id === 'direct-pages' ? '#f0f0f0' : 'white' }}
                   />
                 </td>
                 <td style={{ textAlign: 'center' }}>{group.pageIds.length}</td>

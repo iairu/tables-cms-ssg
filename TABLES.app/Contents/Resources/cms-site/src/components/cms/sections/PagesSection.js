@@ -268,6 +268,21 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
     return `${protocol}//${host}${port}/${lang}/${langContent.slug}`;
   };
 
+  const handleGroupChange = (newGroupId) => {
+    let updatedPageGroups = (pageGroups || []).map(group => ({
+      ...group,
+      pageIds: group.pageIds.filter(id => id !== currentPage.id)
+    }));
+
+    if (newGroupId) {
+      const targetGroup = updatedPageGroups.find(g => g.id === newGroupId);
+      if (targetGroup) {
+        targetGroup.pageIds.push(currentPage.id);
+      }
+    }
+    savePageGroups(updatedPageGroups);
+  };
+
   const handleSort = (key, langCode = null) => {
     let direction = 'asc';
     if (sortConfig.key === key && sortConfig.langCode === langCode && sortConfig.direction === 'asc') {
@@ -287,6 +302,22 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
     );
   });
 
+  const pageIdToGroupNames = React.useMemo(() => {
+    const map = new Map();
+    if (!pageGroups) return map;
+    for (const group of pageGroups) {
+      if (group.pageIds) {
+        for (const pageId of group.pageIds) {
+          if (!map.has(pageId)) {
+            map.set(pageId, []);
+          }
+          map.get(pageId).push(group.name);
+        }
+      }
+    }
+    return map;
+  }, [pageGroups]);
+
   const sortedPages = React.useMemo(() => {
     let sortablePages = [...filteredPages];
     if (sortConfig.direction !== 'default') {
@@ -298,6 +329,17 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
             return sortConfig.direction === 'asc' ? -1 : 1;
           }
           if (titleA > titleB) {
+            return sortConfig.direction === 'asc' ? 1 : -1;
+          }
+          return 0;
+        }
+        if (sortConfig.key === 'pageGroup') {
+          const groupA = pageIdToGroupNames.get(a.id)?.join(', ') || '';
+          const groupB = pageIdToGroupNames.get(b.id)?.join(', ') || '';
+          if (groupA < groupB) {
+            return sortConfig.direction === 'asc' ? -1 : 1;
+          }
+          if (groupA > groupB) {
             return sortConfig.direction === 'asc' ? 1 : -1;
           }
           return 0;
@@ -317,7 +359,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
       });
     }
     return sortablePages;
-  }, [filteredPages, sortConfig, getLocalizedContent]);
+  }, [filteredPages, sortConfig, getLocalizedContent, pageIdToGroupNames]);
 
   const handleSelectAll = (e) => {
     if (e.target.checked) {
@@ -520,34 +562,58 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
               />
             </label>
           </div>
-          <div style={{ }}>
-            <label style={{ display: 'block', marginBottom: '10px' }}>
-              <strong>Slug:</strong>
-              <input
-                type="text"
-                value={currentPage.slug || ''}
-                disabled={currentPage.slug === 'home'}
-                onChange={e => {
-                  const newSlug = e.target.value;
-                  updatePage(currentPage.id, { slug: newSlug });
-                  if (newSlug === 'home') {
-                    updatePage(currentPage.id, { includeInMenu: true });
-                  }
-                }}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1',
-                  background: currentPage.slug === 'home' ? '#f3f4f6' : 'white',
-                  cursor: currentPage.slug === 'home' ? 'not-allowed' : 'auto'
-                }}
-              />
-            </label>
-            <p style={{ fontSize: '14px', color: '#64748b', marginTop: '5px' }}>
-              {/* Full URL: {getPageUrl(currentPage, currentLanguage)}*/}
-            </p>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', alignItems: 'start' }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: '10px' }}>
+                <strong>Slug:</strong>
+                <input
+                  type="text"
+                  value={currentPage.slug || ''}
+                  disabled={currentPage.slug === 'home'}
+                  onChange={e => {
+                    const newSlug = e.target.value;
+                    updatePage(currentPage.id, { slug: newSlug });
+                    if (newSlug === 'home') {
+                      updatePage(currentPage.id, { includeInMenu: true });
+                    }
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+                    
+                    border: '1px solid #cbd5e1',
+                    background: currentPage.slug === 'home' ? '#f3f4f6' : 'white',
+                    cursor: currentPage.slug === 'home' ? 'not-allowed' : 'auto'
+                  }}
+                />
+              </label>
+              <p style={{ fontSize: '14px', color: '#64748b', marginTop: '5px' }}>
+                {/* Full URL: {getPageUrl(currentPage, currentLanguage)}*/}
+              </p>
+            </div>
+            <div>
+              <label style={{ display: 'block', marginBottom: '10px' }}>
+                <strong>Page Group:</strong>
+                <select
+                  value={(pageGroups || []).find(g => g.pageIds.includes(currentPage.id))?.id || ''}
+                  onChange={e => handleGroupChange(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+                    border: '1px solid #cbd5e1',
+                    background: 'white',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <option value="">No Group</option>
+                  {(pageGroups || []).map(group => (
+                    <option key={group.id} value={group.id}>{group.name}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
           </div>
 
           <div style={{ }}>
@@ -748,6 +814,12 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
               ))}
               <th>Slug</th>
               <th>In Menu?</th>
+              <th onClick={() => handleSort('pageGroup')} style={{cursor: 'pointer'}}>
+                Page Group
+                {sortConfig.key === 'pageGroup' && (
+                  <span style={{marginLeft: '5px'}}>{sortConfig.direction === 'asc' ? '🔼' : sortConfig.direction === 'desc' ? '🔽' : ''}</span>
+                )}
+              </th>
               <th onClick={() => handleSort('lastEdited')} style={{cursor: 'pointer'}}>
                 Last Edited
                 {sortConfig.key === 'lastEdited' && (
@@ -774,6 +846,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                     style={{ cursor: page.slug === 'home' ? 'not-allowed' : 'pointer', opacity: page.slug === 'home' ? 0.6 : 1 }}
                   />
                 </td>
+                <td>{pageIdToGroupNames.get(page.id)?.join(', ') || ''}</td>
                 <td>{page.lastEdited ? new Date(page.lastEdited).toLocaleString('ja-JP') : 'Never'}</td>
                 <td>
                   <button onClick={() => navigate(`/cms/pages/edit?id=${page.id}`)}>Edit</button>

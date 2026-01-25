@@ -1,4 +1,6 @@
-add support for page groups: page group will contain multiple pages and on main-site will be on, default group is "Direct Pages" (always exists and contains Homepage). All currently existing pages will be moved to this group. Each group will represent a "dropdown" menu entry in header (not actual dropdown, but hovering will expand to show pages in that group)
+in PageGroupsSection: add group button is missing same styling as add page in PagesSection: use same layout for PageGroupsSection as for CatsSection, which also means: group should always be added to top of table with empty name field, search field for groups just like in PagesSection must be present
+
+always show "Page Group(s)" table column in PagesSection
 
 ---
 
