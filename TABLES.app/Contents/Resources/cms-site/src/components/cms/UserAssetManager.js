@@ -18,9 +18,9 @@ const styles = {
   uploadButton: {
     display: 'inline-block',
     padding: '10px 20px',
-    background: '#0002ff',
-    color: 'white',
-    border: 'none',
+    background: 'white',
+    color: '#2563eb',
+    border: '1px solid #2563eb50',
     cursor: 'pointer',
     fontSize: '14px',
     fontWeight: 500,

@@ -42,7 +42,6 @@ const styles = {
   button: {
     padding: '5px 8px',
     border: 'none',
-    color: 'white',
     cursor: 'pointer',
     fontSize: '10px',
     flex: 1,
@@ -50,10 +49,13 @@ const styles = {
     fontWeight: 600,
   },
   replaceButton: {
-    background: '#0002ff',
+    background: 'white',
+    color: '#ef4444',
+    border: '1px solid #ef444450'
   },
   deleteButton: {
     background: '#ef4444',
+    color: 'white',
   },
 };
 
@@ -89,7 +91,7 @@ const AssetGrid = ({ assets, mode = 'manage', onDelete, onAssetClick }) => {
   };
 
   return (
-    <div style={styles.grid}>
+    <div className="asset-grid" style={styles.grid}>
       {assets.map(asset => (
         <div 
           key={asset.name}

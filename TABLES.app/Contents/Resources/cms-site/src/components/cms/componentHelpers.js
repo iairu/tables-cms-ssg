@@ -103,7 +103,7 @@ export function RenderImageUpload({ label, value, onUpload, onRemove, onSelect }
         <button
           type="button"
           onClick={handleUpload}
-          style={{ padding: '8px 16px', background: '#0002ff', color: 'white', border: 'none', cursor: 'pointer' }}
+          style={{ padding: '8px 16px', background: 'white', color: '#2563eb', border: '1px solid #2563eb50', cursor: 'pointer' }}
           disabled={uploading}
         >
           {uploading ? 'Uploading...' : <><i className="fa fa-upload"></i> Upload Image</>}
@@ -111,7 +111,7 @@ export function RenderImageUpload({ label, value, onUpload, onRemove, onSelect }
         <button
           type="button"
           onClick={onSelect}
-          style={{ padding: '8px 16px', background: '#4b5563', color: 'white', border: 'none', cursor: 'pointer' }}
+          style={{ padding: '8px 16px', background: 'white', color: '#4b5563', border: '1px solid #4b556350', cursor: 'pointer' }}
           disabled={uploading}
         >
           <i className="fa fa-folder-open"></i> Select Asset
@@ -123,7 +123,7 @@ export function RenderImageUpload({ label, value, onUpload, onRemove, onSelect }
           <button
             type="button"
             onClick={onRemove}
-            style={{ marginTop: '5px', padding: '5px 10px', background: '#ef4444', color: 'white', border: 'none', cursor: 'pointer', fontSize: '12px' }}
+            style={{ marginTop: '5px', padding: '5px 10px', background: 'white', color: '#ef4444', border: '1px solid #ef444450', cursor: 'pointer', fontSize: '12px' }}
           >
             Remove
           </button>
@@ -161,7 +161,7 @@ export const renderButtonList = (buttons, onAdd, onRemove, onChange, openIconPic
       <button
         type="button"
         onClick={onAdd}
-        style={{ padding: '8px 16px', background: '#0002ff', color: 'white', border: 'none',  cursor: 'pointer' }}
+        style={{ padding: '8px 16px', background: 'white', color: '#2563eb', border: '1px solid #2563eb50',  cursor: 'pointer' }}
       >
         + Add Button
       </button>

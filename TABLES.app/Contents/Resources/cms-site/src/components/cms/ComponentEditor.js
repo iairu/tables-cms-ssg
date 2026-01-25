@@ -156,8 +156,8 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
         <h3 style={{ margin: 0 }}>Page Components</h3>
         <span style={{ 
           padding: '6px 12px', 
-          background: '#0002ff', 
-          color: 'white', 
+          background: 'white', 
+          color: '#2563eb', 
           fontSize: '14px',
           fontWeight: '600'
         }}>
@@ -187,7 +187,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
               <select
                 value={row.component}
                 onChange={(e) => handleChangeComponentType(rowIndex, e.target.value)}
-                style={{ padding: '5px 10px', border: '1px solid rgba(37, 99, 235, 0.314)', color: 'rgb(37, 99, 235)', backgroundColor: 'rgba(37, 99, 235, 0.314)', fontWeight: 'bold' }}
+                style={{ padding: '5px 10px', border: '1px solid #2563eb50', color: 'rgb(37, 99, 235)', backgroundColor: '#2563eb25', fontWeight: 'bold' }}
               >
                 <option value="TitleSlide">📝 TitleSlide</option>
                 <option value="Boxes">⏹️ Boxes</option>
@@ -409,7 +409,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                       <button
                         type="button"
                         onClick={() => handleArrayItemRemove(rowIndex, 'boxes', boxIndex)}
-                        style={{ padding: '3px 10px', background: '#f87171', color: 'white', border: 'none', cursor: 'pointer', fontSize: '12px' }}
+                        style={{ padding: '3px 10px', background: 'white', color: '#ef4444', border: '1px solid #ef444450', cursor: 'pointer', fontSize: '12px' }}
                       >
                         Remove
                       </button>
@@ -492,7 +492,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                 <button
                   type="button"
                   onClick={() => handleArrayItemAdd(rowIndex, 'boxes', { heading: '', subheading: '', text: '', lowerCornerText: '', icon: '', horizontalAdjustment: 0, verticalAdjustment: 0 })}
-                  style={{ padding: '8px 16px', background: '#0002ff', color: 'white', border: 'none',  cursor: 'pointer' }}
+                  style={{ padding: '8px 16px', background: 'white', color: '#2563eb', border: '1px solid #2563eb50',  cursor: 'pointer' }}
                 >
                   + Add Box
                 </button>
@@ -588,7 +588,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                       <button
                         type="button"
                         onClick={() => handleArrayItemRemove(rowIndex, 'flies', flyIndex)}
-                        style={{ padding: '3px 10px', background: '#f87171', color: 'white', border: 'none',  cursor: 'pointer', fontSize: '12px' }}
+                        style={{ padding: '3px 10px', background: 'white', color: '#ef4444', border: '1px solid #ef444450',  cursor: 'pointer', fontSize: '12px' }}
                       >
                         Remove
                       </button>
@@ -686,7 +686,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                 <button
                   type="button"
                   onClick={() => handleArrayItemAdd(rowIndex, 'flies', { backgroundImage: '', marginFromEdge: 0, marginFromTop: 0, rotation: 0, scalingFactor: 1, transparency: 100, showOnMobile: false, stickToRightSide: false })}
-                  style={{ padding: '8px 16px', background: '#0002ff', color: 'white', border: 'none',  cursor: 'pointer' }}
+                  style={{ padding: '8px 16px', background: 'white', color: '#2563eb', border: '1px solid #2563eb50',  cursor: 'pointer' }}
                 >
                   + Add Fly
                 </button>
@@ -870,7 +870,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                   <div key={rankIndex} style={{ background: 'white', padding: '15px',  marginBottom: '10px', border: '1px solid #e2e8f0' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
                       <strong>Rank {rankIndex + 1}</strong>
-                      <button type="button" onClick={() => handleArrayItemRemove(rowIndex, 'ranks', rankIndex)} style={{ padding: '3px 10px', background: '#f87171', color: 'white', border: 'none',  cursor: 'pointer', fontSize: '12px' }}>Remove</button>
+                      <button type="button" onClick={() => handleArrayItemRemove(rowIndex, 'ranks', rankIndex)} style={{ padding: '3px 10px', background: 'white', color: '#ef4444', border: '1px solid #ef444450',  cursor: 'pointer', fontSize: '12px' }}>Remove</button>
                     </div>
                     <div className="component-fields-grid">
                       <div>
@@ -884,7 +884,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                     </div>
                   </div>
                 ))}
-                <button type="button" onClick={() => handleArrayItemAdd(rowIndex, 'ranks', { heading: '', subheading: '' })} style={{ padding: '8px 16px', background: '#0002ff', color: 'white', border: 'none',  cursor: 'pointer' }}>+ Add Rank</button>
+                <button type="button" onClick={() => handleArrayItemAdd(rowIndex, 'ranks', { heading: '', subheading: '' })} style={{ padding: '8px 16px', background: 'white', color: '#2563eb', border: '1px solid #2563eb50',  cursor: 'pointer' }}>+ Add Rank</button>
               </div>
               <div className="component-fields-grid">
                 <div>
@@ -905,22 +905,24 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
             <div>
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'block', marginBottom: '5px' }}><strong>Reference Images ({currentLanguage}):</strong></label>
-                {row.fields.images && row.fields.images.map((image, imgIndex) => (
-                  <div key={imgIndex} style={{ background: 'white', padding: '15px',  marginBottom: '10px', border: '1px solid #e2e8f0' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-                      <strong>Image {imgIndex + 1}</strong>
-                      <button type="button" onClick={() => handleArrayItemRemove(rowIndex, 'images', imgIndex)} style={{ padding: '3px 10px', background: '#f87171', color: 'white', border: 'none',  cursor: 'pointer', fontSize: '12px' }}>Remove</button>
+                <div className="component-fields-grid">
+                  {row.fields.images && row.fields.images.map((image, imgIndex) => (
+                    <div key={imgIndex} style={{ background: 'white', padding: '15px', border: '1px solid #e2e8f0' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                        <strong>Image {imgIndex + 1}</strong>
+                        <button type="button" onClick={() => handleArrayItemRemove(rowIndex, 'images', imgIndex)} style={{ padding: '3px 10px', background: 'white', color: '#ef4444', border: '1px solid #ef444450',  cursor: 'pointer', fontSize: '12px' }}>Remove</button>
+                      </div>
+                      {renderImageUpload(
+                        '',
+                        image.imageUrl,
+                        () => handleImageUpload(rowIndex, 'images', imgIndex, 'imageUrl'),
+                        () => handleArrayItemChange(rowIndex, 'images', imgIndex, 'imageUrl', ''),
+                        () => handleSelectImage(rowIndex, 'images', imgIndex, 'imageUrl')
+                      )}
                     </div>
-                    {renderImageUpload(
-                      '',
-                      image.imageUrl,
-                      () => handleImageUpload(rowIndex, 'images', imgIndex, 'imageUrl'),
-                      () => handleArrayItemChange(rowIndex, 'images', imgIndex, 'imageUrl', ''),
-                      () => handleSelectImage(rowIndex, 'images', imgIndex, 'imageUrl')
-                    )}
-                  </div>
-                ))}
-                <button type="button" onClick={() => handleArrayItemAdd(rowIndex, 'images', { imageUrl: '' })} style={{ padding: '8px 16px', background: '#0002ff', color: 'white', border: 'none',  cursor: 'pointer' }}>+ Add Image</button>
+                  ))}
+                </div>
+                <button type="button" onClick={() => handleArrayItemAdd(rowIndex, 'images', { imageUrl: '' })} style={{ padding: '8px 16px', background: 'white', color: '#2563eb', border: '1px solid #2563eb50',  cursor: 'pointer' }}>+ Add Image</button>
               </div>
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
@@ -936,23 +938,25 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
             <div>
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'block', marginBottom: '5px' }}><strong>Reviews ({currentLanguage}):</strong></label>
-                {row.fields.reviews && row.fields.reviews.map((review, reviewIndex) => (
-                  <div key={reviewIndex} style={{ background: 'white', padding: '15px',  marginBottom: '10px', border: '1px solid #e2e8f0' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-                      <strong>Review {reviewIndex + 1}</strong>
-                      <button type="button" onClick={() => handleArrayItemRemove(rowIndex, 'reviews', reviewIndex)} style={{ padding: '3px 10px', background: '#f87171', color: 'white', border: 'none',  cursor: 'pointer', fontSize: '12px' }}>Remove</button>
+                <div className="component-fields-grid">
+                  {row.fields.reviews && row.fields.reviews.map((review, reviewIndex) => (
+                    <div key={reviewIndex} style={{ background: 'white', padding: '15px', border: '1px solid #e2e8f0' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                        <strong>Review {reviewIndex + 1}</strong>
+                        <button type="button" onClick={() => handleArrayItemRemove(rowIndex, 'reviews', reviewIndex)} style={{ padding: '3px 10px', background: 'white', color: '#ef4444', border: '1px solid #ef444450',  cursor: 'pointer', fontSize: '12px' }}>Remove</button>
+                      </div>
+                      <div style={{ marginBottom: '8px' }}>
+                        <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Review Text ({currentLanguage}):</label>
+                        <textarea value={review.text || ''} onChange={(e) => handleArrayItemChange(rowIndex, 'reviews', reviewIndex, 'text', e.target.value)} style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1', minHeight: '80px' }} />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Author ({currentLanguage}):</label>
+                        <input type="text" value={review.author || ''} onChange={(e) => handleArrayItemChange(rowIndex, 'reviews', reviewIndex, 'author', e.target.value)} style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }} />
+                      </div>
                     </div>
-                    <div style={{ marginBottom: '8px' }}>
-                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Review Text ({currentLanguage}):</label>
-                      <textarea value={review.text || ''} onChange={(e) => handleArrayItemChange(rowIndex, 'reviews', reviewIndex, 'text', e.target.value)} style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1', minHeight: '80px' }} />
-                    </div>
-                    <div>
-                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Author ({currentLanguage}):</label>
-                      <input type="text" value={review.author || ''} onChange={(e) => handleArrayItemChange(rowIndex, 'reviews', reviewIndex, 'author', e.target.value)} style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }} />
-                    </div>
-                  </div>
-                ))}
-                <button type="button" onClick={() => handleArrayItemAdd(rowIndex, 'reviews', { text: '', author: '' })} style={{ padding: '8px 16px', background: '#0002ff', color: 'white', border: 'none',  cursor: 'pointer' }}>+ Add Review</button>
+                  ))}
+                </div>
+                <button type="button" onClick={() => handleArrayItemAdd(rowIndex, 'reviews', { text: '', author: '' })} style={{ padding: '8px 16px', background: 'white', color: '#2563eb', border: '1px solid #2563eb50',  cursor: 'pointer' }}>+ Add Review</button>
               </div>
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
@@ -972,7 +976,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                   <div key={slideIndex} style={{ background: 'white', padding: '15px',  marginBottom: '10px', border: '1px solid #e2e8f0' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
                       <strong>Slide {slideIndex + 1}</strong>
-                      <button type="button" onClick={() => handleArrayItemRemove(rowIndex, 'slides', slideIndex)} style={{ padding: '3px 10px', background: '#f87171', color: 'white', border: 'none',  cursor: 'pointer', fontSize: '12px' }}>Remove</button>
+                      <button type="button" onClick={() => handleArrayItemRemove(rowIndex, 'slides', slideIndex)} style={{ padding: '3px 10px', background: 'white', color: '#ef4444', border: '1px solid #ef444450',  cursor: 'pointer', fontSize: '12px' }}>Remove</button>
                     </div>
                     <div className="component-fields-grid">
                       <div>
@@ -1020,7 +1024,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                     )}
                   </div>
                 ))}
-                <button type="button" onClick={() => handleArrayItemAdd(rowIndex, 'slides', { type: 'image', src: '', alt: '' })} style={{ padding: '8px 16px', background: '#0002ff', color: 'white', border: 'none',  cursor: 'pointer' }}>+ Add Slide</button>
+                <button type="button" onClick={() => handleArrayItemAdd(rowIndex, 'slides', { type: 'image', src: '', alt: '' })} style={{ padding: '8px 16px', background: 'white', color: '#2563eb', border: '1px solid #2563eb50',  cursor: 'pointer' }}>+ Add Slide</button>
               </div>
               <div className="component-fields-grid">
                 <div>

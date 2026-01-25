@@ -16,7 +16,7 @@ const ButtonEditor = ({ button, btnIndex, onChange, onRemove, openIconPickerModa
         <button
           type="button"
           onClick={() => onRemove(btnIndex)}
-          style={{ padding: '3px 10px', background: '#f87171', color: 'white', border: 'none',  cursor: 'pointer', fontSize: '12px' }}
+          style={{ padding: '3px 10px', background: 'white', color: '#ef4444', border: '1px solid #ef444450',  cursor: 'pointer', fontSize: '12px' }}
         >
           Remove
         </button>

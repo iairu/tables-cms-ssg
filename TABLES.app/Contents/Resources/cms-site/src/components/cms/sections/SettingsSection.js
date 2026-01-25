@@ -349,9 +349,9 @@ const SettingsSection = ({ cmsData }) => {
             onClick={handleAddLanguage}
             style={{
               padding: '10px 20px',
-              background: '#0002ff',
-              color: 'white',
-              border: 'none',
+              background: 'white',
+              color: '#2563eb',
+              border: '1px solid #2563eb50',
               
               cursor: 'pointer',
               fontWeight: '500',
@@ -424,9 +424,9 @@ const SettingsSection = ({ cmsData }) => {
             style={{
               marginTop: '15px',
               padding: '10px 20px',
-              background: '#0002ff',
-              color: 'white',
-              border: 'none',
+              background: 'white',
+              color: '#2563eb',
+              border: '1px solid #2563eb50',
               
               cursor: 'pointer',
               fontWeight: '500',
