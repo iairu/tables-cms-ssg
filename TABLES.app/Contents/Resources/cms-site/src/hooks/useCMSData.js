@@ -93,6 +93,7 @@ const useCMSData = () => {
       pageGroups: JSON.parse(localStorage.getItem('pageGroups') || '[]'),
       blogArticles: JSON.parse(localStorage.getItem('blogArticles') || '[]'),
       catRows: JSON.parse(localStorage.getItem('catRows') || '[]'),
+      userRows: JSON.parse(localStorage.getItem('userRows') || '[]'),
       inventoryRows: JSON.parse(localStorage.getItem('inventoryRows') || '[]'),
       attendanceRows: JSON.parse(localStorage.getItem('attendanceRows') || '[]'),
       reservationRows: JSON.parse(localStorage.getItem('reservationRows') || '[]'),
@@ -230,6 +231,9 @@ const useCMSData = () => {
   // Cats state
   const [catRows, setCatRows] = useState([]);
 
+  // Biometric state
+  const [userRows, setUserRows] = useState([]);
+
   // Components state
   const [componentRows, setComponentRows] = useState([]);
 
@@ -277,8 +281,8 @@ const useCMSData = () => {
     'pages-extension-enabled': false,
     'blog-extension-enabled': false,
     'pedigree-extension-enabled': false,
-    'rental-extension-enabled': false,
     'biometric-extension-enabled': false,
+    'rental-extension-enabled': false,
     'medical-extension-enabled': false,
     'financial-extension-enabled': false,
     'legal-extension-enabled': false,
@@ -383,6 +387,7 @@ const useCMSData = () => {
     const loadedBlogArticles = localStorage.getItem('blogArticles');
     const loadedCurrentBlogArticleId = localStorage.getItem('currentBlogArticleId');
     const loadedCatRows = localStorage.getItem('catRows');
+    const loadedUserRows = localStorage.getItem('userRows');
     const loadedInventoryRows = localStorage.getItem('inventoryRows');
     const loadedCustomerRows = localStorage.getItem('customerRows');
     const loadedEmployeeRows = localStorage.getItem('employeeRows');
@@ -413,6 +418,7 @@ const useCMSData = () => {
     if (loadedBlogArticles) setBlogArticles(JSON.parse(loadedBlogArticles));
     if (loadedCurrentBlogArticleId) setCurrentBlogArticleId(JSON.parse(loadedCurrentBlogArticleId));
     if (loadedCatRows) setCatRows(JSON.parse(loadedCatRows));
+    if (loadedUserRows) setUserRows(JSON.parse(loadedUserRows));
     if (loadedInventoryRows) setInventoryRows(JSON.parse(loadedInventoryRows));
     if (loadedCustomerRows) setCustomerRows(JSON.parse(loadedCustomerRows));
     if (loadedEmployeeRows) setEmployeeRows(JSON.parse(loadedEmployeeRows));
@@ -483,6 +489,12 @@ const useCMSData = () => {
   const saveCatRows = (rows) => {
     setCatRows(rows);
     localStorage.setItem('catRows', JSON.stringify(rows));
+    scheduleBuild();
+  };
+
+  const saveUserRows = (rows) => {
+    setUserRows(rows);
+    localStorage.setItem('userRows', JSON.stringify(rows));
     scheduleBuild();
   };
 
@@ -699,6 +711,10 @@ const useCMSData = () => {
     // Cats
     catRows,
     saveCatRows,
+
+    // Biometric
+    userRows,
+    saveUserRows,
     
     // Components
     componentRows,

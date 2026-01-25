@@ -36,6 +36,7 @@ const Layout = ({ children, location }) => {
     if (path.startsWith('/cms/page-groups')) return 'page-groups';
     if (path.startsWith('/cms/blog')) return 'blog';
     if (path.startsWith('/cms/pedigree')) return 'cats';
+    if (path.startsWith('/cms/personal')) return 'personal';
     if (path.startsWith('/cms/inventory')) return 'rental-inventory';
     if (path.startsWith('/cms/attendance')) return 'rental-attendance';
     if (path.startsWith('/cms/customers')) return 'rental-customers';

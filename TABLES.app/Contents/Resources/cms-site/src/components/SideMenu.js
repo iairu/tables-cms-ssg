@@ -1,4 +1,4 @@
-import React, { useState, memo } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { Link } from 'gatsby';
 
 const pathFromSection = {
@@ -13,17 +13,31 @@ const pathFromSection = {
   'rental-reservations': 'reservations',
   'rental-calendar': 'calendar',
   settings: 'settings',
-  extensions: 'extensions'
+  extensions: 'extensions',
+  personal: 'personal'
+};
+
+const getExtensionsFromStorage = () => {
+  try {
+    return JSON.parse(localStorage.getItem('extensions') || '{}');
+  } catch (e) {
+    return {};
+  }
 };
 
 const SideMenu = memo(({ currentSection, isBuilding, lastSaved, onBuildClick, canBuild, buildCooldownSeconds, domain, vercelApiKey }) => {
   const [isRentalSubMenuOpen, setIsRentalSubMenuOpen] = useState(false);
-  let extensions = {};
-  try {
-    extensions = JSON.parse(localStorage.getItem('extensions') || '{}');
-  } catch (e) {
-    extensions = {};
-  }
+  const [extensions, setExtensions] = useState(getExtensionsFromStorage());
+
+  useEffect(() => {
+    const handleStorage = (e) => {
+      if (e.key === 'extensions' || e.type === 'storage') {
+        setExtensions(getExtensionsFromStorage());
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
 
   const handleBuildClick = (e, localOnly = false) => {
     e.preventDefault();
@@ -85,6 +99,51 @@ const SideMenu = memo(({ currentSection, isBuilding, lastSaved, onBuildClick, ca
                 >
                   <i className="fa fa-paw" style={{ marginRight: '8px' }}></i>
                   Pedigree
+                </Link>
+              )}
+              {extensions['biometric-extension-enabled'] && (
+                <Link
+                  to={`/cms/${pathFromSection.biometric}`}
+                  className={currentSection === 'biometric' ? 'active' : ''}
+                >
+                  <i className="fa fa-fingerprint" style={{ marginRight: '8px' }}></i>
+                  Biometric
+                </Link>
+              )}
+              {extensions['medical-extension-enabled'] && (
+                <Link
+                  to={`/cms/${pathFromSection.medical}`}
+                  className={currentSection === 'medical' ? 'active' : ''}
+                >
+                  <i className="fa fa-notes-medical" style={{ marginRight: '8px' }}></i>
+                  Medical
+                </Link>
+              )}
+              {extensions['financial-extension-enabled'] && (
+                <Link
+                  to={`/cms/${pathFromSection.financial}`}
+                  className={currentSection === 'financial' ? 'active' : ''}
+                >
+                  <i className="fa fa-coins" style={{ marginRight: '8px' }}></i>
+                  Financial
+                </Link>
+              )}
+              {extensions['legal-extension-enabled'] && (
+                <Link
+                  to={`/cms/${pathFromSection.legal}`}
+                  className={currentSection === 'legal' ? 'active' : ''}
+                >
+                  <i className="fa fa-balance-scale" style={{ marginRight: '8px' }}></i>
+                  Legal
+                </Link>
+              )}
+              {extensions['personal-extension-enabled'] && (
+                <Link
+                  to={`/cms/${pathFromSection.personal}`}
+                  className={currentSection === 'personal' ? 'active' : ''}
+                >
+                  <i className="fa fa-user" style={{ marginRight: '8px' }}></i>
+                  Personal
                 </Link>
               )}
               {extensions['rental-extension-enabled'] && (

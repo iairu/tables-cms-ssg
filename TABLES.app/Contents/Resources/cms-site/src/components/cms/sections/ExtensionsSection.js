@@ -51,7 +51,7 @@ const ExtensionsSection = ({ cmsData }) => {
     'personal-extension-enabled': {
         name: 'Personal',
         description: "An non-secure database demo of users with personal information, hobbies, and preferences.",
-        permaDisabled: true
+        permaDisabled: false
     }
   };
 

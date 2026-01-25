@@ -625,7 +625,7 @@ const startGatsby = () => {
           // Start polling the port to see when Gatsby server actually starts
           const pollPort = async () => {
             log('Waiting for Gatsby server on port 8000...');
-            const isReady = await waitForPort(8000, 'localhost', 30, 1000);
+            const isReady = await waitForPort(8000, 'localhost', 90, 2000);
             
             if (isReady) {
               log('Gatsby development server is ready and accessible on port 8000.');
