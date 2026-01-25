@@ -257,30 +257,31 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                   style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
                 />
               </div>
-              
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Alignment ({currentLanguage}):</strong></label>
-                <select
-                  value={row.fields.alignment || 'center'}
-                  onChange={(e) => handleFieldChange(rowIndex, 'alignment', e.target.value)}
-                  style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
-                >
-                  <option value="left">Left</option>
-                  <option value="center">Center</option>
-                  <option value="right">Right</option>
-                </select>
-              </div>
-              
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Heading Size ({currentLanguage}):</strong></label>
-                <select
-                  value={row.fields.headingSize || 'normal'}
-                  onChange={(e) => handleFieldChange(rowIndex, 'headingSize', e.target.value)}
-                  style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
-                >
-                  <option value="normal">Normal</option>
-                  <option value="big">Big</option>
-                </select>
+
+              <div className="component-fields-grid">
+                <div>
+                  <label style={{ display: 'block', marginBottom: '5px' }}><strong>Alignment ({currentLanguage}):</strong></label>
+                  <select
+                    value={row.fields.alignment || 'center'}
+                    onChange={(e) => handleFieldChange(rowIndex, 'alignment', e.target.value)}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
+                  >
+                    <option value="left">Left</option>
+                    <option value="center">Center</option>
+                    <option value="right">Right</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '5px' }}><strong>Heading Size ({currentLanguage}):</strong></label>
+                  <select
+                    value={row.fields.headingSize || 'normal'}
+                    onChange={(e) => handleFieldChange(rowIndex, 'headingSize', e.target.value)}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
+                  >
+                    <option value="normal">Normal</option>
+                    <option value="big">Big</option>
+                  </select>
+                </div>
               </div>
               
               <div style={{ marginBottom: '10px' }}>
@@ -300,82 +301,87 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                 )}
               </div>
               
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+              <div className="component-fields-grid">
+                <div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={row.fields.darkTheme || false}
+                      onChange={(e) => handleFieldChange(rowIndex, 'darkTheme', e.target.checked)}
+                    />
+                    <span>Dark theme ({currentLanguage})</span>
+                  </label>
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '5px' }}><strong>Background Color ({currentLanguage}):</strong></label>
                   <input
-                    type="checkbox"
-                    checked={row.fields.darkTheme || false}
-                    onChange={(e) => handleFieldChange(rowIndex, 'darkTheme', e.target.checked)}
+                    type="color"
+                    value={row.fields.backgroundColor || '#ffffff'}
+                    onChange={(e) => handleFieldChange(rowIndex, 'backgroundColor', e.target.value)}
+                    style={{ width: '100px', height: '40px', padding: '2px', border: '1px solid #cbd5e1' }}
                   />
-                  <span>Dark theme ({currentLanguage})</span>
-                </label>
+                </div>
               </div>
-              
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Background Color ({currentLanguage}):</strong></label>
-                <input
-                  type="color"
-                  value={row.fields.backgroundColor || '#ffffff'}
-                  onChange={(e) => handleFieldChange(rowIndex, 'backgroundColor', e.target.value)}
-                  style={{ width: '100px', height: '40px', padding: '2px', border: '1px solid #cbd5e1' }}
-                />
-              </div>
-              
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Minimal Height (vh) ({currentLanguage}):</strong></label>
-                <input
-                  type="number"
-                  value={row.fields.minimalHeight || 400}
-                  onChange={(e) => handleFieldChange(rowIndex, 'minimalHeight', parseInt(e.target.value) || 0)}
-                  style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
-                />
-              </div>
-              
-              {renderImageUpload(
-                'Background Image',
-                row.fields.backgroundImage,
-                () => handleImageUpload(rowIndex, 'backgroundImage'),
-                () => handleFieldChange(rowIndex, 'backgroundImage', ''),
-                () => handleSelectImage(rowIndex, 'backgroundImage')
-              )}
-              
-              {renderImageUpload(
-                'Mobile Background Image',
-                row.fields.mobileBackgroundImage,
-                () => handleImageUpload(rowIndex, 'mobileBackgroundImage'),
-                () => handleFieldChange(rowIndex, 'mobileBackgroundImage', ''),
-                () => handleSelectImage(rowIndex, 'mobileBackgroundImage')
-              )}
-              
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+
+              <div className="component-fields-grid">
+                <div>
+                  <label style={{ display: 'block', marginBottom: '5px' }}><strong>Minimal Height (vh) ({currentLanguage}):</strong></label>
                   <input
-                    type="checkbox"
-                    checked={row.fields.scaleImageToWholeBackground || false}
-                    onChange={(e) => handleFieldChange(rowIndex, 'scaleImageToWholeBackground', e.target.checked)}
+                    type="number"
+                    value={row.fields.minimalHeight || 400}
+                    onChange={(e) => handleFieldChange(rowIndex, 'minimalHeight', parseInt(e.target.value) || 0)}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
                   />
-                  <span>Scale image to whole background ({currentLanguage})</span>
-                </label>
+                </div>
+                <div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={row.fields.scaleImageToWholeBackground || false}
+                      onChange={(e) => handleFieldChange(rowIndex, 'scaleImageToWholeBackground', e.target.checked)}
+                    />
+                    <span>Scale image to whole background ({currentLanguage})</span>
+                  </label>
+                </div>
               </div>
               
-              {renderImageUpload(
-                'Background Texture',
-                row.fields.backgroundTexture,
-                () => handleImageUpload(rowIndex, 'backgroundTexture'),
-                () => handleFieldChange(rowIndex, 'backgroundTexture', ''),
-                () => handleSelectImage(rowIndex, 'backgroundTexture')
-              )}
+              <div className="component-fields-grid">
+                {renderImageUpload(
+                  'Background Image',
+                  row.fields.backgroundImage,
+                  () => handleImageUpload(rowIndex, 'backgroundImage'),
+                  () => handleFieldChange(rowIndex, 'backgroundImage', ''),
+                  () => handleSelectImage(rowIndex, 'backgroundImage')
+                )}
+                
+                {renderImageUpload(
+                  'Mobile Background Image',
+                  row.fields.mobileBackgroundImage,
+                  () => handleImageUpload(rowIndex, 'mobileBackgroundImage'),
+                  () => handleFieldChange(rowIndex, 'mobileBackgroundImage', ''),
+                  () => handleSelectImage(rowIndex, 'mobileBackgroundImage')
+                )}
+              </div>
               
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Video Transparency (0-100) ({currentLanguage}):</strong></label>
-                <input
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={row.fields.videoTransparency || 100}
-                  onChange={(e) => handleFieldChange(rowIndex, 'videoTransparency', parseInt(e.target.value) || 0)}
-                  style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
-                />
+              <div className="component-fields-grid">
+                {renderImageUpload(
+                  'Background Texture',
+                  row.fields.backgroundTexture,
+                  () => handleImageUpload(rowIndex, 'backgroundTexture'),
+                  () => handleFieldChange(rowIndex, 'backgroundTexture', ''),
+                  () => handleSelectImage(rowIndex, 'backgroundTexture')
+                )}
+                <div>
+                  <label style={{ display: 'block', marginBottom: '5px' }}><strong>Video Transparency (0-100) ({currentLanguage}):</strong></label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={row.fields.videoTransparency || 100}
+                    onChange={(e) => handleFieldChange(rowIndex, 'videoTransparency', parseInt(e.target.value) || 0)}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
+                  />
+                </div>
               </div>
               
               <div style={{ marginBottom: '10px' }}>
@@ -409,24 +415,25 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                       </button>
                     </div>
                     
-                    <div style={{ marginBottom: '8px' }}>
-                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Heading ({currentLanguage}):</label>
-                      <input
-                        type="text"
-                        value={box.heading || ''}
-                        onChange={(e) => handleArrayItemChange(rowIndex, 'boxes', boxIndex, 'heading', e.target.value)}
-                        style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1' }}
-                      />
-                    </div>
-                    
-                    <div style={{ marginBottom: '8px' }}>
-                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Subheading ({currentLanguage}):</label>
-                      <input
-                        type="text"
-                        value={box.subheading || ''}
-                        onChange={(e) => handleArrayItemChange(rowIndex, 'boxes', boxIndex, 'subheading', e.target.value)}
-                        style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1' }}
-                      />
+                    <div className="component-fields-grid">
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Heading ({currentLanguage}):</label>
+                        <input
+                          type="text"
+                          value={box.heading || ''}
+                          onChange={(e) => handleArrayItemChange(rowIndex, 'boxes', boxIndex, 'heading', e.target.value)}
+                          style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Subheading ({currentLanguage}):</label>
+                        <input
+                          type="text"
+                          value={box.subheading || ''}
+                          onChange={(e) => handleArrayItemChange(rowIndex, 'boxes', boxIndex, 'subheading', e.target.value)}
+                          style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1' }}
+                        />
+                      </div>
                     </div>
                     
                     <div style={{ marginBottom: '8px' }}>
@@ -438,45 +445,47 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                       )}
                     </div>
                     
-                    <div style={{ marginBottom: '8px' }}>
-                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Text in lower corner ({currentLanguage}):</label>
-                      <input
-                        type="text"
-                        value={box.lowerCornerText || ''}
-                        onChange={(e) => handleArrayItemChange(rowIndex, 'boxes', boxIndex, 'lowerCornerText', e.target.value)}
-                        style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1' }}
-                      />
+                    <div className="component-fields-grid">
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Text in lower corner ({currentLanguage}):</label>
+                        <input
+                          type="text"
+                          value={box.lowerCornerText || ''}
+                          onChange={(e) => handleArrayItemChange(rowIndex, 'boxes', boxIndex, 'lowerCornerText', e.target.value)}
+                          style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Icon ({currentLanguage}):</label>
+                        {renderImageUpload(
+                          '',
+                          box.icon,
+                          () => handleImageUpload(rowIndex, 'boxes', boxIndex, 'icon'),
+                          () => handleArrayItemChange(rowIndex, 'boxes', boxIndex, 'icon', ''),
+                          () => handleSelectImage(rowIndex, 'boxes', boxIndex, 'icon')
+                        )}
+                      </div>
                     </div>
-                    
-                    <div style={{ marginBottom: '8px' }}>
-                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Icon ({currentLanguage}):</label>
-                      {renderImageUpload(
-                        '',
-                        box.icon,
-                        () => handleImageUpload(rowIndex, 'boxes', boxIndex, 'icon'),
-                        () => handleArrayItemChange(rowIndex, 'boxes', boxIndex, 'icon', ''),
-                        () => handleSelectImage(rowIndex, 'boxes', boxIndex, 'icon')
-                      )}
-                    </div>
-                    
-                    <div style={{ marginBottom: '8px' }}>
-                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Horizontal Adjustment ({currentLanguage}):</label>
-                      <input
-                        type="number"
-                        value={box.horizontalAdjustment || 0}
-                        onChange={(e) => handleArrayItemChange(rowIndex, 'boxes', boxIndex, 'horizontalAdjustment', parseInt(e.target.value) || 0)}
-                        style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }}
-                      />
-                    </div>
-                    
-                    <div style={{ marginBottom: '8px' }}>
-                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Vertical Adjustment ({currentLanguage}):</label>
-                      <input
-                        type="number"
-                        value={box.verticalAdjustment || 0}
-                        onChange={(e) => handleArrayItemChange(rowIndex, 'boxes', boxIndex, 'verticalAdjustment', parseInt(e.target.value) || 0)}
-                        style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }}
-                      />
+
+                    <div className="component-fields-grid">
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Horizontal Adjustment ({currentLanguage}):</label>
+                        <input
+                          type="number"
+                          value={box.horizontalAdjustment || 0}
+                          onChange={(e) => handleArrayItemChange(rowIndex, 'boxes', boxIndex, 'horizontalAdjustment', parseInt(e.target.value) || 0)}
+                          style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Vertical Adjustment ({currentLanguage}):</label>
+                        <input
+                          type="number"
+                          value={box.verticalAdjustment || 0}
+                          onChange={(e) => handleArrayItemChange(rowIndex, 'boxes', boxIndex, 'verticalAdjustment', parseInt(e.target.value) || 0)}
+                          style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }}
+                        />
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -489,39 +498,41 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                 </button>
               </div>
               
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                  <input
-                    type="checkbox"
-                    checked={row.fields.darkTheme || false}
-                    onChange={(e) => handleFieldChange(rowIndex, 'darkTheme', e.target.checked)}
-                  />
-                  <span>Dark theme ({currentLanguage})</span>
-                </label>
+              <div className="component-fields-grid">
+                <div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={row.fields.darkTheme || false}
+                      onChange={(e) => handleFieldChange(rowIndex, 'darkTheme', e.target.checked)}
+                    />
+                    <span>Dark theme ({currentLanguage})</span>
+                  </label>
+                </div>
+                {renderImageUpload(
+                  'Background Image',
+                  row.fields.backgroundImage,
+                  () => handleImageUpload(rowIndex, 'backgroundImage'),
+                  () => handleFieldChange(rowIndex, 'backgroundImage', ''),
+                  () => handleSelectImage(rowIndex, 'backgroundImage')
+                )}
               </div>
-              
-              {renderImageUpload(
-                'Background Image',
-                row.fields.backgroundImage,
-                () => handleImageUpload(rowIndex, 'backgroundImage'),
-                () => handleFieldChange(rowIndex, 'backgroundImage', ''),
-                () => handleSelectImage(rowIndex, 'backgroundImage')
-              )}
             </div>
           )}
 
           {/* Infobar Component */}
           {row.component === 'Infobar' && (
-            <div>
-              {renderImageUpload(
-                'Logo',
-                row.fields.logo,
-                () => handleImageUpload(rowIndex, 'logo'),
-                () => handleFieldChange(rowIndex, 'logo', ''),
-                () => handleSelectImage(rowIndex, 'logo')
-              )}
-              
-              <div style={{ marginBottom: '10px' }}>
+            <div className="component-fields-grid">
+              <div>
+                {renderImageUpload(
+                  'Logo',
+                  row.fields.logo,
+                  () => handleImageUpload(rowIndex, 'logo'),
+                  () => handleFieldChange(rowIndex, 'logo', ''),
+                  () => handleSelectImage(rowIndex, 'logo')
+                )}
+              </div>
+              <div>
                 <label style={{ display: 'block', marginBottom: '5px' }}><strong>Alternative Icon (if no logo) ({currentLanguage}):</strong></label>
                 <input
                   type="text"
@@ -532,8 +543,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                   placeholder="e.g., 🏠"
                 />
               </div>
-              
-              <div style={{ marginBottom: '10px' }}>
+              <div>
                 <label style={{ display: 'block', marginBottom: '5px' }}><strong>Text ({currentLanguage}):</strong></label>
                 <input
                   type="text"
@@ -542,8 +552,17 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                   style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1' }}
                 />
               </div>
-              
-              <div style={{ marginBottom: '10px' }}>
+              <div>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    checked={row.fields.darkTheme || false}
+                    onChange={(e) => handleFieldChange(rowIndex, 'darkTheme', e.target.checked)}
+                  />
+                  <span>Dark theme</span>
+                </label>
+              </div>
+              <div style={{ gridColumn: 'span 2' }}>
                 <label style={{ display: 'block', marginBottom: '5px' }}><strong>Buttons ({currentLanguage}):</strong></label>
                 {renderButtonList(
                   row.fields.buttons,
@@ -553,17 +572,6 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                   (itemIndex) => openIconPickerModal(rowIndex, 'buttons', itemIndex),
                   cmsData
                 )}
-              </div>
-              
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                  <input
-                    type="checkbox"
-                    checked={row.fields.darkTheme || false}
-                    onChange={(e) => handleFieldChange(rowIndex, 'darkTheme', e.target.checked)}
-                  />
-                  <span>Dark theme</span>
-                </label>
               </div>
             </div>
           )}
@@ -595,69 +603,72 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                         () => handleSelectImage(rowIndex, 'flies', flyIndex, 'backgroundImage')
                       )}
                     </div>
-                    
-                    <div style={{ marginBottom: '8px' }}>
-                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Margin from edge (%) ({currentLanguage}):</label>
-                      <input
-                        type="number"
-                        value={fly.marginFromEdge || 0}
-                        onChange={(e) => handleArrayItemChange(rowIndex, 'flies', flyIndex, 'marginFromEdge', parseInt(e.target.value) || 0)}
-                        style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }}
-                      />
-                    </div>
-                    
-                    <div style={{ marginBottom: '8px' }}>
-                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Margin from top (%) ({currentLanguage}):</label>
-                      <input
-                        type="number"
-                        value={fly.marginFromTop || 0}
-                        onChange={(e) => handleArrayItemChange(rowIndex, 'flies', flyIndex, 'marginFromTop', parseInt(e.target.value) || 0)}
-                        style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }}
-                      />
-                    </div>
-                    
-                    <div style={{ marginBottom: '8px' }}>
-                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Rotation (degrees) ({currentLanguage}):</label>
-                      <input
-                        type="number"
-                        value={fly.rotation || 0}
-                        onChange={(e) => handleArrayItemChange(rowIndex, 'flies', flyIndex, 'rotation', parseInt(e.target.value) || 0)}
-                        style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }}
-                      />
-                    </div>
-                    
-                    <div style={{ marginBottom: '8px' }}>
-                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Scaling factor ({currentLanguage}):</label>
-                      <input
-                        type="number"
-                        step="0.1"
-                        value={fly.scalingFactor || 1}
-                        onChange={(e) => handleArrayItemChange(rowIndex, 'flies', flyIndex, 'scalingFactor', parseFloat(e.target.value) || 1)}
-                        style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }}
-                      />
-                    </div>
-                    
-                    <div style={{ marginBottom: '8px' }}>
-                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Transparency (0-100) ({currentLanguage}):</label>
-                      <input
-                        type="number"
-                        min="0"
-                        max="100"
-                        value={fly.transparency || 100}
-                        onChange={(e) => handleArrayItemChange(rowIndex, 'flies', flyIndex, 'transparency', parseInt(e.target.value) || 100)}
-                        style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }}
-                      />
-                    </div>
-                    
-                    <div style={{ marginBottom: '8px' }}>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+
+                    <div className="component-fields-grid">
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Margin from edge (%) ({currentLanguage}):</label>
                         <input
-                          type="checkbox"
-                          checked={fly.showOnMobile || false}
-                          onChange={(e) => handleArrayItemChange(rowIndex, 'flies', flyIndex, 'showOnMobile', e.target.checked)}
+                          type="number"
+                          value={fly.marginFromEdge || 0}
+                          onChange={(e) => handleArrayItemChange(rowIndex, 'flies', flyIndex, 'marginFromEdge', parseInt(e.target.value) || 0)}
+                          style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }}
                         />
-                        <span style={{ fontSize: '14px' }}>Show on mobile ({currentLanguage})</span>
-                      </label>
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Margin from top (%) ({currentLanguage}):</label>
+                        <input
+                          type="number"
+                          value={fly.marginFromTop || 0}
+                          onChange={(e) => handleArrayItemChange(rowIndex, 'flies', flyIndex, 'marginFromTop', parseInt(e.target.value) || 0)}
+                          style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="component-fields-grid">
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Rotation (degrees) ({currentLanguage}):</label>
+                        <input
+                          type="number"
+                          value={fly.rotation || 0}
+                          onChange={(e) => handleArrayItemChange(rowIndex, 'flies', flyIndex, 'rotation', parseInt(e.target.value) || 0)}
+                          style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Scaling factor ({currentLanguage}):</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={fly.scalingFactor || 1}
+                          onChange={(e) => handleArrayItemChange(rowIndex, 'flies', flyIndex, 'scalingFactor', parseFloat(e.target.value) || 1)}
+                          style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="component-fields-grid">
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Transparency (0-100) ({currentLanguage}):</label>
+                        <input
+                          type="number"
+                          min="0"
+                          max="100"
+                          value={fly.transparency || 100}
+                          onChange={(e) => handleArrayItemChange(rowIndex, 'flies', flyIndex, 'transparency', parseInt(e.target.value) || 100)}
+                          style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                          <input
+                            type="checkbox"
+                            checked={fly.showOnMobile || false}
+                            onChange={(e) => handleArrayItemChange(rowIndex, 'flies', flyIndex, 'showOnMobile', e.target.checked)}
+                          />
+                          <span style={{ fontSize: '14px' }}>Show on mobile ({currentLanguage})</span>
+                        </label>
+                      </div>
                     </div>
                     
                     <div>
@@ -681,156 +692,163 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                 </button>
               </div>
               
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Blend Mode ({currentLanguage}):</strong></label>
-                <select
-                  value={row.fields.blendMode || 'normal'}
-                  onChange={(e) => handleFieldChange(rowIndex, 'blendMode', e.target.value)}
-                  style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1' }}
-                >
-                  {CSS_BLEND_MODES.map(mode => (
-                    <option key={mode} value={mode}>{mode}</option>
-                  ))}
-                </select>
-              </div>
-              
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                  <input
-                    type="checkbox"
-                    checked={row.fields.hideOverflow || false}
-                    onChange={(e) => handleFieldChange(rowIndex, 'hideOverflow', e.target.checked)}
-                  />
-                  <span>Hide overflow ({currentLanguage})</span>
-                </label>
+              <div className="component-fields-grid">
+                <div>
+                  <label style={{ display: 'block', marginBottom: '5px' }}><strong>Blend Mode ({currentLanguage}):</strong></label>
+                  <select
+                    value={row.fields.blendMode || 'normal'}
+                    onChange={(e) => handleFieldChange(rowIndex, 'blendMode', e.target.value)}
+                    style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1' }}
+                  >
+                    {CSS_BLEND_MODES.map(mode => (
+                      <option key={mode} value={mode}>{mode}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={row.fields.hideOverflow || false}
+                      onChange={(e) => handleFieldChange(rowIndex, 'hideOverflow', e.target.checked)}
+                    />
+                    <span>Hide overflow ({currentLanguage})</span>
+                  </label>
+                </div>
               </div>
             </div>
           )}
 
           {/* Slide Component */}
           {row.component === 'Slide' && (
-            <div>
+            <div className="component-fields-grid">
               {/* Left side */}
-              <h4 style={{ marginTop: 0, marginBottom: '15px' }}>Left Side</h4>
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Left Heading ({currentLanguage}):</strong></label>
-                <input type="text" value={row.fields.leftHeading || ''} onChange={(e) => handleFieldChange(rowIndex, 'leftHeading', e.target.value)} style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1' }} />
-              </div>
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Left Text ({currentLanguage}):</strong></label>
-                <textarea value={row.fields.leftText || ''} onChange={(e) => handleFieldChange(rowIndex, 'leftText', e.target.value)} style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1', minHeight: '80px' }} />
-              </div>
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Left Buttons ({currentLanguage}):</strong></label>
-                {renderButtonList(
-                  row.fields.leftButtons,
-                  () => handleArrayItemAdd(rowIndex, 'leftButtons', { icon: '', title: '', link: '', openAsPopup: false, showAsButton: true }),
-                  (btnIndex) => handleArrayItemRemove(rowIndex, 'leftButtons', btnIndex),
-                  (btnIndex, field, value) => handleArrayItemChange(rowIndex, 'leftButtons', btnIndex, field, value),
-                  (itemIndex) => openIconPickerModal(rowIndex, 'leftButtons', itemIndex)
-                )}
-              </div>
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Left Background Color ({currentLanguage}):</strong></label>
-                <input type="color" value={row.fields.leftBackgroundColor || '#ffffff'} onChange={(e) => handleFieldChange(rowIndex, 'leftBackgroundColor', e.target.value)} style={{ width: '100px', height: '40px' }} />
-              </div>
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                  <input type="checkbox" checked={row.fields.leftDarkTheme || false} onChange={(e) => handleFieldChange(rowIndex, 'leftDarkTheme', e.target.checked)} />
-                  <span>Left Dark Theme ({currentLanguage})</span>
-                </label>
-              </div>
-              {renderImageUpload('Left Background Image', row.fields.leftBackgroundImage, () => handleImageUpload(rowIndex, 'leftBackgroundImage'), () => handleFieldChange(rowIndex, 'leftBackgroundImage', ''), () => handleSelectImage(rowIndex, 'leftBackgroundImage'))}
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                  <input type="checkbox" checked={row.fields.fitLeftBackground || false} onChange={(e) => handleFieldChange(rowIndex, 'fitLeftBackground', e.target.checked)} />
-                  <span>Fit Left Background ({currentLanguage})</span>
-                </label>
-              </div>
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Minimal Left Height (vh) ({currentLanguage}):</strong></label>
-                <input type="number" value={row.fields.minimalLeftHeight || 70} onChange={(e) => handleFieldChange(rowIndex, 'minimalLeftHeight', parseInt(e.target.value) || 0)} style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1' }} />
-              </div>
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                  <input type="checkbox" checked={row.fields.hideLeftOnMobile || false} onChange={(e) => handleFieldChange(rowIndex, 'hideLeftOnMobile', e.target.checked)} />
-                  <span>Hide Left on Mobile ({currentLanguage})</span>
-                </label>
+              <div>
+                <h4 style={{ marginTop: 0, marginBottom: '15px' }}>Left Side</h4>
+                <div style={{ marginBottom: '10px' }}>
+                  <label style={{ display: 'block', marginBottom: '5px' }}><strong>Left Heading ({currentLanguage}):</strong></label>
+                  <input type="text" value={row.fields.leftHeading || ''} onChange={(e) => handleFieldChange(rowIndex, 'leftHeading', e.target.value)} style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1' }} />
+                </div>
+                <div style={{ marginBottom: '10px' }}>
+                  <label style={{ display: 'block', marginBottom: '5px' }}><strong>Left Text ({currentLanguage}):</strong></label>
+                  <textarea value={row.fields.leftText || ''} onChange={(e) => handleFieldChange(rowIndex, 'leftText', e.target.value)} style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1', minHeight: '80px' }} />
+                </div>
+                <div style={{ marginBottom: '10px' }}>
+                  <label style={{ display: 'block', marginBottom: '5px' }}><strong>Left Buttons ({currentLanguage}):</strong></label>
+                  {renderButtonList(
+                    row.fields.leftButtons,
+                    () => handleArrayItemAdd(rowIndex, 'leftButtons', { icon: '', title: '', link: '', openAsPopup: false, showAsButton: true }),
+                    (btnIndex) => handleArrayItemRemove(rowIndex, 'leftButtons', btnIndex),
+                    (btnIndex, field, value) => handleArrayItemChange(rowIndex, 'leftButtons', btnIndex, field, value),
+                    (itemIndex) => openIconPickerModal(rowIndex, 'leftButtons', itemIndex)
+                  )}
+                </div>
+                <div style={{ marginBottom: '10px' }}>
+                  <label style={{ display: 'block', marginBottom: '5px' }}><strong>Left Background Color ({currentLanguage}):</strong></label>
+                  <input type="color" value={row.fields.leftBackgroundColor || '#ffffff'} onChange={(e) => handleFieldChange(rowIndex, 'leftBackgroundColor', e.target.value)} style={{ width: '100px', height: '40px' }} />
+                </div>
+                <div style={{ marginBottom: '10px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={row.fields.leftDarkTheme || false} onChange={(e) => handleFieldChange(rowIndex, 'leftDarkTheme', e.target.checked)} />
+                    <span>Left Dark Theme ({currentLanguage})</span>
+                  </label>
+                </div>
+                {renderImageUpload('Left Background Image', row.fields.leftBackgroundImage, () => handleImageUpload(rowIndex, 'leftBackgroundImage'), () => handleFieldChange(rowIndex, 'leftBackgroundImage', ''), () => handleSelectImage(rowIndex, 'leftBackgroundImage'))}
+                <div style={{ marginBottom: '10px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={row.fields.fitLeftBackground || false} onChange={(e) => handleFieldChange(rowIndex, 'fitLeftBackground', e.target.checked)} />
+                    <span>Fit Left Background ({currentLanguage})</span>
+                  </label>
+                </div>
+                <div style={{ marginBottom: '10px' }}>
+                  <label style={{ display: 'block', marginBottom: '5px' }}><strong>Minimal Left Height (vh) ({currentLanguage}):</strong></label>
+                  <input type="number" value={row.fields.minimalLeftHeight || 70} onChange={(e) => handleFieldChange(rowIndex, 'minimalLeftHeight', parseInt(e.target.value) || 0)} style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1' }} />
+                </div>
+                <div style={{ marginBottom: '10px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={row.fields.hideLeftOnMobile || false} onChange={(e) => handleFieldChange(rowIndex, 'hideLeftOnMobile', e.target.checked)} />
+                    <span>Hide Left on Mobile ({currentLanguage})</span>
+                  </label>
+                </div>
               </div>
 
               {/* Right side */}
-              <h4 style={{ marginTop: '20px', marginBottom: '15px' }}>Right Side ({currentLanguage})</h4>
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Right Heading ({currentLanguage}):</strong></label>
-                <input type="text" value={row.fields.rightHeading || ''} onChange={(e) => handleFieldChange(rowIndex, 'rightHeading', e.target.value)} style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1' }} />
-              </div>
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Right Text ({currentLanguage}):</strong></label>
-                <textarea value={row.fields.rightText || ''} onChange={(e) => handleFieldChange(rowIndex, 'rightText', e.target.value)} style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1', minHeight: '80px' }} />
-              </div>
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Right Buttons ({currentLanguage}):</strong></label>
-                {renderButtonList(
-                  row.fields.rightButtons,
-                  () => handleArrayItemAdd(rowIndex, 'rightButtons', { icon: '', title: '', link: '', openAsPopup: false, showAsButton: true }),
-                  (btnIndex) => handleArrayItemRemove(rowIndex, 'rightButtons', btnIndex),
-                  (btnIndex, field, value) => handleArrayItemChange(rowIndex, 'rightButtons', btnIndex, field, value),
-                  (itemIndex) => openIconPickerModal(rowIndex, 'rightButtons', itemIndex)
-                )}
-              </div>
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Right Background Color ({currentLanguage}):</strong></label>
-                <input type="color" value={row.fields.rightBackgroundColor || '#ffffff'} onChange={(e) => handleFieldChange(rowIndex, 'rightBackgroundColor', e.target.value)} style={{ width: '100px', height: '40px' }} />
-              </div>
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                  <input type="checkbox" checked={row.fields.rightDarkTheme || false} onChange={(e) => handleFieldChange(rowIndex, 'rightDarkTheme', e.target.checked)} />
-                  <span>Right Dark Theme ({currentLanguage})</span>
-                </label>
-              </div>
-              {renderImageUpload('Right Background Image', row.fields.rightBackgroundImage, () => handleImageUpload(rowIndex, 'rightBackgroundImage'), () => handleFieldChange(rowIndex, 'rightBackgroundImage', ''), () => handleSelectImage(rowIndex, 'rightBackgroundImage'))}
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                  <input type="checkbox" checked={row.fields.fitRightBackground || false} onChange={(e) => handleFieldChange(rowIndex, 'fitRightBackground', e.target.checked)} />
-                  <span>Fit Right Background ({currentLanguage})</span>
-                </label>
-              </div>
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Minimal Right Height (vh) ({currentLanguage}):</strong></label>
-                <input type="number" value={row.fields.minimalRightHeight || 70} onChange={(e) => handleFieldChange(rowIndex, 'minimalRightHeight', parseInt(e.target.value) || 0)} style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1' }} />
-              </div>
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                  <input type="checkbox" checked={row.fields.hideRightOnMobile || false} onChange={(e) => handleFieldChange(rowIndex, 'hideRightOnMobile', e.target.checked)} />
-                  <span>Hide Right on Mobile ({currentLanguage})</span>
-                </label>
+              <div>
+                <h4 style={{ marginTop: '20px', marginBottom: '15px' }}>Right Side ({currentLanguage})</h4>
+                <div style={{ marginBottom: '10px' }}>
+                  <label style={{ display: 'block', marginBottom: '5px' }}><strong>Right Heading ({currentLanguage}):</strong></label>
+                  <input type="text" value={row.fields.rightHeading || ''} onChange={(e) => handleFieldChange(rowIndex, 'rightHeading', e.target.value)} style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1' }} />
+                </div>
+                <div style={{ marginBottom: '10px' }}>
+                  <label style={{ display: 'block', marginBottom: '5px' }}><strong>Right Text ({currentLanguage}):</strong></label>
+                  <textarea value={row.fields.rightText || ''} onChange={(e) => handleFieldChange(rowIndex, 'rightText', e.target.value)} style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1', minHeight: '80px' }} />
+                </div>
+                <div style={{ marginBottom: '10px' }}>
+                  <label style={{ display: 'block', marginBottom: '5px' }}><strong>Right Buttons ({currentLanguage}):</strong></label>
+                  {renderButtonList(
+                    row.fields.rightButtons,
+                    () => handleArrayItemAdd(rowIndex, 'rightButtons', { icon: '', title: '', link: '', openAsPopup: false, showAsButton: true }),
+                    (btnIndex) => handleArrayItemRemove(rowIndex, 'rightButtons', btnIndex),
+                    (btnIndex, field, value) => handleArrayItemChange(rowIndex, 'rightButtons', btnIndex, field, value),
+                    (itemIndex) => openIconPickerModal(rowIndex, 'rightButtons', itemIndex)
+                  )}
+                </div>
+                <div style={{ marginBottom: '10px' }}>
+                  <label style={{ display: 'block', marginBottom: '5px' }}><strong>Right Background Color ({currentLanguage}):</strong></label>
+                  <input type="color" value={row.fields.rightBackgroundColor || '#ffffff'} onChange={(e) => handleFieldChange(rowIndex, 'rightBackgroundColor', e.target.value)} style={{ width: '100px', height: '40px' }} />
+                </div>
+                <div style={{ marginBottom: '10px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={row.fields.rightDarkTheme || false} onChange={(e) => handleFieldChange(rowIndex, 'rightDarkTheme', e.target.checked)} />
+                    <span>Right Dark Theme ({currentLanguage})</span>
+                  </label>
+                </div>
+                {renderImageUpload('Right Background Image', row.fields.rightBackgroundImage, () => handleImageUpload(rowIndex, 'rightBackgroundImage'), () => handleFieldChange(rowIndex, 'rightBackgroundImage', ''), () => handleSelectImage(rowIndex, 'rightBackgroundImage'))}
+                <div style={{ marginBottom: '10px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={row.fields.fitRightBackground || false} onChange={(e) => handleFieldChange(rowIndex, 'fitRightBackground', e.target.checked)} />
+                    <span>Fit Right Background ({currentLanguage})</span>
+                  </label>
+                </div>
+                <div style={{ marginBottom: '10px' }}>
+                  <label style={{ display: 'block', marginBottom: '5px' }}><strong>Minimal Right Height (vh) ({currentLanguage}):</strong></label>
+                  <input type="number" value={row.fields.minimalRightHeight || 70} onChange={(e) => handleFieldChange(rowIndex, 'minimalRightHeight', parseInt(e.target.value) || 0)} style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1' }} />
+                </div>
+                <div style={{ marginBottom: '10px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={row.fields.hideRightOnMobile || false} onChange={(e) => handleFieldChange(rowIndex, 'hideRightOnMobile', e.target.checked)} />
+                    <span>Hide Right on Mobile ({currentLanguage})</span>
+                  </label>
+                </div>
               </div>
 
               {/* Global options */}
-              <h4 style={{ marginTop: '20px', marginBottom: '15px' }}>Global Options ({currentLanguage})</h4>
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                  <input type="checkbox" checked={row.fields.largerSlide || false} onChange={(e) => handleFieldChange(rowIndex, 'largerSlide', e.target.checked)} />
-                  <span>Larger Slide ({currentLanguage})</span>
-                </label>
-              </div>
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                  <input type="checkbox" checked={row.fields.switchOrderOnMobile || false} onChange={(e) => handleFieldChange(rowIndex, 'switchOrderOnMobile', e.target.checked)} />
-                  <span>Switch Order on Mobile ({currentLanguage})</span>
-                </label>
+              <div style={{ gridColumn: 'span 2' }}>
+                <h4 style={{ marginTop: '20px', marginBottom: '15px' }}>Global Options ({currentLanguage})</h4>
+                <div style={{ marginBottom: '10px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={row.fields.largerSlide || false} onChange={(e) => handleFieldChange(rowIndex, 'largerSlide', e.target.checked)} />
+                    <span>Larger Slide ({currentLanguage})</span>
+                  </label>
+                </div>
+                <div style={{ marginBottom: '10px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={row.fields.switchOrderOnMobile || false} onChange={(e) => handleFieldChange(rowIndex, 'switchOrderOnMobile', e.target.checked)} />
+                    <span>Switch Order on Mobile ({currentLanguage})</span>
+                  </label>
+                </div>
               </div>
             </div>
           )}
 
           {/* Video Component */}
           {row.component === 'Video' && (
-            <div>
-              <div style={{ marginBottom: '10px' }}>
+            <div className="component-fields-grid">
+              <div>
                 <label style={{ display: 'block', marginBottom: '5px' }}><strong>YouTube Video URL ({currentLanguage}):</strong></label>
                 <input type="text" value={row.fields.youtubeUrl || ''} onChange={(e) => handleFieldChange(rowIndex, 'youtubeUrl', e.target.value)} style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1' }} placeholder="https://www.youtube.com/watch?v=..." />
               </div>
-              <div style={{ marginBottom: '10px' }}>
+              <div>
                 <label style={{ display: 'block', marginBottom: '5px' }}><strong>Special Theme ({currentLanguage}):</strong></label>
                 <select value={row.fields.specialTheme || 'default'} onChange={(e) => handleFieldChange(rowIndex, 'specialTheme', e.target.value)} style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1' }}>
                   <option value="default">Default</option>
@@ -854,25 +872,31 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                       <strong>Rank {rankIndex + 1}</strong>
                       <button type="button" onClick={() => handleArrayItemRemove(rowIndex, 'ranks', rankIndex)} style={{ padding: '3px 10px', background: '#f87171', color: 'white', border: 'none',  cursor: 'pointer', fontSize: '12px' }}>Remove</button>
                     </div>
-                    <div style={{ marginBottom: '8px' }}>
-                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Heading ({currentLanguage}):</label>
-                      <input type="text" value={rank.heading || ''} onChange={(e) => handleArrayItemChange(rowIndex, 'ranks', rankIndex, 'heading', e.target.value)} style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }} />
-                    </div>
-                    <div>
-                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Subheading ({currentLanguage}):</label>
-                      <input type="text" value={rank.subheading || ''} onChange={(e) => handleArrayItemChange(rowIndex, 'ranks', rankIndex, 'subheading', e.target.value)} style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }} />
+                    <div className="component-fields-grid">
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Heading ({currentLanguage}):</label>
+                        <input type="text" value={rank.heading || ''} onChange={(e) => handleArrayItemChange(rowIndex, 'ranks', rankIndex, 'heading', e.target.value)} style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }} />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Subheading ({currentLanguage}):</label>
+                        <input type="text" value={rank.subheading || ''} onChange={(e) => handleArrayItemChange(rowIndex, 'ranks', rankIndex, 'subheading', e.target.value)} style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }} />
+                      </div>
                     </div>
                   </div>
                 ))}
                 <button type="button" onClick={() => handleArrayItemAdd(rowIndex, 'ranks', { heading: '', subheading: '' })} style={{ padding: '8px 16px', background: '#0002ff', color: 'white', border: 'none',  cursor: 'pointer' }}>+ Add Rank</button>
               </div>
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                  <input type="checkbox" checked={row.fields.darkMode || false} onChange={(e) => handleFieldChange(rowIndex, 'darkMode', e.target.checked)} />
-                  <span>Dark Mode ({currentLanguage})</span>
-                </label>
+              <div className="component-fields-grid">
+                <div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={row.fields.darkMode || false} onChange={(e) => handleFieldChange(rowIndex, 'darkMode', e.target.checked)} />
+                    <span>Dark Mode ({currentLanguage})</span>
+                  </label>
+                </div>
+                <div>
+                  {renderImageUpload('Background Image', row.fields.backgroundImage, () => handleImageUpload(rowIndex, 'backgroundImage'), () => handleFieldChange(rowIndex, 'backgroundImage', ''), () => handleSelectImage(rowIndex, 'backgroundImage'))}
+                </div>
               </div>
-              {renderImageUpload('Background Image', row.fields.backgroundImage, () => handleImageUpload(rowIndex, 'backgroundImage'), () => handleFieldChange(rowIndex, 'backgroundImage', ''), () => handleSelectImage(rowIndex, 'backgroundImage'))}
             </div>
           )}
 
@@ -950,16 +974,27 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                       <strong>Slide {slideIndex + 1}</strong>
                       <button type="button" onClick={() => handleArrayItemRemove(rowIndex, 'slides', slideIndex)} style={{ padding: '3px 10px', background: '#f87171', color: 'white', border: 'none',  cursor: 'pointer', fontSize: '12px' }}>Remove</button>
                     </div>
-                    <div style={{ marginBottom: '8px' }}>
-                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Type ({currentLanguage}):</label>
-                      <select
-                        value={slide.type || 'image'}
-                        onChange={(e) => handleArrayItemChange(rowIndex, 'slides', slideIndex, 'type', e.target.value)}
-                        style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1' }}
-                      >
-                        <option value="image">Image</option>
-                        <option value="video">Video</option>
-                      </select>
+                    <div className="component-fields-grid">
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Type ({currentLanguage}):</label>
+                        <select
+                          value={slide.type || 'image'}
+                          onChange={(e) => handleArrayItemChange(rowIndex, 'slides', slideIndex, 'type', e.target.value)}
+                          style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1' }}
+                        >
+                          <option value="image">Image</option>
+                          <option value="video">Video</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Alt Text ({currentLanguage}):</label>
+                        <input
+                          type="text"
+                          value={slide.alt || ''}
+                          onChange={(e) => handleArrayItemChange(rowIndex, 'slides', slideIndex, 'alt', e.target.value)}
+                          style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1' }}
+                        />
+                      </div>
                     </div>
                     {slide.type === 'image' && (
                       <div style={{ marginBottom: '8px' }}>
@@ -983,42 +1018,35 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                         />
                       </div>
                     )}
-                    <div style={{ marginBottom: '8px' }}>
-                      <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Alt Text ({currentLanguage}):</label>
-                      <input
-                        type="text"
-                        value={slide.alt || ''}
-                        onChange={(e) => handleArrayItemChange(rowIndex, 'slides', slideIndex, 'alt', e.target.value)}
-                        style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1' }}
-                      />
-                    </div>
                   </div>
                 ))}
                 <button type="button" onClick={() => handleArrayItemAdd(rowIndex, 'slides', { type: 'image', src: '', alt: '' })} style={{ padding: '8px 16px', background: '#0002ff', color: 'white', border: 'none',  cursor: 'pointer' }}>+ Add Slide</button>
               </div>
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                  <input type="checkbox" checked={row.fields.darkTheme || false} onChange={(e) => handleFieldChange(rowIndex, 'darkTheme', e.target.checked)} />
-                  <span>Dark Theme ({currentLanguage})</span>
-                </label>
-              </div>
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Min Height (vh) ({currentLanguage}):</strong></label>
-                <input
-                  type="number"
-                  value={row.fields.minHeight || 30}
-                  onChange={(e) => handleFieldChange(rowIndex, 'minHeight', parseInt(e.target.value) || 0)}
-                  style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
-                />
-              </div>
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Max Height (vh) ({currentLanguage}):</strong></label>
-                <input
-                  type="number"
-                  value={row.fields.maxHeight || 70}
-                  onChange={(e) => handleFieldChange(rowIndex, 'maxHeight', parseInt(e.target.value) || 0)}
-                  style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
-                />
+              <div className="component-fields-grid">
+                <div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={row.fields.darkTheme || false} onChange={(e) => handleFieldChange(rowIndex, 'darkTheme', e.target.checked)} />
+                    <span>Dark Theme ({currentLanguage})</span>
+                  </label>
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '5px' }}><strong>Min Height (vh) ({currentLanguage}):</strong></label>
+                  <input
+                    type="number"
+                    value={row.fields.minHeight || 30}
+                    onChange={(e) => handleFieldChange(rowIndex, 'minHeight', parseInt(e.target.value) || 0)}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '5px' }}><strong>Max Height (vh) ({currentLanguage}):</strong></label>
+                  <input
+                    type="number"
+                    value={row.fields.maxHeight || 70}
+                    onChange={(e) => handleFieldChange(rowIndex, 'maxHeight', parseInt(e.target.value) || 0)}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
+                  />
+                </div>
               </div>
             </div>
           )}

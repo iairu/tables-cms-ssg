@@ -322,8 +322,23 @@ const Header = ({
   };
 
    const toggleMobileMenu = () => {
-    setMobileMenuOpen(!mobileMenuOpen);
+    setMobileMenuOpen(prev => {
+      const isOpen = !prev;
+      if (isOpen) {
+        document.body.classList.add('mobile-menu-open');
+      } else {
+        document.body.classList.remove('mobile-menu-open');
+      }
+      return isOpen;
+    });
   };
+
+  useEffect(() => {
+    // Cleanup function to remove class from body when component unmounts
+    return () => {
+      document.body.classList.remove('mobile-menu-open');
+    };
+  }, []);
 
    // Inline styles
    const styles = {
@@ -348,7 +363,6 @@ const Header = ({
       width: 'auto',
     },
     mobileNavToggle: {
-      display: 'none',
       background: 'none',
       border: 'none',
       fontSize: '24px',
@@ -474,6 +488,7 @@ const Header = ({
     <header style={styles.header}>
        {/* Mobile Navigation Toggle */}
        <button
+         className="mobile-nav-toggle"
          style={styles.mobileNavToggle}
          onClick={toggleMobileMenu}
          aria-label="Toggle Mobile Navigation"
@@ -525,9 +540,8 @@ const Header = ({
       </div>
 
        {/* Buttons Section */}
-       <div style={{
-         ...styles.buttons,
-         display: mobileMenuOpen ? 'none' : 'flex'
+       <div className="header-buttons" style={{
+         ...styles.buttons
        }}>
         
         <button

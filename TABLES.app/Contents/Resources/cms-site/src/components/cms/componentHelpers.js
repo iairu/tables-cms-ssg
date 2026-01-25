@@ -98,7 +98,7 @@ export function RenderImageUpload({ label, value, onUpload, onRemove, onSelect }
 
   return (
     <div style={{ marginBottom: '10px' }}>
-      <label style={{ display: 'block', marginBottom: '5px' }}><strong>{label}:</strong></label>
+      <label style={{ display: 'block', marginBottom: '5px' }}><strong>{label}</strong></label>
       <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '5px' }}>
         <button
           type="button"

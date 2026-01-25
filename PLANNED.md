@@ -1,5 +1,12 @@
 add support for page groups: page group will contain multiple pages and on main-site will be on, default group is "Direct Pages" (always exists and contains Homepage). All currently existing pages will be moved to this group. Each group will represent a "dropdown" menu entry in header (not actual dropdown, but hovering will expand to show pages in that group)
 
+---
+
+use the loading bar during all cms-site navigation and add a loading skeleton for all cms-site navigation as well
+
+---
+
+adjust interactive text editor to support markdown syntax and have more reliable buttons
 
 ---
 
@@ -15,7 +22,7 @@ implement a similar extension called Personal for a database of users with perso
 
 ---
 
-manual: improve page components editor by having components in two or multiple columns where relevant, make mobile friendly
+manual: improve page components editor by having components in two or multiple columns where relevant, make cms-site css mobile friendly
 
 ---
 
