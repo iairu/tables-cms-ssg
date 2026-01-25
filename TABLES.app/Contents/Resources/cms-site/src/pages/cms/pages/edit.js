@@ -68,33 +68,8 @@ const CMSPagesEditPage = () => {
     }
   };
 
-  return (
-    <div className="cms-container">
-      <Header
-        onVisitDomain={() => window.open(cmsData.settings.domain, '_blank')}
-        onBuildAndDeploy={() => handleManualBuild(false)}
-        onBuildLocally={() => handleManualBuild(true)}
-        isBuilding={cmsData.isBuilding}
-        canBuild={cmsData.canBuild}
-        domain={cmsData.settings.domain}
-        vercelApiKey={cmsData.settings.vercelApiKey}
-        buildCooldownSeconds={cmsData.buildCooldownSeconds}
-      />
-      <main>
-        <SideMenu
-          currentSection="pages"
-          isBuilding={cmsData.isBuilding}
-          lastSaved={cmsData.lastSaved}
-          onBuildClick={handleManualBuild}
-          canBuild={cmsData.canBuild}
-          buildCooldownSeconds={cmsData.buildCooldownSeconds}
-          domain={cmsData.settings.domain}
-          vercelApiKey={cmsData.settings.vercelApiKey}
-        />
-        <PagesSection cmsData={cmsData} edit={true} />
-      </main>
-    </div>
-  );
+  return <PagesSection cmsData={cmsData} edit={true} />;
+
 };
 
 export default CMSPagesEditPage;

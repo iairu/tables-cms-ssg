@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { Link } from 'gatsby';
 
 const pathFromSection = {
@@ -16,7 +16,7 @@ const pathFromSection = {
   extensions: 'extensions'
 };
 
-const SideMenu = ({ currentSection, isBuilding, lastSaved, onBuildClick, canBuild, buildCooldownSeconds, domain, vercelApiKey }) => {
+const SideMenu = memo(({ currentSection, isBuilding, lastSaved, onBuildClick, canBuild, buildCooldownSeconds, domain, vercelApiKey }) => {
   const [isRentalSubMenuOpen, setIsRentalSubMenuOpen] = useState(false);
   let extensions = {};
   try {
@@ -164,6 +164,6 @@ const SideMenu = ({ currentSection, isBuilding, lastSaved, onBuildClick, canBuil
       `}</style>
     </aside>
   );
-};
+});
 
 export default SideMenu;

@@ -7,29 +7,37 @@ import './src/styles/cms.css';
 
 import React from 'react';
 import { LoadingProvider } from './src/context/LoadingContext';
-import LoadingBar from './src/components/LoadingBar';
+import Layout from './src/components/Layout';
 
-// Prevent flash of unstyled content
 export const onClientEntry = () => {
-  // IntersectionObserver polyfill for older browsers
   if (typeof window.IntersectionObserver === 'undefined') {
     import('intersection-observer');
   }
 };
 
-// Wrap page element to handle client-side only components
-export const wrapPageElement = ({ element }) => {
+export const wrapRootElement = ({ element }) => {
   return (
     <LoadingProvider>
-      <>
-        <LoadingBar />
-        {element}
-      </>
+      {element}
     </LoadingProvider>
   );
 };
 
-// Handle service worker updates
+export const wrapPageElement = ({ element, props }) => {
+  return <Layout {...props}>{element}</Layout>;
+};
+
+export const onPreRouteUpdate = () => {
+  window.dispatchEvent(new CustomEvent('show-loading'));
+};
+
+export const onRouteUpdate = () => {
+  // Timeout to ensure the page has had a moment to render
+  setTimeout(() => {
+    window.dispatchEvent(new CustomEvent('hide-loading'));
+  }, 500);
+};
+
 export const onServiceWorkerUpdateReady = () => {
   const answer = window.confirm(
     'This application has been updated. ' +

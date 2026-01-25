@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { toBase64 } from './cms/utils';
 
 const pathFromSection = {
@@ -14,7 +14,7 @@ const pathFromSection = {
   settings: 'settings',
   extensions: 'extensions'
 };
-const Header = ({
+const Header = memo(({
   onVisitDomain,
   onBuildAndDeploy,
   onBuildLocally,
@@ -799,6 +799,6 @@ const Header = ({
        </div>
     </header>
   );
-};
+});
 
 export default Header;

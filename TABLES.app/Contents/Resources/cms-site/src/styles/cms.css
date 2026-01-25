@@ -940,3 +940,47 @@ textarea:focus-visible {
     margin-top: 120px;
   }
 }
+
+.loading-skeleton {
+  width: 100%;
+  margin-top: 66px;
+  padding: 32px;
+  background-color: #f5f5f7;
+}
+
+.skeleton-header,
+.skeleton-content,
+.skeleton-footer {
+  background-color: #e0e0e0;
+  border-radius: 4px;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+.skeleton-header {
+  height: 40px;
+  width: 60%;
+  margin-bottom: 20px;
+}
+
+.skeleton-content {
+  height: 200px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.skeleton-footer {
+  height: 30px;
+  width: 40%;
+}
+
+@keyframes pulse {
+  0% {
+    background-color: #e0e0e0;
+  }
+  50% {
+    background-color: #d0d0d0;
+  }
+  100% {
+    background-color: #e0e0e0;
+  }
+}

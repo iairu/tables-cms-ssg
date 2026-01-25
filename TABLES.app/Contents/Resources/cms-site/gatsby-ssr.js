@@ -4,16 +4,19 @@
  */
 
 import React from 'react';
-
 import { LoadingProvider } from './src/context/LoadingContext';
+import Layout from './src/components/Layout';
 
-// Wrap page element to ensure consistent rendering between SSR and client
-export const wrapPageElement = ({ element }) => {
+export const wrapRootElement = ({ element }) => {
   return (
     <LoadingProvider>
       {element}
     </LoadingProvider>
   );
+};
+
+export const wrapPageElement = ({ element, props }) => {
+  return <Layout {...props}>{element}</Layout>;
 };
 
 // Add custom HTML attributes
@@ -38,9 +41,4 @@ export const onRenderBody = ({ setHtmlAttributes, setHeadComponents }) => {
       rel="stylesheet"
     />,
   ]);
-};
-
-// Handle page wrapping for SSR
-export const wrapRootElement = ({ element }) => {
-  return element;
 };
