@@ -3,6 +3,7 @@ import { Link } from 'gatsby';
 
 const pathFromSection = {
   pages: 'pages',
+  'page-groups': 'page-groups',
   blog: 'blog',
   cats: 'pedigree',
   'rental-inventory': 'inventory',
@@ -57,6 +58,15 @@ const SideMenu = ({ currentSection, isBuilding, lastSaved, onBuildClick, canBuil
                 >
                   <i className="fa fa-file" style={{ marginRight: '8px' }}></i>
                   Pages
+                </Link>
+              )}
+              {extensions['pages-extension-enabled'] && (
+                <Link
+                  to={`/cms/${pathFromSection['page-groups']}`}
+                  className={currentSection === 'page-groups' ? 'active' : ''}
+                >
+                  <i className="fa fa-layer-group" style={{ marginRight: '8px' }}></i>
+                  Page Groups
                 </Link>
               )}
               {extensions['blog-extension-enabled'] && (

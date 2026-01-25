@@ -6,7 +6,7 @@ use the loading bar during all cms-site navigation and add a loading skeleton fo
 
 ---
 
-improve mass actions css in both BlogSection and PagesSection, add rich text editor support to edit article, have edit article fields be in two columns before rich text editor
+manual: have slightly gray background on asset grid assets so white images can be seen
 
 ---
 

@@ -90,6 +90,7 @@ const useCMSData = () => {
     // ... (rest of the function is the same)
     const cmsData = {
       pages: JSON.parse(localStorage.getItem('pages') || '[]'),
+      pageGroups: JSON.parse(localStorage.getItem('pageGroups') || '[]'),
       blogArticles: JSON.parse(localStorage.getItem('blogArticles') || '[]'),
       catRows: JSON.parse(localStorage.getItem('catRows') || '[]'),
       inventoryRows: JSON.parse(localStorage.getItem('inventoryRows') || '[]'),
@@ -220,6 +221,7 @@ const useCMSData = () => {
   // Pages state
   const [pages, setPages] = useState([]);
   const [currentPageId, setCurrentPageId] = useState(null);
+  const [pageGroups, setPageGroups] = useState([]);
 
   // Blog state
   const [blogArticles, setBlogArticles] = useState([]);
@@ -357,7 +359,26 @@ const useCMSData = () => {
 
   // Load data from localStorage on mount
   useEffect(() => {
-    const loadedPages = localStorage.getItem('pages');
+    const loadedPages = JSON.parse(localStorage.getItem('pages') || '[]');
+    let loadedPageGroups = JSON.parse(localStorage.getItem('pageGroups') || 'null');
+
+    if (!loadedPageGroups) {
+      const homePage = loadedPages.find(p => p.slug === 'home');
+      const otherPages = loadedPages.filter(p => p.slug !== 'home');
+      
+      loadedPageGroups = [
+        {
+          id: 'direct-pages',
+          name: 'Direct Pages',
+          pageIds: [homePage?.id, ...otherPages.map(p => p.id)].filter(Boolean)
+        }
+      ];
+      localStorage.setItem('pageGroups', JSON.stringify(loadedPageGroups));
+    }
+
+    setPages(loadedPages);
+    setPageGroups(loadedPageGroups);
+
     const loadedCurrentPageId = localStorage.getItem('currentPageId');
     const loadedBlogArticles = localStorage.getItem('blogArticles');
     const loadedCurrentBlogArticleId = localStorage.getItem('currentBlogArticleId');
@@ -378,6 +399,8 @@ const useCMSData = () => {
           parsedSettings.languages = [{ code: 'en', name: 'English' }];
           localStorage.setItem('settings', JSON.stringify(parsedSettings));
           setSettings(parsedSettings);
+        } else {
+          setSettings(parsedSettings);
         }
       } catch (e) {
         console.error('Error parsing settings:', e);
@@ -386,7 +409,6 @@ const useCMSData = () => {
     const loadedAcl = localStorage.getItem('acl');
     const loadedExtensions = localStorage.getItem('extensions');
 
-    if (loadedPages) setPages(JSON.parse(loadedPages));
     if (loadedCurrentPageId) setCurrentPageId(JSON.parse(loadedCurrentPageId));
     if (loadedBlogArticles) setBlogArticles(JSON.parse(loadedBlogArticles));
     if (loadedCurrentBlogArticleId) setCurrentBlogArticleId(JSON.parse(loadedCurrentBlogArticleId));
@@ -397,7 +419,6 @@ const useCMSData = () => {
     if (loadedAttendanceRows) setAttendanceRows(JSON.parse(loadedAttendanceRows));
     if (loadedReservationRows) setReservationRows(JSON.parse(loadedReservationRows));
     if (loadedComponentRows) setComponentRows(JSON.parse(loadedComponentRows));
-    if (loadedSettings) setSettings(JSON.parse(loadedSettings));
     if (loadedAcl) setAcl(JSON.parse(loadedAcl));
     if (loadedExtensions) setExtensions(JSON.parse(loadedExtensions));
 
@@ -440,6 +461,12 @@ const useCMSData = () => {
   const saveCurrentPageId = (id) => {
     setCurrentPageId(id);
     localStorage.setItem('currentPageId', JSON.stringify(id));
+  };
+
+  const savePageGroups = (newGroups) => {
+    setPageGroups(newGroups);
+    localStorage.setItem('pageGroups', JSON.stringify(newGroups));
+    scheduleBuild();
   };
 
   const saveBlogArticles = (articles) => {
@@ -651,8 +678,10 @@ const useCMSData = () => {
     // Pages
     pages,
     currentPageId,
+    pageGroups,
     savePages,
     saveCurrentPageId,
+    savePageGroups,
     addPage,
     deletePage,
     updatePage,

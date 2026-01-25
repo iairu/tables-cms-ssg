@@ -6,7 +6,7 @@ import { fuzzyMatch } from '../utils';
 import '../../../styles/MassActions.css';
 
 const PagesSection = ({ cmsData, edit: editModeProp }) => {
-  const { pages, savePages, currentPageId, saveCurrentPageId, addPage, deletePage, updatePage, settings } = cmsData;
+  const { pages, savePages, currentPageId, saveCurrentPageId, addPage, deletePage, updatePage, settings, pageGroups, savePageGroups } = cmsData;
   const { showLoading, hideLoading } = useLoading();
   const navigate = createNavigation(showLoading, hideLoading);
   const [editMode, setEditMode] = useState(editModeProp || false);
@@ -20,6 +20,8 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
   const [selectedPages, setSelectedPages] = useState([]);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'default', langCode: null });
   const [massActionsOpen, setMassActionsOpen] = useState(false);
+  const [assignGroupModalOpen, setAssignGroupModalOpen] = useState(false);
+  const [selectedGroup, setSelectedGroup] = useState('');
 
   useEffect(() => {
     hideLoading();
@@ -34,6 +36,28 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
       });
     }
   }, [pages, addPage, cmsData.isDataLoaded, settings]);
+
+  const handleAssignToGroup = () => {
+    if (!selectedGroup) return;
+
+    const updatedPageGroups = pageGroups.map(group => {
+      // Remove selected pages from their current groups
+      return {
+        ...group,
+        pageIds: group.pageIds.filter(id => !selectedPages.includes(id)),
+      };
+    });
+
+    const targetGroup = updatedPageGroups.find(group => group.id === selectedGroup);
+    if (targetGroup) {
+      // Add selected pages to the new group, avoiding duplicates
+      targetGroup.pageIds = [...new Set([...targetGroup.pageIds, ...selectedPages])];
+    }
+
+    savePageGroups(updatedPageGroups);
+    setAssignGroupModalOpen(false);
+    setSelectedPages([]);
+  };
 
   const handleAddPage = () => {
     const newId = addPage(settings);
@@ -699,6 +723,9 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                   <button onClick={() => { setDeleteModalOpen(true); setMassActionsOpen(false); }} className="mass-actions-dropdown-button">
                     Delete Selected
                   </button>
+                  <button onClick={() => { setAssignGroupModalOpen(true); setMassActionsOpen(false); }} className="mass-actions-dropdown-button">
+                    Assign to Group
+                  </button>
                 </div>
               )}
             </div>
@@ -757,6 +784,59 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
           </tbody>
         </table>
       </div>
+
+      {assignGroupModalOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            padding: '30px',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+            maxWidth: '400px',
+            width: '90%'
+          }}>
+            <h2 style={{ marginTop: 0, marginBottom: '15px', fontSize: '1.25rem' }}>Assign to Group</h2>
+            <p style={{ marginBottom: '25px', color: '#64748b' }}>
+              Select a group to assign {selectedPages.length} selected page(s) to.
+            </p>
+            <select
+              value={selectedGroup}
+              onChange={(e) => setSelectedGroup(e.target.value)}
+              style={{ width: '100%', padding: '10px', marginBottom: '20px' }}
+            >
+              <option value="">Select a group</option>
+              {pageGroups.map(group => (
+                <option key={group.id} value={group.id}>{group.name}</option>
+              ))}
+            </select>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <button onClick={() => setAssignGroupModalOpen(false)} style={{
+                padding: '8px 16px',
+                border: '1px solid #cbd5e1',
+                backgroundColor: 'white',
+                cursor: 'pointer'
+              }}>Cancel</button>
+              <button onClick={handleAssignToGroup} style={{
+                padding: '8px 16px',
+                border: 'none',
+                backgroundColor: '#0002ff',
+                color: 'white',
+                cursor: 'pointer'
+              }}>Assign</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {deleteModalOpen && (
         <div style={{
