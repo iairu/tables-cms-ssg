@@ -400,11 +400,35 @@ const useCMSData = () => {
     if (loadedSettings) setSettings(JSON.parse(loadedSettings));
     if (loadedAcl) setAcl(JSON.parse(loadedAcl));
     if (loadedExtensions) setExtensions(JSON.parse(loadedExtensions));
+
+    // Load build state
+    const loadedBuildState = localStorage.getItem('buildState');
+    if (loadedBuildState) {
+      const { isBuilding, lastBuildTime, canBuild, buildCooldownSeconds } = JSON.parse(loadedBuildState);
+      setIsBuildingState(isBuilding);
+      lastBuildTimeRef.current = lastBuildTime;
+      setCanBuild(canBuild);
+      setBuildCooldownSeconds(buildCooldownSeconds);
+      if (isBuilding) {
+        startPolling();
+      }
+    }
     
     fetchUploads();
     // Mark data as loaded
     setIsDataLoaded(true);
-  }, []);
+  }, [fetchUploads, setIsBuildingState, startPolling]);
+
+  // Save build state to localStorage
+  useEffect(() => {
+    const buildState = {
+      isBuilding,
+      lastBuildTime: lastBuildTimeRef.current,
+      canBuild,
+      buildCooldownSeconds,
+    };
+    localStorage.setItem('buildState', JSON.stringify(buildState));
+  }, [isBuilding, canBuild, buildCooldownSeconds]);
 
   // Save functions
   const savePages = (newPages) => {
