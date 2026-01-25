@@ -89,8 +89,8 @@ jobs:
       - name: 4. Upload to GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v.${{ github.run_number }}-${{ matrix.arch }}
-          name: Release v.${{ github.run_number }}-${{ matrix.arch }}
+          tag_name: v.${{ github.run_number }}
+          name: Release v.${{ github.run_number }}
           body: ${{ steps.generate_body.outputs.release_body }}
           draft: false
           prerelease: false
