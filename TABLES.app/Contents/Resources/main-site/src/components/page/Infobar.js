@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import MarkdownRenderer from '../MarkdownRenderer';
 
 const Infobar = ({ row }) => {
   const isDark = row.fields.darkTheme || row.fields.darkMode;
@@ -97,7 +98,7 @@ const Infobar = ({ row }) => {
       ) : null}
       
       {row.fields.text && (
-        <span style={styles.text} dangerouslySetInnerHTML={{ __html: unescape(row.fields.text) }} />
+        <div style={styles.text}><MarkdownRenderer content={row.fields.text} /></div>
       )}
       
       {row.fields.buttons && row.fields.buttons.length > 0 && (

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import MarkdownRenderer from '../MarkdownRenderer';
 
 const Ranking = ({ row }) => {
   const isDark = row.fields.darkTheme || row.fields.darkMode;
@@ -75,12 +76,11 @@ const Ranking = ({ row }) => {
         <ul style={styles.content} className="content">
           {row.fields.ranks.map((rank, rankIdx) => (
             <li key={rankIdx} style={styles.li}>
-              <h1 
+              <div
                 className="count"
                 style={styles.count}
-                dangerouslySetInnerHTML={{ __html: unescape(rank.heading) || '' }}
-              />
-              <span className="name" style={styles.name} dangerouslySetInnerHTML={{ __html: unescape(rank.subheading || '') }} />
+              ><MarkdownRenderer content={rank.heading || ''} /></div>
+              <span className="name" style={styles.name}><MarkdownRenderer content={rank.subheading || ''} /></span>
             </li>
           ))}
         </ul>

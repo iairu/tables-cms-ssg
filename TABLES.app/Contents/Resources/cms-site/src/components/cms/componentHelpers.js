@@ -3,6 +3,7 @@ import SlugPicker from './SlugPicker';
 import ButtonEditor from './ButtonEditor';
 import ReactMde from 'react-mde';
 import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
 import 'react-mde/lib/styles/css/react-mde-all.css';
 
 export const RichTextEditor = ({ value, onChange }) => {
@@ -16,7 +17,7 @@ export const RichTextEditor = ({ value, onChange }) => {
         selectedTab={selectedTab}
         onTabChange={setSelectedTab}
         generateMarkdownPreview={(markdown) =>
-          Promise.resolve(<ReactMarkdown children={markdown} />)
+          Promise.resolve(<ReactMarkdown children={markdown} rehypePlugins={[rehypeRaw]} />)
         }
         childProps={{
           writeButton: {

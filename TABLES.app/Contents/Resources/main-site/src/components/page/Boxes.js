@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import MarkdownRenderer from '../MarkdownRenderer';
 
 const Boxes = ({ row }) => {
   const isDark = row.fields.darkTheme || row.fields.darkMode;
@@ -114,8 +115,8 @@ const Boxes = ({ row }) => {
                 ...handleBoxStyle(box),
               }}
             >
-              {box.heading && <h2 style={styles.heading} dangerouslySetInnerHTML={{ __html: unescape(box.heading) }} />}
-              {box.subheading && <h3 style={styles.subheading} dangerouslySetInnerHTML={{ __html: unescape(box.subheading) }} />}
+              {box.heading && <div style={styles.heading}><MarkdownRenderer content={box.heading} /></div>}
+              {box.subheading && <div style={styles.subheading}><MarkdownRenderer content={box.subheading} /></div>}
               {box.icon && (
                 <img 
                   src={box.icon} 
@@ -124,10 +125,10 @@ const Boxes = ({ row }) => {
                 />
               )}
               {box.text && (
-                <p style={styles.text} dangerouslySetInnerHTML={{ __html: unescape(box.text) }} />
+                <div style={styles.text}><MarkdownRenderer content={box.text} /></div>
               )}
               {box.lowerCornerText && (
-                <span style={styles.corner} dangerouslySetInnerHTML={{ __html: unescape(box.lowerCornerText) }} />
+                <div style={styles.corner}><MarkdownRenderer content={box.lowerCornerText} /></div>
               )}
             </div>
           ))}

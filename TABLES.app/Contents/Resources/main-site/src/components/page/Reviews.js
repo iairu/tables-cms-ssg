@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import MarkdownRenderer from '../MarkdownRenderer';
 
 const Reviews = ({ row }) => {
   const isDark = row.fields.darkTheme || row.fields.darkMode;
@@ -185,10 +186,10 @@ const Reviews = ({ row }) => {
             className={index === currentSlide ? 'slide animate-in' : index === previousSlide ? 'slide animate-out' : 'slide hidden'}
           >
             {review.text && (
-              <p style={styles.text} dangerouslySetInnerHTML={{ __html: unescape(review.text) }} />
+              <div style={styles.text}><MarkdownRenderer content={review.text} /></div>
             )}
             {review.author && (
-              <div style={styles.author} dangerouslySetInnerHTML={{ __html: unescape('~ ' + (review.author || '')) }} />
+              <div style={styles.author}><MarkdownRenderer content={`~ ${review.author || ''}`} /></div>
             )}
             {review.stars && (
               <div style={styles.stars}>

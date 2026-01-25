@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import MarkdownRenderer from '../MarkdownRenderer';
 
 const TitleSlide = ({ row }) => {
   const isDark = row.fields.darkTheme || row.fields.darkMode;
@@ -186,13 +187,13 @@ const TitleSlide = ({ row }) => {
             className={headingSize === 'big' ? 'big' : 'normal'}
             dangerouslySetInnerHTML={{ 
               __html: align === 'left' && typeof row.fields.heading === 'string' 
-                ? unescape(row.fields.heading.replace(/\s/g, '<br>')) 
+                ? row.fields.heading.replace(/\s/g, '<br>') 
                 : row.fields.heading 
             }}
           />
         )}
         {row.fields.text && (
-          <p style={styles.text} dangerouslySetInnerHTML={{ __html: unescape(row.fields.text) }} />
+          <div style={styles.text}><MarkdownRenderer content={row.fields.text} /></div>
         )}
         {row.fields.buttons && row.fields.buttons.length > 0 && (
           <nav style={styles.nav}>

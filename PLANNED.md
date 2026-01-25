@@ -6,7 +6,7 @@ use the loading bar during all cms-site navigation and add a loading skeleton fo
 
 ---
 
-adjust interactive text editor to support markdown syntax and have more reliable buttons
+adjust interactive text editor to support both current markdown syntax and html syntax in preview, reflect the support in main-site where only html is supported right now for interactive text but markdown support is missing
 
 ---
 

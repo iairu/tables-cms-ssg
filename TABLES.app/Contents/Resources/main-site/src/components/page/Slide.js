@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import MarkdownRenderer from '../MarkdownRenderer';
 
 const Slide = ({ row }) => {
   const sectionRef = useRef(null);
@@ -142,10 +143,10 @@ const Slide = ({ row }) => {
     >
       <div style={styles.left} className={`left${leftDark ? ' dark' : ''}${row.fields.hideLeftOnMobile ? ' hide-left-on-mobile' : ''}`}>
         {row.fields.leftHeading && (
-          <h1 style={styles.heading} dangerouslySetInnerHTML={{ __html: unescape(row.fields.leftHeading) }} />
+          <div style={styles.heading}><MarkdownRenderer content={row.fields.leftHeading} /></div>
         )}
         {row.fields.leftText && (
-          <p style={styles.text} dangerouslySetInnerHTML={{ __html: unescape(row.fields.leftText) }} />
+          <div style={styles.text}><MarkdownRenderer content={row.fields.leftText} /></div>
         )}
         {row.fields.leftButtons && row.fields.leftButtons.length > 0 && (
           <nav style={styles.nav}>
@@ -167,10 +168,10 @@ const Slide = ({ row }) => {
 
       <div style={styles.right} className={`right${rightDark ? ' dark' : ''}${row.fields.hideRightOnMobile ? ' hide-right-on-mobile' : ''}`}>
         {row.fields.rightHeading && (
-          <h1 style={styles.heading} dangerouslySetInnerHTML={{ __html: unescape(row.fields.rightHeading) }} />
+          <div style={styles.heading}><MarkdownRenderer content={row.fields.rightHeading} /></div>
         )}
         {row.fields.rightText && (
-          <p style={styles.text} dangerouslySetInnerHTML={{ __html: unescape(row.fields.rightText) }} />
+          <div style={styles.text}><MarkdownRenderer content={row.fields.rightText} /></div>
         )}
         {row.fields.rightButtons && row.fields.rightButtons.length > 0 && (
           <nav style={styles.nav}>
