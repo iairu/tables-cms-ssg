@@ -276,19 +276,19 @@ const Reviews = ({ row }) => {
 
         @media (max-width: 1200px) {
           section.bubbles button.navigate.prev {
-            left: 0px;
+            left: 0px !important;
           }
           section.bubbles button.navigate.next {
-            left: auto;
-            right: 0px;
+            left: auto !important;
+            right: 0px !important;
           }
         }
 
         @media (max-width: 600px) {
           section.bubbles button.navigate {
-            width: 40px;
-            height: 40px;
-            margin: 5px;
+            width: 40px !important;
+            height: 40px !important;
+            margin: 5px !important;
           }
         }
       `}</style>

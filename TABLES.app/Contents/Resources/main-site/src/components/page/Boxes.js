@@ -160,7 +160,7 @@ const Boxes = ({ row }) => {
         
         @media (max-width: 900px) {
           .box {
-            transform: none !important;
+            transform: none !important !important;
           }
         }
         

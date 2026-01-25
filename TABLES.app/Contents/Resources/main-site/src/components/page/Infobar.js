@@ -141,14 +141,14 @@ const Infobar = ({ row }) => {
         
         @media (max-width: 1200px) {
           section.bar {
-            flex-flow: column;
-            justify-content: center;
-            align-items: center;
-            padding: 1em;
+            flex-flow: column !important;
+            justify-content: center !important;
+            align-items: center !important;
+            padding: 1em !important;
           }
           section.bar > *:not(:last-child) {
-            margin-right: 0;
-            margin-bottom: 1em;
+            margin-right: 0 !important;
+            margin-bottom: 1em !important;
           }
           section.bar big.icon {
             margin-right: 0 !important;

@@ -330,13 +330,13 @@ const TitleSlide = ({ row }) => {
 
         @media (max-width: 1900px) {
           section.titulka .content {
-            padding: 0 10%;
+            padding: 0 10% !important;
           }
         }
 
         @media (max-width: 1200px) {
           section.titulka .pic {
-            top: 0;
+            top: 0 !important;
           }
 
           section.titulka .pic img {
@@ -351,20 +351,20 @@ const TitleSlide = ({ row }) => {
 
         @media (max-width: 800px) {
           section.titulka .pic .hide_m {
-            display: none;
+            display: none !important;
           }
         }
 
         @media (min-width: 801px) {
           section.titulka .pic .hide_d {
-            display: none;
+            display: none !important;
           }
         }
 
         @media (max-width: 700px) {
           section.titulka .content p {
-            text-align: center;
-            align-self: center;
+            text-align: center !important;
+            align-self: center !important;
           }
         }
       `}</style>

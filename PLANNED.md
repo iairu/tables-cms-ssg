@@ -2,6 +2,8 @@ implement page groups support in main-site "to show a dropdown menu in header an
 
 ---
 
+have SideMenu and Header not flash icons during navigation
+
 use the loading bar during all cms-site navigation and add a loading skeleton for all cms-site navigation as well
 
 ---

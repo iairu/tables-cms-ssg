@@ -125,7 +125,7 @@ const Flies = ({ row }) => {
       <style>{`
         @media (max-width: 1200px) {
           section.flies img.hide_m {
-            display: none;
+            display: none !important;
           }
         }
       `}</style>

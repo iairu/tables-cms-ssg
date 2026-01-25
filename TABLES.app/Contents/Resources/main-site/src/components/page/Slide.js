@@ -227,79 +227,79 @@ const Slide = ({ row }) => {
         @media (max-width: 1500px) {
           section.slide .left,
           section.slide .right {
-            width: 100%;
-            padding: 2em;
+            width: 100% !important;
+            padding: 2em !important;
           }
         }
 
         @media (max-width: 1200px) {
           section.slide {
-            flex-flow: column;
+            flex-flow: column !important;
           }
 
           section.slide.reorder_m .right {
-            order: -1;
+            order: -1 !important;
           }
 
           section.slide .hide_m {
-            display: none;
+            display: none !important;
           }
 
           section.slide .left,
           section.slide .right {
-            clip-path: none;
+            clip-path: none !important;
           }
 
           section.slide .left {
-            padding: 2em;
+            padding: 2em !important;
           }
 
           section.slide .right .under {
-            padding: 2em;
-            width: 100%;
-            left: 0;
+            padding: 2em !important;
+            width: 100% !important;
+            left: 0 !important;
           }
 
           section.slide h1 {
-            font-size: 2em;
+            font-size: 2em !important;
           }
 
           section.slide .hide-left-on-mobile {
-            display: none;
+            display: none !important;
           }
         }
 
         @media (min-width: 901px) {
           section.slide .hide-left-on-mobile {
-            display: flex;
+            display: flex !important;
           }
         }
 
         @media (max-width: 900px) {
           section.slide .hide-right-on-mobile {
-            display: none;
+            display: none !important;
           }
         }
 
         @media (max-width: 700px) {
           section.slide {
-            flex-flow: column;
+            flex-flow: column !important;
           }
 
           section.slide .left {
-            width: 100%;
-            padding: 2em;
-            margin-bottom: 1em;
+            width: 100% !important;
+            padding: 2em !important;
+            margin-bottom: 1em !important;
           }
 
           section.slide .right {
-            width: 100%;
-            padding: 2em;
+            width: 100% !important;
+            padding: 2em !important;
           }
 
           section.slide .right .under {
-            width: 100%;
-            left: 0;
+            width: 100% !important;
+            left: 0 !important;
           }
         }
       `}</style>

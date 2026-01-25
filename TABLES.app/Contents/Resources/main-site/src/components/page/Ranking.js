@@ -109,7 +109,7 @@ const Ranking = ({ row }) => {
         
         @media (max-width: 500px) {
           .ranking .content .count {
-            font-size: 2.5em;
+            font-size: 2.5em !important;
           }
         }
         
@@ -131,7 +131,7 @@ const Ranking = ({ row }) => {
         
         @media (max-width: 500px) {
           body.theme-goldshow .ranking .content .count {
-            font-size: 3.5em;
+            font-size: 3.5em !important;
           }
         }
       `}</style>
