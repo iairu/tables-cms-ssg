@@ -54,7 +54,7 @@ jobs:
           
           # Use GITHUB_OUTPUT to pass the body to the next step
           echo "release_body<<EOF" >> $GITHUB_OUTPUT
-          echo -e "All commit names since last release:\n\n$commits" >> $GITHUB_OUTPUT
+          echo -e "All major changes since last release:\n\n$commits" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: 1. Setup Support Binaries (${{ matrix.arch }})
@@ -89,8 +89,8 @@ jobs:
       - name: 4. Upload to GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ github.run_number }}
-          name: Release v${{ github.run_number }}
+          tag_name: v.${{ github.run_number }}-${{ matrix.arch }}
+          name: Release v.${{ github.run_number }}-${{ matrix.arch }}
           body: ${{ steps.generate_body.outputs.release_body }}
           draft: false
           prerelease: false
