@@ -67,7 +67,7 @@ const ExtensionsSection = ({ cmsData }) => {
   };
 
   const coreExtensions = ['pages-extension-enabled', 'blog-extension-enabled', 'pedigree-extension-enabled', 'rental-extension-enabled'];
-  const userDatabaseExtensions = ['biometric-extension-enabled', 'medical-extension-enabled', 'financial-extension-enabled', 'legal-extension-enabled', 'personal-extension-enabled', 'notes-extension-enabled', 'movietracker-extension-enabled'];
+  const userDatabaseExtensions = ['personal-extension-enabled', 'notes-extension-enabled', 'movietracker-extension-enabled'];
 
   const cardStyle = {
     background: '#f8fafc',
@@ -141,7 +141,7 @@ const ExtensionsSection = ({ cmsData }) => {
           {coreExtensions.map(renderExtension)}
         </div>
         
-        <h2 style={{ marginTop: '30px', borderBottom: '1px solid #e2e8f0', paddingBottom: '10px', fontSize: '24px', fontWeight: '600' }}>User Databases</h2>
+        <h2 style={{ marginTop: '30px', borderBottom: '1px solid #e2e8f0', paddingBottom: '10px', fontSize: '24px', fontWeight: '600' }}>Personal</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px', marginTop: '20px' }}>
           {userDatabaseExtensions.map(renderExtension)}
         </div>
