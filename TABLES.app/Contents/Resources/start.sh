@@ -15,6 +15,9 @@ PATH="$BIN_DIR:$PATH"
 # (Likely Contents/Resources or the MacOS folder itself depending on your build)
 cd "$CURRENTPATH"
 
+# Remove cache
+rm -rf cms-site/.cache
+
 # 1. Run NPM Install in the background (Optional: redirect logs to a file for debugging)
 # We use & to background it, but for Electron, you might want install to finish first.
 nice -n 10 "$NODE" "$NPM" install --legacy-peer-deps --no-audit --no-fund # > /dev/null 2>&1

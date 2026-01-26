@@ -11,3 +11,4 @@ export { default as RentalEmployeesSection } from './RentalEmployeesSection';
 export { default as RentalReservationsSection } from './RentalReservationsSection';
 export { default as RentalCalendarSection } from './RentalCalendarSection';
 export { default as PersonalSection } from './PersonalSection';
+export { default as MoviesSection } from './MoviesSection';

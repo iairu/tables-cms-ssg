@@ -98,6 +98,7 @@ const useCMSData = () => {
       attendanceRows: JSON.parse(localStorage.getItem('attendanceRows') || '[]'),
       reservationRows: JSON.parse(localStorage.getItem('reservationRows') || '[]'),
       componentRows: JSON.parse(localStorage.getItem('componentRows') || '[]'),
+      movieList: JSON.parse(localStorage.getItem('movieList') || '[]'),
       settings: JSON.parse(localStorage.getItem('settings') || '{"siteTitle":"TABLES","defaultLang":"en","theme":"light","vercelApiKey":"","languages":[{"code":"en","name":"English"}],"showBreadcrumbs":false}'),
       acl: JSON.parse(localStorage.getItem('acl') || '{}'),
       extensions: JSON.parse(localStorage.getItem('extensions') || '{}')
@@ -252,6 +253,9 @@ const useCMSData = () => {
   // Reservation state
   const [reservationRows, setReservationRows] = useState([]);
 
+  // Movie list state
+  const [movieList, setMovieList] = useState([]);
+
   // Uploads state
   const [uploads, setUploads] = useState([]);
 
@@ -394,6 +398,7 @@ const useCMSData = () => {
     const loadedAttendanceRows = localStorage.getItem('attendanceRows');
     const loadedReservationRows = localStorage.getItem('reservationRows');
     const loadedComponentRows = localStorage.getItem('componentRows');
+    const loadedMovieList = localStorage.getItem('movieList');
     const loadedSettings = localStorage.getItem('settings');
     
     // Initialize default languages if not present
@@ -425,6 +430,7 @@ const useCMSData = () => {
     if (loadedAttendanceRows) setAttendanceRows(JSON.parse(loadedAttendanceRows));
     if (loadedReservationRows) setReservationRows(JSON.parse(loadedReservationRows));
     if (loadedComponentRows) setComponentRows(JSON.parse(loadedComponentRows));
+    if (loadedMovieList) setMovieList(JSON.parse(loadedMovieList));
     if (loadedAcl) setAcl(JSON.parse(loadedAcl));
     if (loadedExtensions) setExtensions(JSON.parse(loadedExtensions));
 
@@ -521,6 +527,11 @@ const useCMSData = () => {
   const saveReservationRows = (newRows) => {
     setReservationRows(newRows);
     localStorage.setItem('reservationRows', JSON.stringify(newRows));
+  };
+
+  const saveMovieList = (newList) => {
+    setMovieList(newList);
+    localStorage.setItem('movieList', JSON.stringify(newList));
   };
 
   const saveComponentRows = (rows) => {
@@ -753,6 +764,10 @@ const useCMSData = () => {
     saveAttendanceRows,
     reservationRows,
     saveReservationRows,
+
+    // Movie List
+    movieList,
+    saveMovieList,
 
     // Uploads
     uploads,

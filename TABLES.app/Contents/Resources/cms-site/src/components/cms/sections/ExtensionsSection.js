@@ -62,7 +62,7 @@ const ExtensionsSection = ({ cmsData }) => {
     'movietracker-extension-enabled': {
         name: 'Movie & Show Tracker',
         description: 'Track movies and TV shows you have watched or want to watch. Data from IMDB.',
-        permaDisabled: true
+        permaDisabled: false
     }
   };
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toBase64 } from '../utils';
 import AssetManagerModal from '../AssetManagerModal';
 
@@ -6,6 +6,30 @@ const SettingsSection = ({ cmsData }) => {
   const { settings, saveSettings } = cmsData;
   const [assetModalOpen, setAssetModalOpen] = useState(false);
   const [assetModalTarget, setAssetModalTarget] = useState(null);
+  const [extensions, setExtensions] = useState({});
+
+  useEffect(() => {
+    const getExtensionsFromStorage = () => {
+      try {
+        return JSON.parse(localStorage.getItem('extensions') || '{}');
+      } catch (e) {
+        return {};
+      }
+    };
+    setExtensions(getExtensionsFromStorage());
+
+    const updateExtensions = () => {
+      setExtensions(getExtensionsFromStorage());
+    };
+
+    window.addEventListener('storage', updateExtensions);
+    window.addEventListener('extensions-updated', updateExtensions);
+
+    return () => {
+      window.removeEventListener('storage', updateExtensions);
+      window.removeEventListener('extensions-updated', updateExtensions);
+    };
+  }, []);
 
   const handleChange = (field, value) => {
     saveSettings({ ...settings, [field]: value });
@@ -259,6 +283,21 @@ const SettingsSection = ({ cmsData }) => {
           </div>
           <button onClick={handleAddSocialMedia} style={secondaryButtonStyle}>+ Add Social Media Link</button>
         </div>
+
+        {extensions['movietracker-extension-enabled'] && (
+          <div style={{ ...cardStyle }}>
+            <h2 style={{ marginTop: '0', marginBottom: '15px', fontSize: '18px', fontWeight: 'bold' }}>Movie Tracker</h2>
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', marginBottom: '10px' }}>
+                <strong>OMDb API Key:</strong>
+                <input type="text" value={settings.omdbApiKey || ''} onChange={(e) => handleChange('omdbApiKey', e.target.value)} placeholder="Enter your OMDb API key" style={{ width: '100%', padding: '10px', marginTop: '5px', border: '1px solid #cbd5e1',  }} />
+              </label>
+              <p style={{ fontSize: '14px', color: '#64748b', marginTop: '5px' }}>
+                Get your API key from <a href="https://www.omdbapi.com/apikey.aspx" target="_blank" rel="noopener noreferrer">omdbapi.com</a>
+              </p>
+            </div>
+          </div>
+        )}
         
         {/* Deployment */}
         <div style={{ ...cardStyle, gridColumn: '1 / -1' }}>

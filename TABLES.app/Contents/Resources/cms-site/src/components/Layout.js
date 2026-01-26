@@ -71,6 +71,7 @@ const Layout = ({ children, location }) => {
     if (path.startsWith('/cms/settings')) return 'settings';
     if (path.startsWith('/cms/extensions')) return 'extensions';
     if (path.startsWith('/cms/uploads')) return 'uploads';
+    if (path.startsWith('/cms/movietracker')) return 'movietracker';
     return '';
   };
 

@@ -6,6 +6,7 @@ const pathFromSection = {
   'page-groups': 'page-groups',
   blog: 'blog',
   cats: 'pedigree',
+  'movietracker': 'movietracker',
   'rental-inventory': 'inventory',
   'rental-attendance': 'attendance',
   'rental-customers': 'customers',
@@ -148,6 +149,15 @@ const SideMenu = memo(({ currentSection, isBuilding, lastSaved, onBuildClick, ca
                 >
                   <i className="fa fa-user" style={{ marginRight: '8px' }}></i>
                   Personal
+                </Link>
+              )}
+              {extensions['movietracker-extension-enabled'] && (
+                <Link
+                  to={`/cms/${pathFromSection['movietracker']}`}
+                  className={currentSection === 'movietracker' ? 'active' : ''}
+                >
+                  <i className="fa fa-film" style={{ marginRight: '8px' }}></i>
+                  Movie Tracker
                 </Link>
               )}
               {extensions['rental-extension-enabled'] && (

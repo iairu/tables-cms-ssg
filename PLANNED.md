@@ -40,7 +40,7 @@ improve the theme picker in settings to show actual themes (CSS) named: Default 
 
 ---
 
-perfect! now add a "Notes" extension for capturing sticky notes within the app using a separate right sidebar and a "Movie and Show Tracker" extension that fetches data from (uses same ids as) IMDB
+perfect! now in cms-site add a "Movie and Show Tracker" extension that fetches data from (uses same ids as) IMDB
 
 ---
 
