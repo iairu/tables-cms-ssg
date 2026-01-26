@@ -246,7 +246,7 @@ const SettingsSection = ({ cmsData }) => {
                 <div key={lang.code} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 15px', background: 'white', border: '1px solid #e2e8f0',  }}>
                   <div>
                     <strong>{lang.name}</strong> <span style={{ color: '#64748b' }}>({lang.code})</span>
-                    {lang.code === settings.defaultLang && <span style={{ marginLeft: '10px', padding: '2px 8px', background: '#10b981', color: 'white', borderRadius: '12px', fontSize: '12px', fontWeight: '600' }}>DEFAULT</span>}
+                    {lang.code === settings.defaultLang && <span style={{ marginLeft: '10px', padding: '2px 8px', background: '#10b981', color: 'white', fontSize: '12px', fontWeight: '600' }}>DEFAULT</span>}
                   </div>
                   {lang.code !== 'en' && (
                     <button onClick={() => handleRemoveLanguage(lang.code)} style={destructiveButtonStyle}>Remove</button>
