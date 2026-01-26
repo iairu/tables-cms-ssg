@@ -22,6 +22,14 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
   const [massActionsOpen, setMassActionsOpen] = useState(false);
   const [assignGroupModalOpen, setAssignGroupModalOpen] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState('');
+  const [exportModalOpen, setExportModalOpen] = useState(false);
+  const [importModalOpen, setImportModalOpen] = useState(false);
+  const [importError, setImportError] = useState('');
+  const [duplicateModalOpen, setDuplicateModalOpen] = useState(false);
+  const [pageToDuplicate, setPageToDuplicate] = useState(null);
+  const [bulkEditModalOpen, setBulkEditModalOpen] = useState(false);
+  const [bulkEditField, setBulkEditField] = useState('includeInMenu');
+  const [bulkEditValue, setBulkEditValue] = useState(true);
 
   useEffect(() => {
     hideLoading();
@@ -219,6 +227,112 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
     input.click();
   };
 
+  // Export selected pages as JSON
+  const handleExportPages = () => {
+    let exportPages;
+    if (selectedPages.length > 0) {
+      exportPages = pages.filter(p => selectedPages.includes(p.id));
+    } else {
+      exportPages = pages;
+    }
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportPages, null, 2));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", `pages-export-${Date.now()}.json`);
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+    setExportModalOpen(false);
+  };
+
+  // Import pages from JSON
+  const handleImportPages = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const importedPages = JSON.parse(e.target.result);
+        if (!Array.isArray(importedPages)) throw new Error("Invalid format: not an array");
+        // Assign new IDs to imported pages to avoid conflicts
+        const existingIds = new Set(pages.map(p => p.id));
+        let maxId = Math.max(0, ...pages.map(p => parseInt(p.id, 10)).filter(n => !isNaN(n)));
+        const newPages = importedPages.map((p, idx) => {
+          let newId = p.id;
+          if (existingIds.has(p.id)) {
+            newId = (maxId + idx + 1).toString();
+          }
+          return { ...p, id: newId };
+        });
+        savePages([...pages, ...newPages]);
+        setImportModalOpen(false);
+        setImportError('');
+      } catch (err) {
+        setImportError('Error importing pages: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  // Duplicate a page
+  const handleDuplicatePage = (page) => {
+    setPageToDuplicate(page);
+    setDuplicateModalOpen(true);
+  };
+
+  const confirmDuplicatePage = () => {
+    if (!pageToDuplicate) return;
+    // Generate a new unique id and slug
+    let maxId = Math.max(0, ...pages.map(p => parseInt(p.id, 10)).filter(n => !isNaN(n)));
+    let newId = (maxId + 1).toString();
+    let newSlug = pageToDuplicate.slug + '-copy';
+    let slugExists = pages.some(p => p.slug === newSlug);
+    let slugCounter = 2;
+    while (slugExists) {
+      newSlug = pageToDuplicate.slug + '-copy' + slugCounter;
+      slugExists = pages.some(p => p.slug === newSlug);
+      slugCounter++;
+    }
+    const duplicatedPage = {
+      ...pageToDuplicate,
+      id: newId,
+      slug: newSlug,
+      title: pageToDuplicate.title + ' (Copy)',
+      lastEdited: new Date().toISOString(),
+      // Remove history from duplicated page
+      history: [],
+    };
+    savePages([...pages, duplicatedPage]);
+    setDuplicateModalOpen(false);
+    setPageToDuplicate(null);
+  };
+
+  // Bulk edit selected pages
+  const handleBulkEdit = () => {
+    if (selectedPages.length === 0) return;
+    let updatedPages = pages.map(p => {
+      if (selectedPages.includes(p.id)) {
+        if (bulkEditField === 'includeInMenu') {
+          return { ...p, includeInMenu: bulkEditValue };
+        }
+        if (bulkEditField === 'sitemapPriority') {
+          return { ...p, sitemapPriority: bulkEditValue };
+        }
+        // Add more bulk-editable fields here as needed
+      }
+      return p;
+    });
+    savePages(updatedPages);
+    setBulkEditModalOpen(false);
+    setSelectedPages([]);
+  };
+
+  // Quick copy page URL to clipboard
+  const handleCopyUrl = (page, lang) => {
+    const url = getPageUrl(page, lang);
+    navigator.clipboard.writeText(url);
+  };
+
   const currentPage = pages.find(p => p.id === currentPageId);
 
   // Get current language content
@@ -239,16 +353,16 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
 
   const saveLocalizedContent = (lang, updates) => {
     if (!currentPage) return;
-    
+
     const translations = currentPage.translations || {};
     const currentLangData = translations[lang] || {
       title: currentPage.title || '',
       slug: currentPage.slug || '',
       rows: currentPage.rows || []
     };
-    
+
     translations[lang] = { ...currentLangData, ...updates };
-    
+
     // If it's the default language, also update the main fields
     if (lang === settings?.defaultLang) {
       updatePage(currentPage.id, { ...updates, translations });
@@ -406,7 +520,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
             <div style={{
               backgroundColor: 'white',
               padding: '30px',
-              
+
               boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
               maxWidth: '600px',
               width: '90%',
@@ -428,7 +542,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                           style={{
                             padding: '10px',
                             marginBottom: '8px',
-                            
+
                             cursor: 'pointer',
                             backgroundColor: selectedHistoryIndex === actualIndex ? '#e0e7ff' : '#f1f5f9',
                             border: selectedHistoryIndex === actualIndex ? '2px solid #0002ff' : '2px solid transparent'
@@ -444,7 +558,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                     <div style={{
                       padding: '15px',
                       backgroundColor: '#f9fafb',
-                      
+
                       marginBottom: '15px',
                       maxHeight: '200px',
                       overflow: 'auto'
@@ -461,7 +575,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                   {selectedHistoryIndex !== null && (
                     <button onClick={handleDeleteHistoryEntry} style={{
                       padding: '8px 16px',
-                      
+
                       border: 'none',
                       backgroundColor: '#ef4444',
                       color: 'white',
@@ -471,7 +585,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                   {selectedHistoryIndex !== null && (
                     <button onClick={handleDownloadHistoryEntry} style={{
                       padding: '8px 16px',
-                      
+
                       border: 'none',
                       backgroundColor: '#22c55e',
                       color: 'white',
@@ -505,7 +619,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                   {selectedHistoryIndex !== null && (
                     <button onClick={handleRollback} style={{
                       padding: '8px 16px',
-                      
+
                       border: 'none',
                       backgroundColor: '#0002ff',
                       color: 'white',
@@ -514,13 +628,47 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                   )}
                   <button onClick={handleCloseHistory} style={{
                     padding: '8px 16px',
-                    
+
                     border: '1px solid #cbd5e1',
                     backgroundColor: 'white',
                     cursor: 'pointer'
                   }}>Close</button>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+        {saveSuccessModalOpen && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 2100
+          }}>
+            <div style={{
+              backgroundColor: 'white',
+              padding: '30px',
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+              maxWidth: '350px',
+              width: '90%',
+              textAlign: 'center'
+            }}>
+              <h2 style={{ marginTop: 0, marginBottom: '15px', fontSize: '1.1rem' }}>History Saved!</h2>
+              <p style={{ marginBottom: '25px', color: '#64748b' }}>
+                This page version was saved to history.
+              </p>
+              <button onClick={handleCloseSaveSuccess} style={{
+                padding: '8px 16px',
+                border: '1px solid #cbd5e1',
+                backgroundColor: 'white',
+                cursor: 'pointer'
+              }}>OK</button>
             </div>
           </div>
         )}
@@ -534,7 +682,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
               onChange={(e) => setCurrentLanguage(e.target.value)}
               style={{
                 padding: '8px 12px',
-                
+
                 border: '1px solid #cbd5e1',
                 marginRight: '10px',
                 background: 'white',
@@ -550,6 +698,8 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
             <a href="#" onClick={(e) => { e.preventDefault(); handleBackToList(); }}>← Back to Pages</a>
             <a href="#" onClick={(e) => { e.preventDefault(); handleShowHistory(); }}>History</a>
             <a href="#" onClick={(e) => { e.preventDefault(); handleSaveToHistory(); }} className="highlighted">Save to History</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); handleDuplicatePage(currentPage); }} style={{marginLeft: '10px'}}>Duplicate</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); handleCopyUrl(currentPage, currentLanguage); }} style={{marginLeft: '10px'}}>Copy URL</a>
           </div>
         </header>
 
@@ -566,7 +716,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                   width: '100%',
                   padding: '10px',
                   marginTop: '5px',
-                  
+
                   border: '1px solid #cbd5e1'
                 }}
               />
@@ -591,7 +741,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                     width: '100%',
                     padding: '10px',
                     marginTop: '5px',
-                    
+
                     border: '1px solid #cbd5e1',
                     background: currentPage.slug === 'home' ? '#f3f4f6' : 'white',
                     cursor: currentPage.slug === 'home' ? 'not-allowed' : 'auto'
@@ -599,7 +749,8 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                 />
               </label>
               <p style={{ fontSize: '14px', color: '#64748b', marginTop: '5px' }}>
-                {/* Full URL: {getPageUrl(currentPage, currentLanguage)}*/}
+                Full URL: <span style={{fontFamily: 'monospace'}}>{getPageUrl(currentPage, currentLanguage)}</span>
+                <button onClick={() => handleCopyUrl(currentPage, currentLanguage)} style={{marginLeft: '8px', fontSize: '12px'}}>Copy</button>
               </p>
             </div>
             <div>
@@ -652,7 +803,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                       width: '100%',
                       padding: '10px',
                       marginTop: '5px',
-                      
+
                       border: '1px solid #cbd5e1'
                     }}
                   >
@@ -677,7 +828,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                       style={{
                         width: '60px',
                         height: '40px',
-                        
+
                         border: '1px solid #cbd5e1',
                         cursor: 'pointer'
                       }}
@@ -690,7 +841,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                       style={{
                         flex: 1,
                         padding: '10px',
-                        
+
                         border: '1px solid #cbd5e1'
                       }}
                     />
@@ -725,7 +876,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                       width: '100%',
                       padding: '10px',
                       marginTop: '5px',
-                      
+
                       border: '1px solid #cbd5e1',
                       fontFamily: 'inherit',
                       resize: 'vertical'
@@ -749,7 +900,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                       width: '100%',
                       padding: '10px',
                       marginTop: '5px',
-                      
+
                       border: '1px solid #cbd5e1'
                     }}
                   />
@@ -767,6 +918,48 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
             cmsData={cmsData}
           />
         </div>
+        {duplicateModalOpen && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 2100
+          }}>
+            <div style={{
+              backgroundColor: 'white',
+              padding: '30px',
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+              maxWidth: '400px',
+              width: '90%'
+            }}>
+              <h2 style={{ marginTop: 0, marginBottom: '15px', fontSize: '1.25rem' }}>Duplicate Page</h2>
+              <p style={{ marginBottom: '25px', color: '#64748b' }}>
+                Are you sure you want to duplicate this page? The new page will have a unique slug and ID.
+              </p>
+              <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                <button onClick={() => setDuplicateModalOpen(false)} style={{
+                  padding: '8px 16px',
+                  border: '1px solid #cbd5e1',
+                  backgroundColor: 'white',
+                  cursor: 'pointer'
+                }}>Cancel</button>
+                <button onClick={confirmDuplicatePage} style={{
+                  padding: '8px 16px',
+                  border: 'none',
+                  backgroundColor: '#0002ff',
+                  color: 'white',
+                  cursor: 'pointer'
+                }}>Duplicate</button>
+              </div>
+            </div>
+          </div>
+        )}
       </section>
     );
   }
@@ -783,7 +976,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
             onChange={(e) => setSearchQuery(e.target.value)}
             style={{
               padding: '8px 12px',
-              
+
               border: '1px solid #cbd5e1',
               marginRight: '10px',
               width: '200px'
@@ -802,10 +995,18 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                   <button onClick={() => { setAssignGroupModalOpen(true); setMassActionsOpen(false); }} className="mass-actions-dropdown-button">
                     Assign to Group
                   </button>
+                  <button onClick={() => { setBulkEditModalOpen(true); setMassActionsOpen(false); }} className="mass-actions-dropdown-button">
+                    Bulk Edit
+                  </button>
+                  <button onClick={() => { setExportModalOpen(true); setMassActionsOpen(false); }} className="mass-actions-dropdown-button">
+                    Export Selected
+                  </button>
                 </div>
               )}
             </div>
           )}
+          <button onClick={() => setExportModalOpen(true)} style={{marginRight: '10px'}}>Export All</button>
+          <button onClick={() => setImportModalOpen(true)} style={{marginRight: '10px'}}>Import</button>
           <a href="#" onClick={(e) => { e.preventDefault(); handleAddPage(); }} className="highlighted">+ Add Page</a>
         </div>
       </header>
@@ -844,7 +1045,14 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
               <tr key={page.id} className={page.id === currentPageId ? 'active' : ''}>
                 <td><input type="checkbox" onChange={(e) => handleSelectPage(e, page.id)} checked={selectedPages.includes(page.id)} /></td>
                 {(settings?.languages || [{ code: 'en', name: 'English' }]).map(lang => (
-                  <td key={lang.code}>{getLocalizedContent(page, lang.code).title}</td>
+                  <td key={lang.code}>
+                    {getLocalizedContent(page, lang.code).title}
+                    <button
+                      onClick={() => handleCopyUrl(page, lang.code)}
+                      style={{marginLeft: '5px', fontSize: '11px'}}
+                      title="Copy page URL"
+                    >🔗</button>
+                  </td>
                 ))}
                 <td>{page.slug}</td>
                 <td>
@@ -861,6 +1069,8 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                 <td>
                   <button onClick={() => navigate(`/cms/pages/edit?id=${page.id}`)}>Edit</button>
                   <button onClick={() => handleDeleteClick(page.id)}>Delete</button>
+                  <button onClick={() => handleDuplicatePage(page)}>Duplicate</button>
+                  <button onClick={() => handleExportPages([page])}>Export</button>
                 </td>
               </tr>
             ))}
@@ -937,7 +1147,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
           <div style={{
             backgroundColor: 'white',
             padding: '30px',
-            
+
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
             maxWidth: '400px',
             width: '90%'
@@ -949,20 +1159,229 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
               <button onClick={handleCancelDelete} style={{
                 padding: '8px 16px',
-                
+
                 border: '1px solid #cbd5e1',
                 backgroundColor: 'white',
                 cursor: 'pointer'
               }}>Cancel</button>
               <button onClick={handleConfirmDelete} style={{
                 padding: '8px 16px',
-                
+
                 border: 'none',
                 backgroundColor: '#ef4444',
                 color: 'white',
                 cursor: 'pointer'
               }}>Delete</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {exportModalOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.3)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1100
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            padding: '30px',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+            maxWidth: '350px',
+            width: '90%',
+            textAlign: 'center'
+          }}>
+            <h2 style={{ marginTop: 0, marginBottom: '15px', fontSize: '1.1rem' }}>Export Pages</h2>
+            <p style={{ marginBottom: '25px', color: '#64748b' }}>
+              {selectedPages.length > 0
+                ? `Export ${selectedPages.length} selected page(s) as JSON?`
+                : 'Export all pages as JSON?'}
+            </p>
+            <button onClick={handleExportPages} style={{
+              padding: '8px 16px',
+              border: 'none',
+              backgroundColor: '#0002ff',
+              color: 'white',
+              cursor: 'pointer',
+              marginRight: '10px'
+            }}>Export</button>
+            <button onClick={() => setExportModalOpen(false)} style={{
+              padding: '8px 16px',
+              border: '1px solid #cbd5e1',
+              backgroundColor: 'white',
+              cursor: 'pointer'
+            }}>Cancel</button>
+          </div>
+        </div>
+      )}
+
+      {importModalOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.3)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1100
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            padding: '30px',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+            maxWidth: '350px',
+            width: '90%',
+            textAlign: 'center'
+          }}>
+            <h2 style={{ marginTop: 0, marginBottom: '15px', fontSize: '1.1rem' }}>Import Pages</h2>
+            <p style={{ marginBottom: '25px', color: '#64748b' }}>
+              Import pages from a JSON file. Existing pages will not be overwritten.
+            </p>
+            <input
+              type="file"
+              accept=".json"
+              onChange={handleImportPages}
+              style={{ marginBottom: '10px' }}
+            />
+            {importError && <div style={{ color: 'red', marginBottom: '10px' }}>{importError}</div>}
+            <button onClick={() => setImportModalOpen(false)} style={{
+              padding: '8px 16px',
+              border: '1px solid #cbd5e1',
+              backgroundColor: 'white',
+              cursor: 'pointer'
+            }}>Close</button>
+          </div>
+        </div>
+      )}
+
+      {duplicateModalOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 2100
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            padding: '30px',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+            maxWidth: '400px',
+            width: '90%'
+          }}>
+            <h2 style={{ marginTop: 0, marginBottom: '15px', fontSize: '1.25rem' }}>Duplicate Page</h2>
+            <p style={{ marginBottom: '25px', color: '#64748b' }}>
+              Are you sure you want to duplicate this page? The new page will have a unique slug and ID.
+            </p>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <button onClick={() => setDuplicateModalOpen(false)} style={{
+                padding: '8px 16px',
+                border: '1px solid #cbd5e1',
+                backgroundColor: 'white',
+                cursor: 'pointer'
+              }}>Cancel</button>
+              <button onClick={confirmDuplicatePage} style={{
+                padding: '8px 16px',
+                border: 'none',
+                backgroundColor: '#0002ff',
+                color: 'white',
+                cursor: 'pointer'
+              }}>Duplicate</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {bulkEditModalOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.3)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1200
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            padding: '30px',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+            maxWidth: '350px',
+            width: '90%',
+            textAlign: 'center'
+          }}>
+            <h2 style={{ marginTop: 0, marginBottom: '15px', fontSize: '1.1rem' }}>Bulk Edit Pages</h2>
+            <p style={{ marginBottom: '25px', color: '#64748b' }}>
+              Set a field for {selectedPages.length} selected page(s).
+            </p>
+            <div style={{ marginBottom: '15px' }}>
+              <label>
+                Field:&nbsp;
+                <select value={bulkEditField} onChange={e => setBulkEditField(e.target.value)}>
+                  <option value="includeInMenu">Include in Menu</option>
+                  <option value="sitemapPriority">Sitemap Priority</option>
+                  {/* Add more bulk-editable fields here */}
+                </select>
+              </label>
+            </div>
+            {bulkEditField === 'includeInMenu' && (
+              <div style={{ marginBottom: '15px' }}>
+                <label>
+                  Value:&nbsp;
+                  <select value={bulkEditValue ? 'true' : 'false'} onChange={e => setBulkEditValue(e.target.value === 'true')}>
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
+                  </select>
+                </label>
+              </div>
+            )}
+            {bulkEditField === 'sitemapPriority' && (
+              <div style={{ marginBottom: '15px' }}>
+                <label>
+                  Value:&nbsp;
+                  <input
+                    type="number"
+                    min="0"
+                    max="1"
+                    step="0.1"
+                    value={bulkEditValue}
+                    onChange={e => setBulkEditValue(parseFloat(e.target.value))}
+                  />
+                </label>
+              </div>
+            )}
+            <button onClick={handleBulkEdit} style={{
+              padding: '8px 16px',
+              border: 'none',
+              backgroundColor: '#0002ff',
+              color: 'white',
+              cursor: 'pointer',
+              marginRight: '10px'
+            }}>Apply</button>
+            <button onClick={() => setBulkEditModalOpen(false)} style={{
+              padding: '8px 16px',
+              border: '1px solid #cbd5e1',
+              backgroundColor: 'white',
+              cursor: 'pointer'
+            }}>Cancel</button>
           </div>
         </div>
       )}
