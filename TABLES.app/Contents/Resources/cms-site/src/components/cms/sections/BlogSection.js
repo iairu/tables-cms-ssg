@@ -371,7 +371,7 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
                             
                             cursor: 'pointer',
                             backgroundColor: selectedHistoryIndex === actualIndex ? '#e0e7ff' : '#f1f5f9',
-                            border: selectedHistoryIndex === actualIndex ? '2px solid #0002ff' : '2px solid transparent'
+                            border: selectedHistoryIndex === actualIndex ? '2px solid #1d4ed8' : '2px solid transparent'
                           }}
                         >
                           <strong>{new Date(item.timestamp).toLocaleString('ja-JP')}</strong>
@@ -494,7 +494,7 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
                       padding: '8px 16px',
                       
                       border: 'none',
-                      backgroundColor: '#0002ff',
+                      backgroundColor: '#1d4ed8',
                       color: 'white',
                       cursor: 'pointer'
                     }}>Rollback to this version</button>
@@ -527,7 +527,7 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
                   width: '14px',
                   height: '14px',
                   border: '2px solid #e2e8f0',
-                  borderTopColor: '#0002ff',
+                  borderTopColor: '#1d4ed8',
                   
                   animation: 'spin 0.6s linear infinite'
                 }}></div>

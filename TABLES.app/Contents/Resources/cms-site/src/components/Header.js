@@ -444,7 +444,7 @@ const Header = memo(({
     searchResultIcon: {
       width: '20px',
       textAlign: 'center',
-      color: '#06c',
+      color: '#1d4ed8',
       fontSize: '14px',
       zIndex: 2001
     },

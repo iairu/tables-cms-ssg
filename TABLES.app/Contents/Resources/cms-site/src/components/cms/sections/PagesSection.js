@@ -545,7 +545,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
 
                             cursor: 'pointer',
                             backgroundColor: selectedHistoryIndex === actualIndex ? '#e0e7ff' : '#f1f5f9',
-                            border: selectedHistoryIndex === actualIndex ? '2px solid #0002ff' : '2px solid transparent'
+                            border: selectedHistoryIndex === actualIndex ? '2px solid #1d4ed8' : '2px solid transparent'
                           }}
                         >
                           <strong>{new Date(item.timestamp).toLocaleString('ja-JP')}</strong>
@@ -621,7 +621,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                       padding: '8px 16px',
 
                       border: 'none',
-                      backgroundColor: '#0002ff',
+                      backgroundColor: '#1d4ed8',
                       color: 'white',
                       cursor: 'pointer'
                     }}>Rollback to this version</button>
@@ -823,7 +823,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                   <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: '5px' }}>
                     <input
                       type="color"
-                      value={currentPage.buttonLinkColor || '#0002ff'}
+                      value={currentPage.buttonLinkColor || '#1d4ed8'}
                       onChange={(e) => updatePage(currentPage.id, { buttonLinkColor: e.target.value })}
                       style={{
                         width: '60px',
@@ -837,7 +837,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                       type="text"
                       value={currentPage.buttonLinkColor || ''}
                       onChange={(e) => updatePage(currentPage.id, { buttonLinkColor: e.target.value })}
-                      placeholder="#0002ff"
+                      placeholder="#1d4ed8"
                       style={{
                         flex: 1,
                         padding: '10px',
@@ -952,7 +952,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                 <button onClick={confirmDuplicatePage} style={{
                   padding: '8px 16px',
                   border: 'none',
-                  backgroundColor: '#0002ff',
+                  backgroundColor: '#1d4ed8',
                   color: 'white',
                   cursor: 'pointer'
                 }}>Duplicate</button>
@@ -1122,7 +1122,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
               <button onClick={handleAssignToGroup} style={{
                 padding: '8px 16px',
                 border: 'none',
-                backgroundColor: '#0002ff',
+                backgroundColor: '#1d4ed8',
                 color: 'white',
                 cursor: 'pointer'
               }}>Assign</button>
@@ -1207,7 +1207,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
             <button onClick={handleExportPages} style={{
               padding: '8px 16px',
               border: 'none',
-              backgroundColor: '#0002ff',
+              backgroundColor: '#1d4ed8',
               color: 'white',
               cursor: 'pointer',
               marginRight: '10px'
@@ -1298,7 +1298,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
               <button onClick={confirmDuplicatePage} style={{
                 padding: '8px 16px',
                 border: 'none',
-                backgroundColor: '#0002ff',
+                backgroundColor: '#1d4ed8',
                 color: 'white',
                 cursor: 'pointer'
               }}>Duplicate</button>
@@ -1371,7 +1371,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
             <button onClick={handleBulkEdit} style={{
               padding: '8px 16px',
               border: 'none',
-              backgroundColor: '#0002ff',
+              backgroundColor: '#1d4ed8',
               color: 'white',
               cursor: 'pointer',
               marginRight: '10px'

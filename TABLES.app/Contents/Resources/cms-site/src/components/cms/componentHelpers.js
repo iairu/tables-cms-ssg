@@ -47,7 +47,7 @@ export const renderIconPicker = (value, handleChange) => {
           style={{
             padding: '5px 10px',
             border: '1px solid #cbd5e1',
-            background: value === emoji ? '#0002ff' : 'white',
+            background: value === emoji ? '#1d4ed8' : 'white',
             cursor: 'pointer',
             fontSize: '18px'
           }}
@@ -63,7 +63,7 @@ export const renderIconPicker = (value, handleChange) => {
           style={{
             padding: '5px 10px',
             border: '1px solid #cbd5e1',
-            background: value === icon ? '#0002ff' : 'white',
+            background: value === icon ? '#1d4ed8' : 'white',
             cursor: 'pointer',
             fontSize: '18px'
           }}

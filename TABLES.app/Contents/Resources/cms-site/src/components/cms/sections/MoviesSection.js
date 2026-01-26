@@ -267,7 +267,7 @@ const MoviesSection = ({ cmsData }) => {
         }}
       >
         <div>
-          <h2 style={{ margin: 0, fontSize: '1.3rem', color: '#0002ff', fontWeight: 600 }}>Add a new movie</h2>
+          <h2 style={{ margin: 0, fontSize: '1.3rem', color: '#1d4ed8', fontWeight: 600 }}>Add a new movie</h2>
           <p style={{ margin: '8px 0 0 0', color: '#64748b', fontSize: '1rem' }}>
             You can add a movie manually or search OMDb to add from their database.
           </p>
@@ -279,7 +279,7 @@ const MoviesSection = ({ cmsData }) => {
             className="highlighted"
             style={{
               padding: '10px 22px',
-              background: '#0002ff',
+              background: '#1d4ed8',
               color: 'white',
               fontWeight: 500,
               fontSize: '1rem',
@@ -317,7 +317,7 @@ const MoviesSection = ({ cmsData }) => {
             style={{
               padding: '10px 20px',
               border: 'none',
-              backgroundColor: '#0002ff',
+              backgroundColor: '#1d4ed8',
               color: 'white',
               cursor: 'pointer',
               fontWeight: 500,
@@ -688,7 +688,7 @@ const MoviesSection = ({ cmsData }) => {
               gap: '18px'
             }}
           >
-            <h2 style={{ marginTop: 0, marginBottom: '10px', fontSize: '1.25rem', fontWeight: 600, color: '#0002ff' }}>Add Movie</h2>
+            <h2 style={{ marginTop: 0, marginBottom: '10px', fontSize: '1.25rem', fontWeight: 600, color: '#1d4ed8' }}>Add Movie</h2>
             <label style={{ display: 'block', marginBottom: '8px' }}>
               <span style={{ fontWeight: 500 }}>Title:</span>
               <input
@@ -834,7 +834,7 @@ const MoviesSection = ({ cmsData }) => {
                 style={{
                   padding: '10px 18px',
                   border: 'none',
-                  backgroundColor: '#0002ff',
+                  backgroundColor: '#1d4ed8',
                   color: 'white',
                   cursor: 'pointer',
                   fontWeight: 500,

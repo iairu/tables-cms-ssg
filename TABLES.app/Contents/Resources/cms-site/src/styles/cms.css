@@ -108,11 +108,11 @@ aside.side-menu a {
 
 aside.side-menu a:hover {
   background: rgba(0, 0, 0, 0.04);
-  color: #06c;
+  color: #1d4ed8;
 }
 
 aside.side-menu a.active {
-  background: #06c;
+  background: #1d4ed8;
   color: #ffffff;
   font-weight: 500;
   box-shadow: 0 2px 8px rgba(0, 102, 204, 0.25);
@@ -175,7 +175,7 @@ header h1 input {
 }
 
 header h1 input:focus {
-  border-bottom-color: #06c;
+  border-bottom-color: #1d4ed8;
 }
 
 input, select {
@@ -184,7 +184,7 @@ input, select {
 }
 
 input:focus, select:focus {
-  border-color: #06c !important;
+  border-color: #1d4ed8 !important;
   outline: none;
   box-shadow: 0 0 0 4px rgba(0, 102, 204, 0.1);
 }
@@ -227,9 +227,9 @@ input:focus, select:focus {
 
 .adjustment-buttons a.highlighted,
 .adjustment-buttons button.highlighted {
-  background: #06c;
+  background: #1d4ed8;
   color: #ffffff;
-  border-color: #06c;
+  border-color: #1d4ed8;
   box-shadow: 0 2px 8px rgba(0, 102, 204, 0.3);
 }
 
@@ -291,7 +291,7 @@ input:focus, select:focus {
 .component-table-container input:focus,
 .component-table-container textarea:focus,
 .component-table-container select:focus {
-  border-color: #06c;
+  border-color: #1d4ed8;
   box-shadow: 0 0 0 4px rgba(0, 102, 204, 0.1);
 }
 
@@ -386,7 +386,7 @@ label {
 .add-cat-btn,
 .add-component-btn,
 .add-component-field-btn {
-  background: #06c;
+  background: #1d4ed8;
   color: #ffffff;
   border: none;
   padding: 10px 20px;
@@ -568,11 +568,11 @@ label {
 
 .blog-article-link:hover {
   background: rgba(0, 102, 204, 0.08);
-  color: #06c;
+  color: #1d4ed8;
 }
 
 .blog-article-link.active {
-  background: #06c;
+  background: #1d4ed8;
   font-weight: 500;
   color: #ffffff;
   box-shadow: 0 2px 8px rgba(0, 102, 204, 0.25);
@@ -718,7 +718,7 @@ label {
 
 .page-history-item:hover {
   background: rgba(0, 102, 204, 0.08);
-  color: #06c;
+  color: #1d4ed8;
 }
 
 .page-history-preview {
@@ -746,7 +746,7 @@ label {
 }
 
 .page-history-rollback {
-  background: #06c;
+  background: #1d4ed8;
   color: #ffffff;
   border: none;
   padding: 8px 20px;
@@ -809,7 +809,7 @@ a:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid #06c;
+  outline: 2px solid #1d4ed8;
   outline-offset: 2px;
 }
 
