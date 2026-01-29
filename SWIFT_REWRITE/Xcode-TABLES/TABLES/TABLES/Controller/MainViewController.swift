@@ -17,7 +17,8 @@ class MainViewController: NSViewController, SidebarViewControllerDelegate {
 
         // Setup sidebar
         let sidebarItem = NSSplitViewItem(sidebarWithViewController: sidebarViewController)
-        sidebarItem.canbeResized = false
+        // Prevent the sidebar from being resized by the user or window resizing.
+        sidebarItem.holdingPriority = .defaultHigh
         splitViewController.addSplitViewItem(sidebarItem)
 
         // Setup content

@@ -24,10 +24,15 @@ class BoxesEditorViewController: NSViewController, ComponentEditor, NSTableViewD
         let scrollView = NSScrollView()
         scrollView.documentView = tableView
         
-        let buttonStack = NSStackView(orientation: .horizontal, NSButton(title: "Add", target: self, action: #selector(addBox)), NSButton(title: "Remove", target: self, action: #selector(removeBox)))
+        let addButton = NSButton(title: "Add", target: self, action: #selector(addBox))
+        let removeButton = NSButton(title: "Remove", target: self, action: #selector(removeBox))
+        let buttonStack = NSStackView(views: [addButton, removeButton])
+        buttonStack.orientation = .horizontal
+        
         let saveButton = NSButton(title: "Save", target: self, action: #selector(save))
         
-        let mainStack = NSStackView(orientation: .vertical, buttonStack, scrollView, saveButton)
+        let mainStack = NSStackView(views: [buttonStack, scrollView, saveButton])
+        mainStack.orientation = .vertical
         mainStack.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(mainStack)
         

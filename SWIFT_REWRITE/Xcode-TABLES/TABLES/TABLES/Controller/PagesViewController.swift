@@ -49,6 +49,11 @@ class PagesViewController: NSViewController, NSTableViewDataSource, NSTableViewD
         loadPages()
     }
     
+    override func viewWillAppear() {
+        super.viewWillAppear()
+        loadPages()
+    }
+    
     private func loadPages() {
         pages = DataStore.shared.pages
         tableView.reloadData()

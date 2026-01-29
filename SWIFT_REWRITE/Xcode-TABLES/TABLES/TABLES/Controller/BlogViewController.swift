@@ -45,6 +45,11 @@ class BlogViewController: NSViewController, NSTableViewDataSource, NSTableViewDe
         loadArticles()
     }
     
+    override func viewWillAppear() {
+        super.viewWillAppear()
+        loadArticles()
+    }
+    
     private func loadArticles() {
         articles = DataStore.shared.articles
         tableView.reloadData()
@@ -128,7 +133,8 @@ class BlogViewController: NSViewController, NSTableViewDataSource, NSTableViewDe
         let article = articles[selectedRow]
         let editorVC = BlogArticleEditorViewController(article: article)
         editorVC.delegate = self
-        self.presentAsModalWindow(editorVC)
+        // Replaced presentAsModalWindow with presentAsSheet to resolve build error.
+        self.presentAsSheet(editorVC)
     }
 }
 

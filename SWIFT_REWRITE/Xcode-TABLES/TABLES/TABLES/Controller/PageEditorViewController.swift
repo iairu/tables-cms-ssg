@@ -194,7 +194,8 @@ class PageEditorViewController: NSViewController, NSTableViewDataSource, NSTable
         guard let viewController = editor as? NSViewController else {
             fatalError("Editor must be a NSViewController")
         }
-        self.presentAsModalWindow(viewController)
+        // Replaced presentAsModalWindow with presentAsSheet to resolve build error.
+        self.presentAsSheet(viewController)
     }
     
     @objc private func savePage() {
