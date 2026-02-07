@@ -189,8 +189,9 @@ const SettingsSection = ({ cmsData }) => {
 
   const LockedInputWrapper = ({ fieldId, children }) => {
     const lock = collabState?.activeLocks?.find(l => l.fieldId === fieldId);
-    // Check if it's my lock? We need a way to know. 
-    // For now, show indicator if locked.
+
+    // Determine if locked by someone else
+    const isLockedByOther = lock && lock.socketId !== collabState.socketId;
 
     const handleFocus = () => {
       requestLock(fieldId);
@@ -213,21 +214,29 @@ const SettingsSection = ({ cmsData }) => {
             handleBlur();
             if (child.props.onBlur) child.props.onBlur(e);
           },
-          disabled: lock && lock.clientName !== collabState.clientName && lock.clientName !== connectName // heuristic
+          disabled: isLockedByOther,
+          style: {
+            ...child.props.style,
+            border: isLockedByOther ? '1px solid #e11d48' : child.props.style?.border,
+            background: isLockedByOther ? '#fff1f2' : child.props.style?.background
+          }
         })}
-        {lock && (
+        {isLockedByOther && (
           <div style={{
             position: 'absolute',
-            top: '-20px',
+            top: '-22px',
             right: '0',
             background: '#e11d48',
             color: 'white',
-            fontSize: '10px',
-            padding: '2px 6px',
-            borderRadius: '4px',
-            zIndex: 10
+            fontSize: '11px',
+            fontWeight: 'bold',
+            padding: '2px 8px',
+            borderRadius: '4px 4px 0 0',
+            zIndex: 10,
+            boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
           }}>
-            Locked by {lock.clientName}
+            <i className="fa-solid fa-lock" style={{ marginRight: '4px' }}></i>
+            Editing: {lock.clientName}
           </div>
         )}
       </div>
