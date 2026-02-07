@@ -8,6 +8,8 @@ const useCMSData = () => {
   const [collabState, setCollabState] = useState({
     isServer: false,
     isConnected: false,
+    status: 'disconnected', // disconnected, connecting, connected, error
+    error: null,
     serverIP: '',
     clientName: 'Anonymous',
     activeLocks: [], // Array of { fieldId, clientName }
@@ -526,18 +528,56 @@ const useCMSData = () => {
       socketRef.current.disconnect();
     }
 
-    const socket = io(url);
+    const socket = io(url, {
+      reconnectionAttempts: 5,
+      timeout: 10000,
+      autoConnect: true
+    });
     socketRef.current = socket;
+
+    setCollabState(prev => ({ ...prev, status: 'connecting', error: null }));
 
     socket.on('connect', () => {
       console.log('Connected to collaboration server');
-      setCollabState(prev => ({ ...prev, isConnected: true, clientName: name, socketId: socket.id }));
+      setCollabState(prev => ({
+        ...prev,
+        isConnected: true,
+        status: 'connected',
+        error: null,
+        clientName: name,
+        socketId: socket.id
+      }));
       socket.emit('register-client', { name });
     });
 
-    socket.on('disconnect', () => {
-      console.log('Disconnected from collaboration server');
-      setCollabState(prev => ({ ...prev, isConnected: false, socketId: null }));
+    socket.on('disconnect', (reason) => {
+      console.log('Disconnected from collaboration server:', reason);
+      setCollabState(prev => ({
+        ...prev,
+        isConnected: false,
+        status: 'disconnected', /* reason === 'io client disconnect' ? 'disconnected' : 'connecting' - socket.io auto-reconnects by default, so maybe 'connecting'? */
+        // actually if socket.io is reconnecting, it might be better to say 'connecting' if strictly not a manual disconnect
+        // But for UI clarity:
+        socketId: null
+      }));
+    });
+
+    socket.on('connect_error', (err) => {
+      console.error('Collaboration connection error:', err);
+      setCollabState(prev => ({
+        ...prev,
+        isConnected: false,
+        status: 'error',
+        error: `Connection failed: ${err.message}`
+      }));
+    });
+
+    socket.on('reconnect_attempt', () => {
+      setCollabState(prev => ({ ...prev, status: 'connecting', error: null }));
+    });
+
+    socket.on('reconnect_failed', () => {
+      setCollabState(prev => ({ ...prev, status: 'error', error: 'Failed to reconnect after multiple attempts.' }));
     });
 
     socket.on('initial-state', ({ locks, clients }) => {
@@ -641,6 +681,8 @@ const useCMSData = () => {
       ...prev,
       isConnected: false,
       isServer: false,
+      status: 'disconnected',
+      error: null,
       activeLocks: [],
       connectedClients: [],
       socketId: null

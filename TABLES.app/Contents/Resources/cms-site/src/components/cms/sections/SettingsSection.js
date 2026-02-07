@@ -259,6 +259,21 @@ const SettingsSection = ({ cmsData }) => {
             Collaboration
           </h2>
 
+
+          {/* Status Message Display */}
+          {collabState.status === 'error' && (
+            <div style={{ marginBottom: '15px', padding: '10px', background: '#fee2e2', border: '1px solid #ef4444', color: '#b91c1c', borderRadius: '4px', fontSize: '14px' }}>
+              <i className="fa-solid fa-circle-exclamation" style={{ marginRight: '8px' }}></i>
+              {collabState.error || 'Connection Error'}
+            </div>
+          )}
+          {collabState.status === 'connecting' && (
+            <div style={{ marginBottom: '15px', padding: '10px', background: '#e0f2fe', border: '1px solid #3b82f6', color: '#1d4ed8', borderRadius: '4px', fontSize: '14px' }}>
+              <i className="fa-solid fa-spinner fa-spin" style={{ marginRight: '8px' }}></i>
+              Connecting...
+            </div>
+          )}
+
           {!collabState.isConnected ? (
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
               <div>
@@ -346,9 +361,16 @@ const SettingsSection = ({ cmsData }) => {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <span style={{ width: '10px', height: '10px', background: '#22c55e', borderRadius: '50%', display: 'inline-block' }}></span>
+                    <span style={{
+                      width: '10px',
+                      height: '10px',
+                      background: collabState.status === 'connected' ? '#22c55e' : '#f59e0b',
+                      borderRadius: '50%',
+                      display: 'inline-block'
+                    }}></span>
                     <strong>Status:</strong>
                     {collabState.isServer ? ' Hosting Server' : ' Connected to Server'}
+                    {collabState.status !== 'connected' && <span style={{ fontSize: '12px', color: '#64748b', marginLeft: '5px' }}>({collabState.status})</span>}
                   </div>
                   {collabState.isServer && (
                     <div style={{ marginTop: '5px', fontSize: '14px' }}>
