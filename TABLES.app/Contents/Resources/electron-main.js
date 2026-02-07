@@ -1108,6 +1108,18 @@ const startServer = () => {
         log(`Cleaned up locks for disconnected user ${socket.id}`);
       }
     });
+
+    // Data Synchronization
+    socket.on('data-update', (payload) => {
+      // Broadcast to all other clients
+      socket.broadcast.emit('data-update', payload);
+    });
+
+    socket.on('sync-full-state', ({ targetSocketId, state }) => {
+      // Relay full state to the specific new client
+      io.to(targetSocketId).emit('hydrate-state', state);
+      log(`Relayed full state to ${targetSocketId}`);
+    });
   });
 
   collabServer.listen(3001, '0.0.0.0', () => {

@@ -15,7 +15,32 @@ const useCMSData = () => {
     activeLocks: [], // Array of { fieldId, clientName }
     connectedClients: [],
     socketId: null,
+    socketId: null,
     discoveredServers: [] // Array of { ip, port, name, id }
+  });
+
+  // State Refs for Socket Listeners (to avoid stale closures)
+  const dataRef = useRef({});
+  const actionsRef = useRef({});
+
+  useEffect(() => {
+    dataRef.current = {
+      collabState,
+      pages,
+      pageGroups,
+      blogArticles,
+      catRows,
+      userRows,
+      inventoryRows,
+      attendanceRows,
+      reservationRows,
+      componentRows,
+      movieList,
+      settings,
+      acl,
+      extensions
+      // Add other state as needed
+    };
   });
   // Build trigger state
   const buildTimeoutRef = useRef(null);
@@ -593,6 +618,45 @@ const useCMSData = () => {
         ...prev,
         connectedClients: [...prev.connectedClients, client]
       }));
+
+      // Host Logic: Send full state to the new client
+      const currentData = dataRef.current;
+      if (currentData.collabState && currentData.collabState.isServer) {
+        const payload = {
+          pages: currentData.pages,
+          pageGroups: currentData.pageGroups,
+          blogArticles: currentData.blogArticles,
+          catRows: currentData.catRows,
+          userRows: currentData.userRows,
+          inventoryRows: currentData.inventoryRows,
+          attendanceRows: currentData.attendanceRows,
+          reservationRows: currentData.reservationRows,
+          componentRows: currentData.componentRows,
+          movieList: currentData.movieList,
+          settings: currentData.settings,
+          acl: currentData.acl,
+          extensions: currentData.extensions
+        };
+        socket.emit('sync-full-state', { targetSocketId: client.id, state: payload });
+      }
+    });
+
+    socket.on('hydrate-state', (state) => {
+      console.log('Received full state hydration from host');
+      const actions = actionsRef.current;
+      if (state.pages) actions.savePages(state.pages, true);
+      if (state.pageGroups) actions.savePageGroups(state.pageGroups, true);
+      if (state.blogArticles) actions.saveBlogArticles(state.blogArticles, true);
+      if (state.catRows) actions.saveCatRows(state.catRows, true);
+      if (state.userRows) actions.saveUserRows(state.userRows, true);
+      if (state.inventoryRows) actions.saveInventoryRows(state.inventoryRows, true);
+      if (state.attendanceRows) actions.saveAttendanceRows(state.attendanceRows, true);
+      if (state.reservationRows) actions.saveReservationRows(state.reservationRows, true);
+      if (state.componentRows) actions.saveComponentRows(state.componentRows, true);
+      if (state.movieList) actions.saveMovieList(state.movieList, true);
+      if (state.settings) actions.saveSettings(state.settings, true);
+      if (state.acl) actions.saveAcl(state.acl, true);
+      if (state.extensions) actions.saveExtensions(state.extensions, true);
     });
 
     socket.on('client-left', (socketId) => {
@@ -627,17 +691,22 @@ const useCMSData = () => {
     });
 
     socket.on('data-update', (update) => {
-      // Handle remote data updates
-      // For now, we only support Settings updates as per request
-      if (update.type === 'settings') {
-        console.log('Received settings update:', update.data);
-        // Verify this doesn't cause a loop - usually we guard updates
-        // But for now, we just update the local state without saving to disk immediately if it's the server?
-        // Actually, 'saveSettings' writes to localStorage and triggers build.
-        // We need a way to 'quietly' update state without triggering another broadcast if we were the sender.
-        // But here we are the receiver.
-        setSettings(update.data);
-        localStorage.setItem('settings', JSON.stringify(update.data));
+      const actions = actionsRef.current;
+      // Handle various types
+      switch (update.type) {
+        case 'pages': actions.savePages(update.data, true); break;
+        case 'pageGroups': actions.savePageGroups(update.data, true); break;
+        case 'blogArticles': actions.saveBlogArticles(update.data, true); break;
+        case 'catRows': actions.saveCatRows(update.data, true); break;
+        case 'userRows': actions.saveUserRows(update.data, true); break;
+        case 'inventoryRows': actions.saveInventoryRows(update.data, true); break;
+        case 'attendanceRows': actions.saveAttendanceRows(update.data, true); break;
+        case 'reservationRows': actions.saveReservationRows(update.data, true); break;
+        case 'componentRows': actions.saveComponentRows(update.data, true); break;
+        case 'movieList': actions.saveMovieList(update.data, true); break;
+        case 'settings': actions.saveSettings(update.data, true); break;
+        case 'acl': actions.saveAcl(update.data, true); break;
+        case 'extensions': actions.saveExtensions(update.data, true); break;
       }
     });
 
@@ -719,10 +788,13 @@ const useCMSData = () => {
   }, [isBuilding, canBuild, buildCooldownSeconds]);
 
   // Save functions
-  const savePages = (newPages) => {
+  const savePages = (newPages, skipBroadcast = false) => {
     setPages(newPages);
     localStorage.setItem('pages', JSON.stringify(newPages));
     scheduleBuild();
+    if (!skipBroadcast && socketRef.current && collabState.isConnected) {
+      socketRef.current.emit('data-update', { type: 'pages', data: newPages });
+    }
   };
 
   const saveCurrentPageId = (id) => {
@@ -730,16 +802,22 @@ const useCMSData = () => {
     localStorage.setItem('currentPageId', JSON.stringify(id));
   };
 
-  const savePageGroups = (newGroups) => {
+  const savePageGroups = (newGroups, skipBroadcast = false) => {
     setPageGroups(newGroups);
     localStorage.setItem('pageGroups', JSON.stringify(newGroups));
     scheduleBuild();
+    if (!skipBroadcast && socketRef.current && collabState.isConnected) {
+      socketRef.current.emit('data-update', { type: 'pageGroups', data: newGroups });
+    }
   };
 
-  const saveBlogArticles = (articles) => {
+  const saveBlogArticles = (articles, skipBroadcast = false) => {
     setBlogArticles(articles);
     localStorage.setItem('blogArticles', JSON.stringify(articles));
     scheduleBuild();
+    if (!skipBroadcast && socketRef.current && collabState.isConnected) {
+      socketRef.current.emit('data-update', { type: 'blogArticles', data: articles });
+    }
   };
 
   const saveCurrentBlogArticleId = (id) => {
@@ -747,77 +825,135 @@ const useCMSData = () => {
     localStorage.setItem('currentBlogArticleId', JSON.stringify(id));
   };
 
-  const saveCatRows = (rows) => {
+  const saveCatRows = (rows, skipBroadcast = false) => {
     setCatRows(rows);
     localStorage.setItem('catRows', JSON.stringify(rows));
     scheduleBuild();
+    if (!skipBroadcast && socketRef.current && collabState.isConnected) {
+      socketRef.current.emit('data-update', { type: 'catRows', data: rows });
+    }
   };
 
-  const saveUserRows = (rows) => {
+  const saveUserRows = (rows, skipBroadcast = false) => {
     setUserRows(rows);
     localStorage.setItem('userRows', JSON.stringify(rows));
     scheduleBuild();
+    if (!skipBroadcast && socketRef.current && collabState.isConnected) {
+      socketRef.current.emit('data-update', { type: 'userRows', data: rows });
+    }
   };
 
-  const saveInventoryRows = (newRows) => {
+  const saveInventoryRows = (newRows, skipBroadcast = false) => {
     setInventoryRows(newRows);
     localStorage.setItem('inventoryRows', JSON.stringify(newRows));
+    if (!skipBroadcast && socketRef.current && collabState.isConnected) {
+      socketRef.current.emit('data-update', { type: 'inventoryRows', data: newRows });
+    }
   };
 
-  const saveCustomerRows = (newRows) => {
+  const saveCustomerRows = (newRows, skipBroadcast = false) => {
     setCustomerRows(newRows);
     localStorage.setItem('customerRows', JSON.stringify(newRows));
+    if (!skipBroadcast && socketRef.current && collabState.isConnected) {
+      socketRef.current.emit('data-update', { type: 'customerRows', data: newRows });
+    }
   };
 
-  const saveEmployeeRows = (newRows) => {
+  const saveEmployeeRows = (newRows, skipBroadcast = false) => {
     setEmployeeRows(newRows);
     localStorage.setItem('employeeRows', JSON.stringify(newRows));
+    if (!skipBroadcast && socketRef.current && collabState.isConnected) {
+      socketRef.current.emit('data-update', { type: 'employeeRows', data: newRows });
+    }
   };
 
-  const saveAttendanceRows = (newRows) => {
+  const saveAttendanceRows = (newRows, skipBroadcast = false) => {
     setAttendanceRows(newRows);
     localStorage.setItem('attendanceRows', JSON.stringify(newRows));
+    if (!skipBroadcast && socketRef.current && collabState.isConnected) {
+      socketRef.current.emit('data-update', { type: 'attendanceRows', data: newRows });
+    }
   };
 
-  const saveReservationRows = (newRows) => {
+  const saveReservationRows = (newRows, skipBroadcast = false) => {
     setReservationRows(newRows);
     localStorage.setItem('reservationRows', JSON.stringify(newRows));
+    if (!skipBroadcast && socketRef.current && collabState.isConnected) {
+      socketRef.current.emit('data-update', { type: 'reservationRows', data: newRows });
+    }
   };
 
-  const saveMovieList = (newList) => {
+  const saveMovieList = (newList, skipBroadcast = false) => {
     setMovieList(newList);
     localStorage.setItem('movieList', JSON.stringify(newList));
+    if (!skipBroadcast && socketRef.current && collabState.isConnected) {
+      socketRef.current.emit('data-update', { type: 'movieList', data: newList });
+    }
   };
 
-  const saveComponentRows = (rows) => {
+  const saveComponentRows = (rows, skipBroadcast = false) => {
     setComponentRows(rows);
     localStorage.setItem('componentRows', JSON.stringify(rows));
     scheduleBuild();
+    if (!skipBroadcast && socketRef.current && collabState.isConnected) {
+      socketRef.current.emit('data-update', { type: 'componentRows', data: rows });
+    }
   };
 
-  const saveSettings = (newSettings) => {
+  const saveSettings = (newSettings, skipBroadcast = false) => {
     setSettings(newSettings);
     localStorage.setItem('settings', JSON.stringify(newSettings));
     scheduleBuild();
 
     // Broadcast update if connected
-    if (socketRef.current && collabState.isConnected) {
-      // Debounce this? Or just send it. Settings updates are usually atomic.
+    if (!skipBroadcast && socketRef.current && collabState.isConnected) {
       socketRef.current.emit('data-update', { type: 'settings', data: newSettings });
     }
   };
 
-  const saveAcl = (newAcl) => {
+  const saveAcl = (newAcl, skipBroadcast = false) => {
     setAcl(newAcl);
     localStorage.setItem('acl', JSON.stringify(newAcl));
     scheduleBuild();
+    if (!skipBroadcast && socketRef.current && collabState.isConnected) {
+      socketRef.current.emit('data-update', { type: 'acl', data: newAcl });
+    }
   };
 
-  const saveExtensions = (newExtensions) => {
+  const saveExtensions = (newExtensions, skipBroadcast = false) => {
     setExtensions(newExtensions);
     localStorage.setItem('extensions', JSON.stringify(newExtensions));
     scheduleBuild();
+    if (!skipBroadcast && socketRef.current && collabState.isConnected) {
+      socketRef.current.emit('data-update', { type: 'extensions', data: newExtensions });
+    }
   };
+
+  // Sync actionsRef
+  useEffect(() => {
+    actionsRef.current = {
+      savePages,
+      savePageGroups,
+      saveBlogArticles,
+      saveCatRows,
+      saveUserRows,
+      saveInventoryRows,
+      saveCustomerRows,
+      saveEmployeeRows,
+      saveAttendanceRows,
+      saveReservationRows,
+      saveComponentRows,
+      saveMovieList,
+      saveSettings,
+      saveAcl,
+      saveExtensions
+    };
+  }, [
+    savePages, savePageGroups, saveBlogArticles, saveCatRows, saveUserRows,
+    saveInventoryRows, saveCustomerRows, saveEmployeeRows, saveAttendanceRows,
+    saveReservationRows, saveComponentRows, saveMovieList, saveSettings,
+    saveAcl, saveExtensions
+  ]);
 
   // Helper functions
   const defaultPageRows = () => {
