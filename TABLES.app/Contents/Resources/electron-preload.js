@@ -10,4 +10,8 @@ contextBridge.exposeInMainWorld('electron', {
   closeApp: () => {
     ipcRenderer.send('close-app');
   },
+  // Collaboration APIs
+  getIP: () => ipcRenderer.invoke('collab-get-ip'),
+  startServer: (port) => ipcRenderer.invoke('collab-start-server', port),
+  stopServer: () => ipcRenderer.invoke('collab-stop-server'),
 });

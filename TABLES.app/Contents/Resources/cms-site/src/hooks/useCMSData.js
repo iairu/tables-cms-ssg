@@ -1,7 +1,18 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { debounce } from '../components/cms/utils';
+import { io } from 'socket.io-client';
 
 const useCMSData = () => {
+  // Collaboration state
+  const socketRef = useRef(null);
+  const [collabState, setCollabState] = useState({
+    isServer: false,
+    isConnected: false,
+    serverIP: '',
+    clientName: 'Anonymous',
+    activeLocks: [], // Array of { fieldId, clientName }
+    connectedClients: []
+  });
   // Build trigger state
   const buildTimeoutRef = useRef(null);
   const pollIntervalRef = useRef(null);
@@ -83,10 +94,10 @@ const useCMSData = () => {
       console.log('[useCMSData] Build already in progress, skipping trigger');
       return;
     }
-    
+
     setIsBuildingState(true);
     console.log('[useCMSData] Starting new build...', localOnly ? '(local only)' : '(build and deploy)');
-    
+
     // ... (rest of the function is the same)
     const cmsData = {
       pages: JSON.parse(localStorage.getItem('pages') || '[]'),
@@ -103,10 +114,10 @@ const useCMSData = () => {
       acl: JSON.parse(localStorage.getItem('acl') || '{}'),
       extensions: JSON.parse(localStorage.getItem('extensions') || '{}')
     };
-    
+
     const vercelApiToken = cmsData.settings.vercelApiKey || '';
     const vercelProjectName = cmsData.settings.vercelProjectName || '';
-    
+
     fetch('/api/build', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -119,32 +130,32 @@ const useCMSData = () => {
         vercelProjectName: vercelProjectName
       })
     })
-    .then(res => {
-      if (res.status === 409) {
-        console.log('[useCMSData] Build already in progress on server');
+      .then(res => {
+        if (res.status === 409) {
+          console.log('[useCMSData] Build already in progress on server');
+          return res.json();
+        }
+        if (!res.ok) {
+          throw new Error(`Build trigger failed with status ${res.status}`);
+        }
         return res.json();
-      }
-      if (!res.ok) {
-        throw new Error(`Build trigger failed with status ${res.status}`);
-      }
-      return res.json();
-    })
-    .then(data => {
-      console.log('[useCMSData] Build trigger response:', data);
-      
-      // Start polling for build status
-      startPolling();
-    })
-    .catch(err => {
-      console.error('[useCMSData] Build trigger failed:', err);
-      setIsBuildingState(false);
-      if (countdownIntervalRef.current) {
-        clearInterval(countdownIntervalRef.current);
-        countdownIntervalRef.current = null;
-      }
-      setCanBuild(true);
-      setBuildCooldownSeconds(0);
-    });
+      })
+      .then(data => {
+        console.log('[useCMSData] Build trigger response:', data);
+
+        // Start polling for build status
+        startPolling();
+      })
+      .catch(err => {
+        console.error('[useCMSData] Build trigger failed:', err);
+        setIsBuildingState(false);
+        if (countdownIntervalRef.current) {
+          clearInterval(countdownIntervalRef.current);
+          countdownIntervalRef.current = null;
+        }
+        setCanBuild(true);
+        setBuildCooldownSeconds(0);
+      });
   }, [setIsBuildingState, startPolling]);
 
   // Manual trigger function (exposed to components)
@@ -152,21 +163,21 @@ const useCMSData = () => {
     // Check if we're in cooldown period (5 seconds for local, 2 minutes for deploy)
     const cooldownSeconds = localOnly ? 5 : 120;
     const cooldownMs = cooldownSeconds * 1000;
-    
+
     if (lastBuildTimeRef.current) {
       const timeSinceLastBuild = Date.now() - lastBuildTimeRef.current;
-      
+
       // if (timeSinceLastBuild < cooldownMs) {
       //   console.log('[useCMSData] Build on cooldown, please wait');
       //   return;
       // }
     }
-    
+
     console.log('[useCMSData] Manual build triggered', localOnly ? '(local only)' : '(build and deploy)');
     lastBuildTimeRef.current = Date.now();
     setCanBuild(false);
     setBuildCooldownSeconds(cooldownSeconds);
-    
+
     // Start countdown timer
     countdownIntervalRef.current = setInterval(() => {
       setBuildCooldownSeconds(prev => {
@@ -178,7 +189,7 @@ const useCMSData = () => {
         return prev - 1;
       });
     }, 1000);
-    
+
     triggerBuild(localOnly);
   }, [triggerBuild]);
 
@@ -187,7 +198,7 @@ const useCMSData = () => {
     // Automatic builds disabled - do nothing
     console.log('[useCMSData] Automatic builds disabled, skipping schedule');
     return;
-    
+
     /* DISABLED CODE:
     // Don't schedule if already building (check ref for current state)
     if (isBuildingRef.current) {
@@ -350,18 +361,18 @@ const useCMSData = () => {
     try {
       // Now, upload the new file
       const uploadResponse = await fetch('/api/upload', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ fileData, fileName: oldFilename }),
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileData, fileName: oldFilename }),
       });
 
       if (uploadResponse.ok) {
-          fetchUploads(); // Refresh the list
+        fetchUploads(); // Refresh the list
       } else {
-          console.error('Upload failed during replacement');
+        console.error('Upload failed during replacement');
       }
     } catch (error) {
-        console.error('Error replacing file:', error);
+      console.error('Error replacing file:', error);
     }
   }, [fetchUploads]);
 
@@ -373,7 +384,7 @@ const useCMSData = () => {
     if (!loadedPageGroups) {
       const homePage = loadedPages.find(p => p.slug === 'home');
       const otherPages = loadedPages.filter(p => p.slug !== 'home');
-      
+
       loadedPageGroups = [
         {
           id: 'direct-pages',
@@ -400,7 +411,7 @@ const useCMSData = () => {
     const loadedComponentRows = localStorage.getItem('componentRows');
     const loadedMovieList = localStorage.getItem('movieList');
     const loadedSettings = localStorage.getItem('settings');
-    
+
     // Initialize default languages if not present
     if (loadedSettings) {
       try {
@@ -446,11 +457,140 @@ const useCMSData = () => {
         startPolling();
       }
     }
-    
+
     fetchUploads();
     // Mark data as loaded
     setIsDataLoaded(true);
   }, [fetchUploads, setIsBuildingState, startPolling]);
+
+  // Collaboration Functions
+  const startCollaborationServer = useCallback(async () => {
+    if (!window.electron) return;
+    try {
+      const result = await window.electron.startServer(8081);
+      if (result.status === 'started' || result.status === 'already-running') {
+        console.log('Collaboration server started on', result.ip);
+
+        // Connect to local server
+        connectToCollaborationServer('http://localhost:8081', 'Host');
+
+        setCollabState(prev => ({
+          ...prev,
+          isServer: true,
+          serverIP: result.ip
+        }));
+      }
+    } catch (err) {
+      console.error('Failed to start collaboration server:', err);
+    }
+  }, []);
+
+  const connectToCollaborationServer = useCallback((url, name) => {
+    if (socketRef.current) {
+      socketRef.current.disconnect();
+    }
+
+    const socket = io(url);
+    socketRef.current = socket;
+
+    socket.on('connect', () => {
+      console.log('Connected to collaboration server');
+      setCollabState(prev => ({ ...prev, isConnected: true, clientName: name }));
+      socket.emit('register-client', { name });
+    });
+
+    socket.on('disconnect', () => {
+      console.log('Disconnected from collaboration server');
+      setCollabState(prev => ({ ...prev, isConnected: false }));
+    });
+
+    socket.on('initial-state', ({ locks, clients }) => {
+      setCollabState(prev => ({
+        ...prev,
+        activeLocks: locks.map(([fieldId, lock]) => ({ fieldId, ...lock })),
+        connectedClients: clients
+      }));
+    });
+
+    socket.on('client-joined', (client) => {
+      setCollabState(prev => ({
+        ...prev,
+        connectedClients: [...prev.connectedClients, client]
+      }));
+    });
+
+    socket.on('client-left', (socketId) => {
+      setCollabState(prev => ({
+        ...prev,
+        connectedClients: prev.connectedClients.filter(c => c.id !== socketId)
+      }));
+    });
+
+    socket.on('lock-update', ({ fieldId, status, clientName, socketId }) => {
+      setCollabState(prev => {
+        let newLocks = [...prev.activeLocks];
+        if (status === 'locked') {
+          // Remove existing lock for this field if any (shouldn't happen but safe)
+          newLocks = newLocks.filter(l => l.fieldId !== fieldId);
+          newLocks.push({ fieldId, clientName, socketId });
+        } else {
+          newLocks = newLocks.filter(l => l.fieldId !== fieldId);
+        }
+        return { ...prev, activeLocks: newLocks };
+      });
+    });
+
+    socket.on('data-update', (update) => {
+      // Handle remote data updates
+      // For now, we only support Settings updates as per request
+      if (update.type === 'settings') {
+        console.log('Received settings update:', update.data);
+        // Verify this doesn't cause a loop - usually we guard updates
+        // But for now, we just update the local state without saving to disk immediately if it's the server?
+        // Actually, 'saveSettings' writes to localStorage and triggers build.
+        // We need a way to 'quietly' update state without triggering another broadcast if we were the sender.
+        // But here we are the receiver.
+        setSettings(update.data);
+        localStorage.setItem('settings', JSON.stringify(update.data));
+      }
+    });
+
+  }, []);
+
+  const disconnectCollaboration = useCallback(() => {
+    if (socketRef.current) {
+      socketRef.current.disconnect();
+      socketRef.current = null;
+    }
+    if (collabState.isServer && window.electron) {
+      window.electron.stopServer();
+    }
+    setCollabState(prev => ({
+      ...prev,
+      isConnected: false,
+      isServer: false,
+      activeLocks: [],
+      connectedClients: []
+    }));
+  }, [collabState.isServer]);
+
+  const requestLock = useCallback((fieldId) => {
+    if (socketRef.current && collabState.isConnected) {
+      socketRef.current.emit('request-lock', { fieldId, clientName: collabState.clientName });
+    }
+  }, [collabState.isConnected, collabState.clientName]);
+
+  const releaseLock = useCallback((fieldId) => {
+    if (socketRef.current && collabState.isConnected) {
+      socketRef.current.emit('release-lock', { fieldId });
+    }
+  }, [collabState.isConnected]);
+
+  const broadcastSettingsUpdate = useCallback((newSettings) => {
+    if (socketRef.current && collabState.isConnected) {
+      socketRef.current.emit('data-update', { type: 'settings', data: newSettings });
+    }
+  }, [collabState.isConnected]);
 
   // Save build state to localStorage
   useEffect(() => {
@@ -544,6 +684,12 @@ const useCMSData = () => {
     setSettings(newSettings);
     localStorage.setItem('settings', JSON.stringify(newSettings));
     scheduleBuild();
+
+    // Broadcast update if connected
+    if (socketRef.current && collabState.isConnected) {
+      // Debounce this? Or just send it. Settings updates are usually atomic.
+      socketRef.current.emit('data-update', { type: 'settings', data: newSettings });
+    }
   };
 
   const saveAcl = (newAcl) => {
@@ -575,23 +721,23 @@ const useCMSData = () => {
 
     const translations = {};
     if (settings && settings.languages) {
-        settings.languages.forEach(lang => {
-            let title;
-            switch(lang.code) {
-                case 'sk':
-                    title = skTitle;
-                    break;
-                case 'en':
-                default:
-                    title = enTitle;
-                    break;
-            }
-            translations[lang.code] = {
-                title: title,
-                slug: initialData.slug || `new-page-${newId}`,
-                rows: defaultPageRows(),
-            };
-        });
+      settings.languages.forEach(lang => {
+        let title;
+        switch (lang.code) {
+          case 'sk':
+            title = skTitle;
+            break;
+          case 'en':
+          default:
+            title = enTitle;
+            break;
+        }
+        translations[lang.code] = {
+          title: title,
+          slug: initialData.slug || `new-page-${newId}`,
+          rows: defaultPageRows(),
+        };
+      });
     }
 
     const defaultLang = settings?.defaultLang || 'en';
@@ -709,7 +855,7 @@ const useCMSData = () => {
     deletePage,
     updatePage,
     defaultPageRows,
-    
+
     // Blog
     blogArticles,
     currentBlogArticleId,
@@ -718,7 +864,7 @@ const useCMSData = () => {
     addBlogArticle,
     deleteBlogArticle,
     updateBlogArticle,
-    
+
     // Cats
     catRows,
     saveCatRows,
@@ -726,33 +872,33 @@ const useCMSData = () => {
     // Biometric
     userRows,
     saveUserRows,
-    
+
     // Components
     componentRows,
     saveComponentRows,
-    
+
     // Settings
     settings,
     saveSettings,
-    
+
     // ACL
     acl,
     saveAcl,
-    
+
     // Extensions
     extensions,
     saveExtensions,
-    
+
     // Build status
     isBuilding,
     lastSaved,
     manualTriggerBuild,
     canBuild,
     buildCooldownSeconds,
-    
+
     // Data loaded flag
     isDataLoaded,
-    
+
     // Rental
     inventoryRows,
     saveInventoryRows,
@@ -774,7 +920,15 @@ const useCMSData = () => {
     fetchUploads,
     uploadFile,
     deleteFile,
-    replaceFile
+    replaceFile,
+
+    // Collaboration
+    collabState,
+    startCollaborationServer,
+    connectToCollaborationServer,
+    disconnectCollaboration,
+    requestLock,
+    releaseLock
   };
 };
 

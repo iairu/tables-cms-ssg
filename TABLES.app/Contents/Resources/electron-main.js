@@ -5,6 +5,22 @@ const os = require('os');
 const fs = require('fs');
 const net = require('net');
 const AnsiToHtml = require('ansi-to-html');
+const { Server } = require('socket.io'); // Socket.io server
+const http = require('http'); // Required for Socket.io standalone
+
+// Collaboration State
+let io;
+let collabServer;
+let connectedClients = new Map(); // socketId -> clientInfo
+let activeLocks = new Map(); // fieldId -> { socketId, timestamp, clientName }
+
+const { Server } = require('socket.io'); // Socket.io server
+const http = require('http'); // Required for Socket.io standalone
+
+// Collaboration State
+// Variables declared below
+
+
 
 // NOTE: asar is disabled in package.json, allowing direct writes to the app folder
 // This means we can modify files, create directories, and store data directly in:
@@ -59,12 +75,12 @@ const handleFatalError = (error, type) => {
   log(`\n💡 Interactive console mode enabled. You can run commands below.`);
   log(`   Type commands and press Execute to run them in the cms-site directory.`);
   log(`   Close the window when done.\n`);
-  
+
   // Keep the app running in console mode instead of quitting
   if (launchWindow && !launchWindow.isDestroyed()) {
     launchWindow.setTitle('TABLES CMS - Console Mode (Error Recovery)');
   }
-  
+
   // Don't quit - let user interact with console
   return;
 };
@@ -99,7 +115,7 @@ const getResourcePath = (...pathSegments) => {
 const writableDirCache = new Set();
 const ensureWritableDir = (dirPath) => {
   if (writableDirCache.has(dirPath)) return true;
-  
+
   try {
     if (!fs.existsSync(dirPath)) {
       fs.mkdirSync(dirPath, { recursive: true, mode: 0o755 });
@@ -121,7 +137,7 @@ const createLaunchWindow = () => {
       path.join(process.resourcesPath, 'static/assets/tables-icon.png'),
       path.join(__dirname, 'static/assets/tables-icon.png')
     ];
-    
+
     log('Searching for launch window icon in paths:');
     let iconPath = undefined;
     for (const testPath of iconPaths) {
@@ -135,14 +151,14 @@ const createLaunchWindow = () => {
     if (!iconPath) {
       log('  ⚠ Warning: Icon not found at any path, window will use default icon');
     }
-    
+
     // Find preload script path that exists
     const preloadPaths = [
       getResourcePath('electron-preload.js'),
       path.join(__dirname, 'electron-preload.js'),
       path.join(process.resourcesPath, 'electron-preload.js')
     ];
-    
+
     log('Searching for preload script in paths:');
     let preloadPath = preloadPaths[0]; // Default to first path
     for (const testPath of preloadPaths) {
@@ -153,7 +169,7 @@ const createLaunchWindow = () => {
         break;
       }
     }
-    
+
     launchWindow = new BrowserWindow({
       width: 800,
       height: 400,
@@ -178,7 +194,7 @@ const createLaunchWindow = () => {
       path.join(__dirname, 'electron-launch.html'),
       path.join(process.resourcesPath, 'electron-launch.html')
     ];
-    
+
     log('Searching for launch HTML file in paths:');
     let htmlPath = 'electron-launch.html'; // Fallback
     for (const testPath of htmlPaths) {
@@ -189,7 +205,7 @@ const createLaunchWindow = () => {
         break;
       }
     }
-    
+
     launchWindow.loadFile(htmlPath);
     launchWindow.on('closed', () => {
       if (!mainWindow) {
@@ -219,7 +235,7 @@ const createMainWindow = () => {
       path.join(process.resourcesPath, 'static/assets/tables-icon.png'),
       path.join(__dirname, 'static/assets/tables-icon.png')
     ];
-    
+
     log('Searching for main window icon in paths:');
     let iconPath = undefined;
     for (const testPath of iconPaths) {
@@ -233,14 +249,14 @@ const createMainWindow = () => {
     if (!iconPath) {
       log('  ⚠ Warning: Icon not found at any path, window will use default icon');
     }
-    
+
     // Find preload script path that exists
     const preloadPaths = [
       getResourcePath('electron-preload.js'),
       path.join(__dirname, 'electron-preload.js'),
       path.join(process.resourcesPath, 'electron-preload.js')
     ];
-    
+
     log('Searching for main window preload script in paths:');
     let preloadPath = preloadPaths[0]; // Default to first path
     for (const testPath of preloadPaths) {
@@ -251,7 +267,7 @@ const createMainWindow = () => {
         break;
       }
     }
-    
+
     mainWindow = new BrowserWindow({
       width: 1200,
       height: 800,
@@ -293,15 +309,15 @@ ipcMain.on('maximize-app', () => {
 });
 
 ipcMain.on('run-command', (event, command) => {
-  const workDir = IS_PACKAGED 
+  const workDir = IS_PACKAGED
     ? path.join(getResourcePath(), 'cms-site')
     : path.join(__dirname, 'cms-site');
-  
+
   log(`\n> ${command}`);
   log(`Working directory: ${workDir}`);
-  
-  exec(command, { 
-    cwd: workDir, 
+
+  exec(command, {
+    cwd: workDir,
     maxBuffer: 10 * 1024 * 1024,
     env: { ...process.env } // Use updated PATH with our node/npm
   }, (error, stdout, stderr) => {
@@ -327,7 +343,7 @@ const checkPort = (port, host = 'localhost') => {
   return new Promise((resolve) => {
     const socket = new net.Socket();
     const timeout = 1000;
-    
+
     socket.setTimeout(timeout);
     socket.once('connect', () => {
       socket.destroy();
@@ -340,7 +356,7 @@ const checkPort = (port, host = 'localhost') => {
     socket.once('error', () => {
       resolve(false);
     });
-    
+
     socket.connect(port, host);
   });
 };
@@ -365,13 +381,13 @@ const startGatsby = () => {
       log(`Node executable will be: ${nodeExecutable}`);
       const resourcesPath = getResourcePath();
       log(`Resources path: ${resourcesPath}`);
-      
+
       // Ensure support-bin directory exists and is writable
       const supportBinDir = path.join(resourcesPath, 'support-bin');
       ensureWritableDir(supportBinDir);
       ensureWritableDir(path.join(supportBinDir, 'npm_source'));
       ensureWritableDir(path.join(supportBinDir, 'npm_source', 'bin'));
-      
+
       const binPath = path.join(supportBinDir, 'npm_source', 'bin');
       const nodePath = path.join(binPath, nodeExecutable);
       log(`Node.js path: ${nodePath}`);
@@ -379,16 +395,16 @@ const startGatsby = () => {
       log(`npm-cli.js path: ${npmCliPath}`);
       const cmsSiteDir = path.join(resourcesPath, 'cms-site');
       log(`cms-site directory: ${cmsSiteDir}`);
-      
+
       // Set PATH to include our bundled node and npm
       const originalPath = process.env.PATH || '';
       const newPath = `${binPath}${path.delimiter}${originalPath}`;
       process.env.PATH = newPath;
       log(`Updated PATH to include: ${binPath}`);
-      
+
       // Ensure cms-site is writable
       ensureWritableDir(cmsSiteDir);
-      
+
       // Try multiple paths to find the bundle script
       log('Searching for bundle-node-npm.js in paths:');
       const bundleScriptPaths = [
@@ -409,8 +425,8 @@ const startGatsby = () => {
       }
 
       if (!bundleScriptPath) {
-        const errorMsg = 'Could not find bundle-node-npm.js script at any expected location:\n' + 
-                        bundleScriptPaths.map(p => `  - ${p}`).join('\n');
+        const errorMsg = 'Could not find bundle-node-npm.js script at any expected location:\n' +
+          bundleScriptPaths.map(p => `  - ${p}`).join('\n');
         log(errorMsg);
         throw new Error(errorMsg);
       }
@@ -422,17 +438,17 @@ const startGatsby = () => {
       const utilsPath = path.join(npmSourceDir, 'lib', 'utils');
       const commandsPath = path.join(npmSourceDir, 'lib', 'commands');
       const nodeModulesPath = path.join(npmSourceDir, 'node_modules');
-      
+
       // Check if npm has all required directories including node_modules
       // Skip expensive checks if node binary doesn't exist
       let npmValid = false;
       if (fs.existsSync(nodePath)) {
-        npmValid = fs.existsSync(utilsPath) && 
-                   fs.existsSync(commandsPath) &&
-                   fs.existsSync(nodeModulesPath) &&
-                   fs.existsSync(path.join(nodeModulesPath, 'semver'));
+        npmValid = fs.existsSync(utilsPath) &&
+          fs.existsSync(commandsPath) &&
+          fs.existsSync(nodeModulesPath) &&
+          fs.existsSync(path.join(nodeModulesPath, 'semver'));
       }
-      
+
       if (!npmValid) {
         if (!fs.existsSync(nodePath)) {
           log('Node.js/npm binaries not found. Attempting to download them...');
@@ -445,11 +461,11 @@ const startGatsby = () => {
           else if (!fs.existsSync(path.join(nodeModulesPath, 'semver'))) missing.push('node_modules/semver');
           log(`Missing: ${missing.join(', ')}`);
         }
-        
+
         try {
           await setupBinaries(resourcesPath);
           log('Binaries setup completed successfully.');
-          
+
         } catch (error) {
           log('\n⚠️  Failed to setup binaries. Please check your internet connection and try again.');
           log(error.message);
@@ -460,7 +476,7 @@ const startGatsby = () => {
       } else {
         log('Binaries validated successfully.');
       }
-      
+
       const packageManager = getPackageManager(resourcesPath);
       log(`Using ${packageManager.name} for package management.`);
 
@@ -474,7 +490,7 @@ const startGatsby = () => {
           path.join(resourcesPath, 'main-site', 'package-lock.json'),
           path.join(resourcesPath, 'main-site', '.cache')
         ];
-        
+
         for (const cleanPath of pathsToClean) {
           if (fs.existsSync(cleanPath)) {
             try {
@@ -493,10 +509,10 @@ const startGatsby = () => {
         return new Promise((resolve, reject) => {
           const command = packageManager.name === 'npm' ? nodePath : packageManager.path;
           const finalArgs = packageManager.name === 'npm' ? [packageManager.path, ...args] : args;
-          
+
           log(`Executing: ${command} ${finalArgs.join(' ')}`);
           log(`Working directory: ${cmsSiteDir}`);
-          
+
           // Validate command and args exist
           if (!fs.existsSync(command)) {
             return reject(new Error(`Command executable not found: ${command}`));
@@ -504,27 +520,27 @@ const startGatsby = () => {
           if (packageManager.name === 'npm' && !fs.existsSync(packageManager.path)) {
             return reject(new Error(`npm-cli.js not found: ${packageManager.path}`));
           }
-          
+
           const spawnOptions = {
             cwd: cmsSiteDir,
-            env: { 
-              ...process.env, 
+            env: {
+              ...process.env,
               NODE_ENV: options.nodeEnv || process.env.NODE_ENV,
               NODE_PATH: path.join(npmSourceDir, 'node_modules'),
               PATH: process.env.PATH // Use updated PATH with our node/npm
             },
           };
-          
+
           const childProcess = spawn(command, finalArgs, spawnOptions);
-          
+
           childProcess.stdout.on('data', (data) => log(data.toString()));
           childProcess.stderr.on('data', (data) => log(data.toString()));
-          
+
           childProcess.on('error', (error) => {
             log(`Process error: ${error.message}`);
             reject(new Error(`Failed to spawn ${packageManager.name}: ${error.message}`));
           });
-          
+
           childProcess.on('close', async (code) => {
             if (code === 0) {
               resolve();
@@ -541,13 +557,13 @@ const startGatsby = () => {
         // Check if node_modules already exists and is valid
         const cmsSiteNodeModules = path.join(cmsSiteDir, 'node_modules');
         const packageLockPath = path.join(cmsSiteDir, 'package-lock.json');
-        
+
         if (fs.existsSync(cmsSiteNodeModules) && fs.existsSync(packageLockPath)) {
           log('node_modules and package-lock.json exist, checking validity...');
           // Try to verify it's complete by checking for key packages
           const hasGatsby = fs.existsSync(path.join(cmsSiteNodeModules, 'gatsby'));
           const hasReact = fs.existsSync(path.join(cmsSiteNodeModules, 'react'));
-          
+
           if (hasGatsby && hasReact) {
             log('node_modules appears valid, skipping install for faster startup.');
           } else {
@@ -564,7 +580,7 @@ const startGatsby = () => {
         log(`Error during ${packageManager.name} install: ${installError.message}`);
         log('Attempting cleanup and retry...');
         await cleanupOnError();
-        
+
         // Try one more time after cleanup with faster flags
         try {
           await runPkgCommand(['install', '--prefer-offline', '--no-audit', '--no-fund', '--legacy-peer-deps']);
@@ -579,12 +595,12 @@ const startGatsby = () => {
 
       log(`Running gatsby develop with ${packageManager.name}...`);
       const command = packageManager.name === 'npm' ? nodePath : packageManager.path;
-      const finalArgs = packageManager.name === 'npm' 
-        ? [packageManager.path, 'run', 'develop'] 
+      const finalArgs = packageManager.name === 'npm'
+        ? [packageManager.path, 'run', 'develop']
         : ['run', 'develop'];
-      
+
       log(`Gatsby command: ${command} ${finalArgs.join(' ')}`);
-      
+
       // Use explicit environment to force color output and proper TTY behavior
       const gatsbyEnv = {
         ...process.env,
@@ -595,16 +611,16 @@ const startGatsby = () => {
         GATSBY_LOGGER_LOG_LEVEL: 'error',
         PATH: process.env.PATH // Ensure PATH includes our node/npm
       };
-      
-      gatsbyProcess = spawn(command, finalArgs, { 
+
+      gatsbyProcess = spawn(command, finalArgs, {
         cwd: cmsSiteDir,
         env: gatsbyEnv,
         stdio: ['ignore', 'pipe', 'pipe'] // Ignore stdin, pipe stdout/stderr
       });
-      
+
       let serverReady = false;
       let readyTimeout;
-      
+
       gatsbyProcess.on('error', (error) => {
         log(`Failed to start Gatsby process: ${error.message}`);
         if (!serverReady) {
@@ -615,18 +631,18 @@ const startGatsby = () => {
       const checkOutput = (data) => {
         const output = data.toString();
         log(output);
-        
+
         // Fallback: if we see "write out requires" (one of the last steps before server start),
         // start checking the port
         if (!serverReady && output.includes('write out requires')) {
           log('Detected final build step, checking if server is starting...');
           clearTimeout(readyTimeout);
-          
+
           // Start polling the port to see when Gatsby server actually starts
           const pollPort = async () => {
             log('Waiting for Gatsby server on port 8000...');
             const isReady = await waitForPort(8000, 'localhost', 90, 2000);
-            
+
             if (isReady) {
               log('Gatsby development server is ready and accessible on port 8000.');
               serverReady = true;
@@ -646,7 +662,7 @@ const startGatsby = () => {
               }
             }
           };
-          
+
           pollPort().catch(err => {
             log(`Error while waiting for Gatsby server: ${err.message}`);
             if (!serverReady) {
@@ -654,7 +670,7 @@ const startGatsby = () => {
             }
           });
         }
-        
+
         // Also check for direct indicators that server is ready
         if (!serverReady && (
           output.includes('You can now view') ||
@@ -674,7 +690,7 @@ const startGatsby = () => {
 
       gatsbyProcess.stdout.on('data', checkOutput);
       gatsbyProcess.stderr.on('data', checkOutput);
-      
+
       gatsbyProcess.on('close', (code) => {
         clearTimeout(readyTimeout);
         if (!serverReady && code !== 0) {
@@ -699,7 +715,7 @@ app.whenReady().then(async () => {
     log(`process.resourcesPath: ${process.resourcesPath}`);
     log(`app.getAppPath(): ${app.getAppPath()}`);
     log(`App folder writable: ${ensureWritableDir(getResourcePath())}`);
-    
+
     if (process.platform === 'darwin') {
       try {
         // Try multiple icon paths for both dev and packaged scenarios
@@ -709,7 +725,7 @@ app.whenReady().then(async () => {
           path.join(process.resourcesPath, 'static', 'assets', 'tables-icon.png'),
           path.join(__dirname, 'static/assets/tables-icon.png')
         ];
-        
+
         let iconSet = false;
         for (const iconPath of iconPaths) {
           log(`  Checking: ${iconPath}`);
@@ -720,7 +736,7 @@ app.whenReady().then(async () => {
             break;
           }
         }
-        
+
         if (!iconSet) {
           log('  ⚠ Warning: Could not find dock icon at any expected path');
         }
