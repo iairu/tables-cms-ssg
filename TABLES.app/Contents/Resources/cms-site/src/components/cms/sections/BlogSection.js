@@ -4,6 +4,7 @@ import 'react-quill/dist/quill.snow.css';
 import { useLoading } from '../../../context/LoadingContext';
 import { createNavigation } from '../../../utils/navigation';
 import { fuzzyMatch } from '../utils';
+import LockedInputWrapper from '../LockedInputWrapper';
 import '../../../styles/MassActions.css';
 
 const BlogSection = ({ cmsData, edit: editModeProp }) => {
@@ -218,9 +219,9 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
 
   const saveLocalizedContent = (lang, updates) => {
     if (!currentArticle) return;
-    
+
     setIsSaving(true);
-    
+
     const translations = currentArticle.translations || {};
     const currentLangData = translations[lang] || {
       title: currentArticle.title || '',
@@ -231,16 +232,16 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
       tags: currentArticle.tags || '',
       metaDescription: ''
     };
-    
+
     translations[lang] = { ...currentLangData, ...updates };
-    
+
     // If it's the default language, also update the main fields
     if (lang === settings?.defaultLang) {
       updateBlogArticle(currentArticle.id, { ...updates, translations });
     } else {
       updateBlogArticle(currentArticle.id, { translations });
     }
-    
+
     setTimeout(() => setIsSaving(false), 800);
   };
 
@@ -330,7 +331,7 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
     const historyItem = selectedHistoryIndex !== null ? currentArticle.history[selectedHistoryIndex] : null;
     return (
       <section className="main-section active" id="blog-editor">
-      {historyModalOpen && (
+        {historyModalOpen && (
           <div style={{
             position: 'fixed',
             top: 0,
@@ -346,7 +347,7 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
             <div style={{
               backgroundColor: 'white',
               padding: '30px',
-              
+
               boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
               maxWidth: '600px',
               width: '90%',
@@ -368,14 +369,14 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
                           style={{
                             padding: '10px',
                             marginBottom: '8px',
-                            
+
                             cursor: 'pointer',
                             backgroundColor: selectedHistoryIndex === actualIndex ? '#e0e7ff' : '#f1f5f9',
                             border: selectedHistoryIndex === actualIndex ? '2px solid #1d4ed8' : '2px solid transparent'
                           }}
                         >
                           <strong>{new Date(item.timestamp).toLocaleString('ja-JP')}</strong>
-                          {item.label && <span style={{marginLeft: '10px', padding: '2px 5px', backgroundColor: '#e5e7eb', fontSize: '12px'}}>{item.label}</span>}
+                          {item.label && <span style={{ marginLeft: '10px', padding: '2px 5px', backgroundColor: '#e5e7eb', fontSize: '12px' }}>{item.label}</span>}
                           <div style={{ fontSize: '14px', color: '#64748b', marginTop: '4px' }}>
                             {item.title}
                           </div>
@@ -387,7 +388,7 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
                     <div style={{
                       padding: '15px',
                       backgroundColor: '#f9fafb',
-                      
+
                       marginBottom: '15px',
                       maxHeight: '200px',
                       overflow: 'auto'
@@ -448,7 +449,7 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
                   {selectedHistoryIndex !== null && (
                     <button onClick={handleDeleteHistoryEntry} style={{
                       padding: '8px 16px',
-                      
+
                       border: 'none',
                       backgroundColor: '#ef4444',
                       color: 'white',
@@ -458,7 +459,7 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
                   {selectedHistoryIndex !== null && (
                     <button onClick={handleDownloadHistoryEntry} style={{
                       padding: '8px 16px',
-                      
+
                       border: 'none',
                       backgroundColor: '#22c55e',
                       color: 'white',
@@ -475,8 +476,8 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
                     marginLeft: '10px'
                   }}>Import</button>
                   {selectedHistoryIndex !== null && (
-                    <div style={{marginLeft: '10px', display: 'flex'}}>
-                      <input type="text" id="history-label-input-blog" placeholder="Enter label" style={{padding: '8px', border: '1px solid #cbd5e1'}} />
+                    <div style={{ marginLeft: '10px', display: 'flex' }}>
+                      <input type="text" id="history-label-input-blog" placeholder="Enter label" style={{ padding: '8px', border: '1px solid #cbd5e1' }} />
                       <button onClick={handleLabelHistoryEntry} style={{
                         padding: '8px 16px',
                         border: 'none',
@@ -492,7 +493,7 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
                   {selectedHistoryIndex !== null && (
                     <button onClick={handleRollback} style={{
                       padding: '8px 16px',
-                      
+
                       border: 'none',
                       backgroundColor: '#1d4ed8',
                       color: 'white',
@@ -501,7 +502,7 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
                   )}
                   <button onClick={handleCloseHistory} style={{
                     padding: '8px 16px',
-                    
+
                     border: '1px solid #cbd5e1',
                     backgroundColor: 'white',
                     cursor: 'pointer'
@@ -510,7 +511,7 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
               </div>
             </div>
           </div>
-      )}
+        )}
         <header>
           <h1>
             <span>Edit Article</span>
@@ -528,7 +529,7 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
                   height: '14px',
                   border: '2px solid #e2e8f0',
                   borderTopColor: '#1d4ed8',
-                  
+
                   animation: 'spin 0.6s linear infinite'
                 }}></div>
                 Saving...
@@ -541,7 +542,7 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
               onChange={(e) => setCurrentLanguage(e.target.value)}
               style={{
                 padding: '8px 12px',
-                
+
                 border: '1px solid #cbd5e1',
                 marginRight: '10px',
                 background: 'white',
@@ -565,116 +566,130 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
             <div>
               <label style={{ display: 'block', marginBottom: '10px' }}>
                 <strong>Title ({currentLanguage}):</strong>
-                <input
-                  type="text"
-                  value={currentLangContent?.title || ''}
-                  onChange={(e) => saveLocalizedContent(currentLanguage, { title: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    marginTop: '5px',
-                    
-                    border: '1px solid #cbd5e1'
-                  }}
-                />
+                <LockedInputWrapper fieldId={`blog-${currentArticle.id}-title-${currentLanguage}`} cmsData={cmsData}>
+                  <input
+                    type="text"
+                    value={currentLangContent?.title || ''}
+                    onChange={(e) => saveLocalizedContent(currentLanguage, { title: e.target.value })}
+                    style={{
+                      width: '100%',
+                      padding: '10px',
+                      marginTop: '5px',
+
+                      border: '1px solid #cbd5e1'
+                    }}
+                  />
+                </LockedInputWrapper>
               </label>
             </div>
             <div>
               <label style={{ display: 'block', marginBottom: '10px' }}>
                 <strong>Slug:</strong>
-                <input
-                  type="text"
-                  value={currentArticle.slug || ''}
-                  onChange={e => updateBlogArticle(currentArticle.id, { slug: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    marginTop: '5px',
-                    border: '1px solid #cbd5e1'
-                  }}
-                />
+                <LockedInputWrapper fieldId={`blog-${currentArticle.id}-slug`} cmsData={cmsData}>
+                  <input
+                    type="text"
+                    value={currentArticle.slug || ''}
+                    onChange={e => updateBlogArticle(currentArticle.id, { slug: e.target.value })}
+                    style={{
+                      width: '100%',
+                      padding: '10px',
+                      marginTop: '5px',
+                      border: '1px solid #cbd5e1'
+                    }}
+                  />
+                </LockedInputWrapper>
               </label>
             </div>
             <div>
               <label style={{ display: 'block', marginBottom: '10px' }}>
                 <strong>Author ({currentLanguage}):</strong>
-                <input
-                  type="text"
-                  value={currentLangContent?.author || ''}
-                  onChange={(e) => saveLocalizedContent(currentLanguage, { author: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    marginTop: '5px',
-                    
-                    border: '1px solid #cbd5e1'
-                  }}
-                />
+                <LockedInputWrapper fieldId={`blog-${currentArticle.id}-author-${currentLanguage}`} cmsData={cmsData}>
+                  <input
+                    type="text"
+                    value={currentLangContent?.author || ''}
+                    onChange={(e) => saveLocalizedContent(currentLanguage, { author: e.target.value })}
+                    style={{
+                      width: '100%',
+                      padding: '10px',
+                      marginTop: '5px',
+
+                      border: '1px solid #cbd5e1'
+                    }}
+                  />
+                </LockedInputWrapper>
               </label>
             </div>
             <div>
               <label style={{ display: 'block', marginBottom: '10px' }}>
                 <strong>Category ({currentLanguage}):</strong>
-                <input
-                  type="text"
-                  value={currentLangContent?.category || ''}
-                  onChange={(e) => saveLocalizedContent(currentLanguage, { category: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    marginTop: '5px',
-                    
-                    border: '1px solid #cbd5e1'
-                  }}
-                  placeholder="e.g., Technology, News, Tutorial"
-                />
+                <LockedInputWrapper fieldId={`blog-${currentArticle.id}-category-${currentLanguage}`} cmsData={cmsData}>
+                  <input
+                    type="text"
+                    value={currentLangContent?.category || ''}
+                    onChange={(e) => saveLocalizedContent(currentLanguage, { category: e.target.value })}
+                    style={{
+                      width: '100%',
+                      padding: '10px',
+                      marginTop: '5px',
+
+                      border: '1px solid #cbd5e1'
+                    }}
+                    placeholder="e.g., Technology, News, Tutorial"
+                  />
+                </LockedInputWrapper>
               </label>
             </div>
             <div style={{ gridColumn: 'span 2' }}>
               <label style={{ display: 'block', marginBottom: '10px' }}>
                 <strong>Tags ({currentLanguage}):</strong>
-                <input
-                  type="text"
-                  value={currentLangContent?.tags || ''}
-                  onChange={(e) => saveLocalizedContent(currentLanguage, { tags: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    marginTop: '5px',
-                    
-                    border: '1px solid #cbd5e1'
-                  }}
-                  placeholder="e.g., javascript, react, web-development (comma-separated)"
-                />
+                <LockedInputWrapper fieldId={`blog-${currentArticle.id}-tags-${currentLanguage}`} cmsData={cmsData}>
+                  <input
+                    type="text"
+                    value={currentLangContent?.tags || ''}
+                    onChange={(e) => saveLocalizedContent(currentLanguage, { tags: e.target.value })}
+                    style={{
+                      width: '100%',
+                      padding: '10px',
+                      marginTop: '5px',
+
+                      border: '1px solid #cbd5e1'
+                    }}
+                    placeholder="e.g., javascript, react, web-development (comma-separated)"
+                  />
+                </LockedInputWrapper>
               </label>
             </div>
             <div style={{ gridColumn: 'span 2' }}>
               <label style={{ display: 'block', marginBottom: '10px' }}>
                 <strong>Meta Description ({currentLanguage}):</strong>
-                <textarea
-                  value={currentLangContent?.metaDescription || ''}
-                  onChange={(e) => saveLocalizedContent(currentLanguage, { metaDescription: e.target.value })}
-                  rows="3"
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    marginTop: '5px',
-                    
-                    border: '1px solid #cbd5e1',
-                    fontFamily: 'inherit'
-                  }}
-                  placeholder="Enter a meta description for this article"
-                />
+                <LockedInputWrapper fieldId={`blog-${currentArticle.id}-metaDescription-${currentLanguage}`} cmsData={cmsData}>
+                  <textarea
+                    value={currentLangContent?.metaDescription || ''}
+                    onChange={(e) => saveLocalizedContent(currentLanguage, { metaDescription: e.target.value })}
+                    rows="3"
+                    style={{
+                      width: '100%',
+                      padding: '10px',
+                      marginTop: '5px',
+
+                      border: '1px solid #cbd5e1',
+                      fontFamily: 'inherit'
+                    }}
+                    placeholder="Enter a meta description for this article"
+                  />
+                </LockedInputWrapper>
               </label>
             </div>
             <div>
               <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', height: '100%' }}>
-                <input
-                  type="checkbox"
-                  checked={currentArticle.highlighted || false}
-                  onChange={(e) => handleUpdateArticle(currentArticle.id, { highlighted: e.target.checked })}
-                  style={{ cursor: 'pointer', width: '18px', height: '18px' }}
-                />
+                <LockedInputWrapper fieldId={`blog-${currentArticle.id}-highlighted`} cmsData={cmsData}>
+                  <input
+                    type="checkbox"
+                    checked={currentArticle.highlighted || false}
+                    onChange={(e) => handleUpdateArticle(currentArticle.id, { highlighted: e.target.checked })}
+                    style={{ cursor: 'pointer', width: '18px', height: '18px' }}
+                  />
+                </LockedInputWrapper>
                 <strong>Highlight (Pin on Top)?</strong>
               </label>
             </div>
@@ -683,14 +698,16 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Content ({currentLanguage}):</strong>
-              <ReactQuill
-                value={currentLangContent?.content || ''}
-                onChange={(content) => saveLocalizedContent(currentLanguage, { content })}
-                style={{
-                  height: '400px',
-                  marginBottom: '50px'
-                }}
-              />
+              <LockedInputWrapper fieldId={`blog-${currentArticle.id}-content-${currentLanguage}`} cmsData={cmsData}>
+                <ReactQuill
+                  value={currentLangContent?.content || ''}
+                  onChange={(content) => saveLocalizedContent(currentLanguage, { content })}
+                  style={{
+                    height: '400px',
+                    marginBottom: '50px'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
         </div>
@@ -710,7 +727,7 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
             onChange={(e) => setSearchQuery(e.target.value)}
             style={{
               padding: '8px 12px',
-              
+
               border: '1px solid #cbd5e1',
               marginRight: '10px',
               width: '200px'
@@ -739,10 +756,10 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
             <tr>
               <th><input type="checkbox" onChange={handleSelectAll} checked={selectedArticles.length === filteredBlogArticles.length && filteredBlogArticles.length > 0} /></th>
               {(settings?.languages || [{ code: 'en', name: 'English' }]).map(lang => (
-                <th key={lang.code} onClick={() => handleSort('title', lang.code)} style={{cursor: 'pointer'}}>
+                <th key={lang.code} onClick={() => handleSort('title', lang.code)} style={{ cursor: 'pointer' }}>
                   Title ({lang.code})
                   {sortConfig.key === 'title' && sortConfig.langCode === lang.code && (
-                    <span style={{marginLeft: '5px'}}>{sortConfig.direction === 'asc' ? '🔼' : sortConfig.direction === 'desc' ? '🔽' : ''}</span>
+                    <span style={{ marginLeft: '5px' }}>{sortConfig.direction === 'asc' ? '🔼' : sortConfig.direction === 'desc' ? '🔽' : ''}</span>
                   )}
                 </th>
               ))}
@@ -750,10 +767,10 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
               <th>Date</th>
               <th>Slug</th>
               <th>Pinned?</th>
-              <th onClick={() => handleSort('lastEdited')} style={{cursor: 'pointer'}}>
+              <th onClick={() => handleSort('lastEdited')} style={{ cursor: 'pointer' }}>
                 Last Edited
                 {sortConfig.key === 'lastEdited' && (
-                  <span style={{marginLeft: '5px'}}>{sortConfig.direction === 'asc' ? '🔼' : sortConfig.direction === 'desc' ? '🔽' : ''}</span>
+                  <span style={{ marginLeft: '5px' }}>{sortConfig.direction === 'asc' ? '🔼' : sortConfig.direction === 'desc' ? '🔽' : ''}</span>
                 )}
               </th>
               <th>Actions</th>
@@ -763,29 +780,29 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
             {sortedArticles
               .map(article => {
                 return (
-                <tr key={article.id}>
-                  <td><input type="checkbox" onChange={(e) => handleSelectArticle(e, article.id)} checked={selectedArticles.includes(article.id)} /></td>
-                  {(settings?.languages || [{ code: 'en', name: 'English' }]).map(lang => (
-                    <td key={lang.code}>{getLocalizedContent(article, lang.code).title}</td>
-                  ))}
-                  <td>{getLocalizedContent(article, settings?.defaultLang || 'en').author}</td>
-                  <td>{new Date(article.date).toLocaleDateString('ja-JP')}</td>
-                  <td>{getLocalizedContent(article, settings?.defaultLang || 'en').slug}</td>
-                  <td>
-                    <input
-                      type="checkbox"
-                      checked={article.highlighted || false}
-                      onChange={(e) => updateBlogArticle(article.id, { highlighted: e.target.checked })}
-                      style={{ cursor: 'pointer' }}
-                    />
-                  </td>
-                  <td>{article.lastEdited ? new Date(article.lastEdited).toLocaleString('ja-JP') : 'Never'}</td>
-                  <td>
-                    <button onClick={() => navigate(`/cms/blog/edit?id=${article.id}`)}>Edit</button>
-                    <button onClick={() => handleDeleteClick(article.id)}>Delete</button>
-                  </td>
-                </tr>
-              );
+                  <tr key={article.id}>
+                    <td><input type="checkbox" onChange={(e) => handleSelectArticle(e, article.id)} checked={selectedArticles.includes(article.id)} /></td>
+                    {(settings?.languages || [{ code: 'en', name: 'English' }]).map(lang => (
+                      <td key={lang.code}>{getLocalizedContent(article, lang.code).title}</td>
+                    ))}
+                    <td>{getLocalizedContent(article, settings?.defaultLang || 'en').author}</td>
+                    <td>{new Date(article.date).toLocaleDateString('ja-JP')}</td>
+                    <td>{getLocalizedContent(article, settings?.defaultLang || 'en').slug}</td>
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={article.highlighted || false}
+                        onChange={(e) => updateBlogArticle(article.id, { highlighted: e.target.checked })}
+                        style={{ cursor: 'pointer' }}
+                      />
+                    </td>
+                    <td>{article.lastEdited ? new Date(article.lastEdited).toLocaleString('ja-JP') : 'Never'}</td>
+                    <td>
+                      <button onClick={() => navigate(`/cms/blog/edit?id=${article.id}`)}>Edit</button>
+                      <button onClick={() => handleDeleteClick(article.id)}>Delete</button>
+                    </td>
+                  </tr>
+                );
               })}
           </tbody>
         </table>
@@ -807,7 +824,7 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
           <div style={{
             backgroundColor: 'white',
             padding: '30px',
-            
+
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
             maxWidth: '400px',
             width: '90%'
@@ -819,14 +836,14 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
               <button onClick={handleCancelDelete} style={{
                 padding: '8px 16px',
-                
+
                 border: '1px solid #cbd5e1',
                 backgroundColor: 'white',
                 cursor: 'pointer'
               }}>Cancel</button>
               <button onClick={handleConfirmDelete} style={{
                 padding: '8px 16px',
-                
+
                 border: 'none',
                 backgroundColor: '#ef4444',
                 color: 'white',
@@ -837,7 +854,7 @@ const BlogSection = ({ cmsData, edit: editModeProp }) => {
         </div>
       )}
 
-      
+
     </section>
   );
 };

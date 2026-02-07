@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { fuzzyMatch } from '../utils';
 import FuzzySearchDropdown from '../FuzzySearchDropdown';
 import AssetManagerModal from '../AssetManagerModal';
+import LockedInputWrapper from '../LockedInputWrapper';
 
 const PersonalSection = ({ cmsData }) => {
   const { userRows, saveUserRows, uploadFile } = cmsData;
@@ -179,219 +180,259 @@ const PersonalSection = ({ cmsData }) => {
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>First Name:</strong>
-              <input
-                type="text"
-                value={editingUser.firstName || ''}
-                onChange={(e) => handleUpdateUser(editingUserIndex, 'firstName', e.target.value)}
-                style={inputStyle}
-              />
+              <LockedInputWrapper fieldId={`user-${editingUserIndex}-firstName`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingUser.firstName || ''}
+                  onChange={(e) => handleUpdateUser(editingUserIndex, 'firstName', e.target.value)}
+                  style={inputStyle}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Last Name:</strong>
-              <input
-                type="text"
-                value={editingUser.lastName || ''}
-                onChange={(e) => handleUpdateUser(editingUserIndex, 'lastName', e.target.value)}
-                style={inputStyle}
-              />
+              <LockedInputWrapper fieldId={`user-${editingUserIndex}-lastName`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingUser.lastName || ''}
+                  onChange={(e) => handleUpdateUser(editingUserIndex, 'lastName', e.target.value)}
+                  style={inputStyle}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Date of Birth:</strong>
-              <input
-                type="date"
-                value={editingUser.dateOfBirth || ''}
-                onChange={(e) => handleUpdateUser(editingUserIndex, 'dateOfBirth', e.target.value)}
-                style={inputStyle}
-              />
+              <LockedInputWrapper fieldId={`user-${editingUserIndex}-dateOfBirth`} cmsData={cmsData}>
+                <input
+                  type="date"
+                  value={editingUser.dateOfBirth || ''}
+                  onChange={(e) => handleUpdateUser(editingUserIndex, 'dateOfBirth', e.target.value)}
+                  style={inputStyle}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Gender:</strong>
-              <input
-                type="text"
-                value={editingUser.gender || ''}
-                onChange={(e) => handleUpdateUser(editingUserIndex, 'gender', e.target.value)}
-                style={inputStyle}
-              />
+              <LockedInputWrapper fieldId={`user-${editingUserIndex}-gender`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingUser.gender || ''}
+                  onChange={(e) => handleUpdateUser(editingUserIndex, 'gender', e.target.value)}
+                  style={inputStyle}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Email:</strong>
-              <input
-                type="email"
-                value={editingUser.email || ''}
-                onChange={(e) => handleUpdateUser(editingUserIndex, 'email', e.target.value)}
-                style={inputStyle}
-              />
+              <LockedInputWrapper fieldId={`user-${editingUserIndex}-email`} cmsData={cmsData}>
+                <input
+                  type="email"
+                  value={editingUser.email || ''}
+                  onChange={(e) => handleUpdateUser(editingUserIndex, 'email', e.target.value)}
+                  style={inputStyle}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Phone:</strong>
-              <input
-                type="text"
-                value={editingUser.phone || ''}
-                onChange={(e) => handleUpdateUser(editingUserIndex, 'phone', e.target.value)}
-                style={inputStyle}
-              />
+              <LockedInputWrapper fieldId={`user-${editingUserIndex}-phone`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingUser.phone || ''}
+                  onChange={(e) => handleUpdateUser(editingUserIndex, 'phone', e.target.value)}
+                  style={inputStyle}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Address:</strong>
-              <input
-                type="text"
-                value={editingUser.address || ''}
-                onChange={(e) => handleUpdateUser(editingUserIndex, 'address', e.target.value)}
-                style={inputStyle}
-              />
+              <LockedInputWrapper fieldId={`user-${editingUserIndex}-address`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingUser.address || ''}
+                  onChange={(e) => handleUpdateUser(editingUserIndex, 'address', e.target.value)}
+                  style={inputStyle}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Occupation:</strong>
-              <input
-                type="text"
-                value={editingUser.occupation || ''}
-                onChange={(e) => handleUpdateUser(editingUserIndex, 'occupation', e.target.value)}
-                style={inputStyle}
-              />
+              <LockedInputWrapper fieldId={`user-${editingUserIndex}-occupation`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingUser.occupation || ''}
+                  onChange={(e) => handleUpdateUser(editingUserIndex, 'occupation', e.target.value)}
+                  style={inputStyle}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Relationship Status:</strong>
-              <input
-                type="text"
-                value={editingUser.relationshipStatus || ''}
-                onChange={(e) => handleUpdateUser(editingUserIndex, 'relationshipStatus', e.target.value)}
-                style={inputStyle}
-              />
+              <LockedInputWrapper fieldId={`user-${editingUserIndex}-relationshipStatus`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingUser.relationshipStatus || ''}
+                  onChange={(e) => handleUpdateUser(editingUserIndex, 'relationshipStatus', e.target.value)}
+                  style={inputStyle}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Pets:</strong>
-              <input
-                type="text"
-                value={editingUser.pets || ''}
-                onChange={(e) => handleUpdateUser(editingUserIndex, 'pets', e.target.value)}
-                style={inputStyle}
-              />
+              <LockedInputWrapper fieldId={`user-${editingUserIndex}-pets`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingUser.pets || ''}
+                  onChange={(e) => handleUpdateUser(editingUserIndex, 'pets', e.target.value)}
+                  style={inputStyle}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Dietary Preferences:</strong>
-              <input
-                type="text"
-                value={editingUser.dietaryPreferences || ''}
-                onChange={(e) => handleUpdateUser(editingUserIndex, 'dietaryPreferences', e.target.value)}
-                style={inputStyle}
-              />
+              <LockedInputWrapper fieldId={`user-${editingUserIndex}-dietaryPreferences`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingUser.dietaryPreferences || ''}
+                  onChange={(e) => handleUpdateUser(editingUserIndex, 'dietaryPreferences', e.target.value)}
+                  style={inputStyle}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Travel History:</strong>
-              <textarea
-                value={editingUser.travelHistory || ''}
-                onChange={(e) => handleUpdateUser(editingUserIndex, 'travelHistory', e.target.value)}
-                style={textareaStyle}
-              />
+              <LockedInputWrapper fieldId={`user-${editingUserIndex}-travelHistory`} cmsData={cmsData}>
+                <textarea
+                  value={editingUser.travelHistory || ''}
+                  onChange={(e) => handleUpdateUser(editingUserIndex, 'travelHistory', e.target.value)}
+                  style={textareaStyle}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Emergency Contact:</strong>
-              <input
-                type="text"
-                value={editingUser.emergencyContact || ''}
-                onChange={(e) => handleUpdateUser(editingUserIndex, 'emergencyContact', e.target.value)}
-                style={inputStyle}
-              />
+              <LockedInputWrapper fieldId={`user-${editingUserIndex}-emergencyContact`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingUser.emergencyContact || ''}
+                  onChange={(e) => handleUpdateUser(editingUserIndex, 'emergencyContact', e.target.value)}
+                  style={inputStyle}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Notes:</strong>
-              <textarea
-                value={editingUser.notes || ''}
-                onChange={(e) => handleUpdateUser(editingUserIndex, 'notes', e.target.value)}
-                style={textareaStyle}
-              />
+              <LockedInputWrapper fieldId={`user-${editingUserIndex}-notes`} cmsData={cmsData}>
+                <textarea
+                  value={editingUser.notes || ''}
+                  onChange={(e) => handleUpdateUser(editingUserIndex, 'notes', e.target.value)}
+                  style={textareaStyle}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Hobbies:</strong>
-              <input
-                type="text"
-                value={editingUser.hobbies || ''}
-                onChange={(e) => handleUpdateUser(editingUserIndex, 'hobbies', e.target.value)}
-                style={inputStyle}
-              />
+              <LockedInputWrapper fieldId={`user-${editingUserIndex}-hobbies`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingUser.hobbies || ''}
+                  onChange={(e) => handleUpdateUser(editingUserIndex, 'hobbies', e.target.value)}
+                  style={inputStyle}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Interests:</strong>
-              <input
-                type="text"
-                value={editingUser.interests || ''}
-                onChange={(e) => handleUpdateUser(editingUserIndex, 'interests', e.target.value)}
-                style={inputStyle}
-              />
+              <LockedInputWrapper fieldId={`user-${editingUserIndex}-interests`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingUser.interests || ''}
+                  onChange={(e) => handleUpdateUser(editingUserIndex, 'interests', e.target.value)}
+                  style={inputStyle}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Favorite Music:</strong>
-              <input
-                type="text"
-                value={editingUser.favoriteMusic || ''}
-                onChange={(e) => handleUpdateUser(editingUserIndex, 'favoriteMusic', e.target.value)}
-                style={inputStyle}
-              />
+              <LockedInputWrapper fieldId={`user-${editingUserIndex}-favoriteMusic`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingUser.favoriteMusic || ''}
+                  onChange={(e) => handleUpdateUser(editingUserIndex, 'favoriteMusic', e.target.value)}
+                  style={inputStyle}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Favorite Movies:</strong>
-              <input
-                type="text"
-                value={editingUser.favoriteMovies || ''}
-                onChange={(e) => handleUpdateUser(editingUserIndex, 'favoriteMovies', e.target.value)}
-                style={inputStyle}
-              />
+              <LockedInputWrapper fieldId={`user-${editingUserIndex}-favoriteMovies`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingUser.favoriteMovies || ''}
+                  onChange={(e) => handleUpdateUser(editingUserIndex, 'favoriteMovies', e.target.value)}
+                  style={inputStyle}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Favorite Books:</strong>
-              <input
-                type="text"
-                value={editingUser.favoriteBooks || ''}
-                onChange={(e) => handleUpdateUser(editingUserIndex, 'favoriteBooks', e.target.value)}
-                style={inputStyle}
-              />
+              <LockedInputWrapper fieldId={`user-${editingUserIndex}-favoriteBooks`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingUser.favoriteBooks || ''}
+                  onChange={(e) => handleUpdateUser(editingUserIndex, 'favoriteBooks', e.target.value)}
+                  style={inputStyle}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Languages Spoken:</strong>
-              <input
-                type="text"
-                value={editingUser.languagesSpoken || ''}
-                onChange={(e) => handleUpdateUser(editingUserIndex, 'languagesSpoken', e.target.value)}
-                style={inputStyle}
-              />
+              <LockedInputWrapper fieldId={`user-${editingUserIndex}-languagesSpoken`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingUser.languagesSpoken || ''}
+                  onChange={(e) => handleUpdateUser(editingUserIndex, 'languagesSpoken', e.target.value)}
+                  style={inputStyle}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
         </div>
@@ -442,18 +483,18 @@ const PersonalSection = ({ cmsData }) => {
             {filteredUserRows.map((user) => {
               const actualIndex = userRows.indexOf(user);
               return (
-              <tr key={actualIndex}>
-                <td>{user.firstName}</td>
-                <td>{user.lastName}</td>
-                <td>{user.email}</td>
-                <td>{user.phone}</td>
-                <td>{user.occupation}</td>
-                <td>{user.relationshipStatus}</td>
-                <td>
-                  <button onClick={() => handleExpandUser(actualIndex)} style={{ marginRight: '5px' }}>Expand</button>
-                  <button onClick={() => handleDeleteClick(actualIndex)}>Delete</button>
-                </td>
-              </tr>
+                <tr key={actualIndex}>
+                  <td>{user.firstName}</td>
+                  <td>{user.lastName}</td>
+                  <td>{user.email}</td>
+                  <td>{user.phone}</td>
+                  <td>{user.occupation}</td>
+                  <td>{user.relationshipStatus}</td>
+                  <td>
+                    <button onClick={() => handleExpandUser(actualIndex)} style={{ marginRight: '5px' }}>Expand</button>
+                    <button onClick={() => handleDeleteClick(actualIndex)}>Delete</button>
+                  </td>
+                </tr>
               );
             })}
           </tbody>

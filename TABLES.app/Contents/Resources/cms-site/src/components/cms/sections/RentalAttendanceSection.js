@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { fuzzyMatch } from '../utils';
+import LockedInputWrapper from '../LockedInputWrapper';
 // RentalAttendanceSection
 export const RentalAttendanceSection = ({ cmsData }) => {
   const { attendanceRows, saveAttendanceRows, employeeRows } = cmsData;
@@ -70,52 +71,60 @@ export const RentalAttendanceSection = ({ cmsData }) => {
             {attendanceRows.map((row, index) => (
               <tr key={row.id}>
                 <td>
-                  <select
-                    value={row.employeeName}
-                    onChange={(e) => handleUpdateRow(index, 'employeeName', e.target.value)}
-                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
-                  >
-                    <option value="">Select Employee</option>
-                    {employeeRows.map(employee => (
-                      <option key={employee.email} value={employee.fullName}>{employee.fullName}</option>
-                    ))}
-                  </select>
+                  <LockedInputWrapper fieldId={`attendance-${row.id}-employeeName`} cmsData={cmsData}>
+                    <select
+                      value={row.employeeName}
+                      onChange={(e) => handleUpdateRow(index, 'employeeName', e.target.value)}
+                      style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
+                    >
+                      <option value="">Select Employee</option>
+                      {employeeRows.map(employee => (
+                        <option key={employee.email} value={employee.fullName}>{employee.fullName}</option>
+                      ))}
+                    </select>
+                  </LockedInputWrapper>
                 </td>
                 <td>
-                  <input
-                    type="date"
-                    value={row.date}
-                    onChange={(e) => handleUpdateRow(index, 'date', e.target.value)}
-                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
-                  />
+                  <LockedInputWrapper fieldId={`attendance-${row.id}-date`} cmsData={cmsData}>
+                    <input
+                      type="date"
+                      value={row.date}
+                      onChange={(e) => handleUpdateRow(index, 'date', e.target.value)}
+                      style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
+                    />
+                  </LockedInputWrapper>
                 </td>
                 <td>
                   <input
                     type="time"
                     value={row.timeIn}
                     readOnly
-                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1',  backgroundColor: '#f4f4f5' }}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', backgroundColor: '#f4f4f5' }}
                   />
                 </td>
                 <td>
-                  <input
-                    type="checkbox"
-                    checked={!!row.timeOut}
-                    onChange={(e) => {
-                      const newTimeOut = e.target.checked ? new Date().toTimeString().slice(0, 5) : '';
-                      handleUpdateRow(index, 'timeOut', newTimeOut);
-                    }}
-                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
-                  />
+                  <LockedInputWrapper fieldId={`attendance-${row.id}-timeOutCheck`} cmsData={cmsData}>
+                    <input
+                      type="checkbox"
+                      checked={!!row.timeOut}
+                      onChange={(e) => {
+                        const newTimeOut = e.target.checked ? new Date().toTimeString().slice(0, 5) : '';
+                        handleUpdateRow(index, 'timeOut', newTimeOut);
+                      }}
+                      style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
+                    />
+                  </LockedInputWrapper>
                 </td>
                 <td>
-                  <input
-                    type="time"
-                    value={row.timeOut}
-                    disabled={!row.timeOut}
-                    onChange={(e) => handleUpdateRow(index, 'timeOut', e.target.value)}
-                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
-                  />
+                  <LockedInputWrapper fieldId={`attendance-${row.id}-timeOut`} cmsData={cmsData}>
+                    <input
+                      type="time"
+                      value={row.timeOut}
+                      disabled={!row.timeOut}
+                      onChange={(e) => handleUpdateRow(index, 'timeOut', e.target.value)}
+                      style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
+                    />
+                  </LockedInputWrapper>
                 </td>
                 <td>
                   <button onClick={() => handleDeleteClick(index)}>Delete</button>
@@ -142,7 +151,7 @@ export const RentalAttendanceSection = ({ cmsData }) => {
           <div style={{
             backgroundColor: 'white',
             padding: '30px',
-            
+
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
             maxWidth: '400px',
             width: '90%'
@@ -154,14 +163,14 @@ export const RentalAttendanceSection = ({ cmsData }) => {
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
               <button onClick={handleCancelDelete} style={{
                 padding: '8px 16px',
-                
+
                 border: '1px solid #cbd5e1',
                 backgroundColor: 'white',
                 cursor: 'pointer'
               }}>Cancel</button>
               <button onClick={handleConfirmDelete} style={{
                 padding: '8px 16px',
-                
+
                 border: 'none',
                 backgroundColor: '#ef4444',
                 color: 'white',

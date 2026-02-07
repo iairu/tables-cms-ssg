@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { toBase64 } from '../utils';
 import AssetManagerModal from '../AssetManagerModal';
+import LockedInputWrapper from '../LockedInputWrapper';
 
 const SettingsSection = ({ cmsData }) => {
   const {
@@ -187,67 +188,17 @@ const SettingsSection = ({ cmsData }) => {
     padding: '5px 10px',
   };
 
-  const LockedInputWrapper = ({ fieldId, children }) => {
-    const lock = collabState?.activeLocks?.find(l => l.fieldId === fieldId);
-
-    // Determine if locked by someone else
-    const isLockedByOther = lock && lock.socketId !== collabState.socketId;
-
-    const handleFocus = () => {
-      requestLock(fieldId);
-    };
-
-    const handleBlur = () => {
-      releaseLock(fieldId);
-    };
-
-    // Clone child to add handlers
-    const child = React.Children.only(children);
-    return (
-      <div style={{ position: 'relative' }}>
-        {React.cloneElement(child, {
-          onFocus: (e) => {
-            handleFocus();
-            if (child.props.onFocus) child.props.onFocus(e);
-          },
-          onBlur: (e) => {
-            handleBlur();
-            if (child.props.onBlur) child.props.onBlur(e);
-          },
-          disabled: isLockedByOther,
-          style: {
-            ...child.props.style,
-            border: isLockedByOther ? '1px solid #e11d48' : child.props.style?.border,
-            background: isLockedByOther ? '#fff1f2' : child.props.style?.background
-          }
-        })}
-        {isLockedByOther && (
-          <div style={{
-            position: 'absolute',
-            top: '-22px',
-            right: '0',
-            background: '#e11d48',
-            color: 'white',
-            fontSize: '11px',
-            fontWeight: 'bold',
-            padding: '2px 8px',
-            borderRadius: '4px 4px 0 0',
-            zIndex: 10,
-            boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
-          }}>
-            <i className="fa-solid fa-lock" style={{ marginRight: '4px' }}></i>
-            Editing: {lock.clientName}
-          </div>
-        )}
-      </div>
-    );
-  };
+  // Imported LockedInputWrapper is used instead
+  /* 
+  const LockedInputWrapper = ... 
+  (Local definition removed)
+  */
 
   const renderImageUpload = (label, field, accept) => (
     <div style={{ marginBottom: '20px' }}>
       <strong style={{ display: 'block', marginBottom: '10px' }}>{label}:</strong>
       <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-        <LockedInputWrapper fieldId={field}>
+        <LockedInputWrapper fieldId={field} cmsData={cmsData}>
           <input
             type="file"
             accept={accept}
@@ -394,7 +345,7 @@ const SettingsSection = ({ cmsData }) => {
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Site Title:</strong>
-              <LockedInputWrapper fieldId="siteTitle">
+              <LockedInputWrapper fieldId="siteTitle" cmsData={cmsData}>
                 <input type="text" value={settings.siteTitle || ''} onChange={(e) => handleChange('siteTitle', e.target.value)} placeholder="Enter your site title" style={{ width: '100%', padding: '10px', marginTop: '5px', border: '1px solid #cbd5e1', }} />
               </LockedInputWrapper>
             </label>
@@ -403,7 +354,7 @@ const SettingsSection = ({ cmsData }) => {
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Default Meta Description:</strong>
-              <LockedInputWrapper fieldId="defaultMetaDescription">
+              <LockedInputWrapper fieldId="defaultMetaDescription" cmsData={cmsData}>
                 <textarea value={settings.defaultMetaDescription || ''} onChange={(e) => handleChange('defaultMetaDescription', e.target.value)} placeholder="Enter a default meta description for your site" rows="3" style={{ width: '100%', padding: '10px', marginTop: '5px', border: '1px solid #cbd5e1', fontFamily: 'inherit' }} />
               </LockedInputWrapper>
             </label>

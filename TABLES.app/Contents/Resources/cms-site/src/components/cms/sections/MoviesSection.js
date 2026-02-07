@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import LockedInputWrapper from '../LockedInputWrapper';
 // If you have a LoadingContext, you can import/use it here
 // import { useLoading } from '../../../context/LoadingContext';
 // import { createNavigation } from '../../../utils/navigation';
@@ -253,7 +254,7 @@ const MoviesSection = ({ cmsData }) => {
   };
 
   return (
-    <section className="main-section active" id="movies" style={{width: '100%'}}>
+    <section className="main-section active" id="movies" style={{ width: '100%' }}>
       {/* Highlight Banner for Add Movie */}
       <div
         style={{
@@ -472,46 +473,52 @@ const MoviesSection = ({ cmsData }) => {
                   <td style={{ padding: '10px 8px', color: '#64748b' }}>{movie.Year}</td>
                   <td style={{ padding: '10px 8px', color: '#64748b' }}>{movie.imdbID || <span style={{ color: '#b91c1c', fontStyle: 'italic' }}>N/A</span>}</td>
                   <td style={{ padding: '10px 8px' }}>
-                    <select
-                      value={movie.status || 'watching'}
-                      onChange={e => handleMovieFieldChange(movieKey, 'status', e.target.value)}
-                      style={{
-                        padding: '6px 10px',
-                        fontSize: '1rem',
-                        background: '#f9fafb',
-                        border: '1.5px solid #cbd5e1'
-                      }}
-                    >
-                      {MOVIE_STATUSES.map(status => (
-                        <option key={status} value={status}>{status.charAt(0).toUpperCase() + status.slice(1)}</option>
-                      ))}
-                    </select>
+                    <LockedInputWrapper fieldId={`movie-${movieKey}-status`} cmsData={cmsData}>
+                      <select
+                        value={movie.status || 'watching'}
+                        onChange={e => handleMovieFieldChange(movieKey, 'status', e.target.value)}
+                        style={{
+                          padding: '6px 10px',
+                          fontSize: '1rem',
+                          background: '#f9fafb',
+                          border: '1.5px solid #cbd5e1'
+                        }}
+                      >
+                        {MOVIE_STATUSES.map(status => (
+                          <option key={status} value={status}>{status.charAt(0).toUpperCase() + status.slice(1)}</option>
+                        ))}
+                      </select>
+                    </LockedInputWrapper>
                   </td>
                   <td style={{ padding: '10px 8px' }}>
-                    <input
-                      type="date"
-                      value={movie.started || ''}
-                      onChange={e => handleMovieFieldChange(movieKey, 'started', e.target.value)}
-                      style={{
-                        padding: '6px 10px',
-                        fontSize: '1rem',
-                        background: '#f9fafb',
-                        border: '1.5px solid #cbd5e1'
-                      }}
-                    />
+                    <LockedInputWrapper fieldId={`movie-${movieKey}-started`} cmsData={cmsData}>
+                      <input
+                        type="date"
+                        value={movie.started || ''}
+                        onChange={e => handleMovieFieldChange(movieKey, 'started', e.target.value)}
+                        style={{
+                          padding: '6px 10px',
+                          fontSize: '1rem',
+                          background: '#f9fafb',
+                          border: '1.5px solid #cbd5e1'
+                        }}
+                      />
+                    </LockedInputWrapper>
                   </td>
                   <td style={{ padding: '10px 8px' }}>
-                    <input
-                      type="date"
-                      value={movie.finished || ''}
-                      onChange={e => handleMovieFieldChange(movieKey, 'finished', e.target.value)}
-                      style={{
-                        padding: '6px 10px',
-                        fontSize: '1rem',
-                        background: '#f9fafb',
-                        border: '1.5px solid #cbd5e1'
-                      }}
-                    />
+                    <LockedInputWrapper fieldId={`movie-${movieKey}-finished`} cmsData={cmsData}>
+                      <input
+                        type="date"
+                        value={movie.finished || ''}
+                        onChange={e => handleMovieFieldChange(movieKey, 'finished', e.target.value)}
+                        style={{
+                          padding: '6px 10px',
+                          fontSize: '1rem',
+                          background: '#f9fafb',
+                          border: '1.5px solid #cbd5e1'
+                        }}
+                      />
+                    </LockedInputWrapper>
                   </td>
                   <td style={{ padding: '10px 8px' }}>
                     {movie.Poster && movie.Poster !== 'N/A' ? (

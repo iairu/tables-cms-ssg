@@ -3,6 +3,7 @@ import { fuzzyMatch } from '../utils';
 import FuzzySearchDropdown from '../FuzzySearchDropdown';
 import FamilyTree from '../FamilyTree';
 import DescendantsTree from '../DescendantsTree';
+import LockedInputWrapper from '../LockedInputWrapper';
 //
 // --- Breed and EMS Color options (complex) ---
 // All FIFe-recognized breeds and EMS color codes, plus "Other"
@@ -464,7 +465,7 @@ function AssetSelector({ value, onChange }) {
         onChange={e => {
           if (e.target.files && e.target.files[0]) {
             const reader = new FileReader();
-            reader.onload = function(ev) {
+            reader.onload = function (ev) {
               onChange(ev.target.result);
             };
             reader.readAsDataURL(e.target.files[0]);
@@ -617,462 +618,520 @@ const CatsSection = ({ cmsData }) => {
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Photo:</strong>
-              <AssetSelector
-                value={editingCat.photo || ''}
-                onChange={val => handleUpdateCat(editingCatIndex, 'photo', val)}
-              />
+              <LockedInputWrapper fieldId={`cat-${editingCatIndex}-photo`} cmsData={cmsData}>
+                <AssetSelector
+                  value={editingCat.photo || ''}
+                  onChange={val => handleUpdateCat(editingCatIndex, 'photo', val)}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Titles Before Name:</strong>
-              <input
-                type="text"
-                value={editingCat.titlesBeforeName || ''}
-                onChange={(e) => handleUpdateCat(editingCatIndex, 'titlesBeforeName', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`cat-${editingCatIndex}-titlesBeforeName`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingCat.titlesBeforeName || ''}
+                  onChange={(e) => handleUpdateCat(editingCatIndex, 'titlesBeforeName', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Full Name: <span style={{ color: '#ef4444' }}>*</span></strong>
-              <input
-                type="text"
-                value={editingCat.fullName || ''}
-                onChange={(e) => handleUpdateCat(editingCatIndex, 'fullName', e.target.value)}
-                required
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`cat-${editingCatIndex}-fullName`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingCat.fullName || ''}
+                  onChange={(e) => handleUpdateCat(editingCatIndex, 'fullName', e.target.value)}
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Titles After Name:</strong>
-              <input
-                type="text"
-                value={editingCat.titlesAfterName || ''}
-                onChange={(e) => handleUpdateCat(editingCatIndex, 'titlesAfterName', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`cat-${editingCatIndex}-titlesAfterName`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingCat.titlesAfterName || ''}
+                  onChange={(e) => handleUpdateCat(editingCatIndex, 'titlesAfterName', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>EMS Color:</strong>
-              <select
-                value={editingCat.emsColor || ''}
-                onChange={(e) => handleUpdateCat(editingCatIndex, 'emsColor', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  border: '1px solid #cbd5e1'
-                }}
-              >
-                {emsColorOptions.map(opt => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
+              <LockedInputWrapper fieldId={`cat-${editingCatIndex}-emsColor`} cmsData={cmsData}>
+                <select
+                  value={editingCat.emsColor || ''}
+                  onChange={(e) => handleUpdateCat(editingCatIndex, 'emsColor', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+                    border: '1px solid #cbd5e1'
+                  }}
+                >
+                  {emsColorOptions.map(opt => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Breed:</strong>
-              <select
-                value={editingCat.breed || ''}
-                onChange={(e) => handleUpdateCat(editingCatIndex, 'breed', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  border: '1px solid #cbd5e1'
-                }}
-              >
-                {breedOptions.map(opt => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
+              <LockedInputWrapper fieldId={`cat-${editingCatIndex}-breed`} cmsData={cmsData}>
+                <select
+                  value={editingCat.breed || ''}
+                  onChange={(e) => handleUpdateCat(editingCatIndex, 'breed', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+                    border: '1px solid #cbd5e1'
+                  }}
+                >
+                  {breedOptions.map(opt => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Gender: <span style={{ color: '#ef4444' }}>*</span></strong>
-              <select
-                value={editingCat.gender || ''}
-                onChange={(e) => handleUpdateCat(editingCatIndex, 'gender', e.target.value)}
-                required
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  border: '1px solid #cbd5e1'
-                }}
-              >
-                <option value="">Select gender</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-              </select>
+              <LockedInputWrapper fieldId={`cat-${editingCatIndex}-gender`} cmsData={cmsData}>
+                <select
+                  value={editingCat.gender || ''}
+                  onChange={(e) => handleUpdateCat(editingCatIndex, 'gender', e.target.value)}
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+                    border: '1px solid #cbd5e1'
+                  }}
+                >
+                  <option value="">Select gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Sire:</strong>
-              <FuzzySearchDropdown
-                options={catRows.filter(cat => cat.gender === 'Male')}
-                value={editingCat.sire || ''}
-                onChange={(value) => handleUpdateCat(editingCatIndex, 'sire', value)}
-                placeholder="Select sire"
-              />
+              <LockedInputWrapper fieldId={`cat-${editingCatIndex}-sire`} cmsData={cmsData}>
+                <FuzzySearchDropdown
+                  options={catRows.filter(cat => cat.gender === 'Male')}
+                  value={editingCat.sire || ''}
+                  onChange={(value) => handleUpdateCat(editingCatIndex, 'sire', value)}
+                  placeholder="Select sire"
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Dam:</strong>
-              <FuzzySearchDropdown
-                options={catRows.filter(cat => cat.gender === 'Female')}
-                value={editingCat.dam || ''}
-                onChange={(value) => handleUpdateCat(editingCatIndex, 'dam', value)}
-                placeholder="Select dam"
-              />
+              <LockedInputWrapper fieldId={`cat-${editingCatIndex}-dam`} cmsData={cmsData}>
+                <FuzzySearchDropdown
+                  options={catRows.filter(cat => cat.gender === 'Female')}
+                  value={editingCat.dam || ''}
+                  onChange={(value) => handleUpdateCat(editingCatIndex, 'dam', value)}
+                  placeholder="Select dam"
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Date of Birth:</strong>
-              <input
-                type="date"
-                value={editingCat.dateOfBirth || ''}
-                onChange={(e) => handleUpdateCat(editingCatIndex, 'dateOfBirth', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`cat-${editingCatIndex}-dateOfBirth`} cmsData={cmsData}>
+                <input
+                  type="date"
+                  value={editingCat.dateOfBirth || ''}
+                  onChange={(e) => handleUpdateCat(editingCatIndex, 'dateOfBirth', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Genetic Tests:</strong>
-              <textarea
-                value={editingCat.geneticTests || ''}
-                onChange={(e) => handleUpdateCat(editingCatIndex, 'geneticTests', e.target.value)}
-                rows="3"
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`cat-${editingCatIndex}-geneticTests`} cmsData={cmsData}>
+                <textarea
+                  value={editingCat.geneticTests || ''}
+                  onChange={(e) => handleUpdateCat(editingCatIndex, 'geneticTests', e.target.value)}
+                  rows="3"
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Breeding Station:</strong>
-              <input
-                type="text"
-                value={editingCat.breedingStation || ''}
-                onChange={(e) => handleUpdateCat(editingCatIndex, 'breedingStation', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`cat-${editingCatIndex}-breedingStation`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingCat.breedingStation || ''}
+                  onChange={(e) => handleUpdateCat(editingCatIndex, 'breedingStation', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Country Code:</strong>
-              <select
-                value={editingCat.countryCode || ''}
-                onChange={(e) => handleUpdateCat(editingCatIndex, 'countryCode', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  border: '1px solid #cbd5e1'
-                }}
-              >
-                {countryCodeOptions.map(opt => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
+              <LockedInputWrapper fieldId={`cat-${editingCatIndex}-countryCode`} cmsData={cmsData}>
+                <select
+                  value={editingCat.countryCode || ''}
+                  onChange={(e) => handleUpdateCat(editingCatIndex, 'countryCode', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+                    border: '1px solid #cbd5e1'
+                  }}
+                >
+                  {countryCodeOptions.map(opt => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Alternative Name:</strong>
-              <input
-                type="text"
-                value={editingCat.alternativeName || ''}
-                onChange={(e) => handleUpdateCat(editingCatIndex, 'alternativeName', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`cat-${editingCatIndex}-alternativeName`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingCat.alternativeName || ''}
+                  onChange={(e) => handleUpdateCat(editingCatIndex, 'alternativeName', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Print Name Line 1:</strong>
-              <input
-                type="text"
-                value={editingCat.printNameLine1 || ''}
-                onChange={(e) => handleUpdateCat(editingCatIndex, 'printNameLine1', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`cat-${editingCatIndex}-printNameLine1`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingCat.printNameLine1 || ''}
+                  onChange={(e) => handleUpdateCat(editingCatIndex, 'printNameLine1', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Print Name Line 2:</strong>
-              <input
-                type="text"
-                value={editingCat.printNameLine2 || ''}
-                onChange={(e) => handleUpdateCat(editingCatIndex, 'printNameLine2', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`cat-${editingCatIndex}-printNameLine2`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingCat.printNameLine2 || ''}
+                  onChange={(e) => handleUpdateCat(editingCatIndex, 'printNameLine2', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Date of Death:</strong>
-              <input
-                type="date"
-                value={editingCat.dateOfDeath || ''}
-                onChange={(e) => handleUpdateCat(editingCatIndex, 'dateOfDeath', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`cat-${editingCatIndex}-dateOfDeath`} cmsData={cmsData}>
+                <input
+                  type="date"
+                  value={editingCat.dateOfDeath || ''}
+                  onChange={(e) => handleUpdateCat(editingCatIndex, 'dateOfDeath', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Original Reg No:</strong>
-              <input
-                type="text"
-                value={editingCat.originalRegNo || ''}
-                onChange={(e) => handleUpdateCat(editingCatIndex, 'originalRegNo', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`cat-${editingCatIndex}-originalRegNo`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingCat.originalRegNo || ''}
+                  onChange={(e) => handleUpdateCat(editingCatIndex, 'originalRegNo', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Last Reg No:</strong>
-              <input
-                type="text"
-                value={editingCat.lastRegNo || ''}
-                onChange={(e) => handleUpdateCat(editingCatIndex, 'lastRegNo', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`cat-${editingCatIndex}-lastRegNo`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingCat.lastRegNo || ''}
+                  onChange={(e) => handleUpdateCat(editingCatIndex, 'lastRegNo', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Reg No 2:</strong>
-              <input
-                type="text"
-                value={editingCat.regNo2 || ''}
-                onChange={(e) => handleUpdateCat(editingCatIndex, 'regNo2', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`cat-${editingCatIndex}-regNo2`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingCat.regNo2 || ''}
+                  onChange={(e) => handleUpdateCat(editingCatIndex, 'regNo2', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Reg No 3:</strong>
-              <input
-                type="text"
-                value={editingCat.regNo3 || ''}
-                onChange={(e) => handleUpdateCat(editingCatIndex, 'regNo3', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`cat-${editingCatIndex}-regNo3`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingCat.regNo3 || ''}
+                  onChange={(e) => handleUpdateCat(editingCatIndex, 'regNo3', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Notes:</strong>
-              <textarea
-                value={editingCat.notes || ''}
-                onChange={(e) => handleUpdateCat(editingCatIndex, 'notes', e.target.value)}
-                rows="4"
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`cat-${editingCatIndex}-notes`} cmsData={cmsData}>
+                <textarea
+                  value={editingCat.notes || ''}
+                  onChange={(e) => handleUpdateCat(editingCatIndex, 'notes', e.target.value)}
+                  rows="4"
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Breeder:</strong>
-              <input
-                type="text"
-                value={editingCat.breeder || ''}
-                onChange={(e) => handleUpdateCat(editingCatIndex, 'breeder', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`cat-${editingCatIndex}-breeder`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingCat.breeder || ''}
+                  onChange={(e) => handleUpdateCat(editingCatIndex, 'breeder', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Current Owner:</strong>
-              <input
-                type="text"
-                value={editingCat.currentOwner || ''}
-                onChange={(e) => handleUpdateCat(editingCatIndex, 'currentOwner', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`cat-${editingCatIndex}-currentOwner`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingCat.currentOwner || ''}
+                  onChange={(e) => handleUpdateCat(editingCatIndex, 'currentOwner', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Country of Origin:</strong>
-              <input
-                type="text"
-                value={editingCat.countryOfOrigin || ''}
-                onChange={(e) => handleUpdateCat(editingCatIndex, 'countryOfOrigin', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`cat-${editingCatIndex}-countryOfOrigin`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingCat.countryOfOrigin || ''}
+                  onChange={(e) => handleUpdateCat(editingCatIndex, 'countryOfOrigin', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Country of Current Residence:</strong>
-              <input
-                type="text"
-                value={editingCat.countryOfCurrentResidence || ''}
-                onChange={(e) => handleUpdateCat(editingCatIndex, 'countryOfCurrentResidence', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`cat-${editingCatIndex}-countryOfCurrentResidence`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingCat.countryOfCurrentResidence || ''}
+                  onChange={(e) => handleUpdateCat(editingCatIndex, 'countryOfCurrentResidence', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Ownership Notes:</strong>
-              <textarea
-                value={editingCat.ownershipNotes || ''}
-                onChange={(e) => handleUpdateCat(editingCatIndex, 'ownershipNotes', e.target.value)}
-                rows="3"
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`cat-${editingCatIndex}-ownershipNotes`} cmsData={cmsData}>
+                <textarea
+                  value={editingCat.ownershipNotes || ''}
+                  onChange={(e) => handleUpdateCat(editingCatIndex, 'ownershipNotes', e.target.value)}
+                  rows="3"
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Personal Info:</strong>
-              <textarea
-                value={editingCat.personalInfo || ''}
-                onChange={(e) => handleUpdateCat(editingCatIndex, 'personalInfo', e.target.value)}
-                rows="3"
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`cat-${editingCatIndex}-personalInfo`} cmsData={cmsData}>
+                <textarea
+                  value={editingCat.personalInfo || ''}
+                  onChange={(e) => handleUpdateCat(editingCatIndex, 'personalInfo', e.target.value)}
+                  rows="3"
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Date of Last Ownership Change:</strong>
-              <input
-                type="date"
-                value={editingCat.dateOfLastOwnershipChange || ''}
-                onChange={(e) => handleUpdateCat(editingCatIndex, 'dateOfLastOwnershipChange', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`cat-${editingCatIndex}-dateOfLastOwnershipChange`} cmsData={cmsData}>
+                <input
+                  type="date"
+                  value={editingCat.dateOfLastOwnershipChange || ''}
+                  onChange={(e) => handleUpdateCat(editingCatIndex, 'dateOfLastOwnershipChange', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
         </div>
@@ -1145,102 +1204,114 @@ const CatsSection = ({ cmsData }) => {
               // Find the actual index in the original catRows array
               const actualIndex = catRows.indexOf(cat);
               return (
-              <tr key={actualIndex}>
-                <td>
-                  {cat.photo ? (
-                    <img src={cat.photo} alt="Cat" style={{ maxWidth: '60px', maxHeight: '60px', border: '1px solid #cbd5e1' }} />
-                  ) : (
-                    <span style={{ color: '#94a3b8', fontSize: '0.9em' }}>No photo</span>
-                  )}
-                </td>
-                <td>
-                  <input
-                    type="text"
-                    value={cat.titlesBeforeName || ''}
-                    onChange={(e) => handleUpdateCat(actualIndex, 'titlesBeforeName', e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '8px',
-                      border: '1px solid #cbd5e1',
-                    }}
-                  />
-                </td>
-                <td>
-                  <input
-                    type="text"
-                    value={cat.fullName || ''}
-                    onChange={(e) => handleUpdateCat(actualIndex, 'fullName', e.target.value)}
-                    required
-                    style={{
-                      width: '100%',
-                      padding: '8px',
-                      border: '1px solid #cbd5e1',
-                    }}
-                  />
-                </td>
-                <td>
-                  <input
-                    type="text"
-                    value={cat.titlesAfterName || ''}
-                    onChange={(e) => handleUpdateCat(actualIndex, 'titlesAfterName', e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '8px',
-                      border: '1px solid #cbd5e1',
-                    }}
-                  />
-                </td>
-                <td>
-                  <select
-                    value={cat.emsColor || ''}
-                    onChange={(e) => handleUpdateCat(actualIndex, 'emsColor', e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '8px',
-                      border: '1px solid #cbd5e1',
-                    }}
-                  >
-                    {emsColorOptions.map(opt => (
-                      <option key={opt.value} value={opt.value}>{opt.label}</option>
-                    ))}
-                  </select>
-                </td>
-                <td>
-                  <select
-                    value={cat.breed || ''}
-                    onChange={(e) => handleUpdateCat(actualIndex, 'breed', e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '8px',
-                      border: '1px solid #cbd5e1',
-                    }}
-                  >
-                    {breedOptions.map(opt => (
-                      <option key={opt.value} value={opt.value}>{opt.label}</option>
-                    ))}
-                  </select>
-                </td>
-                <td>
-                  <select
-                    value={cat.gender || ''}
-                    onChange={(e) => handleUpdateCat(actualIndex, 'gender', e.target.value)}
-                    required
-                    style={{
-                      width: '100%',
-                      padding: '8px',
-                      border: '1px solid #cbd5e1',
-                    }}
-                  >
-                    <option value="">Select</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                  </select>
-                </td>
-                <td>
-                  <button onClick={() => handleExpandCat(actualIndex)} style={{ marginRight: '5px' }}>Expand</button>
-                  <button onClick={() => handleDeleteClick(actualIndex)}>Delete</button>
-                </td>
-              </tr>
+                <tr key={actualIndex}>
+                  <td>
+                    {cat.photo ? (
+                      <img src={cat.photo} alt="Cat" style={{ maxWidth: '60px', maxHeight: '60px', border: '1px solid #cbd5e1' }} />
+                    ) : (
+                      <span style={{ color: '#94a3b8', fontSize: '0.9em' }}>No photo</span>
+                    )}
+                  </td>
+                  <td>
+                    <LockedInputWrapper fieldId={`cat-${actualIndex}-titlesBeforeName`} cmsData={cmsData}>
+                      <input
+                        type="text"
+                        value={cat.titlesBeforeName || ''}
+                        onChange={(e) => handleUpdateCat(actualIndex, 'titlesBeforeName', e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '8px',
+                          border: '1px solid #cbd5e1',
+                        }}
+                      />
+                    </LockedInputWrapper>
+                  </td>
+                  <td>
+                    <LockedInputWrapper fieldId={`cat-${actualIndex}-fullName`} cmsData={cmsData}>
+                      <input
+                        type="text"
+                        value={cat.fullName || ''}
+                        onChange={(e) => handleUpdateCat(actualIndex, 'fullName', e.target.value)}
+                        required
+                        style={{
+                          width: '100%',
+                          padding: '8px',
+                          border: '1px solid #cbd5e1',
+                        }}
+                      />
+                    </LockedInputWrapper>
+                  </td>
+                  <td>
+                    <LockedInputWrapper fieldId={`cat-${actualIndex}-titlesAfterName`} cmsData={cmsData}>
+                      <input
+                        type="text"
+                        value={cat.titlesAfterName || ''}
+                        onChange={(e) => handleUpdateCat(actualIndex, 'titlesAfterName', e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '8px',
+                          border: '1px solid #cbd5e1',
+                        }}
+                      />
+                    </LockedInputWrapper>
+                  </td>
+                  <td>
+                    <LockedInputWrapper fieldId={`cat-${actualIndex}-emsColor`} cmsData={cmsData}>
+                      <select
+                        value={cat.emsColor || ''}
+                        onChange={(e) => handleUpdateCat(actualIndex, 'emsColor', e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '8px',
+                          border: '1px solid #cbd5e1',
+                        }}
+                      >
+                        {emsColorOptions.map(opt => (
+                          <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        ))}
+                      </select>
+                    </LockedInputWrapper>
+                  </td>
+                  <td>
+                    <LockedInputWrapper fieldId={`cat-${actualIndex}-breed`} cmsData={cmsData}>
+                      <select
+                        value={cat.breed || ''}
+                        onChange={(e) => handleUpdateCat(actualIndex, 'breed', e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '8px',
+                          border: '1px solid #cbd5e1',
+                        }}
+                      >
+                        {breedOptions.map(opt => (
+                          <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        ))}
+                      </select>
+                    </LockedInputWrapper>
+                  </td>
+                  <td>
+                    <LockedInputWrapper fieldId={`cat-${actualIndex}-gender`} cmsData={cmsData}>
+                      <select
+                        value={cat.gender || ''}
+                        onChange={(e) => handleUpdateCat(actualIndex, 'gender', e.target.value)}
+                        required
+                        style={{
+                          width: '100%',
+                          padding: '8px',
+                          border: '1px solid #cbd5e1',
+                        }}
+                      >
+                        <option value="">Select</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                      </select>
+                    </LockedInputWrapper>
+                  </td>
+                  <td>
+                    <button onClick={() => handleExpandCat(actualIndex)} style={{ marginRight: '5px' }}>Expand</button>
+                    <button onClick={() => handleDeleteClick(actualIndex)}>Delete</button>
+                  </td>
+                </tr>
               );
             })}
           </tbody>

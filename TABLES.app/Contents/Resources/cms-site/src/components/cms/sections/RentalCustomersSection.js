@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { fuzzyMatch } from '../utils';
+import LockedInputWrapper from '../LockedInputWrapper';
 export const RentalCustomersSection = ({ cmsData }) => {
   const { customerRows, saveCustomerRows } = cmsData;
   const [editingCustomerIndex, setEditingCustomerIndex] = useState(null);
@@ -107,428 +108,476 @@ export const RentalCustomersSection = ({ cmsData }) => {
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Full Name: <span style={{ color: '#ef4444' }}>*</span></strong>
-              <input
-                type="text"
-                value={editingCustomer.fullName || ''}
-                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'fullName', e.target.value)}
-                required
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`customer-${editingCustomerIndex}-fullName`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingCustomer.fullName || ''}
+                  onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'fullName', e.target.value)}
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Email: <span style={{ color: '#ef4444' }}>*</span></strong>
-              <input
-                type="email"
-                value={editingCustomer.email || ''}
-                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'email', e.target.value)}
-                required
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`customer-${editingCustomerIndex}-email`} cmsData={cmsData}>
+                <input
+                  type="email"
+                  value={editingCustomer.email || ''}
+                  onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'email', e.target.value)}
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Phone:</strong>
-              <input
-                type="tel"
-                value={editingCustomer.phone || ''}
-                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'phone', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`customer-${editingCustomerIndex}-phone`} cmsData={cmsData}>
+                <input
+                  type="tel"
+                  value={editingCustomer.phone || ''}
+                  onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'phone', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Contact Type: <span style={{ color: '#ef4444' }}>*</span></strong>
-              <select
-                value={editingCustomer.contactType || ''}
-                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'contactType', e.target.value)}
-                required
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1'
-                }}
-              >
-                <option value="">Select type</option>
-                <option value="Client">Client</option>
-                <option value="Buyer">Buyer</option>
-                <option value="Renter">Renter</option>
-                <option value="Lead">Lead</option>
-                <option value="Partner">Partner</option>
-              </select>
+              <LockedInputWrapper fieldId={`customer-${editingCustomerIndex}-contactType`} cmsData={cmsData}>
+                <select
+                  value={editingCustomer.contactType || ''}
+                  onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'contactType', e.target.value)}
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+
+                    border: '1px solid #cbd5e1'
+                  }}
+                >
+                  <option value="">Select type</option>
+                  <option value="Client">Client</option>
+                  <option value="Buyer">Buyer</option>
+                  <option value="Renter">Renter</option>
+                  <option value="Lead">Lead</option>
+                  <option value="Partner">Partner</option>
+                </select>
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Company:</strong>
-              <input
-                type="text"
-                value={editingCustomer.company || ''}
-                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'company', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`customer-${editingCustomerIndex}-company`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingCustomer.company || ''}
+                  onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'company', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Address:</strong>
-              <input
-                type="text"
-                value={editingCustomer.address || ''}
-                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'address', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`customer-${editingCustomerIndex}-address`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingCustomer.address || ''}
+                  onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'address', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>City:</strong>
-              <input
-                type="text"
-                value={editingCustomer.city || ''}
-                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'city', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`customer-${editingCustomerIndex}-city`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingCustomer.city || ''}
+                  onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'city', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>State/Province:</strong>
-              <input
-                type="text"
-                value={editingCustomer.state || ''}
-                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'state', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`customer-${editingCustomerIndex}-state`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingCustomer.state || ''}
+                  onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'state', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Zip Code:</strong>
-              <input
-                type="text"
-                value={editingCustomer.zipCode || ''}
-                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'zipCode', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`customer-${editingCustomerIndex}-zipCode`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingCustomer.zipCode || ''}
+                  onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'zipCode', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Country:</strong>
-              <input
-                type="text"
-                value={editingCustomer.country || ''}
-                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'country', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`customer-${editingCustomerIndex}-country`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingCustomer.country || ''}
+                  onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'country', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Date Added:</strong>
-              <input
-                type="date"
-                value={editingCustomer.dateAdded || ''}
-                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'dateAdded', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`customer-${editingCustomerIndex}-dateAdded`} cmsData={cmsData}>
+                <input
+                  type="date"
+                  value={editingCustomer.dateAdded || ''}
+                  onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'dateAdded', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Preferred Contact Method:</strong>
-              <select
-                value={editingCustomer.preferredContact || ''}
-                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'preferredContact', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1'
-                }}
-              >
-                <option value="">Select method</option>
-                <option value="Email">Email</option>
-                <option value="Phone">Phone</option>
-                <option value="SMS">SMS</option>
-                <option value="Mail">Mail</option>
-              </select>
+              <LockedInputWrapper fieldId={`customer-${editingCustomerIndex}-preferredContact`} cmsData={cmsData}>
+                <select
+                  value={editingCustomer.preferredContact || ''}
+                  onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'preferredContact', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+
+                    border: '1px solid #cbd5e1'
+                  }}
+                >
+                  <option value="">Select method</option>
+                  <option value="Email">Email</option>
+                  <option value="Phone">Phone</option>
+                  <option value="SMS">SMS</option>
+                  <option value="Mail">Mail</option>
+                </select>
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Status:</strong>
-              <select
-                value={editingCustomer.status || ''}
-                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'status', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1'
-                }}
-              >
-                <option value="">Select status</option>
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
-                <option value="Pending">Pending</option>
-                <option value="Blacklisted">Blacklisted</option>
-              </select>
+              <LockedInputWrapper fieldId={`customer-${editingCustomerIndex}-status`} cmsData={cmsData}>
+                <select
+                  value={editingCustomer.status || ''}
+                  onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'status', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+
+                    border: '1px solid #cbd5e1'
+                  }}
+                >
+                  <option value="">Select status</option>
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Blacklisted">Blacklisted</option>
+                </select>
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Date of Birth:</strong>
-              <input
-                type="date"
-                value={editingCustomer.dateOfBirth || ''}
-                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'dateOfBirth', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`customer-${editingCustomerIndex}-dateOfBirth`} cmsData={cmsData}>
+                <input
+                  type="date"
+                  value={editingCustomer.dateOfBirth || ''}
+                  onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'dateOfBirth', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Identification Number:</strong>
-              <input
-                type="text"
-                value={editingCustomer.identificationNumber || ''}
-                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'identificationNumber', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`customer-${editingCustomerIndex}-identificationNumber`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingCustomer.identificationNumber || ''}
+                  onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'identificationNumber', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Total Reservations:</strong>
-              <input
-                type="number"
-                value={editingCustomer.totalReservations || ''}
-                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'totalReservations', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`customer-${editingCustomerIndex}-totalReservations`} cmsData={cmsData}>
+                <input
+                  type="number"
+                  value={editingCustomer.totalReservations || ''}
+                  onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'totalReservations', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Last Reservation Date:</strong>
-              <input
-                type="date"
-                value={editingCustomer.lastReservationDate || ''}
-                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'lastReservationDate', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`customer-${editingCustomerIndex}-lastReservationDate`} cmsData={cmsData}>
+                <input
+                  type="date"
+                  value={editingCustomer.lastReservationDate || ''}
+                  onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'lastReservationDate', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Credit Score:</strong>
-              <input
-                type="number"
-                value={editingCustomer.creditScore || ''}
-                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'creditScore', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`customer-${editingCustomerIndex}-creditScore`} cmsData={cmsData}>
+                <input
+                  type="number"
+                  value={editingCustomer.creditScore || ''}
+                  onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'creditScore', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Payment Method:</strong>
-              <input
-                type="text"
-                value={editingCustomer.paymentMethod || ''}
-                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'paymentMethod', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`customer-${editingCustomerIndex}-paymentMethod`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingCustomer.paymentMethod || ''}
+                  onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'paymentMethod', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Emergency Contact:</strong>
-              <input
-                type="text"
-                value={editingCustomer.emergencyContact || ''}
-                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'emergencyContact', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`customer-${editingCustomerIndex}-emergencyContact`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingCustomer.emergencyContact || ''}
+                  onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'emergencyContact', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Emergency Phone:</strong>
-              <input
-                type="tel"
-                value={editingCustomer.emergencyPhone || ''}
-                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'emergencyPhone', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`customer-${editingCustomerIndex}-emergencyPhone`} cmsData={cmsData}>
+                <input
+                  type="tel"
+                  value={editingCustomer.emergencyPhone || ''}
+                  onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'emergencyPhone', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Preferences:</strong>
-              <textarea
-                value={editingCustomer.preferences || ''}
-                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'preferences', e.target.value)}
-                rows="3"
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`customer-${editingCustomerIndex}-preferences`} cmsData={cmsData}>
+                <textarea
+                  value={editingCustomer.preferences || ''}
+                  onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'preferences', e.target.value)}
+                  rows="3"
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Reservation History:</strong>
-              <textarea
-                value={editingCustomer.reservationHistory || ''}
-                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'reservationHistory', e.target.value)}
-                rows="4"
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`customer-${editingCustomerIndex}-reservationHistory`} cmsData={cmsData}>
+                <textarea
+                  value={editingCustomer.reservationHistory || ''}
+                  onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'reservationHistory', e.target.value)}
+                  rows="4"
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Notes:</strong>
-              <textarea
-                value={editingCustomer.notes || ''}
-                onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'notes', e.target.value)}
-                rows="4"
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`customer-${editingCustomerIndex}-notes`} cmsData={cmsData}>
+                <textarea
+                  value={editingCustomer.notes || ''}
+                  onChange={(e) => handleUpdateCustomer(editingCustomerIndex, 'notes', e.target.value)}
+                  rows="4"
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
         </div>
@@ -548,7 +597,7 @@ export const RentalCustomersSection = ({ cmsData }) => {
             onChange={(e) => setSearchQuery(e.target.value)}
             style={{
               padding: '8px 12px',
-              
+
               border: '1px solid #cbd5e1',
               marginRight: '10px',
               width: '200px'
@@ -575,104 +624,116 @@ export const RentalCustomersSection = ({ cmsData }) => {
               // Find the actual index in the original CustomerRows array
               const actualIndex = customerRows.indexOf(Customer);
               return (
-              <tr key={actualIndex}>
-                <td>
-                  <input
-                    type="text"
-                    value={Customer.fullName || ''}
-                    onChange={(e) => handleUpdateCustomer(actualIndex, 'fullName', e.target.value)}
-                    required
-                    style={{
-                      width: '100%',
-                      padding: '8px',
-                      border: '1px solid #cbd5e1',
-                      
-                    }}
-                  />
-                </td>
-                <td>
-                  <input
-                    type="email"
-                    value={Customer.email || ''}
-                    onChange={(e) => handleUpdateCustomer(actualIndex, 'email', e.target.value)}
-                    required
-                    style={{
-                      width: '100%',
-                      padding: '8px',
-                      border: '1px solid #cbd5e1',
-                      
-                    }}
-                  />
-                </td>
-                <td>
-                  <input
-                    type="tel"
-                    value={Customer.phone || ''}
-                    onChange={(e) => handleUpdateCustomer(actualIndex, 'phone', e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '8px',
-                      border: '1px solid #cbd5e1',
-                      
-                    }}
-                  />
-                </td>
-                <td>
-                  <select
-                    value={Customer.contactType || ''}
-                    onChange={(e) => handleUpdateCustomer(actualIndex, 'contactType', e.target.value)}
-                    required
-                    style={{
-                      width: '100%',
-                      padding: '8px',
-                      border: '1px solid #cbd5e1',
-                      
-                    }}
-                  >
-                    <option value="">Select</option>
-                    <option value="Client">Client</option>
-                    <option value="Buyer">Buyer</option>
-                    <option value="Renter">Renter</option>
-                    <option value="Lead">Lead</option>
-                    <option value="Partner">Partner</option>
-                  </select>
-                </td>
-                <td>
-                  <input
-                    type="text"
-                    value={Customer.company || ''}
-                    onChange={(e) => handleUpdateCustomer(actualIndex, 'company', e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '8px',
-                      border: '1px solid #cbd5e1',
-                      
-                    }}
-                  />
-                </td>
-                <td>
-                  <select
-                    value={Customer.status || ''}
-                    onChange={(e) => handleUpdateCustomer(actualIndex, 'status', e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '8px',
-                      border: '1px solid #cbd5e1',
-                      
-                    }}
-                  >
-                    <option value="">Select</option>
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
-                    <option value="Pending">Pending</option>
-                    <option value="Blacklisted">Blacklisted</option>
-                  </select>
-                </td>
-                <td>
-                  <button onClick={() => handleExpandCustomer(actualIndex)} style={{ marginRight: '5px' }}>Expand</button>
-                  <button onClick={() => handleDeleteClick(actualIndex)}>Delete</button>
-                </td>
-              </tr>
+                <tr key={actualIndex}>
+                  <td>
+                    <LockedInputWrapper fieldId={`customer-${actualIndex}-fullName`} cmsData={cmsData}>
+                      <input
+                        type="text"
+                        value={Customer.fullName || ''}
+                        onChange={(e) => handleUpdateCustomer(actualIndex, 'fullName', e.target.value)}
+                        required
+                        style={{
+                          width: '100%',
+                          padding: '8px',
+                          border: '1px solid #cbd5e1',
+
+                        }}
+                      />
+                    </LockedInputWrapper>
+                  </td>
+                  <td>
+                    <LockedInputWrapper fieldId={`customer-${actualIndex}-email`} cmsData={cmsData}>
+                      <input
+                        type="email"
+                        value={Customer.email || ''}
+                        onChange={(e) => handleUpdateCustomer(actualIndex, 'email', e.target.value)}
+                        required
+                        style={{
+                          width: '100%',
+                          padding: '8px',
+                          border: '1px solid #cbd5e1',
+
+                        }}
+                      />
+                    </LockedInputWrapper>
+                  </td>
+                  <td>
+                    <LockedInputWrapper fieldId={`customer-${actualIndex}-phone`} cmsData={cmsData}>
+                      <input
+                        type="tel"
+                        value={Customer.phone || ''}
+                        onChange={(e) => handleUpdateCustomer(actualIndex, 'phone', e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '8px',
+                          border: '1px solid #cbd5e1',
+
+                        }}
+                      />
+                    </LockedInputWrapper>
+                  </td>
+                  <td>
+                    <LockedInputWrapper fieldId={`customer-${actualIndex}-contactType`} cmsData={cmsData}>
+                      <select
+                        value={Customer.contactType || ''}
+                        onChange={(e) => handleUpdateCustomer(actualIndex, 'contactType', e.target.value)}
+                        required
+                        style={{
+                          width: '100%',
+                          padding: '8px',
+                          border: '1px solid #cbd5e1',
+
+                        }}
+                      >
+                        <option value="">Select</option>
+                        <option value="Client">Client</option>
+                        <option value="Buyer">Buyer</option>
+                        <option value="Renter">Renter</option>
+                        <option value="Lead">Lead</option>
+                        <option value="Partner">Partner</option>
+                      </select>
+                    </LockedInputWrapper>
+                  </td>
+                  <td>
+                    <LockedInputWrapper fieldId={`customer-${actualIndex}-company`} cmsData={cmsData}>
+                      <input
+                        type="text"
+                        value={Customer.company || ''}
+                        onChange={(e) => handleUpdateCustomer(actualIndex, 'company', e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '8px',
+                          border: '1px solid #cbd5e1',
+
+                        }}
+                      />
+                    </LockedInputWrapper>
+                  </td>
+                  <td>
+                    <LockedInputWrapper fieldId={`customer-${actualIndex}-status`} cmsData={cmsData}>
+                      <select
+                        value={Customer.status || ''}
+                        onChange={(e) => handleUpdateCustomer(actualIndex, 'status', e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '8px',
+                          border: '1px solid #cbd5e1',
+
+                        }}
+                      >
+                        <option value="">Select</option>
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Blacklisted">Blacklisted</option>
+                      </select>
+                    </LockedInputWrapper>
+                  </td>
+                  <td>
+                    <button onClick={() => handleExpandCustomer(actualIndex)} style={{ marginRight: '5px' }}>Expand</button>
+                    <button onClick={() => handleDeleteClick(actualIndex)}>Delete</button>
+                  </td>
+                </tr>
               );
             })}
           </tbody>
@@ -695,7 +756,7 @@ export const RentalCustomersSection = ({ cmsData }) => {
           <div style={{
             backgroundColor: 'white',
             padding: '30px',
-            
+
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
             maxWidth: '400px',
             width: '90%'
@@ -707,14 +768,14 @@ export const RentalCustomersSection = ({ cmsData }) => {
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
               <button onClick={handleCancelDelete} style={{
                 padding: '8px 16px',
-                
+
                 border: '1px solid #cbd5e1',
                 backgroundColor: 'white',
                 cursor: 'pointer'
               }}>Cancel</button>
               <button onClick={handleConfirmDelete} style={{
                 padding: '8px 16px',
-                
+
                 border: 'none',
                 backgroundColor: '#ef4444',
                 color: 'white',

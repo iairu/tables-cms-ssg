@@ -3,6 +3,7 @@ import { useLoading } from '../../../context/LoadingContext';
 import { createNavigation } from '../../../utils/navigation';
 import ComponentEditor from '../ComponentEditor';
 import { fuzzyMatch } from '../utils';
+import LockedInputWrapper from '../LockedInputWrapper';
 import '../../../styles/MassActions.css';
 
 const PagesSection = ({ cmsData, edit: editModeProp }) => {
@@ -384,10 +385,10 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
 
   const getLocalizedGroupName = (group, lang) => {
     if (group.id === 'direct-pages') {
-        return 'Direct pages';
+      return 'Direct pages';
     }
     if (lang === settings?.defaultLang) {
-        return group.name || '';
+      return group.name || '';
     }
     return group.translations?.[lang]?.name || group.name || ''; // Fallback to default name
   };
@@ -549,7 +550,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                           }}
                         >
                           <strong>{new Date(item.timestamp).toLocaleString('ja-JP')}</strong>
-                          {item.label && <span style={{marginLeft: '10px', padding: '2px 5px', backgroundColor: '#e5e7eb', fontSize: '12px'}}>{item.label}</span>}
+                          {item.label && <span style={{ marginLeft: '10px', padding: '2px 5px', backgroundColor: '#e5e7eb', fontSize: '12px' }}>{item.label}</span>}
                         </div>
                       );
                     })}
@@ -602,8 +603,8 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                     marginLeft: '10px'
                   }}>Import</button>
                   {selectedHistoryIndex !== null && (
-                    <div style={{marginLeft: '10px', display: 'flex'}}>
-                      <input type="text" id="history-label-input" placeholder="Enter label" style={{padding: '8px', border: '1px solid #cbd5e1'}} />
+                    <div style={{ marginLeft: '10px', display: 'flex' }}>
+                      <input type="text" id="history-label-input" placeholder="Enter label" style={{ padding: '8px', border: '1px solid #cbd5e1' }} />
                       <button onClick={handleLabelHistoryEntry} style={{
                         padding: '8px 16px',
                         border: 'none',
@@ -698,94 +699,100 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
             <a href="#" onClick={(e) => { e.preventDefault(); handleBackToList(); }}>← Back to Pages</a>
             <a href="#" onClick={(e) => { e.preventDefault(); handleShowHistory(); }}>History</a>
             <a href="#" onClick={(e) => { e.preventDefault(); handleSaveToHistory(); }} className="highlighted">Save to History</a>
-            <a href="#" onClick={(e) => { e.preventDefault(); handleDuplicatePage(currentPage); }} style={{marginLeft: '10px'}}>Duplicate</a>
-            <a href="#" onClick={(e) => { e.preventDefault(); handleCopyUrl(currentPage, currentLanguage); }} style={{marginLeft: '10px'}}>Copy URL</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); handleDuplicatePage(currentPage); }} style={{ marginLeft: '10px' }}>Duplicate</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); handleCopyUrl(currentPage, currentLanguage); }} style={{ marginLeft: '10px' }}>Copy URL</a>
           </div>
         </header>
 
         <div className="component-table-container">
 
-          <div style={{  }}>
+          <div style={{}}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Title ({currentLanguage}):</strong>
-              <input
-                type="text"
-                value={currentLangContent?.title || ''}
-                onChange={(e) => saveLocalizedContent(currentLanguage, { title: e.target.value })}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`page-${currentPage.id}-title-${currentLanguage}`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={currentLangContent?.title || ''}
+                  onChange={(e) => saveLocalizedContent(currentLanguage, { title: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', alignItems: 'start' }}>
             <div>
               <label style={{ display: 'block', marginBottom: '10px' }}>
                 <strong>Slug:</strong>
-                <input
-                  type="text"
-                  value={currentPage.slug || ''}
-                  disabled={currentPage.slug === 'home'}
-                  onChange={e => {
-                    const newSlug = e.target.value;
-                    updatePage(currentPage.id, { slug: newSlug });
-                    if (newSlug === 'home') {
-                      updatePage(currentPage.id, { includeInMenu: true });
-                    }
-                  }}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    marginTop: '5px',
-
-                    border: '1px solid #cbd5e1',
-                    background: currentPage.slug === 'home' ? '#f3f4f6' : 'white',
-                    cursor: currentPage.slug === 'home' ? 'not-allowed' : 'auto'
-                  }}
-                />
+                <LockedInputWrapper fieldId={`page-${currentPage.id}-slug`} cmsData={cmsData}>
+                  <input
+                    type="text"
+                    value={currentPage.slug || ''}
+                    disabled={currentPage.slug === 'home'}
+                    onChange={e => {
+                      const newSlug = e.target.value;
+                      updatePage(currentPage.id, { slug: newSlug });
+                      if (newSlug === 'home') {
+                        updatePage(currentPage.id, { includeInMenu: true });
+                      }
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '10px',
+                      marginTop: '5px',
+                      border: '1px solid #cbd5e1',
+                      background: currentPage.slug === 'home' ? '#f3f4f6' : 'white',
+                      cursor: currentPage.slug === 'home' ? 'not-allowed' : 'auto'
+                    }}
+                  />
+                </LockedInputWrapper>
               </label>
               <p style={{ fontSize: '14px', color: '#64748b', marginTop: '5px' }}>
-                Full URL: <span style={{fontFamily: 'monospace'}}>{getPageUrl(currentPage, currentLanguage)}</span>
-                <button onClick={() => handleCopyUrl(currentPage, currentLanguage)} style={{marginLeft: '8px', fontSize: '12px'}}>Copy</button>
+                Full URL: <span style={{ fontFamily: 'monospace' }}>{getPageUrl(currentPage, currentLanguage)}</span>
+                <button onClick={() => handleCopyUrl(currentPage, currentLanguage)} style={{ marginLeft: '8px', fontSize: '12px' }}>Copy</button>
               </p>
             </div>
             <div>
               <label style={{ display: 'block', marginBottom: '10px' }}>
                 <strong>Page Group:</strong>
-                <select
-                  value={(pageGroups || []).find(g => g.pageIds.includes(currentPage.id))?.id || ''}
-                  onChange={e => handleGroupChange(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    marginTop: '5px',
-                    border: '1px solid #cbd5e1',
-                    background: 'white',
-                    cursor: 'pointer'
-                  }}
-                >
-                  <option value="">No Group</option>
-                  {(pageGroups || []).map(group => (
-                    <option key={group.id} value={group.id}>{getLocalizedGroupName(group, currentLanguage)}</option>
-                  ))}
-                </select>
+                <LockedInputWrapper fieldId={`page-${currentPage.id}-group`} cmsData={cmsData}>
+                  <select
+                    value={(pageGroups || []).find(g => g.pageIds.includes(currentPage.id))?.id || ''}
+                    onChange={e => handleGroupChange(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '10px',
+                      marginTop: '5px',
+                      border: '1px solid #cbd5e1',
+                      background: 'white',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <option value="">No Group</option>
+                    {(pageGroups || []).map(group => (
+                      <option key={group.id} value={group.id}>{getLocalizedGroupName(group, currentLanguage)}</option>
+                    ))}
+                  </select>
+                </LockedInputWrapper>
               </label>
             </div>
           </div>
 
-          <div style={{ }}>
+          <div style={{}}>
             <label style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: '10px', cursor: currentPage.slug === 'home' ? 'not-allowed' : 'pointer' }}>
-              <input
-                type="checkbox"
-                checked={currentPage.slug === 'home' ? true : (currentPage.includeInMenu || false)}
-                onChange={(e) => updatePage(currentPage.id, { includeInMenu: e.target.checked })}
-                disabled={currentPage.slug === 'home'}
-                style={{ cursor: currentPage.slug === 'home' ? 'not-allowed' : 'pointer', width: '18px', height: '18px', opacity: currentPage.slug === 'home' ? 0.6 : 1 }}
-              />
+              <LockedInputWrapper fieldId={`page-${currentPage.id}-includeInMenu`} cmsData={cmsData}>
+                <input
+                  type="checkbox"
+                  checked={currentPage.slug === 'home' ? true : (currentPage.includeInMenu || false)}
+                  onChange={(e) => updatePage(currentPage.id, { includeInMenu: e.target.checked })}
+                  disabled={currentPage.slug === 'home'}
+                  style={{ cursor: currentPage.slug === 'home' ? 'not-allowed' : 'pointer', width: '18px', height: '18px', opacity: currentPage.slug === 'home' ? 0.6 : 1 }}
+                />
+              </LockedInputWrapper>
               <strong style={{ opacity: currentPage.slug === 'home' ? 0.6 : 1 }}>Include in header menu?</strong>
             </label>
           </div>
@@ -796,21 +803,23 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
               <div style={{ marginBottom: '20px' }}>
                 <label style={{ display: 'block', marginBottom: '10px' }}>
                   <strong>Theme Version Toggle:</strong>
-                  <select
-                    value={currentPage.themeVersion || 'auto'}
-                    onChange={(e) => updatePage(currentPage.id, { themeVersion: e.target.value })}
-                    style={{
-                      width: '100%',
-                      padding: '10px',
-                      marginTop: '5px',
+                  <LockedInputWrapper fieldId={`page-${currentPage.id}-themeVersion`} cmsData={cmsData}>
+                    <select
+                      value={currentPage.themeVersion || 'auto'}
+                      onChange={(e) => updatePage(currentPage.id, { themeVersion: e.target.value })}
+                      style={{
+                        width: '100%',
+                        padding: '10px',
+                        marginTop: '5px',
 
-                      border: '1px solid #cbd5e1'
-                    }}
-                  >
-                    <option value="auto">Auto (theme-auto-ver)</option>
-                    <option value="light">Light (theme-light-ver)</option>
-                    <option value="dark">Dark (theme-dark-ver)</option>
-                  </select>
+                        border: '1px solid #cbd5e1'
+                      }}
+                    >
+                      <option value="auto">Auto (theme-auto-ver)</option>
+                      <option value="light">Light (theme-light-ver)</option>
+                      <option value="dark">Dark (theme-dark-ver)</option>
+                    </select>
+                  </LockedInputWrapper>
                 </label>
                 <p style={{ fontSize: '14px', color: '#64748b', marginTop: '5px' }}>
                   Adds class to body element for theme styling
@@ -820,32 +829,34 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
               <div style={{ marginBottom: '20px' }}>
                 <label style={{ display: 'block', marginBottom: '10px' }}>
                   <strong>Button and Link Color (page-wide):</strong>
-                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: '5px' }}>
-                    <input
-                      type="color"
-                      value={currentPage.buttonLinkColor || '#1d4ed8'}
-                      onChange={(e) => updatePage(currentPage.id, { buttonLinkColor: e.target.value })}
-                      style={{
-                        width: '60px',
-                        height: '40px',
+                  <LockedInputWrapper fieldId={`page-${currentPage.id}-buttonLinkColor`} cmsData={cmsData}>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: '5px' }}>
+                      <input
+                        type="color"
+                        value={currentPage.buttonLinkColor || '#1d4ed8'}
+                        onChange={(e) => updatePage(currentPage.id, { buttonLinkColor: e.target.value })}
+                        style={{
+                          width: '60px',
+                          height: '40px',
 
-                        border: '1px solid #cbd5e1',
-                        cursor: 'pointer'
-                      }}
-                    />
-                    <input
-                      type="text"
-                      value={currentPage.buttonLinkColor || ''}
-                      onChange={(e) => updatePage(currentPage.id, { buttonLinkColor: e.target.value })}
-                      placeholder="#1d4ed8"
-                      style={{
-                        flex: 1,
-                        padding: '10px',
+                          border: '1px solid #cbd5e1',
+                          cursor: 'pointer'
+                        }}
+                      />
+                      <input
+                        type="text"
+                        value={currentPage.buttonLinkColor || ''}
+                        onChange={(e) => updatePage(currentPage.id, { buttonLinkColor: e.target.value })}
+                        placeholder="#1d4ed8"
+                        style={{
+                          flex: 1,
+                          padding: '10px',
 
-                        border: '1px solid #cbd5e1'
-                      }}
-                    />
-                  </div>
+                          border: '1px solid #cbd5e1'
+                        }}
+                      />
+                    </div>
+                  </LockedInputWrapper>
                 </label>
               </div>
 
@@ -861,49 +872,53 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
               <div style={{ marginBottom: '20px' }}>
                 <label style={{ display: 'block', marginBottom: '10px' }}>
                   <strong>Site Meta Description ({currentLanguage}):</strong>
-                  <textarea
-                    value={currentLangContent?.metaDescription || currentPage.metaDescription || ''}
-                    onChange={(e) => {
-                      const updates = { metaDescription: e.target.value };
-                      if (currentLanguage === settings.defaultLang) {
-                        updatePage(currentPage.id, updates);
-                      } else {
-                        saveLocalizedContent(currentLanguage, updates);
-                      }
-                    }}
-                    rows="3"
-                    style={{
-                      width: '100%',
-                      padding: '10px',
-                      marginTop: '5px',
+                  <LockedInputWrapper fieldId={`page-${currentPage.id}-metaDescription-${currentLanguage}`} cmsData={cmsData}>
+                    <textarea
+                      value={currentLangContent?.metaDescription || currentPage.metaDescription || ''}
+                      onChange={(e) => {
+                        const updates = { metaDescription: e.target.value };
+                        if (currentLanguage === settings.defaultLang) {
+                          updatePage(currentPage.id, updates);
+                        } else {
+                          saveLocalizedContent(currentLanguage, updates);
+                        }
+                      }}
+                      rows="3"
+                      style={{
+                        width: '100%',
+                        padding: '10px',
+                        marginTop: '5px',
 
-                      border: '1px solid #cbd5e1',
-                      fontFamily: 'inherit',
-                      resize: 'vertical'
-                    }}
-                    placeholder="Enter page description for SEO..."
-                  />
+                        border: '1px solid #cbd5e1',
+                        fontFamily: 'inherit',
+                        resize: 'vertical'
+                      }}
+                      placeholder="Enter page description for SEO..."
+                    />
+                  </LockedInputWrapper>
                 </label>
               </div>
 
               <div>
                 <label style={{ display: 'block', marginBottom: '10px' }}>
                   <strong>Sitemap Page Priority:</strong>
-                  <input
-                    type="number"
-                    min="0"
-                    max="1"
-                    step="0.1"
-                    value={currentPage.sitemapPriority !== undefined ? currentPage.sitemapPriority : 0.5}
-                    onChange={(e) => updatePage(currentPage.id, { sitemapPriority: parseFloat(e.target.value) })}
-                    style={{
-                      width: '100%',
-                      padding: '10px',
-                      marginTop: '5px',
+                  <LockedInputWrapper fieldId={`page-${currentPage.id}-sitemapPriority`} cmsData={cmsData}>
+                    <input
+                      type="number"
+                      min="0"
+                      max="1"
+                      step="0.1"
+                      value={currentPage.sitemapPriority !== undefined ? currentPage.sitemapPriority : 0.5}
+                      onChange={(e) => updatePage(currentPage.id, { sitemapPriority: parseFloat(e.target.value) })}
+                      style={{
+                        width: '100%',
+                        padding: '10px',
+                        marginTop: '5px',
 
-                      border: '1px solid #cbd5e1'
-                    }}
-                  />
+                        border: '1px solid #cbd5e1'
+                      }}
+                    />
+                  </LockedInputWrapper>
                 </label>
                 <p style={{ fontSize: '14px', color: '#64748b', marginTop: '5px' }}>
                   Value between 0.0 and 1.0 (default: 0.5)
@@ -1005,8 +1020,8 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
               )}
             </div>
           )}
-          <button onClick={() => setExportModalOpen(true)} style={{marginRight: '10px'}}>Export All</button>
-          <button onClick={() => setImportModalOpen(true)} style={{marginRight: '10px'}}>Import</button>
+          <button onClick={() => setExportModalOpen(true)} style={{ marginRight: '10px' }}>Export All</button>
+          <button onClick={() => setImportModalOpen(true)} style={{ marginRight: '10px' }}>Import</button>
           <a href="#" onClick={(e) => { e.preventDefault(); handleAddPage(); }} className="highlighted">+ Add Page</a>
         </div>
       </header>
@@ -1016,25 +1031,25 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
             <tr>
               <th><input type="checkbox" onChange={handleSelectAll} checked={selectedPages.length === filteredPages.length && filteredPages.length > 0} /></th>
               {(settings?.languages || [{ code: 'en', name: 'English' }]).map(lang => (
-                <th key={lang.code} onClick={() => handleSort('title', lang.code)} style={{cursor: 'pointer'}}>
+                <th key={lang.code} onClick={() => handleSort('title', lang.code)} style={{ cursor: 'pointer' }}>
                   Title ({lang.code})
                   {sortConfig.key === 'title' && sortConfig.langCode === lang.code && (
-                    <span style={{marginLeft: '5px'}}>{sortConfig.direction === 'asc' ? '🔼' : sortConfig.direction === 'desc' ? '🔽' : ''}</span>
+                    <span style={{ marginLeft: '5px' }}>{sortConfig.direction === 'asc' ? '🔼' : sortConfig.direction === 'desc' ? '🔽' : ''}</span>
                   )}
                 </th>
               ))}
               <th>Slug</th>
               <th>In Menu?</th>
-              <th onClick={() => handleSort('pageGroup')} style={{cursor: 'pointer'}}>
+              <th onClick={() => handleSort('pageGroup')} style={{ cursor: 'pointer' }}>
                 Page Group
                 {sortConfig.key === 'pageGroup' && (
-                  <span style={{marginLeft: '5px'}}>{sortConfig.direction === 'asc' ? '🔼' : sortConfig.direction === 'desc' ? '🔽' : ''}</span>
+                  <span style={{ marginLeft: '5px' }}>{sortConfig.direction === 'asc' ? '🔼' : sortConfig.direction === 'desc' ? '🔽' : ''}</span>
                 )}
               </th>
-              <th onClick={() => handleSort('lastEdited')} style={{cursor: 'pointer'}}>
+              <th onClick={() => handleSort('lastEdited')} style={{ cursor: 'pointer' }}>
                 Last Edited
                 {sortConfig.key === 'lastEdited' && (
-                  <span style={{marginLeft: '5px'}}>{sortConfig.direction === 'asc' ? '🔼' : sortConfig.direction === 'desc' ? '🔽' : ''}</span>
+                  <span style={{ marginLeft: '5px' }}>{sortConfig.direction === 'asc' ? '🔼' : sortConfig.direction === 'desc' ? '🔽' : ''}</span>
                 )}
               </th>
               <th>Actions</th>
@@ -1049,7 +1064,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
                     {getLocalizedContent(page, lang.code).title}
                     <button
                       onClick={() => handleCopyUrl(page, lang.code)}
-                      style={{marginLeft: '5px', fontSize: '11px'}}
+                      style={{ marginLeft: '5px', fontSize: '11px' }}
                       title="Copy page URL"
                     >🔗</button>
                   </td>

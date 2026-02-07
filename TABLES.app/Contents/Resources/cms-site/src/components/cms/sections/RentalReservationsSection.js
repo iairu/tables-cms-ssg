@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { fuzzyMatch } from '../utils';
+import LockedInputWrapper from '../LockedInputWrapper';
 export const RentalReservationsSection = ({ cmsData }) => {
   const { reservationRows, saveReservationRows, inventoryRows, customerRows, employeeRows } = cmsData;
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -72,68 +73,80 @@ export const RentalReservationsSection = ({ cmsData }) => {
             {reservationRows.map((row, index) => (
               <tr key={row.id}>
                 <td>
-                  <select
-                    value={row.customerName}
-                    onChange={(e) => handleUpdateRow(index, 'customerName', e.target.value)}
-                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
-                  >
-                    <option value="">Select Customer</option>
-                    {customerRows.map(customer => (
-                      <option key={customer.email} value={customer.fullName}>{customer.fullName}</option>
-                    ))}
-                  </select>
+                  <LockedInputWrapper fieldId={`reservation-${row.id}-customerName`} cmsData={cmsData}>
+                    <select
+                      value={row.customerName}
+                      onChange={(e) => handleUpdateRow(index, 'customerName', e.target.value)}
+                      style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
+                    >
+                      <option value="">Select Customer</option>
+                      {customerRows.map(customer => (
+                        <option key={customer.email} value={customer.fullName}>{customer.fullName}</option>
+                      ))}
+                    </select>
+                  </LockedInputWrapper>
                 </td>
                 <td>
-                  <select
-                    value={row.itemName}
-                    onChange={(e) => handleUpdateRow(index, 'itemName', e.target.value)}
-                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
-                  >
-                    <option value="">Select Item</option>
-                    {inventoryRows.map(item => (
-                      <option key={item.sku} value={item.itemName}>{item.itemName}</option>
-                    ))}
-                  </select>
+                  <LockedInputWrapper fieldId={`reservation-${row.id}-itemName`} cmsData={cmsData}>
+                    <select
+                      value={row.itemName}
+                      onChange={(e) => handleUpdateRow(index, 'itemName', e.target.value)}
+                      style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
+                    >
+                      <option value="">Select Item</option>
+                      {inventoryRows.map(item => (
+                        <option key={item.sku} value={item.itemName}>{item.itemName}</option>
+                      ))}
+                    </select>
+                  </LockedInputWrapper>
                 </td>
                 <td>
-                  <select
-                    value={row.responsibleEmployee}
-                    onChange={(e) => handleUpdateRow(index, 'responsibleEmployee', e.target.value)}
-                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
-                  >
-                    <option value="">Select Employee</option>
-                    {employeeRows.map(employee => (
-                      <option key={employee.email} value={employee.fullName}>{employee.fullName}</option>
-                    ))}
-                  </select>
+                  <LockedInputWrapper fieldId={`reservation-${row.id}-responsibleEmployee`} cmsData={cmsData}>
+                    <select
+                      value={row.responsibleEmployee}
+                      onChange={(e) => handleUpdateRow(index, 'responsibleEmployee', e.target.value)}
+                      style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
+                    >
+                      <option value="">Select Employee</option>
+                      {employeeRows.map(employee => (
+                        <option key={employee.email} value={employee.fullName}>{employee.fullName}</option>
+                      ))}
+                    </select>
+                  </LockedInputWrapper>
                 </td>
                 <td>
-                  <input
-                    type="date"
-                    value={row.startDate}
-                    onChange={(e) => handleUpdateRow(index, 'startDate', e.target.value)}
-                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
-                  />
+                  <LockedInputWrapper fieldId={`reservation-${row.id}-startDate`} cmsData={cmsData}>
+                    <input
+                      type="date"
+                      value={row.startDate}
+                      onChange={(e) => handleUpdateRow(index, 'startDate', e.target.value)}
+                      style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
+                    />
+                  </LockedInputWrapper>
                 </td>
                 <td>
-                  <input
-                    type="date"
-                    value={row.endDate}
-                    onChange={(e) => handleUpdateRow(index, 'endDate', e.target.value)}
-                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
-                  />
+                  <LockedInputWrapper fieldId={`reservation-${row.id}-endDate`} cmsData={cmsData}>
+                    <input
+                      type="date"
+                      value={row.endDate}
+                      onChange={(e) => handleUpdateRow(index, 'endDate', e.target.value)}
+                      style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
+                    />
+                  </LockedInputWrapper>
                 </td>
                 <td>
-                  <select
-                    value={row.status}
-                    onChange={(e) => handleUpdateRow(index, 'status', e.target.value)}
-                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
-                  >
-                    <option value="Confirmed">Confirmed</option>
-                    <option value="Picked Up">Picked Up</option>
-                    <option value="Returned">Returned</option>
-                    <option value="Cancelled">Cancelled</option>
-                  </select>
+                  <LockedInputWrapper fieldId={`reservation-${row.id}-status`} cmsData={cmsData}>
+                    <select
+                      value={row.status}
+                      onChange={(e) => handleUpdateRow(index, 'status', e.target.value)}
+                      style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
+                    >
+                      <option value="Confirmed">Confirmed</option>
+                      <option value="Picked Up">Picked Up</option>
+                      <option value="Returned">Returned</option>
+                      <option value="Cancelled">Cancelled</option>
+                    </select>
+                  </LockedInputWrapper>
                 </td>
                 <td>
                   <button onClick={() => handleDeleteClick(index)}>Delete</button>
@@ -160,7 +173,7 @@ export const RentalReservationsSection = ({ cmsData }) => {
           <div style={{
             backgroundColor: 'white',
             padding: '30px',
-            
+
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
             maxWidth: '400px',
             width: '90%'
@@ -172,14 +185,14 @@ export const RentalReservationsSection = ({ cmsData }) => {
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
               <button onClick={handleCancelDelete} style={{
                 padding: '8px 16px',
-                
+
                 border: '1px solid #cbd5e1',
                 backgroundColor: 'white',
                 cursor: 'pointer'
               }}>Cancel</button>
               <button onClick={handleConfirmDelete} style={{
                 padding: '8px 16px',
-                
+
                 border: 'none',
                 backgroundColor: '#ef4444',
                 color: 'white',

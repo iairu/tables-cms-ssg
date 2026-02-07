@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { fuzzyMatch } from '../utils';
+import LockedInputWrapper from '../LockedInputWrapper';
 // RentalInventorySection
 export const RentalInventorySection = ({ cmsData }) => {
   const { inventoryRows, saveInventoryRows } = cmsData;
@@ -87,151 +88,169 @@ export const RentalInventorySection = ({ cmsData }) => {
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Item Name: <span style={{ color: '#ef4444' }}>*</span></strong>
-              <input
-                type="text"
-                value={editingItem.itemName || ''}
-                onChange={(e) => handleUpdateItem(editingItemIndex, 'itemName', e.target.value)}
-                required
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`inventory-${editingItemIndex}-itemName`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingItem.itemName || ''}
+                  onChange={(e) => handleUpdateItem(editingItemIndex, 'itemName', e.target.value)}
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>SKU:</strong>
-              <input
-                type="text"
-                value={editingItem.sku || ''}
-                onChange={(e) => handleUpdateItem(editingItemIndex, 'sku', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`inventory-${editingItemIndex}-sku`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingItem.sku || ''}
+                  onChange={(e) => handleUpdateItem(editingItemIndex, 'sku', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Quantity:</strong>
-              <input
-                type="number"
-                value={editingItem.quantity || ''}
-                onChange={(e) => handleUpdateItem(editingItemIndex, 'quantity', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`inventory-${editingItemIndex}-quantity`} cmsData={cmsData}>
+                <input
+                  type="number"
+                  value={editingItem.quantity || ''}
+                  onChange={(e) => handleUpdateItem(editingItemIndex, 'quantity', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Location:</strong>
-              <input
-                type="text"
-                value={editingItem.location || ''}
-                onChange={(e) => handleUpdateItem(editingItemIndex, 'location', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`inventory-${editingItemIndex}-location`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingItem.location || ''}
+                  onChange={(e) => handleUpdateItem(editingItemIndex, 'location', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Supplier:</strong>
-              <input
-                type="text"
-                value={editingItem.supplier || ''}
-                onChange={(e) => handleUpdateItem(editingItemIndex, 'supplier', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`inventory-${editingItemIndex}-supplier`} cmsData={cmsData}>
+                <input
+                  type="text"
+                  value={editingItem.supplier || ''}
+                  onChange={(e) => handleUpdateItem(editingItemIndex, 'supplier', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Status:</strong>
-              <select
-                value={editingItem.status || ''}
-                onChange={(e) => handleUpdateItem(editingItemIndex, 'status', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1'
-                }}
-              >
-                <option value="In Stock">In Stock</option>
-                <option value="Out of Stock">Out of Stock</option>
-                <option value="On Order">On Order</option>
-              </select>
+              <LockedInputWrapper fieldId={`inventory-${editingItemIndex}-status`} cmsData={cmsData}>
+                <select
+                  value={editingItem.status || ''}
+                  onChange={(e) => handleUpdateItem(editingItemIndex, 'status', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+
+                    border: '1px solid #cbd5e1'
+                  }}
+                >
+                  <option value="In Stock">In Stock</option>
+                  <option value="Out of Stock">Out of Stock</option>
+                  <option value="On Order">On Order</option>
+                </select>
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Last Restocked:</strong>
-              <input
-                type="date"
-                value={editingItem.lastRestocked || ''}
-                onChange={(e) => handleUpdateItem(editingItemIndex, 'lastRestocked', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`inventory-${editingItemIndex}-lastRestocked`} cmsData={cmsData}>
+                <input
+                  type="date"
+                  value={editingItem.lastRestocked || ''}
+                  onChange={(e) => handleUpdateItem(editingItemIndex, 'lastRestocked', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px' }}>
               <strong>Notes:</strong>
-              <textarea
-                value={editingItem.notes || ''}
-                onChange={(e) => handleUpdateItem(editingItemIndex, 'notes', e.target.value)}
-                rows="4"
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: '5px',
-                  
-                  border: '1px solid #cbd5e1'
-                }}
-              />
+              <LockedInputWrapper fieldId={`inventory-${editingItemIndex}-notes`} cmsData={cmsData}>
+                <textarea
+                  value={editingItem.notes || ''}
+                  onChange={(e) => handleUpdateItem(editingItemIndex, 'notes', e.target.value)}
+                  rows="4"
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    marginTop: '5px',
+
+                    border: '1px solid #cbd5e1'
+                  }}
+                />
+              </LockedInputWrapper>
             </label>
           </div>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
-              <input
-                type="checkbox"
-                checked={editingItem.public || false}
-                onChange={(e) => handleUpdateItem(editingItemIndex, 'public', e.target.checked)}
-                style={{ cursor: 'pointer', width: '18px', height: '18px' }}
-              />
+              <LockedInputWrapper fieldId={`inventory-${editingItemIndex}-public`} cmsData={cmsData}>
+                <input
+                  type="checkbox"
+                  checked={editingItem.public || false}
+                  onChange={(e) => handleUpdateItem(editingItemIndex, 'public', e.target.checked)}
+                  style={{ cursor: 'pointer', width: '18px', height: '18px' }}
+                />
+              </LockedInputWrapper>
               <strong>Public (visible in catalog)</strong>
             </label>
           </div>
@@ -252,7 +271,7 @@ export const RentalInventorySection = ({ cmsData }) => {
             onChange={(e) => setSearchQuery(e.target.value)}
             style={{
               padding: '8px 12px',
-              
+
               border: '1px solid #cbd5e1',
               marginRight: '10px',
               width: '200px'
@@ -278,88 +297,100 @@ export const RentalInventorySection = ({ cmsData }) => {
             {filteredInventoryRows.map((item, index) => {
               const actualIndex = inventoryRows.indexOf(item);
               return (
-              <tr key={actualIndex}>
-                <td>
-                  <input
-                    type="text"
-                    value={item.itemName || ''}
-                    onChange={(e) => handleUpdateItem(actualIndex, 'itemName', e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '8px',
-                      border: '1px solid #cbd5e1',
-                      
-                    }}
-                  />
-                </td>
-                <td>
-                  <input
-                    type="text"
-                    value={item.sku || ''}
-                    onChange={(e) => handleUpdateItem(actualIndex, 'sku', e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '8px',
-                      border: '1px solid #cbd5e1',
-                      
-                    }}
-                  />
-                </td>
-                <td>
-                  <input
-                    type="number"
-                    value={item.quantity || ''}
-                    onChange={(e) => handleUpdateItem(actualIndex, 'quantity', e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '8px',
-                      border: '1px solid #cbd5e1',
-                      
-                    }}
-                  />
-                </td>
-                <td>
-                  <input
-                    type="text"
-                    value={item.location || ''}
-                    onChange={(e) => handleUpdateItem(actualIndex, 'location', e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '8px',
-                      border: '1px solid #cbd5e1',
-                      
-                    }}
-                  />
-                </td>
-                <td>
-                  <select
-                    value={item.status || ''}
-                    onChange={(e) => handleUpdateItem(actualIndex, 'status', e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '8px',
-                      border: '1px solid #cbd5e1',
-                      
-                    }}
-                  >
-                    <option value="In Stock">In Stock</option>
-                    <option value="Out of Stock">Out of Stock</option>
-                    <option value="On Order">On Order</option>
-                  </select>
-                </td>
-                <td>
-                  <input
-                    type="checkbox"
-                    checked={item.public || false}
-                    onChange={(e) => handleUpdateItem(actualIndex, 'public', e.target.checked)}
-                    style={{ cursor: 'pointer' }}
-                  />
-                </td>
-                <td>
-                  <button onClick={() => handleExpandItem(actualIndex)} style={{ marginRight: '5px' }}>Expand</button>
-                  <button onClick={() => handleDeleteClick(actualIndex)}>Delete</button>
-                </td>
-              </tr>
+                <tr key={actualIndex}>
+                  <td>
+                    <LockedInputWrapper fieldId={`inventory-${actualIndex}-itemName`} cmsData={cmsData}>
+                      <input
+                        type="text"
+                        value={item.itemName || ''}
+                        onChange={(e) => handleUpdateItem(actualIndex, 'itemName', e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '8px',
+                          border: '1px solid #cbd5e1',
+
+                        }}
+                      />
+                    </LockedInputWrapper>
+                  </td>
+                  <td>
+                    <LockedInputWrapper fieldId={`inventory-${actualIndex}-sku`} cmsData={cmsData}>
+                      <input
+                        type="text"
+                        value={item.sku || ''}
+                        onChange={(e) => handleUpdateItem(actualIndex, 'sku', e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '8px',
+                          border: '1px solid #cbd5e1',
+
+                        }}
+                      />
+                    </LockedInputWrapper>
+                  </td>
+                  <td>
+                    <LockedInputWrapper fieldId={`inventory-${actualIndex}-quantity`} cmsData={cmsData}>
+                      <input
+                        type="number"
+                        value={item.quantity || ''}
+                        onChange={(e) => handleUpdateItem(actualIndex, 'quantity', e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '8px',
+                          border: '1px solid #cbd5e1',
+
+                        }}
+                      />
+                    </LockedInputWrapper>
+                  </td>
+                  <td>
+                    <LockedInputWrapper fieldId={`inventory-${actualIndex}-location`} cmsData={cmsData}>
+                      <input
+                        type="text"
+                        value={item.location || ''}
+                        onChange={(e) => handleUpdateItem(actualIndex, 'location', e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '8px',
+                          border: '1px solid #cbd5e1',
+
+                        }}
+                      />
+                    </LockedInputWrapper>
+                  </td>
+                  <td>
+                    <LockedInputWrapper fieldId={`inventory-${actualIndex}-status`} cmsData={cmsData}>
+                      <select
+                        value={item.status || ''}
+                        onChange={(e) => handleUpdateItem(actualIndex, 'status', e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '8px',
+                          border: '1px solid #cbd5e1',
+
+                        }}
+                      >
+                        <option value="In Stock">In Stock</option>
+                        <option value="Out of Stock">Out of Stock</option>
+                        <option value="On Order">On Order</option>
+                      </select>
+                    </LockedInputWrapper>
+                  </td>
+                  <td>
+                    <LockedInputWrapper fieldId={`inventory-${actualIndex}-public`} cmsData={cmsData}>
+                      <input
+                        type="checkbox"
+                        checked={item.public || false}
+                        onChange={(e) => handleUpdateItem(actualIndex, 'public', e.target.checked)}
+                        style={{ cursor: 'pointer' }}
+                      />
+                    </LockedInputWrapper>
+                  </td>
+                  <td>
+                    <button onClick={() => handleExpandItem(actualIndex)} style={{ marginRight: '5px' }}>Expand</button>
+                    <button onClick={() => handleDeleteClick(actualIndex)}>Delete</button>
+                  </td>
+                </tr>
               );
             })}
           </tbody>
@@ -382,7 +413,7 @@ export const RentalInventorySection = ({ cmsData }) => {
           <div style={{
             backgroundColor: 'white',
             padding: '30px',
-            
+
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
             maxWidth: '400px',
             width: '90%'
@@ -394,14 +425,14 @@ export const RentalInventorySection = ({ cmsData }) => {
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
               <button onClick={handleCancelDelete} style={{
                 padding: '8px 16px',
-                
+
                 border: '1px solid #cbd5e1',
                 backgroundColor: 'white',
                 cursor: 'pointer'
               }}>Cancel</button>
               <button onClick={handleConfirmDelete} style={{
                 padding: '8px 16px',
-                
+
                 border: 'none',
                 backgroundColor: '#ef4444',
                 color: 'white',
