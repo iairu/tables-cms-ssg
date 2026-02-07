@@ -529,13 +529,20 @@ const useCMSData = () => {
   // Collaboration Functions
   const startCollaborationServer = useCallback(async () => {
     if (!window.electron) return;
+
+    // Check if other servers are already discovered - Single Server Policy
+    if (collabState.discoveredServers.length > 0) {
+      alert('Cannot start server: Another collaboration server was detected on this network. Please connect to the existing server instead.');
+      return;
+    }
+
     try {
       const result = await window.electron.startServer(8081);
       if (result.status === 'started' || result.status === 'already-running') {
         console.log('Collaboration server started on', result.ip);
 
-        // Connect to local server
-        connectToCollaborationServer('http://localhost:8081', 'Host');
+        // Connect to local server as HOST
+        connectToCollaborationServer('http://localhost:8081', 'Host', true);
 
         setCollabState(prev => ({
           ...prev,
@@ -548,7 +555,7 @@ const useCMSData = () => {
     }
   }, []);
 
-  const connectToCollaborationServer = useCallback((url, name) => {
+  const connectToCollaborationServer = useCallback((url, name, isHost = false) => {
     if (socketRef.current) {
       socketRef.current.disconnect();
     }
@@ -572,7 +579,7 @@ const useCMSData = () => {
         clientName: name,
         socketId: socket.id
       }));
-      socket.emit('register-client', { name });
+      socket.emit('register-client', { name, isHost });
     });
 
     socket.on('disconnect', (reason) => {
@@ -733,6 +740,29 @@ const useCMSData = () => {
       if (countdownIntervalRef.current) {
         clearInterval(countdownIntervalRef.current);
         countdownIntervalRef.current = null;
+      }
+    });
+
+    socket.on('forwarded-update', (update) => {
+      // Host Logic: Receive update from Peer, apply it (serializing it)
+      console.log('Host received forwarded update from peer');
+      const actions = actionsRef.current;
+      // Apply update - this will trigger a save, which triggers a data-update broadcast from Host
+      // We pass 'false' for skipBroadcast because we WANT to broadcast the result to everyone
+      switch (update.type) {
+        case 'pages': actions.savePages(update.data); break;
+        case 'pageGroups': actions.savePageGroups(update.data); break;
+        case 'blogArticles': actions.saveBlogArticles(update.data); break;
+        case 'catRows': actions.saveCatRows(update.data); break;
+        case 'userRows': actions.saveUserRows(update.data); break;
+        case 'inventoryRows': actions.saveInventoryRows(update.data); break;
+        case 'attendanceRows': actions.saveAttendanceRows(update.data); break;
+        case 'reservationRows': actions.saveReservationRows(update.data); break;
+        case 'componentRows': actions.saveComponentRows(update.data); break;
+        case 'movieList': actions.saveMovieList(update.data); break;
+        case 'settings': actions.saveSettings(update.data); break;
+        case 'acl': actions.saveAcl(update.data); break;
+        case 'extensions': actions.saveExtensions(update.data); break;
       }
     });
 

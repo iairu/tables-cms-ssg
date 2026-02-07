@@ -9,3 +9,5 @@ show each client name within any field that is currently being remotely edited f
 make the visual lock feedback more robust
 
 if collaboration sync of changes is not yet handled a suggestion from me (perhaps there is a more robust way to do this, if so do it more robust): every few ms send localStorage diff to server and have server respond with its localStorage diff to sync all changes over socket, alternatively have all clients send changes across sockets to all other clients, whichever is more robust
+
+handle race conditions between clients and between any client and server, also only allow one server per network (deny any client from starting a server if another server is already running, also if a client tries to connect to a server that is not running, deny it)

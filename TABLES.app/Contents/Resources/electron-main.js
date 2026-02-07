@@ -1020,6 +1020,10 @@ const startServer = () => {
 
     socket.on('register-client', (clientInfo) => {
       connectedClients.set(socket.id, { ...clientInfo, ip: clientIp, id: socket.id });
+      if (clientInfo.isHost) {
+        hostSocketId = socket.id;
+        log(`Host registered: ${socket.id}`);
+      }
       io.emit('client-list-update', Array.from(connectedClients.values()));
     });
 
@@ -1094,6 +1098,10 @@ const startServer = () => {
     socket.on('disconnect', () => {
       log(`Client disconnected: ${socket.id}`);
       connectedClients.delete(socket.id);
+      if (hostSocketId === socket.id) {
+        hostSocketId = null;
+        log('Host disconnected.');
+      }
       io.emit('client-list-update', Array.from(connectedClients.values()));
 
       let locksRemoved = false;
@@ -1111,8 +1119,20 @@ const startServer = () => {
 
     // Data Synchronization
     socket.on('data-update', (payload) => {
-      // Broadcast to all other clients
-      socket.broadcast.emit('data-update', payload);
+      if (socket.id === hostSocketId) {
+        // Authoritative update from Host: Broadcast to ALL clients (including sender? No, sender knows. Broadcast sends to everyone else)
+        // Actually, for consistency, maybe we should just broadcast to others. Host already applied it.
+        socket.broadcast.emit('data-update', payload);
+        // log('Broadcasted update from Host');
+      } else {
+        // Update from Peer: Forward to Host for approval/serialization
+        if (hostSocketId) {
+          io.to(hostSocketId).emit('forwarded-update', { ...payload, originSocketId: socket.id });
+          log(`Forwarded update from ${socket.id} to Host`);
+        } else {
+          log('Received update from Peer but no Host connected. Ignoring.');
+        }
+      }
     });
 
     socket.on('sync-full-state', ({ targetSocketId, state }) => {
