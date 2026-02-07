@@ -119,6 +119,21 @@ const useCMSData = () => {
     const vercelApiToken = cmsData.settings.vercelApiKey || '';
     const vercelProjectName = cmsData.settings.vercelProjectName || '';
 
+    // Check if we are a client connected to a host
+    if (collabState.isConnected && !collabState.isServer && socketRef.current) {
+      console.log('[useCMSData] Triggering remote build on host...');
+      socketRef.current.emit('request-save-and-build', {
+        timestamp: new Date().toISOString(),
+        trigger: 'remote-client',
+        data: cmsData,
+        localOnly: localOnly,
+        vercelApiToken: vercelApiToken,
+        vercelProjectName: vercelProjectName
+      });
+      // We don't fetch locally, instead we wait for 'build-status' events
+      return;
+    }
+
     fetch('/api/build', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -563,6 +578,32 @@ const useCMSData = () => {
         // But here we are the receiver.
         setSettings(update.data);
         localStorage.setItem('settings', JSON.stringify(update.data));
+      }
+    });
+
+    socket.on('build-status', (status) => {
+      console.log('[useCMSData] Received build status:', status);
+      setIsBuildingState(status.isBuildInProgress);
+      if (!status.isBuildInProgress && status.lastBuildTime) {
+        setLastSaved(status.lastBuildTime);
+        setCanBuild(true);
+        setBuildCooldownSeconds(0);
+        if (countdownIntervalRef.current) {
+          clearInterval(countdownIntervalRef.current);
+          countdownIntervalRef.current = null;
+        }
+      }
+    });
+
+    socket.on('build-error', (error) => {
+      console.error('[useCMSData] Remote build error:', error);
+      alert(`Remote build failed: ${error}`);
+      setIsBuildingState(false);
+      setCanBuild(true);
+      setBuildCooldownSeconds(0);
+      if (countdownIntervalRef.current) {
+        clearInterval(countdownIntervalRef.current);
+        countdownIntervalRef.current = null;
       }
     });
 

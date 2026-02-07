@@ -985,7 +985,89 @@ ipcMain.handle('collab-start-server', async (event, port = 8081) => {
           log(`Cleaned up locks for disconnected client: ${socket.id}`);
         }
       });
+
+      socket.on('request-save-and-build', async (payload) => {
+        if (isBuildInProgress) {
+          socket.emit('build-error', 'Build already in progress on host.');
+          return;
+        }
+
+        log(`Received build request from ${socket.id} (${payload.trigger || 'remote'})`);
+        io.emit('build-status', { isBuildInProgress: true, progress: 0, status: 'Starting build...' });
+
+        try {
+          // Forward request to local Gatsby server
+          const postData = JSON.stringify(payload);
+          const options = {
+            hostname: 'localhost',
+            port: 8000,
+            path: '/api/build',
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Content-Length': Buffer.byteLength(postData)
+            }
+          };
+
+          const req = http.request(options, (res) => {
+            log(`Forwarded build request: Status ${res.statusCode}`);
+            if (res.statusCode === 200 || res.statusCode === 409) {
+              // 409 means already running, which is also "success" in triggering terms
+              isBuildInProgress = true;
+              io.emit('build-status', { isBuildInProgress: true, status: 'Build started on host...' });
+              startGlobalBuildPolling();
+            } else {
+              io.emit('build-error', `Failed to trigger build on host: ${res.statusCode}`);
+            }
+          });
+
+          req.on('error', (e) => {
+            log(`Problem forwarding build request: ${e.message}`);
+            io.emit('build-error', `Host failed to forward request: ${e.message}`);
+          });
+
+          req.write(postData);
+          req.end();
+
+        } catch (e) {
+          log(`Error handling build request: ${e.message}`);
+          io.emit('build-error', e.message);
+        }
+      });
     });
+
+    // Polling logic for build status (Single source of truth)
+    let buildPollInterval;
+    const startGlobalBuildPolling = () => {
+      if (buildPollInterval) clearInterval(buildPollInterval);
+
+      const poll = () => {
+        http.get('http://localhost:8000/api/build', (res) => {
+          let data = '';
+          res.on('data', (chunk) => data += chunk);
+          res.on('end', () => {
+            try {
+              const status = JSON.parse(data);
+              // Broadcast status to all clients
+              io.emit('build-status', status);
+
+              if (!status.isBuildInProgress) {
+                clearInterval(buildPollInterval);
+                buildPollInterval = null;
+                log('Remote build finished.');
+              }
+            } catch (e) {
+              // ignore parse errors
+            }
+          });
+        }).on('error', (e) => {
+          // ignore connection errors during poll
+        });
+      };
+
+      buildPollInterval = setInterval(poll, 2000);
+      poll(); // Immediate first check
+    };
 
     collabServer = httpServer.listen(port, '0.0.0.0', () => {
       log(`Collaboration server listening on 0.0.0.0:${port}`);
