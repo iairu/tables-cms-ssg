@@ -14,4 +14,5 @@ contextBridge.exposeInMainWorld('electron', {
   getIP: () => ipcRenderer.invoke('collab-get-ip'),
   startServer: (port) => ipcRenderer.invoke('collab-start-server', port),
   stopServer: () => ipcRenderer.invoke('collab-stop-server'),
+  onServerFound: (callback) => ipcRenderer.on('collab-server-found', (_event, serverInfo) => callback(serverInfo)),
 });

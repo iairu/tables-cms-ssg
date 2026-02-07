@@ -293,6 +293,39 @@ const SettingsSection = ({ cmsData }) => {
                     Connect
                   </button>
                 </div>
+                {collabState.discoveredServers && collabState.discoveredServers.length > 0 && (
+                  <div style={{ marginTop: '15px', borderTop: '1px solid #cbd5e1', paddingTop: '10px' }}>
+                    <h4 style={{ fontSize: '14px', marginBottom: '8px', color: '#64748b' }}>Discovered Local Servers:</h4>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {collabState.discoveredServers.map((server, idx) => (
+                        <button
+                          key={`${server.ip}-${server.port}-${idx}`}
+                          onClick={() => setConnectIP(`${server.ip}:${server.port}`)}
+                          style={{
+                            textAlign: 'left',
+                            padding: '10px',
+                            background: 'white',
+                            border: '1px solid #cbd5e1',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            transition: 'all 0.2s ease'
+                          }}
+                          onMouseOver={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
+                          onMouseOut={(e) => e.currentTarget.style.borderColor = '#cbd5e1'}
+                        >
+                          <div>
+                            <div style={{ fontWeight: '600', fontSize: '13px' }}>{server.hostname || server.name || 'Unknown Server'}</div>
+                            <div style={{ color: '#64748b', fontSize: '12px' }}>{server.ip}:{server.port}</div>
+                          </div>
+                          <span style={{ fontSize: '12px', color: '#3b82f6' }}>Select</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
               <div style={{ borderLeft: '1px solid #bfdbfe', paddingLeft: '30px' }}>
                 <h3 style={{ fontSize: '16px', marginBottom: '10px' }}>Host Server</h3>

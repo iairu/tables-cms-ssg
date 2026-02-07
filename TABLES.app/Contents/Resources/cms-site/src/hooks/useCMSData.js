@@ -12,7 +12,8 @@ const useCMSData = () => {
     clientName: 'Anonymous',
     activeLocks: [], // Array of { fieldId, clientName }
     connectedClients: [],
-    socketId: null
+    socketId: null,
+    discoveredServers: [] // Array of { ip, port, name, id }
   });
   // Build trigger state
   const buildTimeoutRef = useRef(null);
@@ -477,7 +478,26 @@ const useCMSData = () => {
     fetchUploads();
     // Mark data as loaded
     setIsDataLoaded(true);
+    setIsDataLoaded(true);
   }, [fetchUploads, setIsBuildingState, startPolling]);
+
+  // Listen for discovered servers
+  useEffect(() => {
+    if (window.electron && window.electron.onServerFound) {
+      window.electron.onServerFound((serverInfo) => {
+        console.log('Discovered server:', serverInfo);
+        setCollabState(prev => {
+          // Avoid duplicates based on IP and Port
+          const exists = prev.discoveredServers.find(s => s.ip === serverInfo.ip && s.port === serverInfo.port);
+          if (exists) return prev;
+          return {
+            ...prev,
+            discoveredServers: [...prev.discoveredServers, serverInfo]
+          };
+        });
+      });
+    }
+  }, []);
 
   // Collaboration Functions
   const startCollaborationServer = useCallback(async () => {

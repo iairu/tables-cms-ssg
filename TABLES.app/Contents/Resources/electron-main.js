@@ -7,12 +7,99 @@ const net = require('net');
 const AnsiToHtml = require('ansi-to-html');
 const { Server } = require('socket.io'); // Socket.io server
 const http = require('http'); // Required for Socket.io standalone
+const dgram = require('node:dgram'); // UDP for auto-discovery
 
 // Collaboration State
 let io;
 let collabServer;
 let connectedClients = new Map(); // socketId -> clientInfo
 let activeLocks = new Map(); // fieldId -> { socketId, timestamp, clientName }
+
+// Discovery State
+const DISCOVERY_PORT = 41234;
+const DISCOVERY_MSG_KEY = 'tables-cms-discovery';
+let discoverySocket;
+let broadcastInterval;
+
+const getLocalIP = () => {
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name]) {
+      if (iface.family === 'IPv4' && !iface.internal) {
+        return iface.address;
+      }
+    }
+  }
+  return '127.0.0.1';
+};
+
+const startDiscoveryService = () => {
+  try {
+    discoverySocket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
+
+    discoverySocket.on('error', (err) => {
+      log(`Discovery socket error: ${err.message}`);
+      discoverySocket.close();
+    });
+
+    discoverySocket.on('message', (msg, rinfo) => {
+      try {
+        const message = JSON.parse(msg.toString());
+        if (message.key === DISCOVERY_MSG_KEY && message.type === 'announce') {
+          // Verify it's not our own broadcast (optional, but good for UI to filter if needed)
+          if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('collab-server-found', {
+              ip: message.ip,
+              hostname: message.hostname,
+              port: message.port
+            });
+          }
+        }
+      } catch (e) {
+        // Ignore malformed messages
+      }
+    });
+
+    discoverySocket.bind(DISCOVERY_PORT, () => {
+      discoverySocket.setBroadcast(true);
+      log(`Discovery service listening on UDP port ${DISCOVERY_PORT}`);
+    });
+  } catch (e) {
+    log(`Failed to start discovery service: ${e.message}`);
+  }
+};
+
+const startBroadcasting = () => {
+  if (broadcastInterval) clearInterval(broadcastInterval);
+
+  const ip = getLocalIP();
+  const hostname = os.hostname();
+  const message = JSON.stringify({
+    key: DISCOVERY_MSG_KEY,
+    type: 'announce',
+    ip: ip,
+    hostname: hostname,
+    port: 3001 // Default socket.io port
+  });
+
+  log(`Starting UDP broadcast for ${ip} on port ${DISCOVERY_PORT}`);
+
+  broadcastInterval = setInterval(() => {
+    if (discoverySocket) {
+      discoverySocket.send(message, DISCOVERY_PORT, '255.255.255.255', (err) => {
+        if (err) log(`Broadcast error: ${err.message}`);
+      });
+    }
+  }, 3000);
+};
+
+const stopBroadcasting = () => {
+  if (broadcastInterval) {
+    clearInterval(broadcastInterval);
+    broadcastInterval = null;
+    log('Stopped UDP broadcast');
+  }
+};
 
 
 
@@ -702,7 +789,11 @@ const startGatsby = () => {
   });
 };
 
+
+
+
 app.whenReady().then(async () => {
+  startDiscoveryService(); // Start UDP discovery listener
   try {
     log('=== Application Starting ===');
     log(`App is packaged: ${IS_PACKAGED}`);
@@ -882,214 +973,187 @@ app.on('before-quit', () => {
     const killed = gatsbyProcess.kill();
     log(killed ? 'Gatsby process terminated.' : 'Failed to terminate Gatsby process.');
   }
+  stopBroadcasting();
+  if (discoverySocket) {
+    discoverySocket.close();
+    discoverySocket = null;
+  }
 });
 
 // ============================================================================
 // Collaboration Server Logic
 // ============================================================================
 
-const getLocalIP = () => {
-  const interfaces = os.networkInterfaces();
-  for (const name of Object.keys(interfaces)) {
-    for (const iface of interfaces[name]) {
-      // Skip internal (i.e. 127.0.0.1) and non-IPv4 addresses
-      if ('IPv4' !== iface.family || iface.internal) {
-        continue;
-      }
-      return iface.address;
-    }
-  }
-  return '127.0.0.1';
-};
+ipcMain.handle('collab-get-ip', () => getLocalIP());
 
-ipcMain.handle('collab-get-ip', () => {
-  return getLocalIP();
+ipcMain.handle('collab-start-server', async () => {
+  try {
+    startServer();
+    return { status: 'started', ip: getLocalIP() };
+  } catch (e) {
+    return { status: 'error', error: e.message };
+  }
 });
 
-ipcMain.handle('collab-start-server', async (event, port = 8081) => {
-  if (collabServer) {
-    log('Server already running.');
-    return { status: 'already-running', ip: getLocalIP() };
-  }
+ipcMain.handle('collab-stop-server', async () => {
+  stopServer();
+  return { status: 'stopped' };
+});
 
-  try {
-    const httpServer = http.createServer();
-    io = new Server(httpServer, {
-      cors: {
-        origin: "*", // Allow LAN connections
-        methods: ["GET", "POST"]
+const startServer = () => {
+  if (collabServer) return;
+
+  collabServer = http.createServer();
+  io = new Server(collabServer, {
+    cors: {
+      origin: "*",
+      methods: ["GET", "POST"]
+    }
+  });
+
+  io.on('connection', (socket) => {
+    const clientIp = socket.handshake.address;
+    log(`Client connected: ${socket.id} from ${clientIp}`);
+
+    // Send current active locks to new client
+    socket.emit('lock-update', Array.from(activeLocks.entries()));
+
+    socket.on('register-client', (clientInfo) => {
+      connectedClients.set(socket.id, { ...clientInfo, ip: clientIp, id: socket.id });
+      io.emit('client-list-update', Array.from(connectedClients.values()));
+    });
+
+    // Handle Build Requests
+    socket.on('request-save-and-build', async (payload) => {
+      log(`Received build request from ${socket.id}`);
+
+      if (isBuildInProgress) {
+        socket.emit('build-status', 'Build already in progress');
+        return;
+      }
+
+      try {
+        const postData = JSON.stringify(payload);
+        const req = http.request({
+          hostname: 'localhost',
+          port: 8000,
+          path: '/api/build',
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Content-Length': Buffer.byteLength(postData)
+          }
+        }, (res) => {
+          log(`Triggered build via API, status: ${res.statusCode}`);
+          if (res.statusCode === 200 || res.statusCode === 409) {
+            isBuildInProgress = true;
+            io.emit('build-status', { isBuildInProgress: true, status: 'Build started on host...' });
+            startGlobalBuildPolling();
+          } else {
+            io.emit('build-error', `Failed to trigger build on host: ${res.statusCode}`);
+          }
+        });
+        req.on('error', (e) => {
+          log(`Failed to trigger build API: ${e.message}`);
+          io.emit('build-status', 'Failed to start build on host');
+        });
+        req.write(postData);
+        req.end();
+      } catch (e) {
+        log(`Error triggering build: ${e.message}`);
       }
     });
 
-    io.on('connection', (socket) => {
-      const clientIp = socket.request.connection.remoteAddress;
-      log(`New client connected: ${socket.id} from ${clientIp}`);
-
-      socket.on('register-client', ({ name }) => {
-        connectedClients.set(socket.id, { id: socket.id, name, ip: clientIp });
-        log(`Client registered: ${name} (${socket.id})`);
-
-        // Broadcast user list update
-        io.emit('client-joined', { id: socket.id, name });
-
-        // Send initial state to this client
-        socket.emit('initial-state', {
-          locks: Array.from(activeLocks.entries()),
-          clients: Array.from(connectedClients.values())
-        });
-      });
-
-      socket.on('request-lock', ({ fieldId, clientName }) => {
-        // Check if locked
-        if (activeLocks.has(fieldId)) {
-          const lock = activeLocks.get(fieldId);
-          if (lock.socketId !== socket.id) {
-            socket.emit('lock-denied', { fieldId, holder: lock.clientName });
-            return;
-          }
-        }
-
-        // Grant lock
-        activeLocks.set(fieldId, { socketId: socket.id, clientName, timestamp: Date.now() });
-        socket.emit('lock-granted', { fieldId });
-        io.emit('lock-update', { fieldId, status: 'locked', clientName, socketId: socket.id });
-        log(`Lock granted: ${fieldId} to ${clientName}`);
-      });
-
-      socket.on('release-lock', ({ fieldId }) => {
-        if (activeLocks.has(fieldId)) {
-          const lock = activeLocks.get(fieldId);
-          if (lock.socketId === socket.id) {
-            activeLocks.delete(fieldId);
-            io.emit('lock-update', { fieldId, status: 'unlocked' });
-            log(`Lock released: ${fieldId}`);
-          }
-        }
-      });
-
-      socket.on('disconnect', () => {
-        log(`Client disconnected: ${socket.id}`);
-        connectedClients.delete(socket.id);
-        io.emit('client-left', socket.id);
-
-        // Zombie Lock Cleanup
-        let locksRemoved = false;
-        for (const [fieldId, lock] of activeLocks.entries()) {
-          if (lock.socketId === socket.id) {
-            activeLocks.delete(fieldId);
-            io.emit('lock-update', { fieldId, status: 'unlocked' });
-            locksRemoved = true;
-          }
-        }
-        if (locksRemoved) {
-          log(`Cleaned up locks for disconnected client: ${socket.id}`);
-        }
-      });
-
-      socket.on('request-save-and-build', async (payload) => {
-        if (isBuildInProgress) {
-          socket.emit('build-error', 'Build already in progress on host.');
+    socket.on('request-lock', ({ fieldId, user }) => {
+      if (activeLocks.has(fieldId)) {
+        const lock = activeLocks.get(fieldId);
+        if (lock.socketId === socket.id) {
+          socket.emit('lock-granted', { fieldId });
           return;
         }
+        socket.emit('lock-denied', { fieldId, lockedBy: lock.clientName });
+      } else {
+        activeLocks.set(fieldId, { socketId: socket.id, timestamp: Date.now(), clientName: user.name });
+        io.emit('lock-update', Array.from(activeLocks.entries()));
+        socket.emit('lock-granted', { fieldId });
+        log(`Lock granted: ${fieldId} to ${user.name}`);
+      }
+    });
 
-        log(`Received build request from ${socket.id} (${payload.trigger || 'remote'})`);
-        io.emit('build-status', { isBuildInProgress: true, progress: 0, status: 'Starting build...' });
-
-        try {
-          // Forward request to local Gatsby server
-          const postData = JSON.stringify(payload);
-          const options = {
-            hostname: 'localhost',
-            port: 8000,
-            path: '/api/build',
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Content-Length': Buffer.byteLength(postData)
-            }
-          };
-
-          const req = http.request(options, (res) => {
-            log(`Forwarded build request: Status ${res.statusCode}`);
-            if (res.statusCode === 200 || res.statusCode === 409) {
-              // 409 means already running, which is also "success" in triggering terms
-              isBuildInProgress = true;
-              io.emit('build-status', { isBuildInProgress: true, status: 'Build started on host...' });
-              startGlobalBuildPolling();
-            } else {
-              io.emit('build-error', `Failed to trigger build on host: ${res.statusCode}`);
-            }
-          });
-
-          req.on('error', (e) => {
-            log(`Problem forwarding build request: ${e.message}`);
-            io.emit('build-error', `Host failed to forward request: ${e.message}`);
-          });
-
-          req.write(postData);
-          req.end();
-
-        } catch (e) {
-          log(`Error handling build request: ${e.message}`);
-          io.emit('build-error', e.message);
+    socket.on('release-lock', ({ fieldId }) => {
+      if (activeLocks.has(fieldId)) {
+        const lock = activeLocks.get(fieldId);
+        if (lock.socketId === socket.id) {
+          activeLocks.delete(fieldId);
+          io.emit('lock-update', Array.from(activeLocks.entries()));
+          log(`Lock released: ${fieldId}`);
         }
-      });
+      }
     });
 
-    // Polling logic for build status (Single source of truth)
-    let buildPollInterval;
-    const startGlobalBuildPolling = () => {
-      if (buildPollInterval) clearInterval(buildPollInterval);
+    socket.on('disconnect', () => {
+      log(`Client disconnected: ${socket.id}`);
+      connectedClients.delete(socket.id);
+      io.emit('client-list-update', Array.from(connectedClients.values()));
 
-      const poll = () => {
-        http.get('http://localhost:8000/api/build', (res) => {
-          let data = '';
-          res.on('data', (chunk) => data += chunk);
-          res.on('end', () => {
-            try {
-              const status = JSON.parse(data);
-              // Broadcast status to all clients
-              io.emit('build-status', status);
-
-              if (!status.isBuildInProgress) {
-                clearInterval(buildPollInterval);
-                buildPollInterval = null;
-                log('Remote build finished.');
-              }
-            } catch (e) {
-              // ignore parse errors
-            }
-          });
-        }).on('error', (e) => {
-          // ignore connection errors during poll
-        });
-      };
-
-      buildPollInterval = setInterval(poll, 2000);
-      poll(); // Immediate first check
-    };
-
-    collabServer = httpServer.listen(port, '0.0.0.0', () => {
-      log(`Collaboration server listening on 0.0.0.0:${port}`);
+      let locksRemoved = false;
+      for (const [fieldId, lock] of activeLocks.entries()) {
+        if (lock.socketId === socket.id) {
+          activeLocks.delete(fieldId);
+          locksRemoved = true;
+        }
+      }
+      if (locksRemoved) {
+        io.emit('lock-update', Array.from(activeLocks.entries()));
+        log(`Cleaned up locks for disconnected user ${socket.id}`);
+      }
     });
+  });
 
-    return { status: 'started', ip: getLocalIP() };
-  } catch (error) {
-    log(`Failed to start server: ${error.message}`);
-    return { status: 'error', error: error.message };
-  }
-});
+  collabServer.listen(3001, '0.0.0.0', () => {
+    const ip = getLocalIP();
+    log(`Collaboration Server running at http://${ip}:3001`);
+    startBroadcasting(); // Start broadcasting via UDP
+  });
+};
 
-ipcMain.handle('collab-stop-server', () => {
-  if (collabServer) {
+const stopServer = () => {
+  stopBroadcasting(); // Stop broadcasting
+  if (io) {
     io.close();
+    io = null;
+  }
+  if (collabServer) {
     collabServer.close();
     collabServer = null;
-    io = null;
-    connectedClients.clear();
-    activeLocks.clear();
-    log('Collaboration server stopped.');
-    return { status: 'stopped' };
   }
-  return { status: 'not-running' };
-});
+  connectedClients.clear();
+  activeLocks.clear();
+  log('Collaboration Server stopped');
+};
+
+let buildPollInterval;
+const startGlobalBuildPolling = () => {
+  if (buildPollInterval) clearInterval(buildPollInterval);
+
+  const poll = () => {
+    http.get('http://localhost:8000/api/build', (res) => {
+      let data = '';
+      res.on('data', (chunk) => data += chunk);
+      res.on('end', () => {
+        try {
+          const status = JSON.parse(data);
+          io.emit('build-status', status);
+          if (!status.isBuildInProgress) {
+            clearInterval(buildPollInterval);
+            buildPollInterval = null;
+            log('Remote build finished.');
+          }
+        } catch (e) { }
+      });
+    }).on('error', (e) => { });
+  };
+
+  buildPollInterval = setInterval(poll, 2000);
+  poll();
+};
