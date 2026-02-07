@@ -93,6 +93,7 @@ const Layout = ({ children, location }) => {
           domain={cmsData.settings.domain}
           vercelApiKey={cmsData.settings.vercelApiKey}
           buildCooldownSeconds={cmsData.buildCooldownSeconds}
+          disableImport={cmsData.collabState.isConnected && !cmsData.collabState.isServer}
         />
         <main style={{ flexGrow: 1, position: 'relative', transition: 'margin-right 0.3s' }}>
           <SideMenu

@@ -1036,6 +1036,9 @@ const startServer = () => {
         return;
       }
 
+      isBuildInProgress = true;
+      io.emit('build-status', { isBuildInProgress: true, status: 'Starting build...' });
+
       try {
         const postData = JSON.stringify(payload);
         const req = http.request({
@@ -1050,21 +1053,26 @@ const startServer = () => {
         }, (res) => {
           log(`Triggered build via API, status: ${res.statusCode}`);
           if (res.statusCode === 200 || res.statusCode === 409) {
-            isBuildInProgress = true;
-            io.emit('build-status', { isBuildInProgress: true, status: 'Build started on host...' });
+            // isBuildInProgress remains true
+            io.emit('build-status', { isBuildInProgress: true, status: 'Build confirmed on host...' });
             startGlobalBuildPolling();
           } else {
+            isBuildInProgress = false;
+            io.emit('build-status', { isBuildInProgress: false, status: `Failed to trigger build: ${res.statusCode}` });
             io.emit('build-error', `Failed to trigger build on host: ${res.statusCode}`);
           }
         });
         req.on('error', (e) => {
+          isBuildInProgress = false;
           log(`Failed to trigger build API: ${e.message}`);
-          io.emit('build-status', 'Failed to start build on host');
+          io.emit('build-status', { isBuildInProgress: false, status: 'Failed to start build on host' });
         });
         req.write(postData);
         req.end();
       } catch (e) {
+        isBuildInProgress = false;
         log(`Error triggering build: ${e.message}`);
+        io.emit('build-status', { isBuildInProgress: false, status: 'Error triggering build' });
       }
     });
 

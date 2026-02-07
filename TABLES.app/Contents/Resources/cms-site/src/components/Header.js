@@ -32,7 +32,8 @@ const Header = memo(({
   canBuild,
   domain,
   vercelApiKey,
-  buildCooldownSeconds
+  buildCooldownSeconds,
+  disableImport
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -57,7 +58,7 @@ const Header = memo(({
   // Build searchable items from localStorage
   useEffect(() => {
     const items = [];
-    
+
     // Add side menu links
     const menuItems = [
       { type: 'menu', icon: 'fa-file', label: 'Pages', path: '/cms/pages/', section: 'pages' },
@@ -88,7 +89,7 @@ const Header = memo(({
           meta: page.route || ''
         });
       });
-    } catch (e) {}
+    } catch (e) { }
 
     // Add blog articles
     try {
@@ -103,7 +104,7 @@ const Header = memo(({
           meta: article.date || ''
         });
       });
-    } catch (e) {}
+    } catch (e) { }
 
     setAllSearchableItems(items);
   }, []);
@@ -188,7 +189,7 @@ const Header = memo(({
           const purgeResponse = await fetch('/api/purge-uploads', {
             method: 'POST',
           });
-          
+
           if (!purgeResponse.ok) {
             console.warn('Failed to purge existing uploads');
           }
@@ -198,7 +199,7 @@ const Header = memo(({
 
         // Clear all localStorage data first
         const cmsKeys = ['pages', 'blogArticles', 'catRows', 'componentRows', 'settings', 'acl', 'extensions', 'currentPageId', 'currentBlogArticleId'];
-        
+
         // Remove only CMS-related keys
         cmsKeys.forEach(key => {
           localStorage.removeItem(key);
@@ -237,14 +238,14 @@ const Header = memo(({
         }
 
         alert('✅ Data imported successfully! The page will reload to reflect changes.');
-        
+
         // Reload the page to reflect imported data
         window.location.reload();
       } catch (error) {
         console.error('Import error:', error);
         alert('Failed to import data: ' + error.message);
       }
-      
+
       // Reset file input
       event.target.value = '';
     };
@@ -287,29 +288,29 @@ const Header = memo(({
     const fuzzyMatch = (str, pattern) => {
       const patternLower = pattern.toLowerCase();
       const strLower = str.toLowerCase();
-      
+
       // Simple contains check
       if (strLower.includes(patternLower)) {
         return { score: 100, matches: true };
       }
-      
+
       // Fuzzy matching - check if all characters in pattern exist in order
       let patternIdx = 0;
       let lastMatchIdx = -1;
-      
+
       for (let i = 0; i < strLower.length && patternIdx < patternLower.length; i++) {
         if (strLower[i] === patternLower[patternIdx]) {
           lastMatchIdx = i;
           patternIdx++;
         }
       }
-      
+
       if (patternIdx === patternLower.length) {
         // All characters matched - calculate score based on distance
         const score = Math.max(0, 50 - (lastMatchIdx - patternIdx));
         return { score, matches: true };
       }
-      
+
       return { score: 0, matches: false };
     };
 
@@ -319,7 +320,7 @@ const Header = memo(({
         const labelMatch = fuzzyMatch(item.label, query);
         const metaMatch = item.meta ? fuzzyMatch(item.meta, query) : { score: 0, matches: false };
         const maxScore = Math.max(labelMatch.score, metaMatch.score);
-        
+
         return {
           ...item,
           score: maxScore,
@@ -339,7 +340,7 @@ const Header = memo(({
     setSearchResults([]);
   };
 
-   const toggleMobileMenu = () => {
+  const toggleMobileMenu = () => {
     setMobileMenuOpen(prev => {
       const isOpen = !prev;
       if (isOpen) {
@@ -358,8 +359,8 @@ const Header = memo(({
     };
   }, []);
 
-   // Inline styles
-   const styles = {
+  // Inline styles
+  const styles = {
     header: {
       display: 'flex',
       alignItems: 'center',
@@ -501,18 +502,18 @@ const Header = memo(({
 
   return (
     <header style={styles.header}>
-       {/* Mobile Navigation Toggle */}
-       <button
-         className="mobile-nav-toggle"
-         style={styles.mobileNavToggle}
-         onClick={toggleMobileMenu}
-         aria-label="Toggle Mobile Navigation"
-       >
-         <i className={mobileMenuOpen ? "fa fa-times" : "fa fa-bars"}></i>
-       </button>
+      {/* Mobile Navigation Toggle */}
+      <button
+        className="mobile-nav-toggle"
+        style={styles.mobileNavToggle}
+        onClick={toggleMobileMenu}
+        aria-label="Toggle Mobile Navigation"
+      >
+        <i className={mobileMenuOpen ? "fa fa-times" : "fa fa-bars"}></i>
+      </button>
 
-       {/* Logo Section */}
-       <div style={styles.logo}>
+      {/* Logo Section */}
+      <div style={styles.logo}>
         <img src="/assets/tables-logo.svg" alt="Logo" style={styles.logoImage} />
         {/* <b>TABLES</b>&nbsp;CMS Alpha*/}
       </div>
@@ -530,8 +531,8 @@ const Header = memo(({
         {searchQuery && searchResults.length > 0 && (
           <ul style={styles.searchResults}>
             {searchResults.map((result, index) => (
-              <li 
-                key={index} 
+              <li
+                key={index}
                 style={{
                   ...styles.searchResult,
                   background: 'transparent'
@@ -554,11 +555,11 @@ const Header = memo(({
         )}
       </div>
 
-       {/* Buttons Section */}
-       <div className="header-buttons" style={{
-         ...styles.buttons
-       }}>
-        
+      {/* Buttons Section */}
+      <div className="header-buttons" style={{
+        ...styles.buttons
+      }}>
+
         <button
           onClick={handleExportData}
           style={{
@@ -580,7 +581,8 @@ const Header = memo(({
           <i className="fa fa-download"></i>
           Save
         </button>
-        <label style={{
+        {!disableImport && (
+          <label style={{
             width: '100%',
             background: 'white',
             color: '#2563eb',
@@ -594,16 +596,17 @@ const Header = memo(({
             gap: '8px',
             padding: '4px 16px',
             transition: 'all 0.2s'
-        }}>
-          <i className="fa fa-upload"></i>
-          Open
-          <input
-            type="file"
-            accept=".json"
-            onChange={handleImportData}
-            style={{ display: 'none' }}
-          />
-        </label>
+          }}>
+            <i className="fa fa-upload"></i>
+            Open
+            <input
+              type="file"
+              accept=".json"
+              onChange={handleImportData}
+              style={{ display: 'none' }}
+            />
+          </label>
+        )}
 
         {/* Build Buttons */}
         {(extensions['pages-extension-enabled'] || extensions['blog-extension-enabled']) && (
@@ -630,218 +633,218 @@ const Header = memo(({
             (Dev) Local-Only
           </button>
         )}
-          {(extensions['pages-extension-enabled'] || extensions['blog-extension-enabled']) && vercelApiKey && (
-            <button
-              onClick={(e) => handleBuildClick(e, false)}
-              disabled={isBuilding || !canBuild}
+        {(extensions['pages-extension-enabled'] || extensions['blog-extension-enabled']) && vercelApiKey && (
+          <button
+            onClick={(e) => handleBuildClick(e, false)}
+            disabled={isBuilding || !canBuild}
+            style={{
+              width: '100%',
+              background: (isBuilding || !canBuild) ? '#94a3b8' : '#1d4ed8',
+              color: 'white',
+              border: 'none',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: (isBuilding || !canBuild) ? 'not-allowed' : 'pointer',
+              display: 'flex',
+              flexFlow: 'row nowrap',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              boxShadow: (isBuilding || !canBuild) ? 'none' : '0 2px 4px rgba(0,0,0,0.1)',
+              padding: '4px 16px',
+              transition: 'all 0.2s',
+            }}
+          >
+            {isBuilding && (
+              <div style={{
+                width: '14px',
+                height: '14px',
+                border: '2px solid rgba(255, 255, 255, 0.3)',
+                borderTopColor: 'white',
+                borderRadius: '50%',
+                animation: 'spin 0.8s linear infinite'
+              }}></div>
+            )}
+            {!isBuilding && <i className="fa fa-rocket"></i>}
+            {isBuilding ? 'Building...' : (!canBuild ? `${formatTime(buildCooldownSeconds)}` : 'Deploy')}
+          </button>
+        )}{/* Visit Deployment Button */}
+        {(extensions['pages-extension-enabled'] || extensions['blog-extension-enabled']) && domain && (
+          <a
+            href={domain}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              width: '100%',
+              padding: '0px 16px',
+              background: '#000',
+              color: 'white',
+              border: 'none',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              padding: '4px 16px',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+              transition: 'all 0.2s',
+              textDecoration: 'none'
+            }}
+          >
+            <span>Visit</span>
+            {/* <Icon icon="fa-solid fa-external-link-alt" />*/}
+          </a>
+        )}
+        {/* Toggle Notes Sidebar */}
+        {extensions['notes-extension-enabled'] && onToggleNotesSidebar && (
+          <button
+            style={{
+              width: '100%',
+              padding: '0px 16px',
+              border: '1px solid #00000050',
+              background: 'white',
+              color: 'black',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              padding: '6px 16px',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+              transition: 'all 0.2s',
+              textDecoration: 'none'
+            }}
+            onClick={onToggleNotesSidebar}
+          >
+            <i className="fa fa-note-sticky"></i>
+            {/* <span>Notes</span>*/}
+          </button>
+        )}
+        {/* Mobile Menu Overlay */}
+        {mobileMenuOpen && (
+          <div
+            style={{
+              position: 'fixed',
+              top: '0',
+              left: '0',
+              right: '0',
+              bottom: '0',
+              background: 'rgba(0, 0, 0, 0.5)',
+              zIndex: '999',
+              display: 'flex',
+              flexDirection: 'column',
+              padding: '60px 20px 20px'
+            }}
+            onClick={toggleMobileMenu}
+          >
+            <div
               style={{
-                width: '100%',
-                background: (isBuilding || !canBuild) ? '#94a3b8' : '#1d4ed8',
-                color: 'white',
-                border: 'none',
-                fontSize: '14px',
-                fontWeight: '600',
-                cursor: (isBuilding || !canBuild) ? 'not-allowed' : 'pointer',
-                display: 'flex',
-                flexFlow: 'row nowrap',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                boxShadow: (isBuilding || !canBuild) ? 'none' : '0 2px 4px rgba(0,0,0,0.1)',
-                padding: '4px 16px',
-                transition: 'all 0.2s',
+                background: 'white',
+                padding: '20px',
+                maxWidth: '400px',
+                margin: '0 auto',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
               }}
+              onClick={(e) => e.stopPropagation()}
             >
-              {isBuilding && (
-                <div style={{
-                  width: '14px',
-                  height: '14px',
-                  border: '2px solid rgba(255, 255, 255, 0.3)',
-                  borderTopColor: 'white',
-                  borderRadius: '50%',
-                  animation: 'spin 0.8s linear infinite'
-                }}></div>
+              <h3 style={{ margin: '0 0 20px 0', color: '#333' }}>Menu</h3>
+
+              {/* Mobile Build Buttons */}
+              {(extensions['pages-extension-enabled'] || extensions['blog-extension-enabled']) && (
+                <div style={{ marginBottom: '15px' }}>
+                  <button
+                    onClick={(e) => {
+                      handleBuildClick(e, true);
+                      toggleMobileMenu();
+                    }}
+                    disabled={isBuilding || !canBuild}
+                    style={{
+                      width: '100%',
+                      padding: '12px 20px',
+                      background: (isBuilding || !canBuild) ? '#e2e8f0' : '#007bff',
+                      color: (isBuilding || !canBuild) ? '#94a3b8' : 'white',
+                      border: 'none',
+                      fontSize: '16px',
+                      fontWeight: '600',
+                      cursor: (isBuilding || !canBuild) ? 'not-allowed' : 'pointer',
+                      marginBottom: '10px',
+                    }}
+                  >
+                    Local Build
+                  </button>
+                  {vercelApiKey && (
+                    <button
+                      onClick={(e) => {
+                        handleBuildClick(e, false);
+                        toggleMobileMenu();
+                      }}
+                      disabled={isBuilding || !canBuild}
+                      style={{
+                        width: '100%',
+                        padding: '12px 20px',
+                        background: (isBuilding || !canBuild) ? '#94a3b8' : '#28a745',
+                        color: 'white',
+                        border: 'none',
+                        fontSize: '16px',
+                        fontWeight: '600',
+                        cursor: (isBuilding || !canBuild) ? 'not-allowed' : 'pointer',
+                      }}
+                    >
+                      {isBuilding ? 'Building...' : (!canBuild ? `${formatTime(buildCooldownSeconds)}` : 'Deploy')}
+                    </button>
+                  )}
+                </div>
               )}
-              {!isBuilding && <i className="fa fa-rocket"></i>}
-              {isBuilding ? 'Building...' : (!canBuild ? `${formatTime(buildCooldownSeconds)}` : 'Deploy')}
-            </button>
-          )}{/* Visit Deployment Button */}
-          {(extensions['pages-extension-enabled'] || extensions['blog-extension-enabled']) && domain && (
-              <a
-                href={domain}
-                target="_blank"
-                rel="noopener noreferrer"
+
+              {/* Mobile Visit Link */}
+              {domain && (
+                <a
+                  href={domain}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'block',
+                    width: '100%',
+                    padding: '12px 20px',
+                    background: '#000',
+                    color: 'white',
+                    border: 'none',
+                    fontSize: '16px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    textDecoration: 'none',
+                    textAlign: 'center',
+                    marginBottom: '10px'
+                  }}
+                >
+                  Visit Site
+                </a>
+              )}
+
+              <button
+                onClick={toggleMobileMenu}
                 style={{
-                  width: '100%',
-                  padding: '0px 16px',
-                  background: '#000',
-                  color: 'white',
+                  position: 'absolute',
+                  top: '15px',
+                  right: '15px',
+                  background: 'none',
                   border: 'none',
-                  fontSize: '14px',
-                  fontWeight: '600',
+                  fontSize: '24px',
                   cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  padding: '4px 16px',
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                  transition: 'all 0.2s',
-                  textDecoration: 'none'
+                  color: '#666'
                 }}
               >
-                <span>Visit</span>
-                {/* <Icon icon="fa-solid fa-external-link-alt" />*/}
-              </a>
+                ×
+              </button>
+            </div>
+          </div>
         )}
-       {/* Toggle Notes Sidebar */}
-       {extensions['notes-extension-enabled'] && onToggleNotesSidebar && (
-         <button
-           style={{
-             width: '100%',
-             padding: '0px 16px',
-             border: '1px solid #00000050',
-             background: 'white',
-             color: 'black',
-             fontSize: '14px',
-             fontWeight: '600',
-             cursor: 'pointer',
-             display: 'flex',
-             alignItems: 'center',
-             justifyContent: 'center',
-             gap: '8px',
-             padding: '6px 16px',
-             boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-             transition: 'all 0.2s',
-             textDecoration: 'none'
-           }}
-           onClick={onToggleNotesSidebar}
-         >
-           <i className="fa fa-note-sticky"></i>
-           {/* <span>Notes</span>*/}
-         </button>
-       )}
-        {/* Mobile Menu Overlay */}
-       {mobileMenuOpen && (
-         <div
-           style={{
-             position: 'fixed',
-             top: '0',
-             left: '0',
-             right: '0',
-             bottom: '0',
-             background: 'rgba(0, 0, 0, 0.5)',
-             zIndex: '999',
-             display: 'flex',
-             flexDirection: 'column',
-             padding: '60px 20px 20px'
-           }}
-           onClick={toggleMobileMenu}
-         >
-           <div
-             style={{
-               background: 'white',
-               padding: '20px',
-               maxWidth: '400px',
-               margin: '0 auto',
-               boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
-             }}
-             onClick={(e) => e.stopPropagation()}
-           >
-             <h3 style={{ margin: '0 0 20px 0', color: '#333' }}>Menu</h3>
-             
-             {/* Mobile Build Buttons */}
-             {(extensions['pages-extension-enabled'] || extensions['blog-extension-enabled']) && (
-               <div style={{ marginBottom: '15px' }}>
-                 <button
-                   onClick={(e) => {
-                     handleBuildClick(e, true);
-                     toggleMobileMenu();
-                   }}
-                   disabled={isBuilding || !canBuild}
-                   style={{
-                     width: '100%',
-                     padding: '12px 20px',
-                     background: (isBuilding || !canBuild) ? '#e2e8f0' : '#007bff',
-                     color: (isBuilding || !canBuild) ? '#94a3b8' : 'white',
-                     border: 'none',
-                     fontSize: '16px',
-                     fontWeight: '600',
-                     cursor: (isBuilding || !canBuild) ? 'not-allowed' : 'pointer',
-                     marginBottom: '10px',
-                   }}
-                 >
-                   Local Build
-                 </button>
-                 {vercelApiKey && (
-                   <button
-                     onClick={(e) => {
-                       handleBuildClick(e, false);
-                       toggleMobileMenu();
-                     }}
-                     disabled={isBuilding || !canBuild}
-                     style={{
-                       width: '100%',
-                       padding: '12px 20px',
-                       background: (isBuilding || !canBuild) ? '#94a3b8' : '#28a745',
-                       color: 'white',
-                       border: 'none',
-                       fontSize: '16px',
-                       fontWeight: '600',
-                       cursor: (isBuilding || !canBuild) ? 'not-allowed' : 'pointer',
-                     }}
-                   >
-                     {isBuilding ? 'Building...' : (!canBuild ? `${formatTime(buildCooldownSeconds)}` : 'Deploy')}
-                   </button>
-                 )}
-               </div>
-             )}
-             
-             {/* Mobile Visit Link */}
-             {domain && (
-               <a
-                 href={domain}
-                 target="_blank"
-                 rel="noopener noreferrer"
-                 style={{
-                   display: 'block',
-                   width: '100%',
-                   padding: '12px 20px',
-                   background: '#000',
-                   color: 'white',
-                   border: 'none',
-                   fontSize: '16px',
-                   fontWeight: '600',
-                   cursor: 'pointer',
-                   textDecoration: 'none',
-                   textAlign: 'center',
-                   marginBottom: '10px'
-                 }}
-               >
-                 Visit Site
-               </a>
-             )}
-             
-             <button
-               onClick={toggleMobileMenu}
-               style={{
-                 position: 'absolute',
-                 top: '15px',
-                 right: '15px',
-                 background: 'none',
-                 border: 'none',
-                 fontSize: '24px',
-                 cursor: 'pointer',
-                 color: '#666'
-               }}
-             >
-               ×
-             </button>
-           </div>
-         </div>
-       )}
 
-       </div>
+      </div>
     </header>
   );
 });
