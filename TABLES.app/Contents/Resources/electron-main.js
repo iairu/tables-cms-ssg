@@ -14,11 +14,7 @@ let collabServer;
 let connectedClients = new Map(); // socketId -> clientInfo
 let activeLocks = new Map(); // fieldId -> { socketId, timestamp, clientName }
 
-const { Server } = require('socket.io'); // Socket.io server
-const http = require('http'); // Required for Socket.io standalone
 
-// Collaboration State
-// Variables declared below
 
 
 
@@ -886,4 +882,91 @@ app.on('before-quit', () => {
     const killed = gatsbyProcess.kill();
     log(killed ? 'Gatsby process terminated.' : 'Failed to terminate Gatsby process.');
   }
+});
+
+// ============================================================================
+// Collaboration Server Logic
+// ============================================================================
+
+const getLocalIP = () => {
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name]) {
+      // Skip internal (i.e. 127.0.0.1) and non-IPv4 addresses
+      if ('IPv4' !== iface.family || iface.internal) {
+        continue;
+      }
+      return iface.address;
+    }
+  }
+  return '127.0.0.1';
+};
+
+ipcMain.handle('collab-get-ip', () => {
+  return getLocalIP();
+});
+
+ipcMain.handle('collab-start-server', async (event, port = 8081) => {
+  if (collabServer) {
+    log('Server already running.');
+    return { status: 'already-running', ip: getLocalIP() };
+  }
+
+  try {
+    const httpServer = http.createServer();
+    io = new Server(httpServer, {
+      cors: {
+        origin: "*", // Allow LAN connections
+        methods: ["GET", "POST"]
+      }
+    });
+
+    io.on('connection', (socket) => {
+      const clientIp = socket.request.connection.remoteAddress;
+      log(`New client connected: ${socket.id} from ${clientIp}`);
+
+      socket.on('register-client', ({ name }) => {
+        connectedClients.set(socket.id, { id: socket.id, name, ip: clientIp });
+        log(`Client registered: ${name} (${socket.id})`);
+
+        // Broadcast user list update
+        io.emit('client-joined', { id: socket.id, name });
+
+        // Send initial state to this client
+        socket.emit('initial-state', {
+          locks: Array.from(activeLocks.entries()),
+          clients: Array.from(connectedClients.values())
+        });
+      });
+
+      socket.on('disconnect', () => {
+        log(`Client disconnected: ${socket.id}`);
+        connectedClients.delete(socket.id);
+        io.emit('client-left', socket.id);
+      });
+    });
+
+    collabServer = httpServer.listen(port, '0.0.0.0', () => {
+      log(`Collaboration server listening on 0.0.0.0:${port}`);
+    });
+
+    return { status: 'started', ip: getLocalIP() };
+  } catch (error) {
+    log(`Failed to start server: ${error.message}`);
+    return { status: 'error', error: error.message };
+  }
+});
+
+ipcMain.handle('collab-stop-server', () => {
+  if (collabServer) {
+    io.close();
+    collabServer.close();
+    collabServer = null;
+    io = null;
+    connectedClients.clear();
+    activeLocks.clear();
+    log('Collaboration server stopped.');
+    return { status: 'stopped' };
+  }
+  return { status: 'not-running' };
 });
