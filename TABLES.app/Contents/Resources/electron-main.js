@@ -21,16 +21,27 @@ const DISCOVERY_MSG_KEY = 'tables-cms-discovery';
 let discoverySocket;
 let broadcastInterval;
 
-const getLocalIP = () => {
+const getNetworkInterfaces = () => {
   const interfaces = os.networkInterfaces();
+  const results = [];
   for (const name of Object.keys(interfaces)) {
     for (const iface of interfaces[name]) {
-      if (iface.family === 'IPv4' && !iface.internal) {
-        return iface.address;
+      if (!iface.internal) {
+        results.push({
+          name: name,
+          ip: iface.address,
+          family: iface.family
+        });
       }
     }
   }
-  return '127.0.0.1';
+  return results;
+};
+
+const getLocalIP = () => {
+  const ifaces = getNetworkInterfaces();
+  const ipv4 = ifaces.find(i => i.family === 'IPv4');
+  return ipv4 ? ipv4.ip : '127.0.0.1';
 };
 
 const startDiscoveryService = () => {
@@ -69,10 +80,10 @@ const startDiscoveryService = () => {
   }
 };
 
-const startBroadcasting = () => {
+const startBroadcasting = (preferredIP = null) => {
   if (broadcastInterval) clearInterval(broadcastInterval);
 
-  const ip = getLocalIP();
+  const ip = preferredIP || getLocalIP();
   const hostname = os.hostname();
   const message = JSON.stringify({
     key: DISCOVERY_MSG_KEY,
@@ -1151,11 +1162,51 @@ const startServer = () => {
   });
 
   collabServer.listen(3001, '0.0.0.0', () => {
+    // If a specific bindIP was passed to startServer, we might want to use it
+    // But our startServer currently doesn't accept arguments in the listener callback
+    // The startBroadcasting below should use the IP we want to advertise
+    // We need to update startServer signature if we want to pass it through
+    // For now, let's just make sure startBroadcasting uses the right IP if passed
+    // Actually, startServer is called by the IPC handler which can pass args
+    // But startServer definition is line 1103 (in original file, might have shifted)
+
+    // Let's rely on the IPC handler calling startBroadcasting with the IP if needed
+    // Or update startServer to take an IP
     const ip = getLocalIP();
     log(`Collaboration Server running at http://${ip}:3001`);
-    startBroadcasting(); // Start broadcasting via UDP
+    startBroadcasting(); // Default start
   });
 };
+
+ipcMain.handle('collab-start-server', async (event, port, bindIP) => {
+  try {
+    startServer();
+    if (bindIP) {
+      startBroadcasting(bindIP); // Broadcast the selected IP
+      return { status: 'started', ip: bindIP };
+    }
+    return { status: 'started', ip: getLocalIP() };
+  } catch (e) {
+    return { status: 'error', error: e.message };
+  }
+});
+
+ipcMain.handle('collab-stop-server', async () => {
+  try {
+    stopServer();
+    return { status: 'stopped' };
+  } catch (e) {
+    return { status: 'error', error: e.message };
+  }
+});
+
+ipcMain.handle('collab-get-ip', () => {
+  return getLocalIP();
+});
+
+ipcMain.handle('collab-get-interfaces', () => {
+  return getNetworkInterfaces();
+});
 
 const stopServer = () => {
   stopBroadcasting(); // Stop broadcasting

@@ -274,85 +274,88 @@ const SettingsSection = ({ cmsData }) => {
             </div>
           )}
 
-          {!collabState.isConnected ? (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
+          {!collabState.isConnected && !collabState.isServer ? (
+            <div style={{ display: 'grid', gap: '20px' }}>
               <div>
-                <h3 style={{ fontSize: '16px', marginBottom: '10px' }}>Join Existing Server</h3>
-                <div style={{ display: 'flex', gap: '10px', flexDirection: 'column' }}>
+                <h3 style={{ marginTop: '0', fontSize: '16px', marginBottom: '10px' }}>Client Mode</h3>
+                <p style={{ fontSize: '14px', color: '#64748b', marginBottom: '10px' }}>Connect to an existing CMS server.</p>
+                <div style={{ display: 'flex', gap: '10px' }}>
                   <input
                     type="text"
-                    placeholder="Server IP (e.g., 192.168.1.5:8081)"
+                    placeholder="Server IP (e.g. 192.168.1.5)"
                     value={connectIP}
                     onChange={(e) => setConnectIP(e.target.value)}
-                    style={{ padding: '8px', border: '1px solid #cbd5e1' }}
+                    style={{ flexGrow: 1, padding: '8px', border: '1px solid #cbd5e1' }}
                   />
                   <input
                     type="text"
-                    placeholder="Your Name (e.g., Editor 2)"
+                    placeholder="Your Name"
                     value={connectName}
                     onChange={(e) => setConnectName(e.target.value)}
-                    style={{ padding: '8px', border: '1px solid #cbd5e1' }}
+                    style={{ width: '120px', padding: '8px', border: '1px solid #cbd5e1' }}
                   />
                   <button
-                    onClick={() => {
-                      if (connectIP && connectName) {
-                        // If no protocol, add http
-                        const url = connectIP.startsWith('http') ? connectIP : `http://${connectIP}`;
-                        connectToCollaborationServer(url, connectName);
-                      } else {
-                        alert('Please enter IP and Name');
-                      }
-                    }}
-                    style={{ ...buttonStyle, background: '#3b82f6', color: 'white' }}
+                    onClick={() => connectToCollaborationServer(`http://${connectIP}:8081`, connectName || 'Anonymous')}
+                    style={{ ...secondaryButtonStyle, whiteSpace: 'nowrap' }}
                   >
                     Connect
                   </button>
                 </div>
-                {collabState.discoveredServers && collabState.discoveredServers.length > 0 && (
-                  <div style={{ marginTop: '15px', borderTop: '1px solid #cbd5e1', paddingTop: '10px' }}>
-                    <h4 style={{ fontSize: '14px', marginBottom: '8px', color: '#64748b' }}>Discovered Local Servers:</h4>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {/* Discovered Servers List */}
+                {collabState.discoveredServers.length > 0 && (
+                  <div style={{ marginTop: '15px' }}>
+                    <strong style={{ display: 'block', fontSize: '13px', marginBottom: '5px', color: '#64748b' }}>Discovered Servers:</strong>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
                       {collabState.discoveredServers.map((server, idx) => (
-                        <button
-                          key={`${server.ip}-${server.port}-${idx}`}
-                          onClick={() => setConnectIP(`${server.ip}:${server.port}`)}
-                          style={{
-                            textAlign: 'left',
-                            padding: '10px',
-                            background: 'white',
-                            border: '1px solid #cbd5e1',
-                            borderRadius: '4px',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            transition: 'all 0.2s ease'
-                          }}
-                          onMouseOver={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
-                          onMouseOut={(e) => e.currentTarget.style.borderColor = '#cbd5e1'}
-                        >
-                          <div>
-                            <div style={{ fontWeight: '600', fontSize: '13px' }}>{server.hostname || server.name || 'Unknown Server'}</div>
-                            <div style={{ color: '#64748b', fontSize: '12px' }}>{server.ip}:{server.port}</div>
-                          </div>
-                          <span style={{ fontSize: '12px', color: '#3b82f6' }}>Select</span>
-                        </button>
+                        <div key={`${server.ip}-${server.port}-${idx}`} style={{
+                          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                          padding: '8px 12px', background: 'white', border: '1px solid #e2e8f0', borderRadius: '4px'
+                        }}>
+                          <span style={{ fontSize: '14px' }}>
+                            <strong>{server.hostname}</strong> <span style={{ color: '#94a3b8' }}>({server.ip})</span>
+                          </span>
+                          <button
+                            onClick={() => {
+                              setConnectIP(server.ip);
+                              connectToCollaborationServer(`http://${server.ip}:${server.port}`, connectName || 'Anonymous');
+                            }}
+                            style={{ ...secondaryButtonStyle, padding: '4px 10px', fontSize: '12px' }}
+                          >
+                            Connect
+                          </button>
+                        </div>
                       ))}
                     </div>
                   </div>
                 )}
               </div>
-              <div style={{ borderLeft: '1px solid #bfdbfe', paddingLeft: '30px' }}>
-                <h3 style={{ fontSize: '16px', marginBottom: '10px' }}>Host Server</h3>
-                <p style={{ fontSize: '14px', color: '#60a5fa', marginBottom: '15px' }}>
-                  Use this instance as the central server. Other clients can connect to you.
-                  <br /><strong>Note:</strong> Editing is disabled on the Host instance.
-                </p>
+
+              <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '20px' }}>
+                <h3 style={{ marginTop: '0', fontSize: '16px', marginBottom: '10px' }}>Host Mode</h3>
+                <p style={{ fontSize: '14px', color: '#64748b', marginBottom: '10px' }}>Start a server on this machine.</p>
+
+                {collabState.availableInterfaces && collabState.availableInterfaces.length > 1 && (
+                  <div style={{ marginBottom: '10px' }}>
+                    <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px', fontWeight: '600' }}>Network Interface:</label>
+                    <select
+                      value={selectedInterfaceIP}
+                      onChange={(e) => setSelectedInterfaceIP(e.target.value)}
+                      style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', marginBottom: '10px' }}
+                    >
+                      {collabState.availableInterfaces.map((iface, idx) => (
+                        <option key={`${iface.name}-${idx}`} value={iface.ip}>
+                          {iface.name} ({iface.ip}) [{iface.family}]
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
                 <button
-                  onClick={startCollaborationServer}
+                  onClick={() => startCollaborationServer(selectedInterfaceIP)}
                   style={{ ...buttonStyle, background: '#1e40af', color: 'white' }}
                 >
-                  Start Server
+                  Start Server {selectedInterfaceIP ? `on ${selectedInterfaceIP}` : ''}
                 </button>
               </div>
             </div>
@@ -491,22 +494,24 @@ const SettingsSection = ({ cmsData }) => {
           <button onClick={handleAddSocialMedia} style={secondaryButtonStyle}>+ Add Social Media Link</button>
         </div>
 
-        {extensions['movietracker-extension-enabled'] && (
-          <div style={{ ...cardStyle }}>
-            <h2 style={{ marginTop: '0', marginBottom: '15px', fontSize: '18px', fontWeight: 'bold' }}>Movie Tracker</h2>
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', marginBottom: '10px' }}>
-                <strong>OMDb API Key:</strong>
-                <LockedInputWrapper fieldId="omdbApiKey">
-                  <input type="text" value={settings.omdbApiKey || ''} onChange={(e) => handleChange('omdbApiKey', e.target.value)} placeholder="Enter your OMDb API key" style={{ width: '100%', padding: '10px', marginTop: '5px', border: '1px solid #cbd5e1', }} />
-                </LockedInputWrapper>
-              </label>
-              <p style={{ fontSize: '14px', color: '#64748b', marginTop: '5px' }}>
-                Get your API key from <a href="https://www.omdbapi.com/apikey.aspx" target="_blank" rel="noopener noreferrer">omdbapi.com</a>
-              </p>
+        {
+          extensions['movietracker-extension-enabled'] && (
+            <div style={{ ...cardStyle }}>
+              <h2 style={{ marginTop: '0', marginBottom: '15px', fontSize: '18px', fontWeight: 'bold' }}>Movie Tracker</h2>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', marginBottom: '10px' }}>
+                  <strong>OMDb API Key:</strong>
+                  <LockedInputWrapper fieldId="omdbApiKey">
+                    <input type="text" value={settings.omdbApiKey || ''} onChange={(e) => handleChange('omdbApiKey', e.target.value)} placeholder="Enter your OMDb API key" style={{ width: '100%', padding: '10px', marginTop: '5px', border: '1px solid #cbd5e1', }} />
+                  </LockedInputWrapper>
+                </label>
+                <p style={{ fontSize: '14px', color: '#64748b', marginTop: '5px' }}>
+                  Get your API key from <a href="https://www.omdbapi.com/apikey.aspx" target="_blank" rel="noopener noreferrer">omdbapi.com</a>
+                </p>
+              </div>
             </div>
-          </div>
-        )}
+          )
+        }
 
         {/* Deployment */}
         <div style={{ ...cardStyle, gridColumn: '1 / -1' }}>
@@ -541,7 +546,7 @@ const SettingsSection = ({ cmsData }) => {
           </div>
         </div>
 
-      </div>
+      </div >
 
       <AssetManagerModal
         isOpen={assetModalOpen}
@@ -549,7 +554,7 @@ const SettingsSection = ({ cmsData }) => {
         assets={cmsData?.uploads || []}
         onSelectAsset={handleAssetSelected}
       />
-    </section>
+    </section >
   );
 };
 

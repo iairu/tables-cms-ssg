@@ -16,8 +16,21 @@ const useCMSData = () => {
     connectedClients: [],
     socketId: null,
     socketId: null,
-    discoveredServers: [] // Array of { ip, port, name, id }
+    discoveredServers: [], // Array of { ip, port, name, id }
+    availableInterfaces: [] // Array of { name, ip, family }
   });
+
+  // Load interfaces function
+  const loadInterfaces = useCallback(async () => {
+    if (window.electron && window.electron.getInterfaces) {
+      try {
+        const ifaces = await window.electron.getInterfaces();
+        setCollabState(prev => ({ ...prev, availableInterfaces: ifaces }));
+      } catch (e) {
+        console.error('Failed to load interfaces:', e);
+      }
+    }
+  }, []);
 
   // State Refs for Socket Listeners (to avoid stale closures)
   const dataRef = useRef({});
@@ -512,7 +525,7 @@ const useCMSData = () => {
 
 
   // Collaboration Functions
-  const startCollaborationServer = useCallback(async () => {
+  const startCollaborationServer = useCallback(async (bindIP = null) => {
     if (!window.electron) return;
 
     // Check if other servers are already discovered - Single Server Policy
@@ -523,12 +536,12 @@ const useCMSData = () => {
     }
 
     try {
-      const result = await window.electron.startServer(8081);
+      const result = await window.electron.startServer(8081, bindIP);
       if (result.status === 'started' || result.status === 'already-running') {
         console.log('Collaboration server started on', result.ip);
 
         // Connect to local server as HOST
-        connectToCollaborationServer('http://localhost:8081', 'Host', true);
+        connectToCollaborationServer(`http://${result.ip === '0.0.0.0' ? 'localhost' : result.ip}:8081`, 'Host', true);
 
         setCollabState(prev => ({
           ...prev,
@@ -1232,7 +1245,8 @@ const useCMSData = () => {
     connectToCollaborationServer,
     disconnectCollaboration,
     requestLock,
-    releaseLock
+    releaseLock,
+    loadInterfaces
   };
 };
 

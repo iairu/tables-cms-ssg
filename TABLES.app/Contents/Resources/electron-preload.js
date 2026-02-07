@@ -12,7 +12,8 @@ contextBridge.exposeInMainWorld('electron', {
   },
   // Collaboration APIs
   getIP: () => ipcRenderer.invoke('collab-get-ip'),
-  startServer: (port) => ipcRenderer.invoke('collab-start-server', port),
+  getInterfaces: () => ipcRenderer.invoke('collab-get-interfaces'),
+  startServer: (port, bindIP) => ipcRenderer.invoke('collab-start-server', port, bindIP),
   stopServer: () => ipcRenderer.invoke('collab-stop-server'),
   onServerFound: (callback) => ipcRenderer.on('collab-server-found', (_event, serverInfo) => callback(serverInfo)),
 });
