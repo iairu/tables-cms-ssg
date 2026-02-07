@@ -20,6 +20,7 @@ const DISCOVERY_PORT = 41234;
 const DISCOVERY_MSG_KEY = 'tables-cms-discovery';
 let discoverySocket;
 let broadcastInterval;
+let expiryInterval;
 
 const getNetworkInterfaces = () => {
   const interfaces = os.networkInterfaces();
@@ -1022,6 +1023,33 @@ const startServer = () => {
     }
   });
 
+  // Lock Expiry Check
+  const checkLockExpiry = () => {
+    const now = Date.now();
+    const LOCK_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
+
+    let locksRemoved = false;
+    for (const [fieldId, lock] of activeLocks.entries()) {
+      if (now - lock.timestamp > LOCK_TIMEOUT_MS) {
+        activeLocks.delete(fieldId);
+        locksRemoved = true;
+        log(`Lock expired for ${fieldId} (held by ${lock.clientName})`);
+        // Notify the specific client their lock expired
+        if (connectedClients.has(lock.socketId)) {
+          io.to(lock.socketId).emit('lock-timeout', { fieldId });
+        }
+      }
+    }
+
+    if (locksRemoved) {
+      io.emit('lock-update', Array.from(activeLocks.entries()));
+    }
+  };
+
+  // Run expiry check every minute
+  if (expiryInterval) clearInterval(expiryInterval);
+  expiryInterval = setInterval(checkLockExpiry, 60 * 1000);
+
   io.on('connection', (socket) => {
     const clientIp = socket.handshake.address;
     log(`Client connected: ${socket.id} from ${clientIp}`);
@@ -1087,10 +1115,23 @@ const startServer = () => {
       }
     });
 
+    // Admin: Force Release
+    socket.on('admin-force-release', ({ fieldId }) => {
+      if (activeLocks.has(fieldId)) {
+        const lock = activeLocks.get(fieldId);
+        activeLocks.delete(fieldId);
+        io.emit('lock-update', Array.from(activeLocks.entries()));
+        io.to(lock.socketId).emit('lock-force-released', { fieldId });
+        log(`Admin forced release of ${fieldId}`);
+      }
+    });
+
     socket.on('request-lock', ({ fieldId, user }) => {
       if (activeLocks.has(fieldId)) {
         const lock = activeLocks.get(fieldId);
         if (lock.socketId === socket.id) {
+          // Refresh timestamp on re-request
+          activeLocks.set(fieldId, { ...lock, timestamp: Date.now() });
           socket.emit('lock-granted', { fieldId });
           return;
         }
@@ -1210,6 +1251,10 @@ ipcMain.handle('collab-get-interfaces', () => {
 
 const stopServer = () => {
   stopBroadcasting(); // Stop broadcasting
+  if (expiryInterval) {
+    clearInterval(expiryInterval);
+    expiryInterval = null;
+  }
   if (io) {
     io.close();
     io = null;

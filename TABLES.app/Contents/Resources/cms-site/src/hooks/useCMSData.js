@@ -488,6 +488,12 @@ const useCMSData = () => {
     }
   }, [collabState.isConnected]);
 
+  const forceReleaseLock = useCallback((fieldId) => {
+    if (socketRef.current && collabState.isConnected) {
+      socketRef.current.emit('admin-force-release', { fieldId });
+    }
+  }, [collabState.isConnected]);
+
   const broadcastSettingsUpdate = useCallback((newSettings) => {
     if (socketRef.current && collabState.isConnected) {
       socketRef.current.emit('data-update', { type: 'settings', data: newSettings });
@@ -902,7 +908,8 @@ const useCMSData = () => {
     recentConnections: collabState.recentConnections,
     saveConnectionProfile,
     toggleFavorite,
-    removeConnectionProfile
+    removeConnectionProfile,
+    forceReleaseLock
   };
 };
 

@@ -450,6 +450,35 @@ const SettingsSection = ({ cmsData }) => {
                   {collabState.connectedClients.length === 0 && <li style={{ color: '#94a3b8' }}>No other clients connected</li>}
                 </ul>
               </div>
+
+              {collabState.isServer && (
+                <div style={{ marginTop: '20px', borderTop: '1px solid #e2e8f0', paddingTop: '15px' }}>
+                  <h3 style={{ fontSize: '15px', marginBottom: '10px', color: '#dc2626' }}>Admin Panel</h3>
+                  <div style={{ fontSize: '13px', marginBottom: '10px', fontWeight: '600' }}>Active Locks:</div>
+                  {collabState.activeLocks && collabState.activeLocks.length > 0 ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                      {collabState.activeLocks.map(lock => (
+                        <div key={lock.fieldId} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff1f2', padding: '8px', borderRadius: '4px', border: '1px solid #fda4af' }}>
+                          <span style={{ fontSize: '13px' }}>
+                            <strong>{lock.fieldId}</strong> <span style={{ color: '#64748b' }}>by</span> {lock.clientName}
+                            <span style={{ color: '#991b1b', marginLeft: '5px', fontSize: '11px' }}>
+                              ({Math.floor((Date.now() - (lock.timestamp || Date.now())) / 1000)}s)
+                            </span>
+                          </span>
+                          <button
+                            onClick={() => cmsData.forceReleaseLock(lock.fieldId)}
+                            style={{ ...destructiveButtonStyle, padding: '4px 8px', fontSize: '11px' }}
+                          >
+                            Force Release
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: '13px', color: '#94a3b8', fontStyle: 'italic' }}>No active locks</div>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </div>
