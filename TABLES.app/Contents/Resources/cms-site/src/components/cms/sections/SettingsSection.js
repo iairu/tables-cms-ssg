@@ -328,6 +328,63 @@ const SettingsSection = ({ cmsData }) => {
                     </div>
                   </div>
                 )}
+
+                {/* Recent Connections */}
+                {collabState.recentConnections && collabState.recentConnections.length > 0 && (
+                  <div style={{ marginTop: '15px' }}>
+                    <strong style={{ display: 'block', fontSize: '13px', marginBottom: '5px', color: '#64748b' }}>Recent Connections:</strong>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                      {collabState.recentConnections.map((conn, idx) => (
+                        <div key={`${conn.ip}-${conn.port}-${idx}`} style={{
+                          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                          padding: '8px 12px', background: 'white', border: '1px solid #e2e8f0', borderRadius: '4px'
+                        }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                cmsData.toggleFavorite(conn.ip, conn.port);
+                              }}
+                              style={{
+                                background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                                color: conn.isFavorite ? '#f59e0b' : '#cbd5e1', fontSize: '16px'
+                              }}
+                              title={conn.isFavorite ? "Remove from favorites" : "Add to favorites"}
+                            >
+                              ★
+                            </button>
+                            <div>
+                              <div style={{ fontSize: '14px', fontWeight: '500' }}>{conn.name || 'Anonymous'} <span style={{ color: '#94a3b8', fontSize: '12px' }}>({conn.ip})</span></div>
+                              <div style={{ fontSize: '11px', color: '#94a3b8' }}>Last: {new Date(conn.lastConnected).toLocaleDateString()}</div>
+                            </div>
+                          </div>
+                          <div style={{ display: 'flex', gap: '5px' }}>
+                            <button
+                              onClick={() => {
+                                setConnectIP(conn.ip);
+                                setConnectName(conn.name);
+                                connectToCollaborationServer(`http://${conn.ip}:${conn.port || 8081}`, conn.name || 'Anonymous');
+                              }}
+                              style={{ ...secondaryButtonStyle, padding: '4px 10px', fontSize: '12px' }}
+                            >
+                              Connect
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                cmsData.removeConnectionProfile(conn.ip, conn.port);
+                              }}
+                              style={{ ...destructiveButtonStyle, padding: '4px 8px', fontSize: '12px' }}
+                              title="Remove from history"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '20px' }}>
