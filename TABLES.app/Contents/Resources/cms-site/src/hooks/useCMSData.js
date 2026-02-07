@@ -541,6 +541,16 @@ const useCMSData = () => {
       });
     });
 
+    socket.on('lock-granted', ({ fieldId }) => {
+      console.log('Lock granted for:', fieldId);
+    });
+
+    socket.on('lock-denied', ({ fieldId, holder }) => {
+      console.log('Lock denied for:', fieldId, 'held by', holder);
+      alert(`Could not edit field. It is currently locked by ${holder}.`);
+      // Optionally trigger a blur or other UI reaction here if possible
+    });
+
     socket.on('data-update', (update) => {
       // Handle remote data updates
       // For now, we only support Settings updates as per request
