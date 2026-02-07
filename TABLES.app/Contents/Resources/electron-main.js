@@ -939,10 +939,51 @@ ipcMain.handle('collab-start-server', async (event, port = 8081) => {
         });
       });
 
+      socket.on('request-lock', ({ fieldId, clientName }) => {
+        // Check if locked
+        if (activeLocks.has(fieldId)) {
+          const lock = activeLocks.get(fieldId);
+          if (lock.socketId !== socket.id) {
+            socket.emit('lock-denied', { fieldId, holder: lock.clientName });
+            return;
+          }
+        }
+
+        // Grant lock
+        activeLocks.set(fieldId, { socketId: socket.id, clientName, timestamp: Date.now() });
+        socket.emit('lock-granted', { fieldId });
+        io.emit('lock-update', { fieldId, status: 'locked', clientName, socketId: socket.id });
+        log(`Lock granted: ${fieldId} to ${clientName}`);
+      });
+
+      socket.on('release-lock', ({ fieldId }) => {
+        if (activeLocks.has(fieldId)) {
+          const lock = activeLocks.get(fieldId);
+          if (lock.socketId === socket.id) {
+            activeLocks.delete(fieldId);
+            io.emit('lock-update', { fieldId, status: 'unlocked' });
+            log(`Lock released: ${fieldId}`);
+          }
+        }
+      });
+
       socket.on('disconnect', () => {
         log(`Client disconnected: ${socket.id}`);
         connectedClients.delete(socket.id);
         io.emit('client-left', socket.id);
+
+        // Zombie Lock Cleanup
+        let locksRemoved = false;
+        for (const [fieldId, lock] of activeLocks.entries()) {
+          if (lock.socketId === socket.id) {
+            activeLocks.delete(fieldId);
+            io.emit('lock-update', { fieldId, status: 'unlocked' });
+            locksRemoved = true;
+          }
+        }
+        if (locksRemoved) {
+          log(`Cleaned up locks for disconnected client: ${socket.id}`);
+        }
       });
     });
 
