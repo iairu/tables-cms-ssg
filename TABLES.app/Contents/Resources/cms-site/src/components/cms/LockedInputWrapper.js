@@ -44,17 +44,18 @@ const LockedInputWrapper = ({ fieldId, children, cmsData }) => {
             {isLockedByOther && (
                 <div style={{
                     position: 'absolute',
-                    top: '-22px',
-                    right: '0',
-                    background: '#e11d48',
+                    top: '50%',
+                    right: '10px',
+                    transform: 'translateY(-50%)',
+                    background: 'rgba(225, 29, 72, 0.9)',
                     color: 'white',
                     fontSize: '11px',
                     fontWeight: 'bold',
                     padding: '2px 8px',
-                    borderRadius: '4px 4px 0 0',
+                    borderRadius: '12px',
                     zIndex: 10,
-                    boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
-                    pointerEvents: 'none'
+                    pointerEvents: 'none',
+                    whiteSpace: 'nowrap'
                 }}>
                     <i className="fa-solid fa-lock" style={{ marginRight: '4px' }}></i>
                     Editing: {lock.clientName}

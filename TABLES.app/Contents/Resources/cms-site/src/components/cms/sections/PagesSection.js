@@ -931,6 +931,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
             onChange={(newRows) => saveLocalizedContent(currentLanguage, { rows: newRows })}
             currentLanguage={currentLanguage}
             cmsData={cmsData}
+            lockPrefix={`page-${currentPage.id}-component-${currentLanguage}`}
           />
         </div>
         {duplicateModalOpen && (

@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import { 
-  renderIconPicker, 
-  renderRichTextEditor, 
-  renderImageUpload, 
-  renderButtonList, 
+import {
+  renderIconPicker,
+  renderRichTextEditor,
+  renderImageUpload,
+  renderButtonList,
   CSS_BLEND_MODES,
-  getDefaultFieldsForComponent 
+  getDefaultFieldsForComponent
 } from './componentHelpers';
 import AssetManagerModal from './AssetManagerModal';
+import AssetManagerModal from './AssetManagerModal';
 import IconPickerModal from './IconPickerModal';
+import LockedInputWrapper from './LockedInputWrapper';
 
 const componentIcons = {
   TitleSlide: 'fa-heading',
@@ -23,7 +25,7 @@ const componentIcons = {
   Slideshow: 'fa-images',
 };
 
-const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) => {
+const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData, lockPrefix }) => {
   const [assetModalOpen, setAssetModalOpen] = useState(false);
   const [assetModalTarget, setAssetModalTarget] = useState(null);
   const [isIconPickerModalOpen, setIsIconPickerModalOpen] = useState(false);
@@ -103,16 +105,16 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
 
       const reader = new FileReader();
       reader.onload = async (event) => {
-          const fileData = event.target.result;
-          const newUrl = await cmsData.uploadFile({ fileData, fileName: file.name });
-          
-          if (newUrl) {
-            if (itemIndex !== null && itemFieldName !== null) {
-              handleArrayItemChange(rowIndex, fieldName, itemIndex, itemFieldName, newUrl);
-            } else {
-              handleFieldChange(rowIndex, fieldName, newUrl);
-            }
+        const fileData = event.target.result;
+        const newUrl = await cmsData.uploadFile({ fileData, fileName: file.name });
+
+        if (newUrl) {
+          if (itemIndex !== null && itemFieldName !== null) {
+            handleArrayItemChange(rowIndex, fieldName, itemIndex, itemFieldName, newUrl);
+          } else {
+            handleFieldChange(rowIndex, fieldName, newUrl);
           }
+        }
       };
       reader.readAsDataURL(file);
     };
@@ -154,25 +156,25 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
     <div style={{ marginTop: '20px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
         <h3 style={{ margin: 0 }}>Page Components</h3>
-        <span style={{ 
-          padding: '6px 12px', 
-          background: 'white', 
-          color: '#2563eb', 
+        <span style={{
+          padding: '6px 12px',
+          background: 'white',
+          color: '#2563eb',
           fontSize: '14px',
           fontWeight: '600'
         }}>
           Editing in: {currentLanguage.toUpperCase()}
         </span>
       </div>
-      <p style={{ 
-        fontSize: '14px', 
-        color: '#64748b', 
+      <p style={{
+        fontSize: '14px',
+        color: '#64748b',
         marginBottom: '15px',
         padding: '10px',
         background: '#f1f5f9',
         border: '1px solid #e2e8f0'
       }}>
-        ℹ️ All component content below is specific to the <strong>{currentLanguage.toUpperCase()}</strong> language. 
+        ℹ️ All component content below is specific to the <strong>{currentLanguage.toUpperCase()}</strong> language.
         Switch languages using the dropdown above to edit content for other languages.
       </p>
       {rows.map((row, rowIndex) => (
@@ -184,22 +186,24 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
             <label style={{ fontWeight: '600' }}>
-              <select
-                value={row.component}
-                onChange={(e) => handleChangeComponentType(rowIndex, e.target.value)}
-                style={{ padding: '5px 10px', border: '1px solid #2563eb50', color: 'rgb(37, 99, 235)', backgroundColor: '#2563eb25', fontWeight: 'bold' }}
-              >
-                <option value="TitleSlide">📝 TitleSlide</option>
-                <option value="Boxes">⏹️ Boxes</option>
-                <option value="Infobar">ℹ️ Infobar</option>
-                <option value="Flies">🦋 Flies</option>
-                <option value="Slide">📰 Slide</option>
-                <option value="Video">📹 Video</option>
-                <option value="Ranking">⭐ Ranking</option>
-                <option value="References">💬 References</option>
-                <option value="Reviews">🗣️ Reviews</option>
-                <option value="Slideshow">🖼️ Slideshow</option>
-              </select>
+              <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-componentType`} cmsData={cmsData}>
+                <select
+                  value={row.component}
+                  onChange={(e) => handleChangeComponentType(rowIndex, e.target.value)}
+                  style={{ padding: '5px 10px', border: '1px solid #2563eb50', color: 'rgb(37, 99, 235)', backgroundColor: '#2563eb25', fontWeight: 'bold' }}
+                >
+                  <option value="TitleSlide">📝 TitleSlide</option>
+                  <option value="Boxes">⏹️ Boxes</option>
+                  <option value="Infobar">ℹ️ Infobar</option>
+                  <option value="Flies">🦋 Flies</option>
+                  <option value="Slide">📰 Slide</option>
+                  <option value="Video">📹 Video</option>
+                  <option value="Ranking">⭐ Ranking</option>
+                  <option value="References">💬 References</option>
+                  <option value="Reviews">🗣️ Reviews</option>
+                  <option value="Slideshow">🖼️ Slideshow</option>
+                </select>
+              </LockedInputWrapper>
             </label>
             <div style={{ display: 'flex', gap: '5px' }}>
               <button
@@ -250,45 +254,53 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
             <div>
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'block', marginBottom: '5px' }}><strong>Heading ({currentLanguage}):</strong></label>
-                <input
-                  type="text"
-                  value={row.fields.heading || ''}
-                  onChange={(e) => handleFieldChange(rowIndex, 'heading', e.target.value)}
-                  style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
-                />
+                <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-heading`} cmsData={cmsData}>
+                  <input
+                    type="text"
+                    value={row.fields.heading || ''}
+                    onChange={(e) => handleFieldChange(rowIndex, 'heading', e.target.value)}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
+                  />
+                </LockedInputWrapper>
               </div>
 
               <div className="component-fields-grid">
                 <div>
                   <label style={{ display: 'block', marginBottom: '5px' }}><strong>Alignment ({currentLanguage}):</strong></label>
-                  <select
-                    value={row.fields.alignment || 'center'}
-                    onChange={(e) => handleFieldChange(rowIndex, 'alignment', e.target.value)}
-                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
-                  >
-                    <option value="left">Left</option>
-                    <option value="center">Center</option>
-                    <option value="right">Right</option>
-                  </select>
+                  <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-alignment`} cmsData={cmsData}>
+                    <select
+                      value={row.fields.alignment || 'center'}
+                      onChange={(e) => handleFieldChange(rowIndex, 'alignment', e.target.value)}
+                      style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
+                    >
+                      <option value="left">Left</option>
+                      <option value="center">Center</option>
+                      <option value="right">Right</option>
+                    </select>
+                  </LockedInputWrapper>
                 </div>
                 <div>
                   <label style={{ display: 'block', marginBottom: '5px' }}><strong>Heading Size ({currentLanguage}):</strong></label>
-                  <select
-                    value={row.fields.headingSize || 'normal'}
-                    onChange={(e) => handleFieldChange(rowIndex, 'headingSize', e.target.value)}
-                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
-                  >
-                    <option value="normal">Normal</option>
-                    <option value="big">Big</option>
-                  </select>
+                  <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-headingSize`} cmsData={cmsData}>
+                    <select
+                      value={row.fields.headingSize || 'normal'}
+                      onChange={(e) => handleFieldChange(rowIndex, 'headingSize', e.target.value)}
+                      style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
+                    >
+                      <option value="normal">Normal</option>
+                      <option value="big">Big</option>
+                    </select>
+                  </LockedInputWrapper>
                 </div>
               </div>
-              
+
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'block', marginBottom: '5px' }}><strong>Text ({currentLanguage}):</strong></label>
-                {renderRichTextEditor(`editor-${rowIndex}-text`, row.fields.text, (value) => handleFieldChange(rowIndex, 'text', value))}
+                <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-text`} cmsData={cmsData}>
+                  {renderRichTextEditor(`editor-${rowIndex}-text`, row.fields.text, (value) => handleFieldChange(rowIndex, 'text', value))}
+                </LockedInputWrapper>
               </div>
-              
+
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'block', marginBottom: '5px' }}><strong>Buttons ({currentLanguage}):</strong></label>
                 {renderButtonList(
@@ -300,99 +312,115 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                   cmsData
                 )}
               </div>
-              
-              <div className="component-fields-grid">
-                <div>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                    <input
-                      type="checkbox"
-                      checked={row.fields.darkTheme || false}
-                      onChange={(e) => handleFieldChange(rowIndex, 'darkTheme', e.target.checked)}
-                    />
-                    <span>Dark theme ({currentLanguage})</span>
-                  </label>
-                </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: '5px' }}><strong>Background Color ({currentLanguage}):</strong></label>
-                  <input
-                    type="color"
-                    value={row.fields.backgroundColor || '#ffffff'}
-                    onChange={(e) => handleFieldChange(rowIndex, 'backgroundColor', e.target.value)}
-                    style={{ width: '100px', height: '40px', padding: '2px', border: '1px solid #cbd5e1' }}
-                  />
-                </div>
-              </div>
 
               <div className="component-fields-grid">
                 <div>
-                  <label style={{ display: 'block', marginBottom: '5px' }}><strong>Minimal Height (vh) ({currentLanguage}):</strong></label>
-                  <input
-                    type="number"
-                    value={row.fields.minimalHeight || 400}
-                    onChange={(e) => handleFieldChange(rowIndex, 'minimalHeight', parseInt(e.target.value) || 0)}
-                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
-                  />
+                  <div>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                      <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-darkTheme`} cmsData={cmsData}>
+                        <input
+                          type="checkbox"
+                          checked={row.fields.darkTheme || false}
+                          onChange={(e) => handleFieldChange(rowIndex, 'darkTheme', e.target.checked)}
+                          style={{ cursor: 'pointer', width: '18px', height: '18px' }}
+                        />
+                      </LockedInputWrapper>
+                      <span>Dark theme ({currentLanguage})</span>
+                    </label>
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '5px' }}><strong>Background Color ({currentLanguage}):</strong></label>
+                    <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-backgroundColor`} cmsData={cmsData}>
+                      <input
+                        type="color"
+                        value={row.fields.backgroundColor || '#ffffff'}
+                        onChange={(e) => handleFieldChange(rowIndex, 'backgroundColor', e.target.value)}
+                        style={{ width: '100px', height: '40px', padding: '2px', border: '1px solid #cbd5e1', cursor: 'pointer' }}
+                      />
+                    </LockedInputWrapper>
+                  </div>
                 </div>
-                <div>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+
+                <div className="component-fields-grid">
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '5px' }}><strong>Minimal Height (vh) ({currentLanguage}):</strong></label>
+                    <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-minimalHeight`} cmsData={cmsData}>
+                      <input
+                        type="number"
+                        value={row.fields.minimalHeight || 400}
+                        onChange={(e) => handleFieldChange(rowIndex, 'minimalHeight', parseInt(e.target.value) || 0)}
+                        style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
+                      />
+                    </LockedInputWrapper>
+                  </div>
+                  <div>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                      <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-scaleImageToWholeBackground`} cmsData={cmsData}>
+                        <input
+                          type="checkbox"
+                          checked={row.fields.scaleImageToWholeBackground || false}
+                          onChange={(e) => handleFieldChange(rowIndex, 'scaleImageToWholeBackground', e.target.checked)}
+                          style={{ cursor: 'pointer', width: '18px', height: '18px' }}
+                        />
+                      </LockedInputWrapper>
+                      <span>Scale image to whole background ({currentLanguage})</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div className="component-fields-grid">
+                  {renderImageUpload(
+                    'Background Image',
+                    row.fields.backgroundImage,
+                    () => handleImageUpload(rowIndex, 'backgroundImage'),
+                    () => handleFieldChange(rowIndex, 'backgroundImage', ''),
+                    () => handleSelectImage(rowIndex, 'backgroundImage')
+                  )}
+
+                  {renderImageUpload(
+                    'Mobile Background Image',
+                    row.fields.mobileBackgroundImage,
+                    () => handleImageUpload(rowIndex, 'mobileBackgroundImage'),
+                    () => handleFieldChange(rowIndex, 'mobileBackgroundImage', ''),
+                    () => handleSelectImage(rowIndex, 'mobileBackgroundImage')
+                  )}
+                </div>
+
+                <div className="component-fields-grid">
+                  {renderImageUpload(
+                    'Background Texture',
+                    row.fields.backgroundTexture,
+                    () => handleImageUpload(rowIndex, 'backgroundTexture'),
+                    () => handleFieldChange(rowIndex, 'backgroundTexture', ''),
+                    () => handleSelectImage(rowIndex, 'backgroundTexture')
+                  )}
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '5px' }}><strong>Video Transparency (0-100) ({currentLanguage}):</strong></label>
+                    <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-videoTransparency`} cmsData={cmsData}>
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={row.fields.videoTransparency || 100}
+                        onChange={(e) => handleFieldChange(rowIndex, 'videoTransparency', parseInt(e.target.value) || 0)}
+                        style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
+                      />
+                    </LockedInputWrapper>
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: '10px' }}>
+                  <label style={{ display: 'block', marginBottom: '5px' }}><strong>Video Link ({currentLanguage}):</strong></label>
+                  <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-videoLink`} cmsData={cmsData}>
                     <input
-                      type="checkbox"
-                      checked={row.fields.scaleImageToWholeBackground || false}
-                      onChange={(e) => handleFieldChange(rowIndex, 'scaleImageToWholeBackground', e.target.checked)}
+                      type="text"
+                      value={row.fields.videoLink || ''}
+                      onChange={(e) => handleFieldChange(rowIndex, 'videoLink', e.target.value)}
+                      style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
+                      placeholder="YouTube or video URL"
                     />
-                    <span>Scale image to whole background ({currentLanguage})</span>
-                  </label>
+                  </LockedInputWrapper>
                 </div>
-              </div>
-              
-              <div className="component-fields-grid">
-                {renderImageUpload(
-                  'Background Image',
-                  row.fields.backgroundImage,
-                  () => handleImageUpload(rowIndex, 'backgroundImage'),
-                  () => handleFieldChange(rowIndex, 'backgroundImage', ''),
-                  () => handleSelectImage(rowIndex, 'backgroundImage')
-                )}
-                
-                {renderImageUpload(
-                  'Mobile Background Image',
-                  row.fields.mobileBackgroundImage,
-                  () => handleImageUpload(rowIndex, 'mobileBackgroundImage'),
-                  () => handleFieldChange(rowIndex, 'mobileBackgroundImage', ''),
-                  () => handleSelectImage(rowIndex, 'mobileBackgroundImage')
-                )}
-              </div>
-              
-              <div className="component-fields-grid">
-                {renderImageUpload(
-                  'Background Texture',
-                  row.fields.backgroundTexture,
-                  () => handleImageUpload(rowIndex, 'backgroundTexture'),
-                  () => handleFieldChange(rowIndex, 'backgroundTexture', ''),
-                  () => handleSelectImage(rowIndex, 'backgroundTexture')
-                )}
-                <div>
-                  <label style={{ display: 'block', marginBottom: '5px' }}><strong>Video Transparency (0-100) ({currentLanguage}):</strong></label>
-                  <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    value={row.fields.videoTransparency || 100}
-                    onChange={(e) => handleFieldChange(rowIndex, 'videoTransparency', parseInt(e.target.value) || 0)}
-                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
-                  />
-                </div>
-              </div>
-              
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px' }}><strong>Video Link ({currentLanguage}):</strong></label>
-                <input
-                  type="text"
-                  value={row.fields.videoLink || ''}
-                  onChange={(e) => handleFieldChange(rowIndex, 'videoLink', e.target.value)}
-                  style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
-                  placeholder="YouTube or video URL"
-                />
               </div>
             </div>
           )}
@@ -414,46 +442,54 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                         Remove
                       </button>
                     </div>
-                    
+
                     <div className="component-fields-grid">
                       <div>
                         <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Heading ({currentLanguage}):</label>
-                        <input
-                          type="text"
-                          value={box.heading || ''}
-                          onChange={(e) => handleArrayItemChange(rowIndex, 'boxes', boxIndex, 'heading', e.target.value)}
-                          style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1' }}
-                        />
+                        <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-boxes-${boxIndex}-heading`} cmsData={cmsData}>
+                          <input
+                            type="text"
+                            value={box.heading || ''}
+                            onChange={(e) => handleArrayItemChange(rowIndex, 'boxes', boxIndex, 'heading', e.target.value)}
+                            style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1' }}
+                          />
+                        </LockedInputWrapper>
                       </div>
                       <div>
                         <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Subheading ({currentLanguage}):</label>
-                        <input
-                          type="text"
-                          value={box.subheading || ''}
-                          onChange={(e) => handleArrayItemChange(rowIndex, 'boxes', boxIndex, 'subheading', e.target.value)}
-                          style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1' }}
-                        />
+                        <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-boxes-${boxIndex}-subheading`} cmsData={cmsData}>
+                          <input
+                            type="text"
+                            value={box.subheading || ''}
+                            onChange={(e) => handleArrayItemChange(rowIndex, 'boxes', boxIndex, 'subheading', e.target.value)}
+                            style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1' }}
+                          />
+                        </LockedInputWrapper>
                       </div>
                     </div>
-                    
+
                     <div style={{ marginBottom: '8px' }}>
                       <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Text ({currentLanguage}):</label>
-                      {renderRichTextEditor(
-                        `editor-${rowIndex}-boxes-${boxIndex}-text`, 
-                        box.text || '', 
-                        (value) => handleArrayItemChange(rowIndex, 'boxes', boxIndex, 'text', value)
-                      )}
+                      <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-boxes-${boxIndex}-text`} cmsData={cmsData}>
+                        {renderRichTextEditor(
+                          `editor-${rowIndex}-boxes-${boxIndex}-text`,
+                          box.text || '',
+                          (value) => handleArrayItemChange(rowIndex, 'boxes', boxIndex, 'text', value)
+                        )}
+                      </LockedInputWrapper>
                     </div>
-                    
+
                     <div className="component-fields-grid">
                       <div>
                         <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Text in lower corner ({currentLanguage}):</label>
-                        <input
-                          type="text"
-                          value={box.lowerCornerText || ''}
-                          onChange={(e) => handleArrayItemChange(rowIndex, 'boxes', boxIndex, 'lowerCornerText', e.target.value)}
-                          style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1' }}
-                        />
+                        <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-boxes-${boxIndex}-lowerCornerText`} cmsData={cmsData}>
+                          <input
+                            type="text"
+                            value={box.lowerCornerText || ''}
+                            onChange={(e) => handleArrayItemChange(rowIndex, 'boxes', boxIndex, 'lowerCornerText', e.target.value)}
+                            style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1' }}
+                          />
+                        </LockedInputWrapper>
                       </div>
                       <div>
                         <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Icon ({currentLanguage}):</label>
@@ -470,21 +506,25 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                     <div className="component-fields-grid">
                       <div>
                         <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Horizontal Adjustment ({currentLanguage}):</label>
-                        <input
-                          type="number"
-                          value={box.horizontalAdjustment || 0}
-                          onChange={(e) => handleArrayItemChange(rowIndex, 'boxes', boxIndex, 'horizontalAdjustment', parseInt(e.target.value) || 0)}
-                          style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }}
-                        />
+                        <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-boxes-${boxIndex}-horizontalAdjustment`} cmsData={cmsData}>
+                          <input
+                            type="number"
+                            value={box.horizontalAdjustment || 0}
+                            onChange={(e) => handleArrayItemChange(rowIndex, 'boxes', boxIndex, 'horizontalAdjustment', parseInt(e.target.value) || 0)}
+                            style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1' }}
+                          />
+                        </LockedInputWrapper>
                       </div>
                       <div>
                         <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Vertical Adjustment ({currentLanguage}):</label>
-                        <input
-                          type="number"
-                          value={box.verticalAdjustment || 0}
-                          onChange={(e) => handleArrayItemChange(rowIndex, 'boxes', boxIndex, 'verticalAdjustment', parseInt(e.target.value) || 0)}
-                          style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }}
-                        />
+                        <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-boxes-${boxIndex}-verticalAdjustment`} cmsData={cmsData}>
+                          <input
+                            type="number"
+                            value={box.verticalAdjustment || 0}
+                            onChange={(e) => handleArrayItemChange(rowIndex, 'boxes', boxIndex, 'verticalAdjustment', parseInt(e.target.value) || 0)}
+                            style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1' }}
+                          />
+                        </LockedInputWrapper>
                       </div>
                     </div>
                   </div>
@@ -492,20 +532,23 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                 <button
                   type="button"
                   onClick={() => handleArrayItemAdd(rowIndex, 'boxes', { heading: '', subheading: '', text: '', lowerCornerText: '', icon: '', horizontalAdjustment: 0, verticalAdjustment: 0 })}
-                  style={{ padding: '8px 16px', background: 'white', color: '#2563eb', border: '1px solid #2563eb50',  cursor: 'pointer' }}
+                  style={{ padding: '8px 16px', background: 'white', color: '#2563eb', border: '1px solid #2563eb50', cursor: 'pointer' }}
                 >
                   + Add Box
                 </button>
               </div>
-              
+
               <div className="component-fields-grid">
                 <div>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                    <input
-                      type="checkbox"
-                      checked={row.fields.darkTheme || false}
-                      onChange={(e) => handleFieldChange(rowIndex, 'darkTheme', e.target.checked)}
-                    />
+                    <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-darkTheme`} cmsData={cmsData}>
+                      <input
+                        type="checkbox"
+                        checked={row.fields.darkTheme || false}
+                        onChange={(e) => handleFieldChange(rowIndex, 'darkTheme', e.target.checked)}
+                        style={{ cursor: 'pointer', width: '18px', height: '18px' }}
+                      />
+                    </LockedInputWrapper>
                     <span>Dark theme ({currentLanguage})</span>
                   </label>
                 </div>
@@ -534,31 +577,37 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
               </div>
               <div>
                 <label style={{ display: 'block', marginBottom: '5px' }}><strong>Alternative Icon (if no logo) ({currentLanguage}):</strong></label>
-                <input
-                  type="text"
-                  value={row.fields.alternativeIcon || ''}
-                  onChange={(e) => handleFieldChange(rowIndex, 'alternativeIcon', e.target.value)}
-                  onFocus={() => openIconPickerModal(rowIndex, 'alternativeIcon')}
-                  style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1', marginBottom: '5px' }}
-                  placeholder="e.g., 🏠"
-                />
+                <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-alternativeIcon`} cmsData={cmsData}>
+                  <input
+                    type="text"
+                    value={row.fields.alternativeIcon || ''}
+                    onChange={(e) => handleFieldChange(rowIndex, 'alternativeIcon', e.target.value)}
+                    onFocus={() => openIconPickerModal(rowIndex, 'alternativeIcon')}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', marginBottom: '5px' }}
+                    placeholder="e.g., 🏠"
+                  />
+                </LockedInputWrapper>
               </div>
               <div>
                 <label style={{ display: 'block', marginBottom: '5px' }}><strong>Text ({currentLanguage}):</strong></label>
-                <input
-                  type="text"
-                  value={row.fields.text || ''}
-                  onChange={(e) => handleFieldChange(rowIndex, 'text', e.target.value)}
-                  style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1' }}
-                />
+                <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-text`} cmsData={cmsData}>
+                  <input
+                    type="text"
+                    value={row.fields.text || ''}
+                    onChange={(e) => handleFieldChange(rowIndex, 'text', e.target.value)}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
+                  />
+                </LockedInputWrapper>
               </div>
               <div>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                  <input
-                    type="checkbox"
-                    checked={row.fields.darkTheme || false}
-                    onChange={(e) => handleFieldChange(rowIndex, 'darkTheme', e.target.checked)}
-                  />
+                  <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-darkTheme`} cmsData={cmsData}>
+                    <input
+                      type="checkbox"
+                      checked={row.fields.darkTheme || false}
+                      onChange={(e) => handleFieldChange(rowIndex, 'darkTheme', e.target.checked)}
+                    />
+                  </LockedInputWrapper>
                   <span>Dark theme</span>
                 </label>
               </div>
@@ -582,18 +631,18 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'block', marginBottom: '5px' }}><strong>Flies ({currentLanguage}):</strong></label>
                 {row.fields.flies && row.fields.flies.map((fly, flyIndex) => (
-                  <div key={flyIndex} style={{ background: 'white', padding: '15px',  marginBottom: '10px', border: '1px solid #e2e8f0' }}>
+                  <div key={flyIndex} style={{ background: 'white', padding: '15px', marginBottom: '10px', border: '1px solid #e2e8f0' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
                       <strong>Fly {flyIndex + 1}</strong>
                       <button
                         type="button"
                         onClick={() => handleArrayItemRemove(rowIndex, 'flies', flyIndex)}
-                        style={{ padding: '3px 10px', background: 'white', color: '#ef4444', border: '1px solid #ef444450',  cursor: 'pointer', fontSize: '12px' }}
+                        style={{ padding: '3px 10px', background: 'white', color: '#ef4444', border: '1px solid #ef444450', cursor: 'pointer', fontSize: '12px' }}
                       >
                         Remove
                       </button>
                     </div>
-                    
+
                     <div style={{ marginBottom: '8px' }}>
                       {renderImageUpload(
                         'Background Image',
@@ -607,77 +656,93 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                     <div className="component-fields-grid">
                       <div>
                         <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Margin from edge (%) ({currentLanguage}):</label>
-                        <input
-                          type="number"
-                          value={fly.marginFromEdge || 0}
-                          onChange={(e) => handleArrayItemChange(rowIndex, 'flies', flyIndex, 'marginFromEdge', parseInt(e.target.value) || 0)}
-                          style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }}
-                        />
+                        <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-flies-${flyIndex}-marginFromEdge`} cmsData={cmsData}>
+                          <input
+                            type="number"
+                            value={fly.marginFromEdge || 0}
+                            onChange={(e) => handleArrayItemChange(rowIndex, 'flies', flyIndex, 'marginFromEdge', parseInt(e.target.value) || 0)}
+                            style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1' }}
+                          />
+                        </LockedInputWrapper>
                       </div>
                       <div>
                         <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Margin from top (%) ({currentLanguage}):</label>
-                        <input
-                          type="number"
-                          value={fly.marginFromTop || 0}
-                          onChange={(e) => handleArrayItemChange(rowIndex, 'flies', flyIndex, 'marginFromTop', parseInt(e.target.value) || 0)}
-                          style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }}
-                        />
+                        <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-flies-${flyIndex}-marginFromTop`} cmsData={cmsData}>
+                          <input
+                            type="number"
+                            value={fly.marginFromTop || 0}
+                            onChange={(e) => handleArrayItemChange(rowIndex, 'flies', flyIndex, 'marginFromTop', parseInt(e.target.value) || 0)}
+                            style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1' }}
+                          />
+                        </LockedInputWrapper>
                       </div>
                     </div>
 
                     <div className="component-fields-grid">
                       <div>
                         <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Rotation (degrees) ({currentLanguage}):</label>
-                        <input
-                          type="number"
-                          value={fly.rotation || 0}
-                          onChange={(e) => handleArrayItemChange(rowIndex, 'flies', flyIndex, 'rotation', parseInt(e.target.value) || 0)}
-                          style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }}
-                        />
+                        <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-flies-${flyIndex}-rotation`} cmsData={cmsData}>
+                          <input
+                            type="number"
+                            value={fly.rotation || 0}
+                            onChange={(e) => handleArrayItemChange(rowIndex, 'flies', flyIndex, 'rotation', parseInt(e.target.value) || 0)}
+                            style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1' }}
+                          />
+                        </LockedInputWrapper>
                       </div>
                       <div>
                         <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Scaling factor ({currentLanguage}):</label>
-                        <input
-                          type="number"
-                          step="0.1"
-                          value={fly.scalingFactor || 1}
-                          onChange={(e) => handleArrayItemChange(rowIndex, 'flies', flyIndex, 'scalingFactor', parseFloat(e.target.value) || 1)}
-                          style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }}
-                        />
+                        <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-flies-${flyIndex}-scalingFactor`} cmsData={cmsData}>
+                          <input
+                            type="number"
+                            step="0.1"
+                            value={fly.scalingFactor || 1}
+                            onChange={(e) => handleArrayItemChange(rowIndex, 'flies', flyIndex, 'scalingFactor', parseFloat(e.target.value) || 1)}
+                            style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1' }}
+                          />
+                        </LockedInputWrapper>
                       </div>
                     </div>
-                    
+
                     <div className="component-fields-grid">
                       <div>
                         <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Transparency (0-100) ({currentLanguage}):</label>
-                        <input
-                          type="number"
-                          min="0"
-                          max="100"
-                          value={fly.transparency || 100}
-                          onChange={(e) => handleArrayItemChange(rowIndex, 'flies', flyIndex, 'transparency', parseInt(e.target.value) || 100)}
-                          style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }}
-                        />
+                        <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-flies-${flyIndex}-transparency`} cmsData={cmsData}>
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            value={fly.transparency || 100}
+                            onChange={(e) => handleArrayItemChange(rowIndex, 'flies', flyIndex, 'transparency', parseInt(e.target.value) || 100)}
+                            style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1' }}
+                          />
+                        </LockedInputWrapper>
                       </div>
                       <div>
                         <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                          <input
-                            type="checkbox"
-                            checked={fly.showOnMobile || false}
-                            onChange={(e) => handleArrayItemChange(rowIndex, 'flies', flyIndex, 'showOnMobile', e.target.checked)}
-                          />
+                          <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-flies-${flyIndex}-showOnMobile`} cmsData={cmsData}>
+                            <input
+                              type="checkbox"
+                              checked={fly.showOnMobile || false}
+                              onChange={(e) => handleArrayItemChange(rowIndex, 'flies', flyIndex, 'showOnMobile', e.target.checked)}
+                              style={{ cursor: 'pointer', width: '18px', height: '18px' }}
+                            />
+                          </LockedInputWrapper>
                           <span style={{ fontSize: '14px' }}>Show on mobile ({currentLanguage})</span>
                         </label>
                       </div>
                     </div>
-                    
+
                     <div>
                       <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                        <input
-                          type="checkbox"
-                          checked={fly.stickToRightSide || false}
-                          onChange={(e) => handleArrayItemChange(rowIndex, 'flies', flyIndex, 'stickToRightSide', e.target.checked)}
-                        />
+                        <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-flies-${flyIndex}-stickToRightSide`} cmsData={cmsData}>
+                          <input
+                            type="checkbox"
+                            checked={fly.stickToRightSide || false}
+                            onChange={(e) => handleArrayItemChange(rowIndex, 'flies', flyIndex, 'stickToRightSide', e.target.checked)}
+                            style={{ cursor: 'pointer', width: '18px', height: '18px' }}
+                          />
+                        </LockedInputWrapper>
                         <span style={{ fontSize: '14px' }}>Stick to right side ({currentLanguage})</span>
                       </label>
                     </div>
@@ -686,32 +751,37 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                 <button
                   type="button"
                   onClick={() => handleArrayItemAdd(rowIndex, 'flies', { backgroundImage: '', marginFromEdge: 0, marginFromTop: 0, rotation: 0, scalingFactor: 1, transparency: 100, showOnMobile: false, stickToRightSide: false })}
-                  style={{ padding: '8px 16px', background: 'white', color: '#2563eb', border: '1px solid #2563eb50',  cursor: 'pointer' }}
+                  style={{ padding: '8px 16px', background: 'white', color: '#2563eb', border: '1px solid #2563eb50', cursor: 'pointer' }}
                 >
                   + Add Fly
                 </button>
               </div>
-              
+
               <div className="component-fields-grid">
                 <div>
                   <label style={{ display: 'block', marginBottom: '5px' }}><strong>Blend Mode ({currentLanguage}):</strong></label>
-                  <select
-                    value={row.fields.blendMode || 'normal'}
-                    onChange={(e) => handleFieldChange(rowIndex, 'blendMode', e.target.value)}
-                    style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1' }}
-                  >
-                    {CSS_BLEND_MODES.map(mode => (
-                      <option key={mode} value={mode}>{mode}</option>
-                    ))}
-                  </select>
+                  <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-blendMode`} cmsData={cmsData}>
+                    <select
+                      value={row.fields.blendMode || 'normal'}
+                      onChange={(e) => handleFieldChange(rowIndex, 'blendMode', e.target.value)}
+                      style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
+                    >
+                      {CSS_BLEND_MODES.map(mode => (
+                        <option key={mode} value={mode}>{mode}</option>
+                      ))}
+                    </select>
+                  </LockedInputWrapper>
                 </div>
                 <div>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                    <input
-                      type="checkbox"
-                      checked={row.fields.hideOverflow || false}
-                      onChange={(e) => handleFieldChange(rowIndex, 'hideOverflow', e.target.checked)}
-                    />
+                    <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-hideOverflow`} cmsData={cmsData}>
+                      <input
+                        type="checkbox"
+                        checked={row.fields.hideOverflow || false}
+                        onChange={(e) => handleFieldChange(rowIndex, 'hideOverflow', e.target.checked)}
+                        style={{ cursor: 'pointer', width: '18px', height: '18px' }}
+                      />
+                    </LockedInputWrapper>
                     <span>Hide overflow ({currentLanguage})</span>
                   </label>
                 </div>
@@ -727,11 +797,15 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                 <h4 style={{ marginTop: 0, marginBottom: '15px' }}>Left Side</h4>
                 <div style={{ marginBottom: '10px' }}>
                   <label style={{ display: 'block', marginBottom: '5px' }}><strong>Left Heading ({currentLanguage}):</strong></label>
-                  <input type="text" value={row.fields.leftHeading || ''} onChange={(e) => handleFieldChange(rowIndex, 'leftHeading', e.target.value)} style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1' }} />
+                  <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-leftHeading`} cmsData={cmsData}>
+                    <input type="text" value={row.fields.leftHeading || ''} onChange={(e) => handleFieldChange(rowIndex, 'leftHeading', e.target.value)} style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }} />
+                  </LockedInputWrapper>
                 </div>
                 <div style={{ marginBottom: '10px' }}>
                   <label style={{ display: 'block', marginBottom: '5px' }}><strong>Left Text ({currentLanguage}):</strong></label>
-                  <textarea value={row.fields.leftText || ''} onChange={(e) => handleFieldChange(rowIndex, 'leftText', e.target.value)} style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1', minHeight: '80px' }} />
+                  <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-leftText`} cmsData={cmsData}>
+                    <textarea value={row.fields.leftText || ''} onChange={(e) => handleFieldChange(rowIndex, 'leftText', e.target.value)} style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', minHeight: '80px' }} />
+                  </LockedInputWrapper>
                 </div>
                 <div style={{ marginBottom: '10px' }}>
                   <label style={{ display: 'block', marginBottom: '5px' }}><strong>Left Buttons ({currentLanguage}):</strong></label>
@@ -745,28 +819,38 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                 </div>
                 <div style={{ marginBottom: '10px' }}>
                   <label style={{ display: 'block', marginBottom: '5px' }}><strong>Left Background Color ({currentLanguage}):</strong></label>
-                  <input type="color" value={row.fields.leftBackgroundColor || '#ffffff'} onChange={(e) => handleFieldChange(rowIndex, 'leftBackgroundColor', e.target.value)} style={{ width: '100px', height: '40px' }} />
+                  <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-leftBackgroundColor`} cmsData={cmsData}>
+                    <input type="color" value={row.fields.leftBackgroundColor || '#ffffff'} onChange={(e) => handleFieldChange(rowIndex, 'leftBackgroundColor', e.target.value)} style={{ width: '100px', height: '40px', cursor: 'pointer' }} />
+                  </LockedInputWrapper>
                 </div>
                 <div style={{ marginBottom: '10px' }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                    <input type="checkbox" checked={row.fields.leftDarkTheme || false} onChange={(e) => handleFieldChange(rowIndex, 'leftDarkTheme', e.target.checked)} />
+                    <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-leftDarkTheme`} cmsData={cmsData}>
+                      <input type="checkbox" checked={row.fields.leftDarkTheme || false} onChange={(e) => handleFieldChange(rowIndex, 'leftDarkTheme', e.target.checked)} style={{ cursor: 'pointer', width: '18px', height: '18px' }} />
+                    </LockedInputWrapper>
                     <span>Left Dark Theme ({currentLanguage})</span>
                   </label>
                 </div>
                 {renderImageUpload('Left Background Image', row.fields.leftBackgroundImage, () => handleImageUpload(rowIndex, 'leftBackgroundImage'), () => handleFieldChange(rowIndex, 'leftBackgroundImage', ''), () => handleSelectImage(rowIndex, 'leftBackgroundImage'))}
                 <div style={{ marginBottom: '10px' }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                    <input type="checkbox" checked={row.fields.fitLeftBackground || false} onChange={(e) => handleFieldChange(rowIndex, 'fitLeftBackground', e.target.checked)} />
+                    <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-fitLeftBackground`} cmsData={cmsData}>
+                      <input type="checkbox" checked={row.fields.fitLeftBackground || false} onChange={(e) => handleFieldChange(rowIndex, 'fitLeftBackground', e.target.checked)} style={{ cursor: 'pointer', width: '18px', height: '18px' }} />
+                    </LockedInputWrapper>
                     <span>Fit Left Background ({currentLanguage})</span>
                   </label>
                 </div>
                 <div style={{ marginBottom: '10px' }}>
                   <label style={{ display: 'block', marginBottom: '5px' }}><strong>Minimal Left Height (vh) ({currentLanguage}):</strong></label>
-                  <input type="number" value={row.fields.minimalLeftHeight || 70} onChange={(e) => handleFieldChange(rowIndex, 'minimalLeftHeight', parseInt(e.target.value) || 0)} style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1' }} />
+                  <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-minimalLeftHeight`} cmsData={cmsData}>
+                    <input type="number" value={row.fields.minimalLeftHeight || 70} onChange={(e) => handleFieldChange(rowIndex, 'minimalLeftHeight', parseInt(e.target.value) || 0)} style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }} />
+                  </LockedInputWrapper>
                 </div>
                 <div style={{ marginBottom: '10px' }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                    <input type="checkbox" checked={row.fields.hideLeftOnMobile || false} onChange={(e) => handleFieldChange(rowIndex, 'hideLeftOnMobile', e.target.checked)} />
+                    <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-hideLeftOnMobile`} cmsData={cmsData}>
+                      <input type="checkbox" checked={row.fields.hideLeftOnMobile || false} onChange={(e) => handleFieldChange(rowIndex, 'hideLeftOnMobile', e.target.checked)} style={{ cursor: 'pointer', width: '18px', height: '18px' }} />
+                    </LockedInputWrapper>
                     <span>Hide Left on Mobile ({currentLanguage})</span>
                   </label>
                 </div>
@@ -777,11 +861,15 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                 <h4 style={{ marginTop: '20px', marginBottom: '15px' }}>Right Side ({currentLanguage})</h4>
                 <div style={{ marginBottom: '10px' }}>
                   <label style={{ display: 'block', marginBottom: '5px' }}><strong>Right Heading ({currentLanguage}):</strong></label>
-                  <input type="text" value={row.fields.rightHeading || ''} onChange={(e) => handleFieldChange(rowIndex, 'rightHeading', e.target.value)} style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1' }} />
+                  <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-rightHeading`} cmsData={cmsData}>
+                    <input type="text" value={row.fields.rightHeading || ''} onChange={(e) => handleFieldChange(rowIndex, 'rightHeading', e.target.value)} style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }} />
+                  </LockedInputWrapper>
                 </div>
                 <div style={{ marginBottom: '10px' }}>
                   <label style={{ display: 'block', marginBottom: '5px' }}><strong>Right Text ({currentLanguage}):</strong></label>
-                  <textarea value={row.fields.rightText || ''} onChange={(e) => handleFieldChange(rowIndex, 'rightText', e.target.value)} style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1', minHeight: '80px' }} />
+                  <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-rightText`} cmsData={cmsData}>
+                    <textarea value={row.fields.rightText || ''} onChange={(e) => handleFieldChange(rowIndex, 'rightText', e.target.value)} style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', minHeight: '80px' }} />
+                  </LockedInputWrapper>
                 </div>
                 <div style={{ marginBottom: '10px' }}>
                   <label style={{ display: 'block', marginBottom: '5px' }}><strong>Right Buttons ({currentLanguage}):</strong></label>
@@ -795,11 +883,15 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                 </div>
                 <div style={{ marginBottom: '10px' }}>
                   <label style={{ display: 'block', marginBottom: '5px' }}><strong>Right Background Color ({currentLanguage}):</strong></label>
-                  <input type="color" value={row.fields.rightBackgroundColor || '#ffffff'} onChange={(e) => handleFieldChange(rowIndex, 'rightBackgroundColor', e.target.value)} style={{ width: '100px', height: '40px' }} />
+                  <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-rightBackgroundColor`} cmsData={cmsData}>
+                    <input type="color" value={row.fields.rightBackgroundColor || '#ffffff'} onChange={(e) => handleFieldChange(rowIndex, 'rightBackgroundColor', e.target.value)} style={{ width: '100px', height: '40px', cursor: 'pointer' }} />
+                  </LockedInputWrapper>
                 </div>
                 <div style={{ marginBottom: '10px' }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                    <input type="checkbox" checked={row.fields.rightDarkTheme || false} onChange={(e) => handleFieldChange(rowIndex, 'rightDarkTheme', e.target.checked)} />
+                    <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-rightDarkTheme`} cmsData={cmsData}>
+                      <input type="checkbox" checked={row.fields.rightDarkTheme || false} onChange={(e) => handleFieldChange(rowIndex, 'rightDarkTheme', e.target.checked)} style={{ cursor: 'pointer', width: '18px', height: '18px' }} />
+                    </LockedInputWrapper>
                     <span>Right Dark Theme ({currentLanguage})</span>
                   </label>
                 </div>
@@ -812,7 +904,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                 </div>
                 <div style={{ marginBottom: '10px' }}>
                   <label style={{ display: 'block', marginBottom: '5px' }}><strong>Minimal Right Height (vh) ({currentLanguage}):</strong></label>
-                  <input type="number" value={row.fields.minimalRightHeight || 70} onChange={(e) => handleFieldChange(rowIndex, 'minimalRightHeight', parseInt(e.target.value) || 0)} style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1' }} />
+                  <input type="number" value={row.fields.minimalRightHeight || 70} onChange={(e) => handleFieldChange(rowIndex, 'minimalRightHeight', parseInt(e.target.value) || 0)} style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }} />
                 </div>
                 <div style={{ marginBottom: '10px' }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
@@ -846,17 +938,21 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
             <div className="component-fields-grid">
               <div>
                 <label style={{ display: 'block', marginBottom: '5px' }}><strong>YouTube Video URL ({currentLanguage}):</strong></label>
-                <input type="text" value={row.fields.youtubeUrl || ''} onChange={(e) => handleFieldChange(rowIndex, 'youtubeUrl', e.target.value)} style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1' }} placeholder="https://www.youtube.com/watch?v=..." />
+                <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-youtubeUrl`} cmsData={cmsData}>
+                  <input type="text" value={row.fields.youtubeUrl || ''} onChange={(e) => handleFieldChange(rowIndex, 'youtubeUrl', e.target.value)} style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }} placeholder="https://www.youtube.com/watch?v=..." />
+                </LockedInputWrapper>
               </div>
               <div>
                 <label style={{ display: 'block', marginBottom: '5px' }}><strong>Special Theme ({currentLanguage}):</strong></label>
-                <select value={row.fields.specialTheme || 'default'} onChange={(e) => handleFieldChange(rowIndex, 'specialTheme', e.target.value)} style={{ width: '100%', padding: '8px',  border: '1px solid #cbd5e1' }}>
-                  <option value="default">Default</option>
-                  <option value="iphone">iPhone</option>
-                  <option value="iphone-autoplay">iPhone + Autoplay</option>
-                  <option value="autoplay">Autoplay</option>
-                  <option value="autoplay-fullwidth">Autoplay + Fullwidth</option>
-                </select>
+                <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-specialTheme`} cmsData={cmsData}>
+                  <select value={row.fields.specialTheme || 'default'} onChange={(e) => handleFieldChange(rowIndex, 'specialTheme', e.target.value)} style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}>
+                    <option value="default">Default</option>
+                    <option value="iphone">iPhone</option>
+                    <option value="iphone-autoplay">iPhone + Autoplay</option>
+                    <option value="autoplay">Autoplay</option>
+                    <option value="autoplay-fullwidth">Autoplay + Fullwidth</option>
+                  </select>
+                </LockedInputWrapper>
               </div>
             </div>
           )}
@@ -867,34 +963,42 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'block', marginBottom: '5px' }}><strong>Ranks ({currentLanguage}):</strong></label>
                 {row.fields.ranks && row.fields.ranks.map((rank, rankIndex) => (
-                  <div key={rankIndex} style={{ background: 'white', padding: '15px',  marginBottom: '10px', border: '1px solid #e2e8f0' }}>
+                  <div key={rankIndex} style={{ background: 'white', padding: '15px', marginBottom: '10px', border: '1px solid #e2e8f0' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
                       <strong>Rank {rankIndex + 1}</strong>
-                      <button type="button" onClick={() => handleArrayItemRemove(rowIndex, 'ranks', rankIndex)} style={{ padding: '3px 10px', background: 'white', color: '#ef4444', border: '1px solid #ef444450',  cursor: 'pointer', fontSize: '12px' }}>Remove</button>
+                      <button type="button" onClick={() => handleArrayItemRemove(rowIndex, 'ranks', rankIndex)} style={{ padding: '3px 10px', background: 'white', color: '#ef4444', border: '1px solid #ef444450', cursor: 'pointer', fontSize: '12px' }}>Remove</button>
                     </div>
                     <div className="component-fields-grid">
                       <div>
                         <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Heading ({currentLanguage}):</label>
-                        <input type="text" value={rank.heading || ''} onChange={(e) => handleArrayItemChange(rowIndex, 'ranks', rankIndex, 'heading', e.target.value)} style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }} />
+                        <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-ranks-${rankIndex}-heading`} cmsData={cmsData}>
+                          <input type="text" value={rank.heading || ''} onChange={(e) => handleArrayItemChange(rowIndex, 'ranks', rankIndex, 'heading', e.target.value)} style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1' }} />
+                        </LockedInputWrapper>
                       </div>
                       <div>
                         <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Subheading ({currentLanguage}):</label>
-                        <input type="text" value={rank.subheading || ''} onChange={(e) => handleArrayItemChange(rowIndex, 'ranks', rankIndex, 'subheading', e.target.value)} style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }} />
+                        <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-ranks-${rankIndex}-subheading`} cmsData={cmsData}>
+                          <input type="text" value={rank.subheading || ''} onChange={(e) => handleArrayItemChange(rowIndex, 'ranks', rankIndex, 'subheading', e.target.value)} style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1' }} />
+                        </LockedInputWrapper>
                       </div>
                     </div>
                   </div>
                 ))}
-                <button type="button" onClick={() => handleArrayItemAdd(rowIndex, 'ranks', { heading: '', subheading: '' })} style={{ padding: '8px 16px', background: 'white', color: '#2563eb', border: '1px solid #2563eb50',  cursor: 'pointer' }}>+ Add Rank</button>
+                <button type="button" onClick={() => handleArrayItemAdd(rowIndex, 'ranks', { heading: '', subheading: '' })} style={{ padding: '8px 16px', background: 'white', color: '#2563eb', border: '1px solid #2563eb50', cursor: 'pointer' }}>+ Add Rank</button>
               </div>
               <div className="component-fields-grid">
                 <div>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                    <input type="checkbox" checked={row.fields.darkMode || false} onChange={(e) => handleFieldChange(rowIndex, 'darkMode', e.target.checked)} />
-                    <span>Dark Mode ({currentLanguage})</span>
-                  </label>
+                  <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-darkMode`} cmsData={cmsData}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                      <input type="checkbox" checked={row.fields.darkMode || false} onChange={(e) => handleFieldChange(rowIndex, 'darkMode', e.target.checked)} />
+                      <span>Dark Mode ({currentLanguage})</span>
+                    </label>
+                  </LockedInputWrapper>
                 </div>
                 <div>
-                  {renderImageUpload('Background Image', row.fields.backgroundImage, () => handleImageUpload(rowIndex, 'backgroundImage'), () => handleFieldChange(rowIndex, 'backgroundImage', ''), () => handleSelectImage(rowIndex, 'backgroundImage'))}
+                  <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-backgroundImage`} cmsData={cmsData}>
+                    {renderImageUpload('Background Image', row.fields.backgroundImage, () => handleImageUpload(rowIndex, 'backgroundImage'), () => handleFieldChange(rowIndex, 'backgroundImage', ''), () => handleSelectImage(rowIndex, 'backgroundImage'))}
+                  </LockedInputWrapper>
                 </div>
               </div>
             </div>
@@ -910,25 +1014,29 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                     <div key={imgIndex} style={{ background: 'white', padding: '15px', border: '1px solid #e2e8f0' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
                         <strong>Image {imgIndex + 1}</strong>
-                        <button type="button" onClick={() => handleArrayItemRemove(rowIndex, 'images', imgIndex)} style={{ padding: '3px 10px', background: 'white', color: '#ef4444', border: '1px solid #ef444450',  cursor: 'pointer', fontSize: '12px' }}>Remove</button>
+                        <button type="button" onClick={() => handleArrayItemRemove(rowIndex, 'images', imgIndex)} style={{ padding: '3px 10px', background: 'white', color: '#ef4444', border: '1px solid #ef444450', cursor: 'pointer', fontSize: '12px' }}>Remove</button>
                       </div>
-                      {renderImageUpload(
-                        '',
-                        image.imageUrl,
-                        () => handleImageUpload(rowIndex, 'images', imgIndex, 'imageUrl'),
-                        () => handleArrayItemChange(rowIndex, 'images', imgIndex, 'imageUrl', ''),
-                        () => handleSelectImage(rowIndex, 'images', imgIndex, 'imageUrl')
-                      )}
+                      <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-images-${imgIndex}-imageUrl`} cmsData={cmsData}>
+                        {renderImageUpload(
+                          '',
+                          image.imageUrl,
+                          () => handleImageUpload(rowIndex, 'images', imgIndex, 'imageUrl'),
+                          () => handleArrayItemChange(rowIndex, 'images', imgIndex, 'imageUrl', ''),
+                          () => handleSelectImage(rowIndex, 'images', imgIndex, 'imageUrl')
+                        )}
+                      </LockedInputWrapper>
                     </div>
                   ))}
                 </div>
-                <button type="button" onClick={() => handleArrayItemAdd(rowIndex, 'images', { imageUrl: '' })} style={{ padding: '8px 16px', background: 'white', color: '#2563eb', border: '1px solid #2563eb50',  cursor: 'pointer' }}>+ Add Image</button>
+                <button type="button" onClick={() => handleArrayItemAdd(rowIndex, 'images', { imageUrl: '' })} style={{ padding: '8px 16px', background: 'white', color: '#2563eb', border: '1px solid #2563eb50', cursor: 'pointer' }}>+ Add Image</button>
               </div>
               <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                  <input type="checkbox" checked={row.fields.darkTheme || false} onChange={(e) => handleFieldChange(rowIndex, 'darkTheme', e.target.checked)} />
-                  <span>Dark Theme</span>
-                </label>
+                <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-darkTheme`} cmsData={cmsData}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={row.fields.darkTheme || false} onChange={(e) => handleFieldChange(rowIndex, 'darkTheme', e.target.checked)} />
+                    <span>Dark Theme</span>
+                  </label>
+                </LockedInputWrapper>
               </div>
             </div>
           )}
@@ -943,26 +1051,32 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
                     <div key={reviewIndex} style={{ background: 'white', padding: '15px', border: '1px solid #e2e8f0' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
                         <strong>Review {reviewIndex + 1}</strong>
-                        <button type="button" onClick={() => handleArrayItemRemove(rowIndex, 'reviews', reviewIndex)} style={{ padding: '3px 10px', background: 'white', color: '#ef4444', border: '1px solid #ef444450',  cursor: 'pointer', fontSize: '12px' }}>Remove</button>
+                        <button type="button" onClick={() => handleArrayItemRemove(rowIndex, 'reviews', reviewIndex)} style={{ padding: '3px 10px', background: 'white', color: '#ef4444', border: '1px solid #ef444450', cursor: 'pointer', fontSize: '12px' }}>Remove</button>
                       </div>
                       <div style={{ marginBottom: '8px' }}>
                         <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Review Text ({currentLanguage}):</label>
-                        <textarea value={review.text || ''} onChange={(e) => handleArrayItemChange(rowIndex, 'reviews', reviewIndex, 'text', e.target.value)} style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1', minHeight: '80px' }} />
+                        <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-reviews-${reviewIndex}-text`} cmsData={cmsData}>
+                          <textarea value={review.text || ''} onChange={(e) => handleArrayItemChange(rowIndex, 'reviews', reviewIndex, 'text', e.target.value)} style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1', minHeight: '80px' }} />
+                        </LockedInputWrapper>
                       </div>
                       <div>
                         <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Author ({currentLanguage}):</label>
-                        <input type="text" value={review.author || ''} onChange={(e) => handleArrayItemChange(rowIndex, 'reviews', reviewIndex, 'author', e.target.value)} style={{ width: '100%', padding: '6px',  border: '1px solid #cbd5e1' }} />
+                        <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-reviews-${reviewIndex}-author`} cmsData={cmsData}>
+                          <input type="text" value={review.author || ''} onChange={(e) => handleArrayItemChange(rowIndex, 'reviews', reviewIndex, 'author', e.target.value)} style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1' }} />
+                        </LockedInputWrapper>
                       </div>
                     </div>
                   ))}
                 </div>
-                <button type="button" onClick={() => handleArrayItemAdd(rowIndex, 'reviews', { text: '', author: '' })} style={{ padding: '8px 16px', background: 'white', color: '#2563eb', border: '1px solid #2563eb50',  cursor: 'pointer' }}>+ Add Review</button>
+                <button type="button" onClick={() => handleArrayItemAdd(rowIndex, 'reviews', { text: '', author: '' })} style={{ padding: '8px 16px', background: 'white', color: '#2563eb', border: '1px solid #2563eb50', cursor: 'pointer' }}>+ Add Review</button>
               </div>
               <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                  <input type="checkbox" checked={row.fields.darkTheme || false} onChange={(e) => handleFieldChange(rowIndex, 'darkTheme', e.target.checked)} />
-                  <span>Dark Theme ({currentLanguage})</span>
-                </label>
+                <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-darkTheme`} cmsData={cmsData}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={row.fields.darkTheme || false} onChange={(e) => handleFieldChange(rowIndex, 'darkTheme', e.target.checked)} />
+                    <span>Dark Theme ({currentLanguage})</span>
+                  </label>
+                </LockedInputWrapper>
               </div>
             </div>
           )}
@@ -973,83 +1087,97 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'block', marginBottom: '5px' }}><strong>Slides ({currentLanguage}):</strong></label>
                 {row.fields.slides && row.fields.slides.map((slide, slideIndex) => (
-                  <div key={slideIndex} style={{ background: 'white', padding: '15px',  marginBottom: '10px', border: '1px solid #e2e8f0' }}>
+                  <div key={slideIndex} style={{ background: 'white', padding: '15px', marginBottom: '10px', border: '1px solid #e2e8f0' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
                       <strong>Slide {slideIndex + 1}</strong>
-                      <button type="button" onClick={() => handleArrayItemRemove(rowIndex, 'slides', slideIndex)} style={{ padding: '3px 10px', background: 'white', color: '#ef4444', border: '1px solid #ef444450',  cursor: 'pointer', fontSize: '12px' }}>Remove</button>
+                      <button type="button" onClick={() => handleArrayItemRemove(rowIndex, 'slides', slideIndex)} style={{ padding: '3px 10px', background: 'white', color: '#ef4444', border: '1px solid #ef444450', cursor: 'pointer', fontSize: '12px' }}>Remove</button>
                     </div>
                     <div className="component-fields-grid">
                       <div>
                         <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Type ({currentLanguage}):</label>
-                        <select
-                          value={slide.type || 'image'}
-                          onChange={(e) => handleArrayItemChange(rowIndex, 'slides', slideIndex, 'type', e.target.value)}
-                          style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1' }}
-                        >
-                          <option value="image">Image</option>
-                          <option value="video">Video</option>
-                        </select>
+                        <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-slides-${slideIndex}-type`} cmsData={cmsData}>
+                          <select
+                            value={slide.type || 'image'}
+                            onChange={(e) => handleArrayItemChange(rowIndex, 'slides', slideIndex, 'type', e.target.value)}
+                            style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1' }}
+                          >
+                            <option value="image">Image</option>
+                            <option value="video">Video</option>
+                          </select>
+                        </LockedInputWrapper>
                       </div>
                       <div>
                         <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Alt Text ({currentLanguage}):</label>
-                        <input
-                          type="text"
-                          value={slide.alt || ''}
-                          onChange={(e) => handleArrayItemChange(rowIndex, 'slides', slideIndex, 'alt', e.target.value)}
-                          style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1' }}
-                        />
+                        <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-slides-${slideIndex}-alt`} cmsData={cmsData}>
+                          <input
+                            type="text"
+                            value={slide.alt || ''}
+                            onChange={(e) => handleArrayItemChange(rowIndex, 'slides', slideIndex, 'alt', e.target.value)}
+                            style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1' }}
+                          />
+                        </LockedInputWrapper>
                       </div>
                     </div>
                     {slide.type === 'image' && (
                       <div style={{ marginBottom: '8px' }}>
-                        {renderImageUpload(
-                          'Image',
-                          slide.src,
-                          () => handleImageUpload(rowIndex, 'slides', slideIndex, 'src'),
-                          () => handleArrayItemChange(rowIndex, 'slides', slideIndex, 'src', ''),
-                          () => handleSelectImage(rowIndex, 'slides', slideIndex, 'src')
-                        )}
+                        <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-slides-${slideIndex}-src`} cmsData={cmsData}>
+                          {renderImageUpload(
+                            'Image',
+                            slide.src,
+                            () => handleImageUpload(rowIndex, 'slides', slideIndex, 'src'),
+                            () => handleArrayItemChange(rowIndex, 'slides', slideIndex, 'src', ''),
+                            () => handleSelectImage(rowIndex, 'slides', slideIndex, 'src')
+                          )}
+                        </LockedInputWrapper>
                       </div>
                     )}
                     {slide.type === 'video' && (
                       <div style={{ marginBottom: '8px' }}>
                         <label style={{ display: 'block', marginBottom: '3px', fontSize: '14px' }}>Video URL ({currentLanguage}):</label>
-                        <input
-                          type="text"
-                          value={slide.src || ''}
-                          onChange={(e) => handleArrayItemChange(rowIndex, 'slides', slideIndex, 'src', e.target.value)}
-                          style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1' }}
-                        />
+                        <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-slides-${slideIndex}-src`} cmsData={cmsData}>
+                          <input
+                            type="text"
+                            value={slide.src || ''}
+                            onChange={(e) => handleArrayItemChange(rowIndex, 'slides', slideIndex, 'src', e.target.value)}
+                            style={{ width: '100%', padding: '6px', border: '1px solid #cbd5e1' }}
+                          />
+                        </LockedInputWrapper>
                       </div>
                     )}
                   </div>
                 ))}
-                <button type="button" onClick={() => handleArrayItemAdd(rowIndex, 'slides', { type: 'image', src: '', alt: '' })} style={{ padding: '8px 16px', background: 'white', color: '#2563eb', border: '1px solid #2563eb50',  cursor: 'pointer' }}>+ Add Slide</button>
+                <button type="button" onClick={() => handleArrayItemAdd(rowIndex, 'slides', { type: 'image', src: '', alt: '' })} style={{ padding: '8px 16px', background: 'white', color: '#2563eb', border: '1px solid #2563eb50', cursor: 'pointer' }}>+ Add Slide</button>
               </div>
               <div className="component-fields-grid">
                 <div>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                    <input type="checkbox" checked={row.fields.darkTheme || false} onChange={(e) => handleFieldChange(rowIndex, 'darkTheme', e.target.checked)} />
-                    <span>Dark Theme ({currentLanguage})</span>
-                  </label>
+                  <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-darkTheme`} cmsData={cmsData}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                      <input type="checkbox" checked={row.fields.darkTheme || false} onChange={(e) => handleFieldChange(rowIndex, 'darkTheme', e.target.checked)} />
+                      <span>Dark Theme ({currentLanguage})</span>
+                    </label>
+                  </LockedInputWrapper>
                 </div>
                 <div>
                   <label style={{ display: 'block', marginBottom: '5px' }}><strong>Min Height (vh) ({currentLanguage}):</strong></label>
-                  <input
-                    type="number"
-                    value={row.fields.minHeight || 30}
-                    onChange={(e) => handleFieldChange(rowIndex, 'minHeight', parseInt(e.target.value) || 0)}
-                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
-                  />
+                  <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-minHeight`} cmsData={cmsData}>
+                    <input
+                      type="number"
+                      value={row.fields.minHeight || 30}
+                      onChange={(e) => handleFieldChange(rowIndex, 'minHeight', parseInt(e.target.value) || 0)}
+                      style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
+                    />
+                  </LockedInputWrapper>
                 </div>
                 <div>
                   <label style={{ display: 'block', marginBottom: '5px' }}><strong>Max Height (vh) ({currentLanguage}):</strong></label>
-                  <input
-                    type="number"
-                    value={row.fields.maxHeight || 70}
-                    onChange={(e) => handleFieldChange(rowIndex, 'maxHeight', parseInt(e.target.value) || 0)}
-                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
-                  />
+                  <LockedInputWrapper fieldId={`${lockPrefix}-${rowIndex}-maxHeight`} cmsData={cmsData}>
+                    <input
+                      type="number"
+                      value={row.fields.maxHeight || 70}
+                      onChange={(e) => handleFieldChange(rowIndex, 'maxHeight', parseInt(e.target.value) || 0)}
+                      style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1' }}
+                    />
+                  </LockedInputWrapper>
                 </div>
               </div>
             </div>
@@ -1063,7 +1191,7 @@ const ComponentEditor = ({ rows, onChange, currentLanguage = 'en', cmsData }) =>
           background: '#10b981',
           color: 'white',
           border: 'none',
-          
+
           cursor: 'pointer',
           fontWeight: '600'
         }}
