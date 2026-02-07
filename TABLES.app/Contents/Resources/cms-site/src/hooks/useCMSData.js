@@ -46,6 +46,7 @@ const useCMSData = () => {
   const buildTimeoutRef = useRef(null);
   const pollIntervalRef = useRef(null);
   const countdownIntervalRef = useRef(null);
+  const discoveredServersRef = useRef([]);
   const isBuildingRef = useRef(false);
   const lastBuildTimeRef = useRef(null);
   const [isBuilding, setIsBuilding] = useState(false);
@@ -508,30 +509,15 @@ const useCMSData = () => {
     setIsDataLoaded(true);
   }, [fetchUploads, setIsBuildingState, startPolling]);
 
-  // Listen for discovered servers
-  useEffect(() => {
-    if (window.electron && window.electron.onServerFound) {
-      window.electron.onServerFound((serverInfo) => {
-        console.log('Discovered server:', serverInfo);
-        setCollabState(prev => {
-          // Avoid duplicates based on IP and Port
-          const exists = prev.discoveredServers.find(s => s.ip === serverInfo.ip && s.port === serverInfo.port);
-          if (exists) return prev;
-          return {
-            ...prev,
-            discoveredServers: [...prev.discoveredServers, serverInfo]
-          };
-        });
-      });
-    }
-  }, []);
+
 
   // Collaboration Functions
   const startCollaborationServer = useCallback(async () => {
     if (!window.electron) return;
 
     // Check if other servers are already discovered - Single Server Policy
-    if (collabState.discoveredServers.length > 0) {
+    // Use Ref for most up-to-date check if called manually shortly after launch
+    if (discoveredServersRef.current.length > 0) {
       alert('Cannot start server: Another collaboration server was detected on this network. Please connect to the existing server instead.');
       return;
     }
@@ -767,6 +753,43 @@ const useCMSData = () => {
     });
 
   }, []);
+
+  // Listen for discovered servers & Auto-Negotiation
+  useEffect(() => {
+    if (window.electron && window.electron.onServerFound) {
+      window.electron.onServerFound((serverInfo) => {
+        console.log('Discovered server:', serverInfo);
+
+        // Update Ref immediately for synchronous access in timeout
+        const existsRef = discoveredServersRef.current.find(s => s.ip === serverInfo.ip && s.port === serverInfo.port);
+        if (!existsRef) {
+          discoveredServersRef.current = [...discoveredServersRef.current, serverInfo];
+        }
+
+        setCollabState(prev => {
+          // Avoid duplicates based on IP and Port
+          const exists = prev.discoveredServers.find(s => s.ip === serverInfo.ip && s.port === serverInfo.port);
+          if (exists) return prev;
+          return {
+            ...prev,
+            discoveredServers: [...prev.discoveredServers, serverInfo]
+          };
+        });
+      });
+    }
+
+    // Auto-Negotiation: Wait for discovery, then decide role
+    const negotiationTimeout = setTimeout(() => {
+      if (discoveredServersRef.current.length > 0) {
+        console.log('Auto-Negotiation: Server detected, defaulting to Client mode.');
+      } else {
+        console.log('Auto-Negotiation: No server detected, starting Host...');
+        startCollaborationServer();
+      }
+    }, 2000); // 2 second discovery window
+
+    return () => clearTimeout(negotiationTimeout);
+  }, [startCollaborationServer]);
 
   const disconnectCollaboration = useCallback(() => {
     if (socketRef.current) {
