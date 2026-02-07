@@ -23,7 +23,7 @@ const SettingsSection = ({ cmsData }) => {
   const getLockInfo = (fieldId) => {
     if (!collabState?.activeLocks) return null;
     const lock = collabState.activeLocks.find(l => l.fieldId === fieldId);
-    if (lock && lock.socketId !== socketRef?.current?.id) { // We haven't exposed socketRef ID, but we know if WE hold it
+    if (lock && lock.socketId !== collabState.socketId) {
       // Actually, we don't know our own socket ID easily unless we store it.
       // But we know 'clientName'. Let's rely on that for now or just check if WE requested it?
       // The hook tells us if status is 'locked'.

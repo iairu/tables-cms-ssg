@@ -11,7 +11,8 @@ const useCMSData = () => {
     serverIP: '',
     clientName: 'Anonymous',
     activeLocks: [], // Array of { fieldId, clientName }
-    connectedClients: []
+    connectedClients: [],
+    socketId: null
   });
   // Build trigger state
   const buildTimeoutRef = useRef(null);
@@ -495,13 +496,13 @@ const useCMSData = () => {
 
     socket.on('connect', () => {
       console.log('Connected to collaboration server');
-      setCollabState(prev => ({ ...prev, isConnected: true, clientName: name }));
+      setCollabState(prev => ({ ...prev, isConnected: true, clientName: name, socketId: socket.id }));
       socket.emit('register-client', { name });
     });
 
     socket.on('disconnect', () => {
       console.log('Disconnected from collaboration server');
-      setCollabState(prev => ({ ...prev, isConnected: false }));
+      setCollabState(prev => ({ ...prev, isConnected: false, socketId: null }));
     });
 
     socket.on('initial-state', ({ locks, clients }) => {
@@ -570,7 +571,8 @@ const useCMSData = () => {
       isConnected: false,
       isServer: false,
       activeLocks: [],
-      connectedClients: []
+      connectedClients: [],
+      socketId: null
     }));
   }, [collabState.isServer]);
 
