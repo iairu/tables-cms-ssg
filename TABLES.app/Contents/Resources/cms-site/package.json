@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "develop": "GATSBY_LOGGER_LOG_LEVEL=error GATSBY_TELEMETRY_DISABLED=1 gatsby develop",
+    "develop-alt": "GATSBY_LOGGER_LOG_LEVEL=error GATSBY_TELEMETRY_DISABLED=1 gatsby develop",
     "build": "gatsby build",
     "serve": "node server.js",
     "serve:gatsby": "gatsby serve",
@@ -46,6 +47,10 @@
   },
   "overrides": {
     "react-server-dom-webpack": {
+      "react": "^18.2.0",
+      "react-dom": "^18.2.0"
+    },
+    "react-mde": {
       "react": "^18.2.0",
       "react-dom": "^18.2.0"
     }

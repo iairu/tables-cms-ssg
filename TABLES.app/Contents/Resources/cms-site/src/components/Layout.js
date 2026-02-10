@@ -8,33 +8,13 @@ import { useLoading } from '../context/LoadingContext';
 import NotesSidebar from './NotesSidebar';
 import '../styles/cms.css';
 
-const getExtensionsFromStorage = () => {
-  try {
-    return JSON.parse(localStorage.getItem('extensions') || '{}');
-  } catch (e) {
-    return {};
-  }
-};
+
 
 const Layout = ({ children, location }) => {
   const cmsData = useCMSData();
   const { isLoading, showLoading, hideLoading } = useLoading();
   const [isNotesSidebarOpen, setNotesSidebarOpen] = useState(false);
-  const [extensions, setExtensions] = useState(getExtensionsFromStorage());
-
-  useEffect(() => {
-    const updateExtensions = () => {
-      setExtensions(getExtensionsFromStorage());
-    };
-
-    window.addEventListener('storage', updateExtensions);
-    window.addEventListener('extensions-updated', updateExtensions);
-
-    return () => {
-      window.removeEventListener('storage', updateExtensions);
-      window.removeEventListener('extensions-updated', updateExtensions);
-    };
-  }, []);
+  const { extensions } = cmsData;
 
   useEffect(() => {
     const handleShowLoading = () => showLoading();

@@ -1,5 +1,6 @@
-import React, { useState, useEffect, memo } from 'react';
+import React, { useState, memo } from 'react';
 import { Link } from 'gatsby';
+import useCMSData from '../hooks/useCMSData';
 
 const pathFromSection = {
   pages: 'pages',
@@ -18,31 +19,12 @@ const pathFromSection = {
   personal: 'personal'
 };
 
-const getExtensionsFromStorage = () => {
-  try {
-    return JSON.parse(localStorage.getItem('extensions') || '{}');
-  } catch (e) {
-    return {};
-  }
-};
+
 
 const SideMenu = memo(({ currentSection, isBuilding, lastSaved, onBuildClick, canBuild, buildCooldownSeconds, domain, vercelApiKey }) => {
   const [isRentalSubMenuOpen, setIsRentalSubMenuOpen] = useState(false);
-  const [extensions, setExtensions] = useState(getExtensionsFromStorage());
-
-  useEffect(() => {
-    const updateExtensions = () => {
-      setExtensions(getExtensionsFromStorage());
-    };
-
-    window.addEventListener('storage', updateExtensions);
-    window.addEventListener('extensions-updated', updateExtensions);
-
-    return () => {
-      window.removeEventListener('storage', updateExtensions);
-      window.removeEventListener('extensions-updated', updateExtensions);
-    };
-  }, []);
+  const { extensions } = useCMSData();
+  console.log('[SideMenu] Extensions:', extensions);
 
   const handleBuildClick = (e, localOnly = false) => {
     e.preventDefault();
@@ -67,7 +49,7 @@ const SideMenu = memo(({ currentSection, isBuilding, lastSaved, onBuildClick, ca
       <div>
         <h3>Content</h3>
         {(() => {
-          
+
           return (
             <>
               {extensions['pages-extension-enabled'] && (
@@ -162,31 +144,31 @@ const SideMenu = memo(({ currentSection, isBuilding, lastSaved, onBuildClick, ca
               )}
               {extensions['rental-extension-enabled'] && (
                 <div>
-                      <Link to={`/cms/${pathFromSection['rental-inventory']}`} className={currentSection === 'rental-inventory' ? 'active' : ''}>
-                        <i className="fa fa-box" style={{ marginRight: '8px' }}></i>
-                        Inventory
-                      </Link>
-                      <Link to={`/cms/${pathFromSection['rental-attendance']}`} className={currentSection === 'rental-attendance' ? 'active' : ''}>
-                        <i className="fa fa-calendar-check" style={{ marginRight: '8px' }}></i>
-                        Attendance
-                      </Link>
-                      <Link to={`/cms/${pathFromSection['rental-customers']}`} className={currentSection === 'rental-customers' ? 'active' : ''}>
-                        <i className="fa fa-users" style={{ marginRight: '8px' }}></i>
-                        Customers
-                      </Link>
-                      <Link to={`/cms/${pathFromSection['rental-employees']}`} className={currentSection === 'rental-employees' ? 'active' : ''}>
-                        <i className="fa fa-user-tie" style={{ marginRight: '8px' }}></i>
-                        Employees
-                      </Link>
-                      <Link to={`/cms/${pathFromSection['rental-reservations']}`} className={currentSection === 'rental-reservations' ? 'active' : ''}>
-                        <i className="fa fa-clipboard-list" style={{ marginRight: '8px' }}></i>
-                        Reservations
-                      </Link>
-                      <Link to={`/cms/${pathFromSection['rental-calendar']}`} className={currentSection === 'rental-calendar' ? 'active' : ''}>
-                        <i className="fa fa-calendar" style={{ marginRight: '8px' }}></i>
-                        Calendar
-                      </Link>
-                    </div>
+                  <Link to={`/cms/${pathFromSection['rental-inventory']}`} className={currentSection === 'rental-inventory' ? 'active' : ''}>
+                    <i className="fa fa-box" style={{ marginRight: '8px' }}></i>
+                    Inventory
+                  </Link>
+                  <Link to={`/cms/${pathFromSection['rental-attendance']}`} className={currentSection === 'rental-attendance' ? 'active' : ''}>
+                    <i className="fa fa-calendar-check" style={{ marginRight: '8px' }}></i>
+                    Attendance
+                  </Link>
+                  <Link to={`/cms/${pathFromSection['rental-customers']}`} className={currentSection === 'rental-customers' ? 'active' : ''}>
+                    <i className="fa fa-users" style={{ marginRight: '8px' }}></i>
+                    Customers
+                  </Link>
+                  <Link to={`/cms/${pathFromSection['rental-employees']}`} className={currentSection === 'rental-employees' ? 'active' : ''}>
+                    <i className="fa fa-user-tie" style={{ marginRight: '8px' }}></i>
+                    Employees
+                  </Link>
+                  <Link to={`/cms/${pathFromSection['rental-reservations']}`} className={currentSection === 'rental-reservations' ? 'active' : ''}>
+                    <i className="fa fa-clipboard-list" style={{ marginRight: '8px' }}></i>
+                    Reservations
+                  </Link>
+                  <Link to={`/cms/${pathFromSection['rental-calendar']}`} className={currentSection === 'rental-calendar' ? 'active' : ''}>
+                    <i className="fa fa-calendar" style={{ marginRight: '8px' }}></i>
+                    Calendar
+                  </Link>
+                </div>
               )}
             </>
           );

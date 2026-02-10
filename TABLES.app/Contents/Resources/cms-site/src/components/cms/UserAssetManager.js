@@ -86,15 +86,11 @@ const UserAssetManager = ({ assets, onPageLoad, onUpload, onDelete, onReplace })
     const file = e.target.files[0];
     if (!file || !onUpload) return;
 
-    const reader = new FileReader();
-    reader.onload = async (event) => {
-        const fileData = event.target.result;
-        await onUpload({ fileData, fileName: file.name });
-    };
-    reader.readAsDataURL(file);
+    // Pass the File object directly
+    onUpload(file);
 
     // Reset the file input so the same file can be selected again
-    if(fileInputRef.current) {
+    if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
   };
@@ -115,12 +111,7 @@ const UserAssetManager = ({ assets, onPageLoad, onUpload, onDelete, onReplace })
       const file = e.target.files[0];
       if (!file || !onReplace) return;
 
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-          const fileData = event.target.result;
-          await onReplace(filename, { fileData, fileName: file.name });
-      };
-      reader.readAsDataURL(file);
+      onReplace(filename, file);
     };
     input.click();
   };
@@ -132,9 +123,9 @@ const UserAssetManager = ({ assets, onPageLoad, onUpload, onDelete, onReplace })
   // Fuzzy filter assets by filename (or name property)
   const filteredAssets = search.trim()
     ? assets.filter(asset => {
-        const name = asset.filename || asset.name || '';
-        return fuzzyMatch(name, search.trim());
-      })
+      const name = asset.filename || asset.name || '';
+      return fuzzyMatch(name, search.trim());
+    })
     : assets;
 
   if (loading) {
@@ -144,11 +135,11 @@ const UserAssetManager = ({ assets, onPageLoad, onUpload, onDelete, onReplace })
   return (
     <section className="main-section" style={styles.container}>
       <h2 style={styles.header}>User Asset Manager</h2>
-      <input 
-        type="file" 
-        ref={fileInputRef} 
-        onChange={handleUpload} 
-        style={{ display: 'none' }} 
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleUpload}
+        style={{ display: 'none' }}
         accept="image/*"
       />
       <button onClick={triggerUpload} style={styles.uploadButton}>

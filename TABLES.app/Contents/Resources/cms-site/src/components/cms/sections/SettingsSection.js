@@ -19,6 +19,7 @@ const SettingsSection = ({ cmsData }) => {
   const [extensions, setExtensions] = useState({});
   const [connectIP, setConnectIP] = useState('');
   const [connectName, setConnectName] = useState('');
+  const [selectedInterfaceIP, setSelectedInterfaceIP] = useState('');
 
   // Helper to check if a field is locked by someone else
   const getLockInfo = (fieldId) => {
@@ -556,7 +557,7 @@ const SettingsSection = ({ cmsData }) => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '15px' }}>
             {(settings.socialMedia || []).map((social, index) => (
               <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <LockedInputWrapper fieldId={`social-${index}-platform`}>
+                <LockedInputWrapper fieldId={`social-${index}-platform`} cmsData={cmsData}>
                   <select value={social.platform} onChange={(e) => handleSocialMediaChange(index, 'platform', e.target.value)} style={{ width: '150px', padding: '10px', border: '1px solid #cbd5e1', }}>
                     <option value="">Select Platform</option>
                     <option value="X">X (Twitter)</option>
@@ -570,7 +571,7 @@ const SettingsSection = ({ cmsData }) => {
                     <option value="TikTok">TikTok</option>
                   </select>
                 </LockedInputWrapper>
-                <LockedInputWrapper fieldId={`social-${index}-url`}>
+                <LockedInputWrapper fieldId={`social-${index}-url`} cmsData={cmsData}>
                   <input type="text" value={social.url} onChange={(e) => handleSocialMediaChange(index, 'url', e.target.value)} placeholder="Enter URL" style={{ flex: '1', padding: '10px', border: '1px solid #cbd5e1', }} />
                 </LockedInputWrapper>
                 <button onClick={() => handleRemoveSocialMedia(index)} style={{ ...destructiveButtonStyle, padding: '10px' }}>Remove</button>
@@ -586,8 +587,8 @@ const SettingsSection = ({ cmsData }) => {
               <h2 style={{ marginTop: '0', marginBottom: '15px', fontSize: '18px', fontWeight: 'bold' }}>Movie Tracker</h2>
               <div style={{ marginBottom: '20px' }}>
                 <label style={{ display: 'block', marginBottom: '10px' }}>
-                  <strong>OMDb API Key:</strong>
-                  <LockedInputWrapper fieldId="omdbApiKey">
+                  OMDb API Key:
+                  <LockedInputWrapper fieldId="omdbApiKey" cmsData={cmsData}>
                     <input type="text" value={settings.omdbApiKey || ''} onChange={(e) => handleChange('omdbApiKey', e.target.value)} placeholder="Enter your OMDb API key" style={{ width: '100%', padding: '10px', marginTop: '5px', border: '1px solid #cbd5e1', }} />
                   </LockedInputWrapper>
                 </label>
@@ -599,6 +600,49 @@ const SettingsSection = ({ cmsData }) => {
           )
         }
 
+        {/* Build Logs Viewer */}
+        <div style={{ ...cardStyle, gridColumn: '1 / -1', background: '#1e293b', borderColor: '#334155', color: 'white' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+            <h2 style={{ margin: '0', fontSize: '18px', fontWeight: 'bold', color: 'white' }}>
+              <i className="fa-solid fa-terminal" style={{ marginRight: '10px' }}></i>
+              Build Logs
+            </h2>
+            {cmsData.isBuilding && collabState.isServer && (
+              <button
+                onClick={() => {
+                  if (window.confirm('Are you sure you want to cancel the current build?')) {
+                    cmsData.requestCancelBuild();
+                  }
+                }}
+                style={{ ...destructiveButtonStyle, padding: '6px 12px', fontSize: '13px' }}
+              >
+                <i className="fa-solid fa-stop" style={{ marginRight: '5px' }}></i>
+                Cancel Build
+              </button>
+            )}
+          </div>
+
+          <div style={{
+            background: '#0f172a',
+            borderRadius: '6px',
+            padding: '15px',
+            height: '300px',
+            overflowY: 'auto',
+            fontFamily: 'monospace',
+            fontSize: '13px',
+            border: '1px solid #334155'
+          }}>
+            {cmsData.buildLogs && cmsData.buildLogs.length > 0 ? (
+              cmsData.buildLogs.map((log, i) => (
+                <div key={i} style={{ whiteSpace: 'pre-wrap', marginBottom: '2px', color: '#e2e8f0' }}>{log}</div>
+              ))
+            ) : (
+              <div style={{ color: '#64748b', fontStyle: 'italic' }}>Waiting for build logs...</div>
+            )}
+            {/* Auto-scroll anchor could be added here */}
+          </div>
+        </div>
+
         {/* Deployment */}
         <div style={{ ...cardStyle, gridColumn: '1 / -1' }}>
           <h2 style={{ marginTop: '0', marginBottom: '15px', fontSize: '18px', fontWeight: 'bold' }}>Deployment</h2>
@@ -606,7 +650,7 @@ const SettingsSection = ({ cmsData }) => {
             <div>
               <label style={{ display: 'block', marginBottom: '10px' }}>
                 <strong>Vercel Deploy API Key:</strong>
-                <LockedInputWrapper fieldId="vercelApiKey">
+                <LockedInputWrapper fieldId="vercelApiKey" cmsData={cmsData}>
                   <input type="password" value={settings.vercelApiKey || ''} onChange={(e) => handleChange('vercelApiKey', e.target.value)} placeholder="Enter your Vercel deploy token" style={{ width: '100%', padding: '10px', marginTop: '5px', border: '1px solid #cbd5e1', }} />
                 </LockedInputWrapper>
               </label>
@@ -617,7 +661,7 @@ const SettingsSection = ({ cmsData }) => {
             <div>
               <label style={{ display: 'block', marginBottom: '10px' }}>
                 <strong>Vercel Project Name:</strong>
-                <LockedInputWrapper fieldId="vercelProjectName">
+                <LockedInputWrapper fieldId="vercelProjectName" cmsData={cmsData}>
                   <input type="text" value={settings.vercelProjectName || ''} onChange={(e) => handleVercelProjectNameChange(e.target.value)} placeholder="my-project-name" pattern="[a-z-]+" style={{ width: '100%', padding: '10px', marginTop: '5px', border: '1px solid #cbd5e1', }} />
                 </LockedInputWrapper>
               </label>

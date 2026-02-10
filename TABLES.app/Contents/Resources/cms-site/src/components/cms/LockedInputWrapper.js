@@ -50,7 +50,7 @@ const LockedInputWrapper = ({ fieldId, children, cmsData }) => {
                     handleBlur();
                     if (child.props.onBlur) child.props.onBlur(e);
                 },
-                disabled: isLockedByOther || !isConnected || child.props.disabled, // Restore disabled if disconnected? Maybe just warn? Let's disable to prevent data loss if offline
+                disabled: isLockedByOther || child.props.disabled, // Allow editing if disconnected (offline/standalone mode)
                 style: {
                     ...child.props.style,
                     border: isLockedByOther

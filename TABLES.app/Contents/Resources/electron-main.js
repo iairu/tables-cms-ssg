@@ -9,6 +9,9 @@ const { Server } = require('socket.io'); // Socket.io server
 const http = require('http'); // Required for Socket.io standalone
 const dgram = require('node:dgram'); // UDP for auto-discovery
 
+let GATSBY_PORT = 8000;
+let SOCKET_PORT = 8081;
+
 // Collaboration State
 let io;
 let collabServer;
@@ -81,7 +84,7 @@ const startDiscoveryService = () => {
   }
 };
 
-const startBroadcasting = (preferredIP = null) => {
+const startBroadcasting = (preferredIP = null, port = 3001) => {
   if (broadcastInterval) clearInterval(broadcastInterval);
 
   const ip = preferredIP || getLocalIP();
@@ -91,7 +94,7 @@ const startBroadcasting = (preferredIP = null) => {
     type: 'announce',
     ip: ip,
     hostname: hostname,
-    port: 3001 // Default socket.io port
+    port: port || 3001 // Default socket.io port
   });
 
   log(`Starting UDP broadcast for ${ip} on port ${DISCOVERY_PORT}`);
@@ -379,7 +382,7 @@ const createMainWindow = () => {
         spellcheck: false, // Disable spellcheck for better performance
       },
     });
-    mainWindow.loadURL('http://localhost:8000/cms/settings');
+    mainWindow.loadURL(`http://localhost:${GATSBY_PORT}/cms/settings`);
     mainWindow.on('closed', () => {
       if (gatsbyProcess) {
         gatsbyProcess.kill();
@@ -466,6 +469,27 @@ const waitForPort = async (port, host = 'localhost', maxAttempts = 30, delayMs =
     await new Promise(resolve => setTimeout(resolve, delayMs));
   }
   return false;
+};
+
+// Utility function to find a free port
+const findFreePort = (startPort) => {
+  return new Promise((resolve, reject) => {
+    const server = net.createServer();
+    server.unref();
+    server.on('error', (err) => {
+      if (err.code === 'EADDRINUSE') {
+        resolve(findFreePort(startPort + 1));
+      } else {
+        reject(err);
+      }
+    });
+    server.listen(startPort, '127.0.0.1', () => {
+      const { port } = server.address();
+      server.close(() => {
+        resolve(port);
+      });
+    });
+  });
 };
 
 const startGatsby = () => {
@@ -690,9 +714,11 @@ const startGatsby = () => {
 
       log(`Running gatsby develop with ${packageManager.name}...`);
       const command = packageManager.name === 'npm' ? nodePath : packageManager.path;
+      // Pass the port explicitly via CLI arguments to force Gatsby to use it
+      // npm needs '--' to pass args to the script
       const finalArgs = packageManager.name === 'npm'
-        ? [packageManager.path, 'run', 'develop']
-        : ['run', 'develop'];
+        ? [packageManager.path, 'run', 'develop', '--', '-p', GATSBY_PORT.toString()]
+        : ['run', 'develop', '--', '-p', GATSBY_PORT.toString()];
 
       log(`Gatsby command: ${command} ${finalArgs.join(' ')}`);
 
@@ -704,7 +730,10 @@ const startGatsby = () => {
         // Ensure Gatsby doesn't wait for stdin
         GATSBY_TELEMETRY_DISABLED: '1',
         GATSBY_LOGGER_LOG_LEVEL: 'error',
-        PATH: process.env.PATH // Ensure PATH includes our node/npm
+        PATH: process.env.PATH, // Ensure PATH includes our node/npm
+        PORT: GATSBY_PORT.toString(), // Set port for Gatsby (env backup)
+        // Set specific host to match our check
+        HOST: '127.0.0.1'
       };
 
       gatsbyProcess = spawn(command, finalArgs, {
@@ -727,6 +756,11 @@ const startGatsby = () => {
         const output = data.toString();
         log(output);
 
+        // Stream logs to connected clients
+        if (io) {
+          io.emit('build-log-chunk', output);
+        }
+
         // Fallback: if we see "write out requires" (one of the last steps before server start),
         // start checking the port
         if (!serverReady && output.includes('write out requires')) {
@@ -735,24 +769,26 @@ const startGatsby = () => {
 
           // Start polling the port to see when Gatsby server actually starts
           const pollPort = async () => {
-            log('Waiting for Gatsby server on port 8000...');
-            const isReady = await waitForPort(8000, 'localhost', 90, 2000);
+            log(`Waiting for Gatsby server on port ${GATSBY_PORT}...`);
+            // Check every 100ms, up to 600 times (1 minute)
+            const isReady = await waitForPort(GATSBY_PORT, 'localhost', 600, 100);
 
             if (isReady) {
-              log('Gatsby development server is ready and accessible on port 8000.');
+              log(`Gatsby development server is ready and accessible on port ${GATSBY_PORT}.`);
               serverReady = true;
               resolve();
             } else {
               log('Warning: Port 8000 did not become available within expected time.');
               log('The server might still be starting. Will continue waiting...');
-              // Try one more time with extended timeout
-              const isReadyExtended = await waitForPort(8000, 'localhost', 30, 2000);
+              log('The server might still be starting. Will continue waiting...');
+              // Try one more time with extended timeout (check every 500ms)
+              const isReadyExtended = await waitForPort(GATSBY_PORT, 'localhost', 120, 500);
               if (isReadyExtended) {
                 log('Gatsby development server is now ready.');
                 serverReady = true;
                 resolve();
               } else {
-                log('Error: Gatsby server failed to start on port 8000.');
+                log(`Error: Gatsby server failed to start on port ${GATSBY_PORT}.`);
                 reject(new Error('Gatsby server did not start within expected time'));
               }
             }
@@ -769,10 +805,10 @@ const startGatsby = () => {
         // Also check for direct indicators that server is ready
         if (!serverReady && (
           output.includes('You can now view') ||
-          output.match(/Local:\s+http:\/\/localhost:\d+/)
+          output.match(new RegExp(`Local:\\s+http://localhost:${GATSBY_PORT}`))
         )) {
           log('Detected server ready message in output, verifying port...');
-          checkPort(8000).then(isOpen => {
+          checkPort(GATSBY_PORT).then(isOpen => {
             if (isOpen && !serverReady) {
               serverReady = true;
               clearTimeout(readyTimeout);
@@ -805,6 +841,15 @@ const startGatsby = () => {
 
 
 app.whenReady().then(async () => {
+  // Find free ports
+  try {
+    GATSBY_PORT = await findFreePort(GATSBY_PORT);
+    SOCKET_PORT = await findFreePort(SOCKET_PORT);
+    log(`Selected ports - Gatsby: ${GATSBY_PORT}, Socket.io: ${SOCKET_PORT}`);
+  } catch (e) {
+    log(`Failed to find free ports: ${e.message}`);
+  }
+
   startDiscoveryService(); // Start UDP discovery listener
   try {
     log('=== Application Starting ===');
@@ -996,23 +1041,12 @@ app.on('before-quit', () => {
 // Collaboration Server Logic
 // ============================================================================
 
-ipcMain.handle('collab-get-ip', () => getLocalIP());
 
-ipcMain.handle('collab-start-server', async () => {
-  try {
-    startServer();
-    return { status: 'started', ip: getLocalIP() };
-  } catch (e) {
-    return { status: 'error', error: e.message };
-  }
-});
 
-ipcMain.handle('collab-stop-server', async () => {
-  stopServer();
-  return { status: 'stopped' };
-});
 
-const startServer = () => {
+
+const startServer = (port) => {
+  const finalPort = port || SOCKET_PORT;
   if (collabServer) return;
 
   collabServer = http.createServer();
@@ -1077,12 +1111,13 @@ const startServer = () => {
 
       isBuildInProgress = true;
       io.emit('build-status', { isBuildInProgress: true, status: 'Starting build...' });
+      io.emit('build-log-chunk', '--- Build Started ---\n');
 
       try {
         const postData = JSON.stringify(payload);
         const req = http.request({
           hostname: 'localhost',
-          port: 8000,
+          port: GATSBY_PORT,
           path: '/api/build',
           method: 'POST',
           headers: {
@@ -1115,6 +1150,28 @@ const startServer = () => {
       }
     });
 
+    socket.on('request-cancel-build', async () => {
+      log(`Received cancel build request from ${socket.id}`);
+      // Only host or authorized clients should do this? For now allow any connected client for simplicity or check host
+      // if (socket.id !== hostSocketId) ...
+
+      try {
+        const req = http.request({
+          hostname: 'localhost',
+          port: GATSBY_PORT,
+          path: '/api/cancel-build',
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        }, (res) => {
+          log(`Triggered cancel build API, status: ${res.statusCode}`);
+        });
+        req.on('error', (e) => log(`Failed to cancel build: ${e.message}`));
+        req.end();
+      } catch (e) {
+        log(`Error cancelling build: ${e.message}`);
+      }
+    });
+
     // Admin: Force Release
     socket.on('admin-force-release', ({ fieldId }) => {
       if (activeLocks.has(fieldId)) {
@@ -1126,7 +1183,7 @@ const startServer = () => {
       }
     });
 
-    socket.on('request-lock', ({ fieldId, user }) => {
+    socket.on('request-lock', ({ fieldId, clientName }) => {
       if (activeLocks.has(fieldId)) {
         const lock = activeLocks.get(fieldId);
         if (lock.socketId === socket.id) {
@@ -1137,10 +1194,10 @@ const startServer = () => {
         }
         socket.emit('lock-denied', { fieldId, lockedBy: lock.clientName });
       } else {
-        activeLocks.set(fieldId, { socketId: socket.id, timestamp: Date.now(), clientName: user.name });
+        activeLocks.set(fieldId, { socketId: socket.id, timestamp: Date.now(), clientName });
         io.emit('lock-update', Array.from(activeLocks.entries()));
         socket.emit('lock-granted', { fieldId });
-        log(`Lock granted: ${fieldId} to ${user.name}`);
+        log(`Lock granted: ${fieldId} to ${clientName}`);
       }
     });
 
@@ -1200,9 +1257,13 @@ const startServer = () => {
       io.to(targetSocketId).emit('hydrate-state', state);
       log(`Relayed full state to ${targetSocketId}`);
     });
+
+    socket.on('upload-event', (payload) => {
+      socket.broadcast.emit('upload-event', payload);
+    });
   });
 
-  collabServer.listen(3001, '0.0.0.0', () => {
+  collabServer.listen(finalPort, '0.0.0.0', () => {
     // If a specific bindIP was passed to startServer, we might want to use it
     // But our startServer currently doesn't accept arguments in the listener callback
     // The startBroadcasting below should use the IP we want to advertise
@@ -1214,19 +1275,24 @@ const startServer = () => {
     // Let's rely on the IPC handler calling startBroadcasting with the IP if needed
     // Or update startServer to take an IP
     const ip = getLocalIP();
-    log(`Collaboration Server running at http://${ip}:3001`);
-    startBroadcasting(); // Default start
+    log(`Collaboration Server running at http://${ip}:${finalPort}`);
+    startBroadcasting(null, finalPort); // Default start
   });
 };
 
 ipcMain.handle('collab-start-server', async (event, port, bindIP) => {
   try {
-    startServer();
+    startServer(port);
     if (bindIP) {
-      startBroadcasting(bindIP); // Broadcast the selected IP
-      return { status: 'started', ip: bindIP };
+      // Use the actual port that was started (SOCKET_PORT if null was passed)
+      const actualPort = port || SOCKET_PORT;
+      startBroadcasting(bindIP, actualPort); // Broadcast the selected IP
+      return { status: 'started', ip: bindIP, port: actualPort };
     }
-    return { status: 'started', ip: getLocalIP() };
+    // Default case: no bindIP, use default broadcasting
+    // But we still need to know WHAT port was used if null was passed
+    const actualPort = port || SOCKET_PORT;
+    return { status: 'started', ip: getLocalIP(), port: actualPort };
   } catch (e) {
     return { status: 'error', error: e.message };
   }
@@ -1247,6 +1313,87 @@ ipcMain.handle('collab-get-ip', () => {
 
 ipcMain.handle('collab-get-interfaces', () => {
   return getNetworkInterfaces();
+});
+
+ipcMain.handle('collab-save-content', async (event, type, data) => {
+  try {
+    const staticFilePath = path.join(__dirname, 'cms-site', 'static', 'cms', `${type}.json`);
+    const publicFilePath = path.join(__dirname, 'cms-site', 'public', 'cms', `${type}.json`);
+
+    const staticDir = path.dirname(staticFilePath);
+    const publicDir = path.dirname(publicFilePath);
+
+    // Ensure directories exist
+    if (!fs.existsSync(staticDir)) fs.mkdirSync(staticDir, { recursive: true });
+    if (!fs.existsSync(publicDir)) fs.mkdirSync(publicDir, { recursive: true });
+
+    const content = JSON.stringify(data, null, 2);
+
+    // Write to static (Source of truth)
+    await fs.promises.writeFile(staticFilePath, content);
+
+    // Write to public (Serve target - helps avoid race conditions with Gatsby's watcher)
+    try {
+      await fs.promises.writeFile(publicFilePath, content);
+    } catch (publicError) {
+      log(`Warning: Failed to write to public dir (might be synced by Gatsby): ${publicError.message}`);
+    }
+
+    log(`Saved content type '${type}' to disk.`);
+    return { status: 'success' };
+  } catch (e) {
+    log(`Error saving content: ${e.message}`);
+    return { status: 'error', error: e.message };
+  }
+});
+
+ipcMain.handle('collab-upload-file', async (event, { name, buffer }) => {
+  try {
+    const uploadDir = path.join(__dirname, 'cms-site', 'static', 'uploads');
+    const publicUploadDir = path.join(__dirname, 'cms-site', 'public', 'uploads');
+
+    // Ensure directories exist
+    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+    if (!fs.existsSync(publicUploadDir)) fs.mkdirSync(publicUploadDir, { recursive: true });
+
+    const filePath = path.join(uploadDir, name);
+    const publicFilePath = path.join(publicUploadDir, name);
+
+    const bufferData = Buffer.from(buffer);
+    await fs.promises.writeFile(filePath, bufferData);
+
+    // Also write to public
+    try {
+      await fs.promises.writeFile(publicFilePath, bufferData);
+    } catch (e) {
+      log(`Warning: Failed to write upload to public: ${e.message}`);
+    }
+
+    log(`Uploaded file: ${name}`);
+    return { status: 'success', url: `/uploads/${name}` };
+  } catch (e) {
+    log(`Error uploading file: ${e.message}`);
+    return { status: 'error', error: e.message };
+  }
+});
+
+ipcMain.handle('collab-get-uploads', async () => {
+  log('[Main] collab-get-uploads called');
+  try {
+    const uploadDir = path.join(__dirname, 'cms-site', 'static', 'uploads');
+    if (!fs.existsSync(uploadDir)) return [];
+    const files = await fs.promises.readdir(uploadDir);
+    // Filter for files only if needed, or return full objects.
+    // For now just returning filenames as urls mostly rely on that.
+    // Actually, let's return objects with name and url
+    return files.map(f => ({
+      name: f,
+      url: `/uploads/${f}`
+    }));
+  } catch (e) {
+    log(`Error listing uploads: ${e.message}`);
+    return [];
+  }
 });
 
 const stopServer = () => {
@@ -1273,7 +1420,7 @@ const startGlobalBuildPolling = () => {
   if (buildPollInterval) clearInterval(buildPollInterval);
 
   const poll = () => {
-    http.get('http://localhost:8000/api/build', (res) => {
+    http.get(`http://localhost:${GATSBY_PORT}/api/build`, (res) => {
       let data = '';
       res.on('data', (chunk) => data += chunk);
       res.on('end', () => {

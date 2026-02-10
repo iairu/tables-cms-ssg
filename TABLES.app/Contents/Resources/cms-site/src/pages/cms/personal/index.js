@@ -1,5 +1,5 @@
 import React from 'react';
-import useCMSData from '../../../hooks/useCMSData';
+import { useCMSData } from '../../../context/CMSContext';
 import { PersonalSection } from '../../../components/cms/sections';
 import '../../../styles/cms.css';
 

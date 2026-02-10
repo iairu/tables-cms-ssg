@@ -1,6 +1,6 @@
 import React from 'react';
 import UserAssetManager from '../../../components/cms/UserAssetManager';
-import useCMSData from '../../../hooks/useCMSData';
+import { useCMSData } from '../../../context/CMSContext';
 import '../../../styles/cms.css';
 
 const UploadsPage = () => {

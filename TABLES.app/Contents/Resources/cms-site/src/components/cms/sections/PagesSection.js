@@ -334,7 +334,7 @@ const PagesSection = ({ cmsData, edit: editModeProp }) => {
     navigator.clipboard.writeText(url);
   };
 
-  const currentPage = pages.find(p => p.id === currentPageId);
+  const currentPage = Array.isArray(pages) ? pages.find(p => p.id === currentPageId) : null;
 
   // Get current language content
   const getLocalizedContent = (page, lang) => {

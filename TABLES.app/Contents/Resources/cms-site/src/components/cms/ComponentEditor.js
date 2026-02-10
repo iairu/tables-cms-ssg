@@ -8,7 +8,6 @@ import {
   getDefaultFieldsForComponent
 } from './componentHelpers';
 import AssetManagerModal from './AssetManagerModal';
-import AssetManagerModal from './AssetManagerModal';
 import IconPickerModal from './IconPickerModal';
 import LockedInputWrapper from './LockedInputWrapper';
 

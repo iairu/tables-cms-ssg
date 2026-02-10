@@ -129,6 +129,7 @@ const useCMSData = () => {
   const [lastSaved, setLastSaved] = useState(null);
   const [canBuild, setCanBuild] = useState(true);
   const [buildCooldownSeconds, setBuildCooldownSeconds] = useState(0);
+  const [buildLogs, setBuildLogs] = useState([]); // New state for build logs
 
   // Helper to update building state
   const setIsBuildingState = useCallback((value) => {
@@ -165,7 +166,147 @@ const useCMSData = () => {
     // ...
   }, []);
   // Pages state
-  // ...
+  const [pages, setPages] = useState([]);
+  const [currentPageId, setCurrentPageId] = useState(null);
+
+  // Page Groups state
+  const [pageGroups, setPageGroups] = useState([]);
+
+  // Blog state
+  const [blogArticles, setBlogArticles] = useState([]);
+  const [currentBlogArticleId, setCurrentBlogArticleId] = useState(null);
+
+  // Database Rows state
+  const [catRows, setCatRows] = useState([]);
+  const [userRows, setUserRows] = useState([]);
+  const [inventoryRows, setInventoryRows] = useState([]);
+  const [customerRows, setCustomerRows] = useState([]);
+  const [employeeRows, setEmployeeRows] = useState([]);
+  const [attendanceRows, setAttendanceRows] = useState([]);
+  const [reservationRows, setReservationRows] = useState([]);
+  const [movieList, setMovieList] = useState([]);
+  const [componentRows, setComponentRows] = useState([]);
+
+  // Settings & System state
+  const [settings, setSettings] = useState({});
+  const [acl, setAcl] = useState({});
+  const [extensions, setExtensions] = useState({});
+
+  // Uploads state
+  const [uploads, setUploads] = useState([]);
+
+  // Loading state
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
+
+  // Load Initial Data from Static JSONs
+  useEffect(() => {
+    const loadData = async () => {
+      const t = Date.now();
+      try {
+        const [
+          pagesRes, pageGroupsRes, blogRes,
+          catRes, userRes, invRes, attRes, resRes,
+          compRes, movieRes,
+          settingsRes, aclRes, extRes
+        ] = await Promise.all([
+          fetch(`/cms/pages.json?t=${t}`).catch(e => null),
+          fetch(`/cms/page-groups.json?t=${t}`).catch(e => null),
+          fetch(`/cms/blog-articles.json?t=${t}`).catch(e => null),
+          fetch(`/cms/cat-rows.json?t=${t}`).catch(e => null),
+          fetch(`/cms/user-rows.json?t=${t}`).catch(e => null),
+          fetch(`/cms/inventory-rows.json?t=${t}`).catch(e => null),
+          fetch(`/cms/attendance-rows.json?t=${t}`).catch(e => null),
+          fetch(`/cms/reservation-rows.json?t=${t}`).catch(e => null),
+          fetch(`/cms/component-rows.json?t=${t}`).catch(e => null),
+          fetch(`/cms/movie-list.json?t=${t}`).catch(e => null),
+          fetch(`/cms/settings.json?t=${t}`).catch(e => null),
+          fetch(`/cms/acl.json?t=${t}`).catch(e => null),
+          fetch(`/cms/extensions.json?t=${t}`).catch(e => null)
+        ]);
+
+        const parseJSON = async (res, defaultVal) => {
+          if (!res || !res.ok) return defaultVal;
+          try {
+            const data = await res.json();
+            return data || defaultVal;
+          } catch (e) {
+            console.warn('Failed to parse CMS JSON:', e);
+            return defaultVal;
+          }
+        };
+
+        setPages(await parseJSON(pagesRes, []));
+        setPageGroups(await parseJSON(pageGroupsRes, []));
+        setBlogArticles(await parseJSON(blogRes, []));
+        setCatRows(await parseJSON(catRes, []));
+        setUserRows(await parseJSON(userRes, []));
+        setInventoryRows(await parseJSON(invRes, []));
+        setAttendanceRows(await parseJSON(attRes, []));
+        setReservationRows(await parseJSON(resRes, []));
+        setComponentRows(await parseJSON(compRes, []));
+        setMovieList(await parseJSON(movieRes, []));
+        setSettings(await parseJSON(settingsRes, {}));
+        setAcl(await parseJSON(aclRes, {}));
+
+        let extData = await parseJSON(extRes, null);
+        if (!extData) {
+          // Fallback
+          try {
+            extData = JSON.parse(localStorage.getItem('extensions') || '{}');
+          } catch (e) { extData = {}; }
+        }
+        setExtensions(extData || {});
+
+        setIsDataLoaded(true);
+      } catch (e) {
+        console.error('Error loading initial CMS data:', e);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  // Upload functions
+  const fetchUploads = useCallback(async () => {
+    console.log('[fetchUploads] Called');
+    if (window.electron && window.electron.getUploads) {
+      try {
+        const files = await window.electron.getUploads();
+        console.log('[fetchUploads] Received files:', files);
+        setUploads(files);
+      } catch (e) {
+        console.error('[fetchUploads] Error fetching uploads:', e);
+      }
+    } else {
+      console.warn('[fetchUploads] window.electron.getUploads not found');
+    }
+  }, []);
+
+  const uploadFile = useCallback(async (file) => {
+    if (window.electron && window.electron.uploadFile) {
+      try {
+        const buffer = await file.arrayBuffer();
+        const result = await window.electron.uploadFile({ name: file.name, buffer });
+        if (result.status === 'success') {
+          // Broadcast upload to others
+          if (socketRef.current && collabState.isConnected) {
+            socketRef.current.emit('upload-event', { type: 'new-file', filename: file.name });
+          }
+          await fetchUploads(); // Refresh local list
+          return { url: result.url };
+        } else {
+          console.error('Upload failed:', result.error);
+          return { url: '' };
+        }
+      } catch (e) {
+        console.error('Upload exception:', e);
+        return { url: '' };
+      }
+    }
+    return Promise.resolve({ url: '' });
+  }, []);
+  const deleteFile = useCallback((fileId) => Promise.resolve(), []);
+  const replaceFile = useCallback((fileId, newFile) => Promise.resolve({ url: '' }), []);
 
   // Collaboration Functions
   const startCollaborationServer = useCallback(async (bindIP = null) => {
@@ -179,17 +320,19 @@ const useCMSData = () => {
     }
 
     try {
-      const result = await window.electron.startServer(8081, bindIP);
+      const result = await window.electron.startServer(null, bindIP);
       if (result.status === 'started' || result.status === 'already-running') {
         console.log('Collaboration server started on', result.ip);
 
         // Connect to local server as HOST
-        connectToCollaborationServer(`http://${result.ip === '0.0.0.0' ? 'localhost' : result.ip}:8081`, 'Host', true);
+        const serverPort = result.port || 8081; // Fallback to 8081 if not returned (should not happen with fix)
+        connectToCollaborationServer(`http://${result.ip === '0.0.0.0' ? 'localhost' : result.ip}:${serverPort}`, 'Host', true);
 
         setCollabState(prev => ({
           ...prev,
           isServer: true,
-          serverIP: result.ip
+          serverIP: result.ip,
+          serverPort: serverPort
         }));
       }
     } catch (err) {
@@ -324,6 +467,14 @@ const useCMSData = () => {
       }));
     });
 
+    socket.on('client-list-update', (clients) => {
+      console.log('Received client list update:', clients);
+      setCollabState(prev => ({
+        ...prev,
+        connectedClients: clients
+      }));
+    });
+
     socket.on('lock-update', ({ fieldId, status, clientName, socketId }) => {
       setCollabState(prev => {
         let newLocks = [...prev.activeLocks];
@@ -371,6 +522,12 @@ const useCMSData = () => {
     socket.on('build-status', (status) => {
       console.log('[useCMSData] Received build status:', status);
       setIsBuildingState(status.isBuildInProgress);
+
+      if (status.isBuildInProgress) {
+        // Clear logs on new build start if we haven't already
+        // But status might come multiple times. Log '--- Build Started ---' usually handles clarity.
+      }
+
       if (!status.isBuildInProgress && status.lastBuildTime) {
         setLastSaved(status.lastBuildTime);
         setCanBuild(true);
@@ -380,6 +537,22 @@ const useCMSData = () => {
           countdownIntervalRef.current = null;
         }
       }
+    });
+
+    socket.on('build-log-chunk', (chunk) => {
+      setBuildLogs(prev => {
+        // Keep last 1000 lines or so to avoid memory issues if needed, but for now simple append
+        const newLogs = [...prev, chunk];
+        if (newLogs.length > 2000) return newLogs.slice(newLogs.length - 2000);
+        return newLogs;
+      });
+    });
+
+    socket.on('build-cancelled', () => {
+      setIsBuildingState(false);
+      setCanBuild(true);
+      setBuildCooldownSeconds(0);
+      setBuildLogs(prev => [...prev, '\n!!! Build Cancelled by Host !!!\n']);
     });
 
     socket.on('build-error', (error) => {
@@ -417,43 +590,72 @@ const useCMSData = () => {
       }
     });
 
-  }, []);
+    socket.on('upload-event', () => {
+      fetchUploads();
+    });
+
+  }, [fetchUploads]);
 
   // Listen for discovered servers & Auto-Negotiation
   useEffect(() => {
     if (window.electron && window.electron.onServerFound) {
-      window.electron.onServerFound((serverInfo) => {
-        console.log('Discovered server:', serverInfo);
+      // Discovery Listener
+      const removeListener = window.electron.onServerFound((serverInfo) => {
+        const now = Date.now();
 
-        // Update Ref immediately for synchronous access in timeout
-        const existsRef = discoveredServersRef.current.find(s => s.ip === serverInfo.ip && s.port === serverInfo.port);
-        if (!existsRef) {
-          discoveredServersRef.current = [...discoveredServersRef.current, serverInfo];
+        // Update Ref
+        const existingRefIndex = discoveredServersRef.current.findIndex(s => s.ip === serverInfo.ip && s.port === serverInfo.port);
+        if (existingRefIndex >= 0) {
+          discoveredServersRef.current[existingRefIndex] = { ...serverInfo, lastSeen: now };
+        } else {
+          discoveredServersRef.current.push({ ...serverInfo, lastSeen: now });
         }
 
         setCollabState(prev => {
-          // Avoid duplicates based on IP and Port
-          const exists = prev.discoveredServers.find(s => s.ip === serverInfo.ip && s.port === serverInfo.port);
-          if (exists) return prev;
+          const existingIndex = prev.discoveredServers.findIndex(s => s.ip === serverInfo.ip && s.port === serverInfo.port);
+          if (existingIndex >= 0) {
+            const newServers = [...prev.discoveredServers];
+            newServers[existingIndex] = { ...serverInfo, lastSeen: now };
+            return { ...prev, discoveredServers: newServers };
+          }
           return {
             ...prev,
-            discoveredServers: [...prev.discoveredServers, serverInfo]
+            discoveredServers: [...prev.discoveredServers, { ...serverInfo, lastSeen: now }]
           };
         });
       });
+
+      // Pruning Interval
+      const pruneInterval = setInterval(() => {
+        const now = Date.now();
+        setCollabState(prev => {
+          // Remove servers not seen in last 10 seconds (broadcast is every 3s)
+          const activeServers = prev.discoveredServers.filter(s => s.lastSeen && (now - s.lastSeen < 10000));
+
+          if (activeServers.length !== prev.discoveredServers.length) {
+            // Update ref as well to match
+            discoveredServersRef.current = activeServers;
+            return { ...prev, discoveredServers: activeServers };
+          }
+          return prev;
+        });
+      }, 5000); // Check every 5 seconds
+
+      // Auto-Negotiation: Wait for discovery, then decide role
+      const negotiationTimeout = setTimeout(() => {
+        if (discoveredServersRef.current.length > 0) {
+          console.log('Auto-Negotiation: Server detected, defaulting to Client mode.');
+        } else {
+          console.log('Auto-Negotiation: No server detected. Waiting for user action.');
+        }
+      }, 2000); // 2 second discovery window
+
+      return () => {
+        removeListener();
+        clearTimeout(negotiationTimeout);
+        clearInterval(pruneInterval);
+      };
     }
-
-    // Auto-Negotiation: Wait for discovery, then decide role
-    const negotiationTimeout = setTimeout(() => {
-      if (discoveredServersRef.current.length > 0) {
-        console.log('Auto-Negotiation: Server detected, defaulting to Client mode.');
-      } else {
-        console.log('Auto-Negotiation: No server detected, starting Host...');
-        startCollaborationServer();
-      }
-    }, 2000); // 2 second discovery window
-
-    return () => clearTimeout(negotiationTimeout);
   }, [startCollaborationServer]);
 
   const disconnectCollaboration = useCallback(() => {
@@ -500,6 +702,12 @@ const useCMSData = () => {
     }
   }, [collabState.isConnected]);
 
+  const requestCancelBuild = useCallback(() => {
+    if (socketRef.current && collabState.isConnected) {
+      socketRef.current.emit('request-cancel-build');
+    }
+  }, [collabState.isConnected]);
+
   // Save build state to localStorage
   useEffect(() => {
     const buildState = {
@@ -519,6 +727,9 @@ const useCMSData = () => {
     if (!skipBroadcast && socketRef.current && collabState.isConnected) {
       socketRef.current.emit('data-update', { type: 'pages', data: newPages });
     }
+    if ((collabState.isServer || !collabState.isConnected) && window.electron && window.electron.saveContent) {
+      window.electron.saveContent('pages', newPages);
+    }
   };
 
   const saveCurrentPageId = (id) => {
@@ -533,6 +744,9 @@ const useCMSData = () => {
     if (!skipBroadcast && socketRef.current && collabState.isConnected) {
       socketRef.current.emit('data-update', { type: 'pageGroups', data: newGroups });
     }
+    if ((collabState.isServer || !collabState.isConnected) && window.electron && window.electron.saveContent) {
+      window.electron.saveContent('pageGroups', newGroups);
+    }
   };
 
   const saveBlogArticles = (articles, skipBroadcast = false) => {
@@ -541,6 +755,9 @@ const useCMSData = () => {
     scheduleBuild();
     if (!skipBroadcast && socketRef.current && collabState.isConnected) {
       socketRef.current.emit('data-update', { type: 'blogArticles', data: articles });
+    }
+    if ((collabState.isServer || !collabState.isConnected) && window.electron && window.electron.saveContent) {
+      window.electron.saveContent('blogArticles', articles);
     }
   };
 
@@ -556,6 +773,9 @@ const useCMSData = () => {
     if (!skipBroadcast && socketRef.current && collabState.isConnected) {
       socketRef.current.emit('data-update', { type: 'catRows', data: rows });
     }
+    if ((collabState.isServer || !collabState.isConnected) && window.electron && window.electron.saveContent) {
+      window.electron.saveContent('catRows', rows);
+    }
   };
 
   const saveUserRows = (rows, skipBroadcast = false) => {
@@ -565,6 +785,9 @@ const useCMSData = () => {
     if (!skipBroadcast && socketRef.current && collabState.isConnected) {
       socketRef.current.emit('data-update', { type: 'userRows', data: rows });
     }
+    if ((collabState.isServer || !collabState.isConnected) && window.electron && window.electron.saveContent) {
+      window.electron.saveContent('userRows', rows);
+    }
   };
 
   const saveInventoryRows = (newRows, skipBroadcast = false) => {
@@ -572,6 +795,9 @@ const useCMSData = () => {
     localStorage.setItem('inventoryRows', JSON.stringify(newRows));
     if (!skipBroadcast && socketRef.current && collabState.isConnected) {
       socketRef.current.emit('data-update', { type: 'inventoryRows', data: newRows });
+    }
+    if ((collabState.isServer || !collabState.isConnected) && window.electron && window.electron.saveContent) {
+      window.electron.saveContent('inventoryRows', newRows);
     }
   };
 
@@ -581,6 +807,9 @@ const useCMSData = () => {
     if (!skipBroadcast && socketRef.current && collabState.isConnected) {
       socketRef.current.emit('data-update', { type: 'customerRows', data: newRows });
     }
+    if ((collabState.isServer || !collabState.isConnected) && window.electron && window.electron.saveContent) {
+      window.electron.saveContent('customerRows', newRows);
+    }
   };
 
   const saveEmployeeRows = (newRows, skipBroadcast = false) => {
@@ -588,6 +817,9 @@ const useCMSData = () => {
     localStorage.setItem('employeeRows', JSON.stringify(newRows));
     if (!skipBroadcast && socketRef.current && collabState.isConnected) {
       socketRef.current.emit('data-update', { type: 'employeeRows', data: newRows });
+    }
+    if ((collabState.isServer || !collabState.isConnected) && window.electron && window.electron.saveContent) {
+      window.electron.saveContent('employeeRows', newRows);
     }
   };
 
@@ -597,6 +829,9 @@ const useCMSData = () => {
     if (!skipBroadcast && socketRef.current && collabState.isConnected) {
       socketRef.current.emit('data-update', { type: 'attendanceRows', data: newRows });
     }
+    if ((collabState.isServer || !collabState.isConnected) && window.electron && window.electron.saveContent) {
+      window.electron.saveContent('attendanceRows', newRows);
+    }
   };
 
   const saveReservationRows = (newRows, skipBroadcast = false) => {
@@ -604,6 +839,9 @@ const useCMSData = () => {
     localStorage.setItem('reservationRows', JSON.stringify(newRows));
     if (!skipBroadcast && socketRef.current && collabState.isConnected) {
       socketRef.current.emit('data-update', { type: 'reservationRows', data: newRows });
+    }
+    if ((collabState.isServer || !collabState.isConnected) && window.electron && window.electron.saveContent) {
+      window.electron.saveContent('reservationRows', newRows);
     }
   };
 
@@ -613,6 +851,9 @@ const useCMSData = () => {
     if (!skipBroadcast && socketRef.current && collabState.isConnected) {
       socketRef.current.emit('data-update', { type: 'movieList', data: newList });
     }
+    if ((collabState.isServer || !collabState.isConnected) && window.electron && window.electron.saveContent) {
+      window.electron.saveContent('movieList', newList);
+    }
   };
 
   const saveComponentRows = (rows, skipBroadcast = false) => {
@@ -621,6 +862,9 @@ const useCMSData = () => {
     scheduleBuild();
     if (!skipBroadcast && socketRef.current && collabState.isConnected) {
       socketRef.current.emit('data-update', { type: 'componentRows', data: rows });
+    }
+    if ((collabState.isServer || !collabState.isConnected) && window.electron && window.electron.saveContent) {
+      window.electron.saveContent('componentRows', rows);
     }
   };
 
@@ -633,6 +877,9 @@ const useCMSData = () => {
     if (!skipBroadcast && socketRef.current && collabState.isConnected) {
       socketRef.current.emit('data-update', { type: 'settings', data: newSettings });
     }
+    if ((collabState.isServer || !collabState.isConnected) && window.electron && window.electron.saveContent) {
+      window.electron.saveContent('settings', newSettings);
+    }
   };
 
   const saveAcl = (newAcl, skipBroadcast = false) => {
@@ -642,6 +889,9 @@ const useCMSData = () => {
     if (!skipBroadcast && socketRef.current && collabState.isConnected) {
       socketRef.current.emit('data-update', { type: 'acl', data: newAcl });
     }
+    if ((collabState.isServer || !collabState.isConnected) && window.electron && window.electron.saveContent) {
+      window.electron.saveContent('acl', newAcl);
+    }
   };
 
   const saveExtensions = (newExtensions, skipBroadcast = false) => {
@@ -650,6 +900,9 @@ const useCMSData = () => {
     scheduleBuild();
     if (!skipBroadcast && socketRef.current && collabState.isConnected) {
       socketRef.current.emit('data-update', { type: 'extensions', data: newExtensions });
+    }
+    if ((collabState.isServer || !collabState.isConnected) && window.electron && window.electron.saveContent) {
+      window.electron.saveContent('extensions', newExtensions);
     }
   };
 
@@ -909,7 +1162,9 @@ const useCMSData = () => {
     saveConnectionProfile,
     toggleFavorite,
     removeConnectionProfile,
-    forceReleaseLock
+    forceReleaseLock,
+    buildLogs, // Added
+    requestCancelBuild // Added
   };
 };
 

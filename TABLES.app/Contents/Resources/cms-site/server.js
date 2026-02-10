@@ -169,19 +169,64 @@ app.post('/api/build', (req, res) => {
     isBuildInProgress: true
   });
 
+  // Store the promise/process reference if possible, though exportDataAndBuild is async.
+  // We need to capture the child process in exportDataAndBuild -> runMainSiteBuild.
+  // For now, we'll set a global flag that runMainSiteBuild can check, or pass a cancel token.
+  // Better: store the child process in a global variable in runMainSiteBuild.
+
   exportDataAndBuild(data || {}, localOnly, vercelApiToken, vercelProjectName)
     .then(() => {
       console.log('[Build API] Build completed successfully');
       global.lastBuildTime = new Date().toISOString();
       global.isBuildInProgress = false;
+      global.currentBuildProcess = null; // Clear process ref
       console.log('BUILD_END');
     })
     .catch(err => {
-      console.error('[Build API] Build failed:', err);
+      if (err.message === 'Build cancelled') {
+        console.log('[Build API] Build was cancelled.');
+      } else {
+        console.error('[Build API] Build failed:', err);
+      }
       global.isBuildInProgress = false;
       global.lastBuildTime = new Date().toISOString();
+      global.currentBuildProcess = null; // Clear process ref
       console.log('BUILD_END');
     });
+});
+
+app.post('/api/cancel-build', (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
+
+  if (!global.isBuildInProgress) {
+    return res.status(400).json({ status: 'error', message: 'No build in progress' });
+  }
+
+  console.log('[Build API] Received cancel request');
+
+  if (global.currentBuildProcess) {
+    try {
+      // Kill the process tree if possible, or just the process
+      // On Windows setupBinaries might be complex, but for now simple kill
+      global.currentBuildProcess.kill('SIGTERM');
+      console.log('[Build API] Sent SIGTERM to build process');
+
+      // Force cleanup status
+      global.isBuildInProgress = false;
+      global.currentBuildProcess = null;
+
+      return res.status(200).json({ status: 'cancelled', message: 'Build process terminated' });
+    } catch (e) {
+      console.error('[Build API] Failed to kill process:', e);
+      return res.status(500).json({ status: 'error', message: 'Failed to kill process' });
+    }
+  } else {
+    // Maybe it's in the export phase or deployment phase where we don't have a process ref yet?
+    // Or we just force flag reset
+    global.isBuildInProgress = false;
+    return res.status(200).json({ status: 'cancelled', message: 'Flag reset, but no child process found to kill' });
+  }
 });
 
 async function exportDataAndBuild(data, localOnly = false, vercelApiToken = null, vercelProjectName = null) {
@@ -378,7 +423,14 @@ function runMainSiteBuild(projectRoot, localOnly = false) {
           maxBuffer: 10 * 1024 * 1024
         },
         (error) => {
+          global.currentBuildProcess = null; // Clear reference on exit
           if (error) {
+            // Check if it was killed
+            if (error.signal === 'SIGTERM') {
+              console.log('[Build API] Build process killed (SIGTERM)');
+              reject(new Error('Build cancelled'));
+              return;
+            }
             console.error('[Build API] Build error:', error);
             reject(error);
             return;
@@ -403,6 +455,8 @@ function runMainSiteBuild(projectRoot, localOnly = false) {
           }
         }
       );
+
+      global.currentBuildProcess = buildProcess;
 
       buildProcess.stdout.on('data', (data) => {
         const output = data.toString().trim();
@@ -476,7 +530,13 @@ function deployToVercel(mainSiteDir, vercelApiToken, vercelProjectName) {
         maxBuffer: 10 * 1024 * 1024
       },
       (error) => {
+        global.currentBuildProcess = null;
         if (error) {
+          if (error.signal === 'SIGTERM') {
+            console.log('[Build API] Deploy process killed (SIGTERM)');
+            reject(new Error('Build cancelled'));
+            return;
+          }
           reject(error);
           return;
         }
@@ -484,6 +544,8 @@ function deployToVercel(mainSiteDir, vercelApiToken, vercelProjectName) {
         resolve();
       }
     );
+
+    global.currentBuildProcess = deployProcess;
 
     deployProcess.stdout.on('data', (data) => {
       const output = data.toString().trim();

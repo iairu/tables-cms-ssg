@@ -1,5 +1,5 @@
 import React from 'react';
-import useCMSData from '../../../hooks/useCMSData';
+import { useCMSData } from '../../../context/CMSContext';
 import { MoviesSection } from '../../../components/cms/sections';
 import '../../../styles/cms.css';
 
@@ -7,7 +7,7 @@ const MovieTrackerPage = () => {
   const cmsData = useCMSData();
 
   return (
-      <MoviesSection cmsData={cmsData} />
+    <MoviesSection cmsData={cmsData} />
   );
 };
 

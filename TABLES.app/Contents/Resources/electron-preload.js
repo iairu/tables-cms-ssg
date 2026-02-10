@@ -15,5 +15,12 @@ contextBridge.exposeInMainWorld('electron', {
   getInterfaces: () => ipcRenderer.invoke('collab-get-interfaces'),
   startServer: (port, bindIP) => ipcRenderer.invoke('collab-start-server', port, bindIP),
   stopServer: () => ipcRenderer.invoke('collab-stop-server'),
-  onServerFound: (callback) => ipcRenderer.on('collab-server-found', (_event, serverInfo) => callback(serverInfo)),
+  onServerFound: (callback) => {
+    const listener = (_event, serverInfo) => callback(serverInfo);
+    ipcRenderer.on('collab-server-found', listener);
+    return () => ipcRenderer.removeListener('collab-server-found', listener);
+  },
+  saveContent: (type, data) => ipcRenderer.invoke('collab-save-content', type, data),
+  uploadFile: (file) => ipcRenderer.invoke('collab-upload-file', file),
+  getUploads: () => ipcRenderer.invoke('collab-get-uploads'),
 });

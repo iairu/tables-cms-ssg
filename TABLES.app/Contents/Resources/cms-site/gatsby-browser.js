@@ -8,6 +8,7 @@ import './src/styles/cms.css';
 import React from 'react';
 import { LoadingProvider } from './src/context/LoadingContext';
 import Layout from './src/components/Layout';
+import { CMSProvider } from './src/context/CMSContext';
 
 export const onClientEntry = () => {
   if (typeof window.IntersectionObserver === 'undefined') {
@@ -18,7 +19,9 @@ export const onClientEntry = () => {
 export const wrapRootElement = ({ element }) => {
   return (
     <LoadingProvider>
-      {element}
+      <CMSProvider>
+        {element}
+      </CMSProvider>
     </LoadingProvider>
   );
 };
@@ -41,7 +44,7 @@ export const onRouteUpdate = () => {
 export const onServiceWorkerUpdateReady = () => {
   const answer = window.confirm(
     'This application has been updated. ' +
-      'Reload to display the latest version?'
+    'Reload to display the latest version?'
   );
 
   if (answer === true) {

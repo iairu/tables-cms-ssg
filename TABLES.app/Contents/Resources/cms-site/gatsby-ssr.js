@@ -5,12 +5,15 @@
 
 import React from 'react';
 import { LoadingProvider } from './src/context/LoadingContext';
+import { CMSProvider } from './src/context/CMSContext';
 import Layout from './src/components/Layout';
 
 export const wrapRootElement = ({ element }) => {
   return (
     <LoadingProvider>
-      {element}
+      <CMSProvider>
+        {element}
+      </CMSProvider>
     </LoadingProvider>
   );
 };
@@ -22,7 +25,7 @@ export const wrapPageElement = ({ element, props }) => {
 // Add custom HTML attributes
 export const onRenderBody = ({ setHtmlAttributes, setHeadComponents }) => {
   setHtmlAttributes({ lang: 'en' });
-  
+
   setHeadComponents([
     <link
       key="preconnect-google-fonts"

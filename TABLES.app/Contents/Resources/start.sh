@@ -16,7 +16,8 @@ PATH="$BIN_DIR:$PATH"
 cd "$CURRENTPATH"
 
 # Remove cache
-rm -rf cms-site/.cache
+# Remove cache
+# rm -rf cms-site/.cache # DISABLED: Prevents multi-instance conflicts
 
 # 1. Run NPM Install in the background (Optional: redirect logs to a file for debugging)
 # We use & to background it, but for Electron, you might want install to finish first.
