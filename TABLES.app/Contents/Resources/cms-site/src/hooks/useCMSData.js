@@ -3,11 +3,15 @@ import { debounce } from '../components/cms/utils';
 import { io } from 'socket.io-client';
 
 const useCMSData = () => {
+  // Persistent debounced save refs for page/blog editing
+  const debouncedSavePagesRef = useRef(null);
+  const debouncedSaveBlogRef = useRef(null);
   // Collaboration state
   const socketRef = useRef(null);
   const [collabState, setCollabState] = useState({
     isServer: false,
     isConnected: false,
+    wasConnectedAsClient: false, // true once connected as client, cleared on manual disconnect
     status: 'disconnected', // disconnected, connecting, connected, error
     error: null,
     serverIP: '',
@@ -371,7 +375,8 @@ const useCMSData = () => {
         status: 'connected',
         error: null,
         clientName: name,
-        socketId: socket.id
+        socketId: socket.id,
+        wasConnectedAsClient: !isHost // Track that we were connected as a client
       }));
       socket.emit('register-client', { name, isHost });
     });
@@ -444,6 +449,16 @@ const useCMSData = () => {
 
     socket.on('hydrate-state', (state) => {
       console.log('Received full state hydration from host');
+
+      // Clear ALL client CMS data from localStorage before replacing with server data.
+      // This prevents stale leftovers from a previous session.
+      const cmsKeys = [
+        'pages', 'pageGroups', 'blogArticles', 'catRows', 'userRows',
+        'inventoryRows', 'attendanceRows', 'reservationRows', 'componentRows',
+        'movieList', 'settings', 'acl', 'extensions'
+      ];
+      cmsKeys.forEach(key => localStorage.removeItem(key));
+
       const actions = actionsRef.current;
       if (state.pages) actions.savePages(state.pages, true);
       if (state.pageGroups) actions.savePageGroups(state.pageGroups, true);
@@ -458,6 +473,9 @@ const useCMSData = () => {
       if (state.settings) actions.saveSettings(state.settings, true);
       if (state.acl) actions.saveAcl(state.acl, true);
       if (state.extensions) actions.saveExtensions(state.extensions, true);
+
+      // Notify event-based listeners (SideMenu, Header, etc.) about the new extensions
+      window.dispatchEvent(new Event('extensions-updated'));
     });
 
     socket.on('client-left', (socketId) => {
@@ -475,16 +493,14 @@ const useCMSData = () => {
       }));
     });
 
-    socket.on('lock-update', ({ fieldId, status, clientName, socketId }) => {
+    socket.on('lock-update', (locksArray) => {
+      // Server sends Array.from(activeLocks.entries()) = [[fieldId, {socketId, clientName, timestamp}], ...]
       setCollabState(prev => {
-        let newLocks = [...prev.activeLocks];
-        if (status === 'locked') {
-          // Remove existing lock for this field if any (shouldn't happen but safe)
-          newLocks = newLocks.filter(l => l.fieldId !== fieldId);
-          newLocks.push({ fieldId, clientName, socketId });
-        } else {
-          newLocks = newLocks.filter(l => l.fieldId !== fieldId);
-        }
+        const newLocks = locksArray.map(([fieldId, lock]) => ({
+          fieldId,
+          clientName: lock.clientName,
+          socketId: lock.socketId
+        }));
         return { ...prev, activeLocks: newLocks };
       });
     });
@@ -493,10 +509,10 @@ const useCMSData = () => {
       console.log('Lock granted for:', fieldId);
     });
 
-    socket.on('lock-denied', ({ fieldId, holder }) => {
-      console.log('Lock denied for:', fieldId, 'held by', holder);
-      alert(`Could not edit field. It is currently locked by ${holder}.`);
-      // Optionally trigger a blur or other UI reaction here if possible
+    socket.on('lock-denied', ({ fieldId, lockedBy }) => {
+      console.log('Lock denied for:', fieldId, 'held by', lockedBy);
+      // No alert — LockedInputWrapper already shows visual lock indicator.
+      // The alert was causing infinite retrigger loops when the field stayed focused.
     });
 
     socket.on('data-update', (update) => {
@@ -670,6 +686,7 @@ const useCMSData = () => {
       ...prev,
       isConnected: false,
       isServer: false,
+      wasConnectedAsClient: false, // Manual disconnect — don't show banner
       status: 'disconnected',
       error: null,
       activeLocks: [],
@@ -1002,22 +1019,24 @@ const useCMSData = () => {
   };
 
   const updatePage = (id, updates) => {
-    const debouncedUpdateLastEdited = debounce((pageId) => {
-      const currentPages = JSON.parse(localStorage.getItem('pages') || '[]');
-      const updatedPages = currentPages.map(p =>
-        p.id === pageId ? { ...p, lastEdited: Date.now() } : p
-      );
-      savePages(updatedPages);
-    }, 2000);
-
     const updatedPages = pages.map(p =>
       p.id === id ? { ...p, ...updates } : p
     );
-    savePages(updatedPages);
+    // Update local state immediately for responsive UI
+    setPages(updatedPages);
+    localStorage.setItem('pages', JSON.stringify(updatedPages));
 
-    if (!updates.hasOwnProperty('lastEdited')) {
-      debouncedUpdateLastEdited(id);
+    // Debounce the actual save (disk + network broadcast) to avoid spam
+    if (!debouncedSavePagesRef.current) {
+      debouncedSavePagesRef.current = debounce((latestPages) => {
+        savePages(latestPages);
+      }, 800);
     }
+    // Merge lastEdited into the debounced save
+    const pagesWithTimestamp = updatedPages.map(p =>
+      p.id === id ? { ...p, lastEdited: Date.now() } : p
+    );
+    debouncedSavePagesRef.current(pagesWithTimestamp);
   };
 
 
@@ -1053,22 +1072,23 @@ const useCMSData = () => {
   };
 
   const updateBlogArticle = (id, updates) => {
-    const debouncedUpdateBlogLastEdited = debounce((articleId) => {
-      const currentArticles = JSON.parse(localStorage.getItem('blogArticles') || '[]');
-      const updatedArticles = currentArticles.map(a =>
-        a.id === articleId ? { ...a, lastEdited: Date.now() } : a
-      );
-      saveBlogArticles(updatedArticles);
-    }, 2000);
-
     const updatedArticles = blogArticles.map(a =>
       a.id === id ? { ...a, ...updates } : a
     );
-    saveBlogArticles(updatedArticles);
+    // Update local state immediately for responsive UI
+    setBlogArticles(updatedArticles);
+    localStorage.setItem('blogArticles', JSON.stringify(updatedArticles));
 
-    if (!updates.hasOwnProperty('lastEdited')) {
-      debouncedUpdateBlogLastEdited(id);
+    // Debounce the actual save (disk + network broadcast) to avoid spam
+    if (!debouncedSaveBlogRef.current) {
+      debouncedSaveBlogRef.current = debounce((latestArticles) => {
+        saveBlogArticles(latestArticles);
+      }, 800);
     }
+    const articlesWithTimestamp = updatedArticles.map(a =>
+      a.id === id ? { ...a, lastEdited: Date.now() } : a
+    );
+    debouncedSaveBlogRef.current(articlesWithTimestamp);
   };
 
   return {

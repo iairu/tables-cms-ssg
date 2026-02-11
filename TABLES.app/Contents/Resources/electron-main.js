@@ -712,43 +712,70 @@ const startGatsby = () => {
         }
       }
 
-      log(`Running gatsby develop with ${packageManager.name}...`);
-      const command = packageManager.name === 'npm' ? nodePath : packageManager.path;
-      // Pass the port explicitly via CLI arguments to force Gatsby to use it
-      // npm needs '--' to pass args to the script
-      const finalArgs = packageManager.name === 'npm'
-        ? [packageManager.path, 'run', 'develop', '--', '-p', GATSBY_PORT.toString()]
-        : ['run', 'develop', '--', '-p', GATSBY_PORT.toString()];
+      // =====================================================================
+      // Phase 1: Gatsby Build (skip if public/ already exists)
+      // =====================================================================
+      const publicDir = path.join(cmsSiteDir, 'public');
+      const hasExistingBuild = fs.existsSync(publicDir) &&
+        fs.existsSync(path.join(publicDir, 'index.html'));
 
-      log(`Gatsby command: ${command} ${finalArgs.join(' ')}`);
+      if (hasExistingBuild) {
+        log('Existing build found in public/, skipping gatsby build for fast startup.');
+      } else {
+        log(`Running gatsby build with ${packageManager.name}...`);
+        try {
+          await runPkgCommand(['run', 'build'], { nodeEnv: 'production' });
+          log('Gatsby build completed successfully.');
+        } catch (buildError) {
+          log(`Gatsby build failed: ${buildError.message}`);
+          log('Attempting to clean cache and retry...');
+          // Clean .cache and retry once
+          const cacheDir = path.join(cmsSiteDir, '.cache');
+          if (fs.existsSync(cacheDir)) {
+            fs.rmSync(cacheDir, { recursive: true, force: true });
+            log('Cleared .cache directory.');
+          }
+          try {
+            await runPkgCommand(['run', 'build'], { nodeEnv: 'production' });
+            log('Gatsby build succeeded on retry.');
+          } catch (retryError) {
+            log(`Gatsby build retry also failed: ${retryError.message}`);
+            log('\n💡 Build failed. Entering console mode for manual debugging.');
+            throw buildError;
+          }
+        }
+      }
 
-      // Use explicit environment to force color output and proper TTY behavior
-      const gatsbyEnv = {
+      // =====================================================================
+      // Phase 2: Start Express server (server.js) — near-instant startup
+      // =====================================================================
+      log('Starting CMS server (server.js)...');
+      const command = nodePath;
+      const serverScriptPath = path.join(cmsSiteDir, 'server.js');
+      const finalArgs = [serverScriptPath];
+
+      log(`Server command: ${command} ${finalArgs.join(' ')}`);
+
+      const serverEnv = {
         ...process.env,
-        FORCE_COLOR: '1',
-        CI: 'false',
-        // Ensure Gatsby doesn't wait for stdin
-        GATSBY_TELEMETRY_DISABLED: '1',
-        GATSBY_LOGGER_LOG_LEVEL: 'error',
-        PATH: process.env.PATH, // Ensure PATH includes our node/npm
-        PORT: GATSBY_PORT.toString(), // Set port for Gatsby (env backup)
-        // Set specific host to match our check
-        HOST: '127.0.0.1'
+        PORT: GATSBY_PORT.toString(),
+        PATH: process.env.PATH,
+        NODE_ENV: 'production',
+        GATSBY_TELEMETRY_DISABLED: '1'
       };
 
       gatsbyProcess = spawn(command, finalArgs, {
         cwd: cmsSiteDir,
-        env: gatsbyEnv,
-        stdio: ['ignore', 'pipe', 'pipe'] // Ignore stdin, pipe stdout/stderr
+        env: serverEnv,
+        stdio: ['ignore', 'pipe', 'pipe']
       });
 
       let serverReady = false;
-      let readyTimeout;
 
       gatsbyProcess.on('error', (error) => {
-        log(`Failed to start Gatsby process: ${error.message}`);
+        log(`Failed to start CMS server: ${error.message}`);
         if (!serverReady) {
-          reject(new Error(`Failed to start Gatsby: ${error.message}`));
+          reject(new Error(`Failed to start CMS server: ${error.message}`));
         }
       });
 
@@ -761,58 +788,13 @@ const startGatsby = () => {
           io.emit('build-log-chunk', output);
         }
 
-        // Fallback: if we see "write out requires" (one of the last steps before server start),
-        // start checking the port
-        if (!serverReady && output.includes('write out requires')) {
-          log('Detected final build step, checking if server is starting...');
-          clearTimeout(readyTimeout);
-
-          // Start polling the port to see when Gatsby server actually starts
-          const pollPort = async () => {
-            log(`Waiting for Gatsby server on port ${GATSBY_PORT}...`);
-            // Check every 100ms, up to 600 times (1 minute)
-            const isReady = await waitForPort(GATSBY_PORT, 'localhost', 600, 100);
-
-            if (isReady) {
-              log(`Gatsby development server is ready and accessible on port ${GATSBY_PORT}.`);
-              serverReady = true;
-              resolve();
-            } else {
-              log('Warning: Port 8000 did not become available within expected time.');
-              log('The server might still be starting. Will continue waiting...');
-              log('The server might still be starting. Will continue waiting...');
-              // Try one more time with extended timeout (check every 500ms)
-              const isReadyExtended = await waitForPort(GATSBY_PORT, 'localhost', 120, 500);
-              if (isReadyExtended) {
-                log('Gatsby development server is now ready.');
-                serverReady = true;
-                resolve();
-              } else {
-                log(`Error: Gatsby server failed to start on port ${GATSBY_PORT}.`);
-                reject(new Error('Gatsby server did not start within expected time'));
-              }
-            }
-          };
-
-          pollPort().catch(err => {
-            log(`Error while waiting for Gatsby server: ${err.message}`);
-            if (!serverReady) {
-              reject(err);
-            }
-          });
-        }
-
-        // Also check for direct indicators that server is ready
-        if (!serverReady && (
-          output.includes('You can now view') ||
-          output.match(new RegExp(`Local:\\s+http://localhost:${GATSBY_PORT}`))
-        )) {
-          log('Detected server ready message in output, verifying port...');
+        // Detect Express server ready message
+        if (!serverReady && output.includes('[CMS Server] Running on')) {
+          log('CMS server is starting, verifying port...');
           checkPort(GATSBY_PORT).then(isOpen => {
             if (isOpen && !serverReady) {
               serverReady = true;
-              clearTimeout(readyTimeout);
-              log('Gatsby development server is ready (confirmed via output and port check).');
+              log(`CMS server is ready on port ${GATSBY_PORT}.`);
               resolve();
             }
           });
@@ -822,11 +804,27 @@ const startGatsby = () => {
       gatsbyProcess.stdout.on('data', checkOutput);
       gatsbyProcess.stderr.on('data', checkOutput);
 
+      // Fallback: poll the port in case we miss the log message
+      const pollFallback = async () => {
+        await new Promise(r => setTimeout(r, 500));
+        if (!serverReady) {
+          log(`Polling port ${GATSBY_PORT} as fallback...`);
+          const isReady = await waitForPort(GATSBY_PORT, 'localhost', 30, 500);
+          if (isReady && !serverReady) {
+            serverReady = true;
+            log(`CMS server is ready on port ${GATSBY_PORT} (detected via polling).`);
+            resolve();
+          }
+        }
+      };
+      pollFallback().catch(err => {
+        log(`Port polling error: ${err.message}`);
+      });
+
       gatsbyProcess.on('close', (code) => {
-        clearTimeout(readyTimeout);
         if (!serverReady && code !== 0) {
-          log(`Gatsby process exited unexpectedly with code ${code}`);
-          reject(new Error(`Gatsby process exited with code ${code}`));
+          log(`CMS server exited unexpectedly with code ${code}`);
+          reject(new Error(`CMS server exited with code ${code}`));
         }
       });
     } catch (error) {
@@ -1098,6 +1096,9 @@ const startServer = (port) => {
         log(`Host registered: ${socket.id}`);
       }
       io.emit('client-list-update', Array.from(connectedClients.values()));
+      // Broadcast to other clients (especially the host) so they can send full state
+      socket.broadcast.emit('client-joined', { id: socket.id, name: clientInfo.name || 'Anonymous' });
+      log(`Client registered: ${socket.id} (${clientInfo.name || 'Anonymous'})`);
     });
 
     // Handle Build Requests
@@ -1220,6 +1221,8 @@ const startServer = (port) => {
         log('Host disconnected.');
       }
       io.emit('client-list-update', Array.from(connectedClients.values()));
+      // Notify clients so they can remove the disconnected user from their UI
+      io.emit('client-left', socket.id);
 
       let locksRemoved = false;
       for (const [fieldId, lock] of activeLocks.entries()) {

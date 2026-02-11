@@ -1,0 +1,34 @@
+[
+  {
+    "id": "1770806262503",
+    "title": "Homepage",
+    "slug": "home",
+    "rows": [],
+    "history": [],
+    "lastEdited": 1770806262503,
+    "includeInMenu": true,
+    "navigationDropdown": "none",
+    "themeVersion": "auto",
+    "enforcedTheme": "",
+    "metaDescription": "",
+    "buttonLinkColor": "",
+    "sitemapPriority": 0.5,
+    "translations": {}
+  },
+  {
+    "id": "1770807287691",
+    "title": "New Page",
+    "slug": "new-page-1770807287691",
+    "rows": [],
+    "history": [],
+    "lastEdited": 1770807287691,
+    "includeInMenu": false,
+    "navigationDropdown": "none",
+    "themeVersion": "auto",
+    "enforcedTheme": "",
+    "metaDescription": "",
+    "buttonLinkColor": "",
+    "sitemapPriority": 0.5,
+    "translations": {}
+  }
+]

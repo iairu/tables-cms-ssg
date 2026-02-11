@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { fuzzyMatch } from './utils';
 
-const FuzzySearchDropdown = ({ options, value, onChange, placeholder }) => {
+const FuzzySearchDropdown = ({ options, value, onChange, placeholder, onFocus, onBlur, disabled, style }) => {
   const [inputValue, setInputValue] = useState(value);
   const [showOptions, setShowOptions] = useState(false);
   const [filteredOptions, setFilteredOptions] = useState([]);
@@ -58,13 +58,20 @@ const FuzzySearchDropdown = ({ options, value, onChange, placeholder }) => {
         type="text"
         value={inputValue}
         onChange={handleInputChange}
-        onFocus={() => setShowOptions(true)}
+        onFocus={(e) => {
+          setShowOptions(true);
+          if (onFocus) onFocus(e);
+        }}
+        onBlur={(e) => {
+          if (onBlur) onBlur(e);
+        }}
+        disabled={disabled}
         placeholder={placeholder}
         style={{
           width: '100%',
           padding: '10px',
-          
-          border: '1px solid #cbd5e1'
+          border: '1px solid #cbd5e1',
+          ...(style || {})
         }}
       />
       {showOptions && (
@@ -79,7 +86,7 @@ const FuzzySearchDropdown = ({ options, value, onChange, placeholder }) => {
             overflowY: 'auto',
             backgroundColor: 'white',
             border: '1px solid #e2e8f0',
-            
+
             listStyle: 'none',
             padding: 0,
             margin: 0,

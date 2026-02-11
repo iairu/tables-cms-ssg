@@ -1,0 +1,28 @@
+[
+  {
+    "fullName": "",
+    "email": "",
+    "phone": "",
+    "contactType": "",
+    "company": "",
+    "address": "",
+    "city": "",
+    "state": "",
+    "zipCode": "",
+    "country": "",
+    "dateAdded": "2026-02-11",
+    "preferredContact": "",
+    "status": "",
+    "notes": "",
+    "reservationHistory": "",
+    "totalReservations": "",
+    "lastReservationDate": "",
+    "creditScore": "",
+    "paymentMethod": "",
+    "emergencyContact": "",
+    "emergencyPhone": "",
+    "identificationNumber": "",
+    "dateOfBirth": "",
+    "preferences": ""
+  }
+]

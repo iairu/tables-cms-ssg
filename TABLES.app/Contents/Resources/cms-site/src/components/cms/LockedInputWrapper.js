@@ -50,6 +50,14 @@ const LockedInputWrapper = ({ fieldId, children, cmsData }) => {
                     handleBlur();
                     if (child.props.onBlur) child.props.onBlur(e);
                 },
+                onChange: (e) => {
+                    // For <select> elements: request lock on change if not already held
+                    // (select onChange may fire before onFocus on some browsers)
+                    if (isConnected && !isLockedByMe && !isLockedByOther) {
+                        requestLock(fieldId);
+                    }
+                    if (child.props.onChange) child.props.onChange(e);
+                },
                 disabled: isLockedByOther || child.props.disabled, // Allow editing if disconnected (offline/standalone mode)
                 style: {
                     ...child.props.style,

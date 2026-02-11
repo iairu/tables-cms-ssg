@@ -8,14 +8,17 @@ const executeButton = document.getElementById('execute-button');
 let consoleMode = false;
 let startupCompleted = false;
 
-// More granular progress stages based on actual Gatsby startup sequence
+// More granular progress stages based on Gatsby build + Express server sequence
 const progressStages = [
   { key: 'Binaries already present', progress: 2, status: 'Validating binaries...' },
   { key: 'Binaries validated successfully', progress: 5, status: 'Environment ready.' },
   { key: 'Running npm install', progress: 8, status: 'Installing dependencies (this may take a long time)...' },
   { key: 'audited', progress: 15, status: 'Dependencies verified.' },
   { key: 'npm install completed', progress: 18, status: 'Dependencies ready.' },
-  { key: 'Running gatsby develop', progress: 20, status: 'Starting Gatsby...' },
+  // Fast path: existing build found
+  { key: 'Existing build found', progress: 85, status: 'Cached build found, skipping rebuild!' },
+  // Build path: gatsby build stages
+  { key: 'Running gatsby build', progress: 20, status: 'Building site...' },
   { key: 'success compile gatsby files', progress: 25, status: 'Compiling Gatsby files...' },
   { key: 'success load gatsby config', progress: 28, status: 'Loading configuration...' },
   { key: 'success load plugins', progress: 32, status: 'Loading plugins...' },
@@ -25,22 +28,19 @@ const progressStages = [
   { key: 'success Compiling Gatsby Functions', progress: 46, status: 'Compiling functions...' },
   { key: 'success onPreBootstrap', progress: 50, status: 'Pre-bootstrapping...' },
   { key: 'success createSchemaCustomization', progress: 54, status: 'Creating schema...' },
-  { key: 'success Clean up stale nodes', progress: 57, status: 'Cleaning up nodes...' },
-  { key: 'success Checking for changed pages', progress: 60, status: 'Checking pages...' },
-  { key: 'success source and transform nodes', progress: 63, status: 'Transforming nodes...' },
-  { key: 'success building schema', progress: 66, status: 'Building schema...' },
-  { key: 'success createPages', progress: 69, status: 'Creating pages...' },
-  { key: 'success createPagesStatefully', progress: 72, status: 'Creating pages statefully...' },
-  { key: 'success write out redirect data', progress: 75, status: 'Writing redirects...' },
-  { key: 'success onPostBootstrap', progress: 78, status: 'Post-bootstrapping...' },
-  { key: 'bootstrap finished', progress: 81, status: 'Bootstrap complete.' },
-  { key: 'success onPreExtractQueries', progress: 84, status: 'Preparing query extraction...' },
-  { key: 'success extract queries from components', progress: 87, status: 'Extracting queries...' },
-  { key: 'success write out requires', progress: 90, status: 'Writing requirements...' },
-  { key: 'Detected final build step', progress: 92, status: 'Starting development server...' },
-  { key: 'Waiting for Gatsby server', progress: 93, status: 'Waiting for server...' },
-  { key: 'Gatsby development server is ready', progress: 95, status: 'Server ready!' },
-  { key: 'You can now view', progress: 96, status: 'Application ready!' }
+  { key: 'success source and transform nodes', progress: 58, status: 'Transforming nodes...' },
+  { key: 'success building schema', progress: 62, status: 'Building schema...' },
+  { key: 'success createPages', progress: 66, status: 'Creating pages...' },
+  { key: 'success extract queries from components', progress: 70, status: 'Extracting queries...' },
+  { key: 'success write out requires', progress: 74, status: 'Writing requirements...' },
+  { key: 'Building production JavaScript', progress: 78, status: 'Building production bundle...' },
+  { key: 'Building HTML renderer', progress: 82, status: 'Building HTML renderer...' },
+  { key: 'Building static HTML', progress: 85, status: 'Generating static HTML...' },
+  { key: 'Gatsby build completed', progress: 88, status: 'Build complete!' },
+  // Server start (both paths converge here)
+  { key: 'Starting CMS server', progress: 90, status: 'Starting CMS server...' },
+  { key: '[CMS Server] Running on', progress: 95, status: 'Server ready!' },
+  { key: 'CMS server is ready', progress: 96, status: 'Application ready!' }
 ];
 
 let currentProgress = 0;
@@ -54,9 +54,9 @@ const startProgressAnimation = (target) => {
   if (progressInterval) {
     clearInterval(progressInterval);
   }
-  
+
   const increment = (targetProgress - currentProgress) / 50; // Smooth over ~5 seconds
-  
+
   progressInterval = setInterval(() => {
     if (currentProgress < targetProgress) {
       currentProgress += Math.max(increment, 0.5);
@@ -89,7 +89,7 @@ window.electron.onConsoleOutput((msg) => {
   }
 
   // Check for completion signal
-  if (msg.includes('BUILD_END') || msg.includes('Writing page-data.json files to public directory') || msg.includes('Gatsby development server is ready') || msg.includes('You can now view')) {
+  if (msg.includes('BUILD_END') || msg.includes('CMS server is ready') || msg.includes('[CMS Server] Running on')) {
     if (progressInterval) {
       clearInterval(progressInterval);
     }
@@ -105,13 +105,13 @@ window.electron.onConsoleOutput((msg) => {
   // Match progress stages
   for (let i = 0; i < progressStages.length; i++) {
     const stage = progressStages[i];
-    
+
     // Only process stages we haven't seen yet
     if (i > lastStageIndex && msg.toLowerCase().includes(stage.key.toLowerCase())) {
       lastStageIndex = i;
       statusText.textContent = stage.status;
       startProgressAnimation(stage.progress);
-      
+
       // Update color as we progress
       if (stage.progress < 50) {
         progressBar.style.background = '#007bff';
@@ -120,11 +120,11 @@ window.electron.onConsoleOutput((msg) => {
       } else {
         progressBar.style.background = '#007bff';
       }
-      
+
       break;
     }
   }
-  
+
   // Fallback: if we haven't made progress in a while, slowly increment
   if (!progressInterval && currentProgress < 90 && currentProgress < targetProgress - 1) {
     startProgressAnimation(currentProgress + 2);
@@ -176,11 +176,11 @@ const executeCommand = () => {
     const timestamp = new Date().toLocaleTimeString();
     output.innerHTML += `<span style="color: #5ac8fa;">[${timestamp}] $ ${command}</span>\n`;
     output.scrollTop = output.scrollHeight;
-    
+
     // Execute command
     window.electron.runCommand(command);
     commandInput.value = '';
-    
+
     // Show helpful suggestions based on command
     if (command === 'help') {
       showConsoleHelp();

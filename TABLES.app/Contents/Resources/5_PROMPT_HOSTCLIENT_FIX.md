@@ -18,3 +18,21 @@ also the client mode connection does not keep showing up as connected when i nav
 
 
 following problems exist on both ends since we started working on collaboration servers and clients: edit button in page actions no longer works, currently edited page title gets properly propagated across clients, currently enabled extensions do get propagated within extensions page, but do not update sidemenu accordingly, uploading new assets no longer works, added pages have disappeared after server termination (changes are not being properly saved into server local storage), all fields are disabled in new blog article, edit button doesn't work for blog articles either
+
+---
+
+on "Saved content type 'extensions' to disk" make the SideMenu refresh
+add a slight delay on Page edits so that "Saved content type 'pages' to disk" is not spammed
+on page edit instead of fields becoming temporarily disabled i get "Could not edit field. It is currently locked by undefined" alert which i can not get out of as it retriggers because i am still in the same field
+"select customer" and "responsible employee" in ReservationsSection do not get synced across server clients, "item name" does get synced
+look for all other fields that do not get synced and make sure they sync (including disabled attribute while lock active by another client)
+
+---
+
+adjust 
+release.yml
+ so that it builds gatsby, so that the artifact will include prebuilt files including node_modules necessary for gatsby serve to work, this way we want to avoid building within distributed app
+
+---
+
+PageGroupsSection group name does not have locking, same for select sire and select dam in expand Pedigree, when a client connects to a server make the client localStorage contents be replaced with server as initial sync of all data so that both have the same data and no leftovers from before connecting to the server, sidemenu is still not refreshing when i press disable/enable in ExtensionsView

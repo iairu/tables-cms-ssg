@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { fuzzyMatch } from '../utils';
+import LockedInputWrapper from '../LockedInputWrapper';
 
 const PageGroupsSection = ({ cmsData }) => {
   const { pageGroups, savePageGroups, pages, settings } = cmsData;
@@ -31,38 +32,38 @@ const PageGroupsSection = ({ cmsData }) => {
 
   const getLocalizedGroupName = (group, lang) => {
     if (group.id === 'direct-pages') {
-        return 'Direct pages';
+      return 'Direct pages';
     }
     if (lang === settings?.defaultLang) {
-        return group.name || '';
+      return group.name || '';
     }
     return group.translations?.[lang]?.name || '';
   };
 
   const handleUpdateGroupName = (groupId, lang, newName) => {
     const updatedGroups = pageGroups.map(group => {
-        if (group.id !== groupId) {
-            return group;
-        }
+      if (group.id !== groupId) {
+        return group;
+      }
 
-        const newGroup = { ...group };
-        if (lang === settings?.defaultLang) {
-            newGroup.name = newName;
-        } else {
-            newGroup.translations = {
-                ...(group.translations || {}),
-                [lang]: {
-                    name: newName,
-                },
-            };
-        }
+      const newGroup = { ...group };
+      if (lang === settings?.defaultLang) {
+        newGroup.name = newName;
+      } else {
+        newGroup.translations = {
+          ...(group.translations || {}),
+          [lang]: {
+            name: newName,
+          },
+        };
+      }
 
-        // Ensure default language is not in translations
-        if (newGroup.translations && (settings?.defaultLang in newGroup.translations)) {
-            delete newGroup.translations[settings.defaultLang];
-        }
+      // Ensure default language is not in translations
+      if (newGroup.translations && (settings?.defaultLang in newGroup.translations)) {
+        delete newGroup.translations[settings.defaultLang];
+      }
 
-        return newGroup;
+      return newGroup;
     });
     savePageGroups(updatedGroups);
   };
@@ -110,13 +111,15 @@ const PageGroupsSection = ({ cmsData }) => {
               <tr key={group.id}>
                 {(settings?.languages || [{ code: 'en', name: 'English' }]).map(lang => (
                   <td key={lang.code}>
-                    <input
-                      type="text"
-                      value={getLocalizedGroupName(group, lang.code)}
-                      onChange={(e) => handleUpdateGroupName(group.id, lang.code, e.target.value)}
-                      disabled={group.id === 'direct-pages'}
-                      style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', backgroundColor: group.id === 'direct-pages' ? '#f0f0f0' : 'white' }}
-                    />
+                    <LockedInputWrapper fieldId={`pagegroup-${group.id}-name-${lang.code}`} cmsData={cmsData}>
+                      <input
+                        type="text"
+                        value={getLocalizedGroupName(group, lang.code)}
+                        onChange={(e) => handleUpdateGroupName(group.id, lang.code, e.target.value)}
+                        disabled={group.id === 'direct-pages'}
+                        style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', backgroundColor: group.id === 'direct-pages' ? '#f0f0f0' : 'white' }}
+                      />
+                    </LockedInputWrapper>
                   </td>
                 ))}
                 <td style={{ textAlign: 'center' }}>{group.pageIds.length}</td>

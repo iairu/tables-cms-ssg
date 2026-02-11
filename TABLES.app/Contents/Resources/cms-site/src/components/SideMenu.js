@@ -1,6 +1,5 @@
-import React, { useState, memo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'gatsby';
-import useCMSData from '../hooks/useCMSData';
 
 const pathFromSection = {
   pages: 'pages',
@@ -21,10 +20,27 @@ const pathFromSection = {
 
 
 
-const SideMenu = memo(({ currentSection, isBuilding, lastSaved, onBuildClick, canBuild, buildCooldownSeconds, domain, vercelApiKey }) => {
+const SideMenu = ({ currentSection, isBuilding, lastSaved, onBuildClick, canBuild, buildCooldownSeconds, domain, vercelApiKey }) => {
   const [isRentalSubMenuOpen, setIsRentalSubMenuOpen] = useState(false);
-  const { extensions } = useCMSData();
-  console.log('[SideMenu] Extensions:', extensions);
+
+  // Read extensions directly from localStorage and listen for updates.
+  // useCMSData() is a hook (not context) — each caller gets independent state,
+  // so SideMenu's copy never saw updates from ExtensionsSection.
+  const getExtensions = () => {
+    try { return JSON.parse(localStorage.getItem('extensions') || '{}'); }
+    catch { return {}; }
+  };
+  const [extensions, setExtensions] = useState(getExtensions);
+
+  useEffect(() => {
+    const update = () => setExtensions(getExtensions());
+    window.addEventListener('storage', update);
+    window.addEventListener('extensions-updated', update);
+    return () => {
+      window.removeEventListener('storage', update);
+      window.removeEventListener('extensions-updated', update);
+    };
+  }, []);
 
   const handleBuildClick = (e, localOnly = false) => {
     e.preventDefault();
@@ -219,6 +235,6 @@ const SideMenu = memo(({ currentSection, isBuilding, lastSaved, onBuildClick, ca
       `}</style>
     </aside>
   );
-});
+};
 
 export default SideMenu;

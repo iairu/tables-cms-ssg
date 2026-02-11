@@ -35,6 +35,12 @@
       "path": "/cms/inventory/"
     },
     {
+      "path": "/cms/movietracker/"
+    },
+    {
+      "path": "/cms/page-groups/"
+    },
+    {
       "path": "/cms/pages/edit/"
     },
     {
@@ -42,6 +48,9 @@
     },
     {
       "path": "/cms/pedigree/"
+    },
+    {
+      "path": "/cms/personal/"
     },
     {
       "path": "/cms/reservations/"
