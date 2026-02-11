@@ -69,8 +69,20 @@ jobs:
         run: |
           chmod +x "TABLES.app/Contents/MacOS/TABLES"
           chmod +x "TABLES.app/Contents/Resources/start.sh"
+          chmod +x "TABLES.app/Contents/Resources/clean.sh"
 
-      - name: 3. Create DMG (${{ matrix.arch }})
+      - name: 3. Install Electron Dependencies
+        run: |
+          cd TABLES.app/Contents/Resources
+          npm install --production
+
+      - name: 4. Install CMS Dependencies & Build Gatsby
+        run: |
+          cd TABLES.app/Contents/Resources/cms-site
+          npm install
+          npx gatsby build
+
+      - name: 5. Create DMG (${{ matrix.arch }})
         run: |
           brew install create-dmg
           
@@ -86,7 +98,7 @@ jobs:
             "TABLES-v${{ github.run_number }}-${{ matrix.arch }}.dmg" \
             "TABLES.app"
 
-      - name: 4. Upload to GitHub Release
+      - name: 6. Upload to GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v.${{ github.run_number }}
